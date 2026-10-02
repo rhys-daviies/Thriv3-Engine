@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { SPORTS } from '@/lib/sports';
 import { normalizeDivision, STARTER_MINUTES_THRESHOLD, PROJECTED_STARTER_MINUTES, POSITION_PILL_VARIANT, CURRENT_ROSTER_SEASON, ROSTER_SEASON_IN_PROGRESS } from '@/lib/divisions';
-import { entities, functions } from '@/api/client';
+import { entities, functions, playerHistory } from '@/api/client';
 
 const DIVISION_ORDER = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA', 'Other'];
 const DIVISION_TAB_LABEL = { 'NCAA D1': 'D1', 'NCAA D2': 'D2', 'NCAA D3': 'D3', NAIA: 'NAIA', NJCAA: 'NJCAA', Other: 'Other' };
@@ -19,7 +19,7 @@ function majorityConfidence(rows) {
 }
 
 /** New model: one row per rostered player, tagged with their own estimated_graduation_year. */
-function RosterSchoolRow({ collegeName, players, rank }) {
+function RosterSchoolRow({ collegeName, players, rank, possibleBy }) {
   const [expanded, setExpanded] = useState(false);
   const counts = { GOALKEEPER: 0, DEFENSE: 0, MIDFIELD: 0, FORWARD: 0 };
   for (const p of players) if (counts[p.position] !== undefined) counts[p.position]++;
@@ -52,7 +52,7 @@ function RosterSchoolRow({ collegeName, players, rank }) {
               <span className="flex-1">{p.player_name}</span>
               {p.class_year_label && <span className="text-muted-foreground">{p.class_year_label}</span>}
               <MinutesCell minutes={p.minutes_played} projected={p.projected_minutes} projectedSeason={p.projected_minutes_season}
-                            priorProgramme={p.prior_programme} school={p.college_name} />
+                            priorProgramme={p.prior_programme} school={p.college_name} possible={possibleBy?.get(p.id)} />
             </div>
           ))}
         </div>
@@ -70,7 +70,7 @@ function legacyPositionCounts(record) {
   return counts;
 }
 
-function LegacySchoolRow({ college, record, rank }) {
+function LegacySchoolRow({ college, record, rank, possibleBy }) {
   const [expanded, setExpanded] = useState(false);
   const isStale = record && (record.total_graduating_seniors || 0) > 0 && (record.players || []).length === 0;
   const counts = record ? legacyPositionCounts(record) : { GOALKEEPER: 0, DEFENSE: 0, MIDFIELD: 0, FORWARD: 0 };
@@ -101,7 +101,7 @@ function LegacySchoolRow({ college, record, rank }) {
               <Badge variant={POSITION_PILL_VARIANT[p.position] || 'muted'}>{(p.position || 'UNK').slice(0, 3)}</Badge>
               <span className="flex-1">{p.name}</span>
               <MinutesCell minutes={p.minutes_played} projected={p.projected_minutes} projectedSeason={p.projected_minutes_season}
-                            priorProgramme={p.prior_programme} school={p.college_name} />
+                            priorProgramme={p.prior_programme} school={p.college_name} possible={possibleBy?.get(p.id)} />
             </div>
           ))}
         </div>
@@ -123,7 +123,7 @@ function LegacySchoolRow({ college, record, rank }) {
  * emailing a coach needs to know which numbers are evidence and which are an
  * inference — a coach's roster has visibly changed since last season.
  */
-function MinutesCell({ minutes, projected, projectedSeason, priorProgramme, school }) {
+function MinutesCell({ minutes, projected, projectedSeason, priorProgramme, school, possible }) {
   if (minutes != null) {
     const starter = minutes >= STARTER_MINUTES_THRESHOLD;
     return (
@@ -154,18 +154,27 @@ function MinutesCell({ minutes, projected, projectedSeason, priorProgramme, scho
   // minutes earned at another programme predict a starting place here only
   // 54.9% of the time, against 77.4% for a player who stayed, so they are
   // recorded as provenance and never carried forward.
+  //
+  // Phase 8B.1A: priorProgramme is a VERIFIED origin only — the destination
+  // roster named the previous school, or name + hometown + class progression
+  // agreed with nothing against. A same-name player elsewhere last season is a
+  // POSSIBLE transfer: shown, labelled unverified, never called a transfer.
   const transferred = priorProgramme && priorProgramme !== school;
   const title = transferred
-    ? `Transferred in from ${priorProgramme}. Their ${priorProgramme} minutes are not carried forward — `
+    ? `Verified transfer from ${priorProgramme}. Their ${priorProgramme} minutes are not carried forward — `
       + 'a figure earned at another programme is a much weaker guide to starting here (about 55% reliable, '
       + 'against 77% for a player who stayed), so starter status is unknown.'
     : priorProgramme
       ? `On this roster last season too, but that page published no minutes, so starter status is unknown.`
-      : `Not on any ${Number(CURRENT_ROSTER_SEASON) - 1} roster — new to college soccer, or their previous programme `
-        + 'was not captured. Starter status is unknown.';
+      : possible
+        ? `Possible transfer, NOT verified: a player with this name was at ${possible.from_programme} last season, `
+          + 'but the evidence does not establish that it is the same person, so it is not counted as a transfer. '
+          + 'Starter status is unknown.'
+        : `Not on any ${Number(CURRENT_ROSTER_SEASON) - 1} roster — new to college soccer, or their previous programme `
+          + 'was not captured. Starter status is unknown.';
   return (
     <span className="text-muted-foreground/50 italic w-24 text-right" title={title}>
-      {transferred ? 'transfer' : '— min'}
+      {transferred ? 'transfer' : possible ? 'possible?' : '— min'}
     </span>
   );
 }
@@ -175,6 +184,7 @@ export default function GraduatingDatabase() {
   const [colleges, setColleges] = useState([]);
   const [records, setRecords] = useState([]);
   const [rosterRows, setRosterRows] = useState([]);
+  const [possibleBy, setPossibleBy] = useState(new Map());
   const [division, setDivision] = useState(null);
   const [year, setYear] = useState(null);
   const [researching, setResearching] = useState(false);
@@ -190,6 +200,10 @@ export default function GraduatingDatabase() {
     setColleges(sortedColleges);
     setRecords([...r].sort((a, b) => new Date(b.updated_date) - new Date(a.updated_date)));
     setRosterRows(rp);
+    // unverified origins, labelled; a failure here only hides the label
+    playerHistory.possibleTransfers(CURRENT_ROSTER_SEASON, sport)
+      .then((r) => setPossibleBy(new Map((r?.links || []).filter((l) => l.decision === 'PROBABLE_SAME_PERSON').map((l) => [l.to_observation_id, l]))))
+      .catch(() => setPossibleBy(new Map()));
   }
 
   useEffect(() => { load(); setDivision(null); setYear(null); }, [sport]);
@@ -355,7 +369,7 @@ export default function GraduatingDatabase() {
 
           <div className="rounded-xl border border-border">
             {schoolsForDivision.map((s, idx) => (
-              <RosterSchoolRow key={s.collegeName} collegeName={s.collegeName} players={s.players} rank={idx + 1} />
+              <RosterSchoolRow key={s.collegeName} collegeName={s.collegeName} players={s.players} rank={idx + 1} possibleBy={possibleBy} />
             ))}
             {schoolsForDivision.length === 0 && <p className="p-6 text-sm text-muted-foreground text-center">No schools in this division yet.</p>}
           </div>
@@ -390,7 +404,7 @@ export default function GraduatingDatabase() {
 
           <div className="rounded-xl border border-border">
             {legacyVisible.map((c, idx) => (
-              <LegacySchoolRow key={c.id} college={c} record={recordMap[c.name]} rank={idx + 1} />
+              <LegacySchoolRow key={c.id} college={c} record={recordMap[c.name]} rank={idx + 1} possibleBy={possibleBy} />
             ))}
             {legacyVisible.length === 0 && <p className="p-6 text-sm text-muted-foreground text-center">No schools in this division yet.</p>}
           </div>

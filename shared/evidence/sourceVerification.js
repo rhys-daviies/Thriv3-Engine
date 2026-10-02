@@ -166,9 +166,11 @@ export function verifyRosterSource({
  *   an operator cannot reconstruct from the page: they would count everyone,
  *   including the players whose position we could not parse.
  *
- *   TRANSFER_BEHAVIOUR  `prior_programme` appears on some providers' pages
- *   and not others, so the link would prove the claim at some programmes and
- *   not at others with nothing to tell them apart.
+ *   TRANSFER_BEHAVIOUR  `prior_programme` is a VERIFIED origin (Phase 8B.1A)
+ *   but only some are proved by the page itself: a structured previous-school
+ *   field on some providers' pages, a hometown + class-progression match on
+ *   others. One link would prove the claim at some programmes and not at
+ *   others with nothing to tell them apart.
  */
 export const DIRECTLY_VERIFIABLE_KINDS = Object.freeze([
   'CURRENT_SAME_COUNTRY',

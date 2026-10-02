@@ -243,7 +243,7 @@ export function classifyRosterPage(page, ctx, { season, frozen = new Set() }) {
     }
     // new player-season
     const prev = prevBy.get(k) || [];
-    let cls = 'NEW_RECORD'; let review = 0;
+    let cls = 'NEW_RECORD'; const review = 0;
     if (prev.length === 1) {
       const a = classRank(prev[0].class_year_label); const z = classRank(p.class_year_label);
       if (a != null && z != null && z < a) { cls = 'IDENTITY_AMBIGUOUS'; notes.push(`same name on the ${tSeason - 1} roster as ${prev[0].class_year_label}, now ${p.class_year_label} — a class cannot go backwards; same-name collision or data error`); }
@@ -254,7 +254,11 @@ export function classifyRosterPage(page, ctx, { season, frozen = new Set() }) {
       }
     }
     if ((otherPrev.get(k) || []).length && !prev.length) notes.push(`TRANSFER CANDIDATE: same name on ${[...new Set(otherPrev.get(k).map((r) => r.college_name))].join(', ')} ${tSeason - 1} — not linked automatically`);
-    if ((otherCur.get(k) || []).length) { review = 1; notes.push(`same name on another ${tSeason} roster: ${[...new Set(otherCur.get(k).map((r) => r.college_name))].join(', ')}`); }
+    // Phase 8B.1A: a ROSTER OBSERVATION is factual for its own programme-season-source whatever
+    // another programme prints. A same name elsewhere is an identity question, and an uncertain
+    // identity never blocks storing a truthful observation — it is noted, nothing is linked, and
+    // any cross-programme claim is decided later in player_observation_links.
+    if ((otherCur.get(k) || []).length) notes.push(`SAME NAME ELSEWHERE THIS SEASON: ${[...new Set(otherCur.get(k).map((r) => r.college_name))].join(', ')} ${tSeason} — a separate observation; identity not linked`);
     const row = { college_name: rosterName, sport: page.sport, division: programme.division, season: String(tSeason), conference: programme.conference ?? null, player_name: p.player_name,
       class_year_label: p.class_year_label ?? null, position: p.position ?? null, nationality: p.nationality ?? null, hometown: p.hometown ?? null,
       source_roster_url: page.source_url, source_page_season: page.page_season ?? tSeason, source_fetched_at: page.fetched_at ?? null, source_parser: page.parser_version ?? null, data_confidence: 'High' };

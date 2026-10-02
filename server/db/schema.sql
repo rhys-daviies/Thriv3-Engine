@@ -1499,6 +1499,74 @@ CREATE TABLE IF NOT EXISTS athletics_source_locations (
 CREATE INDEX IF NOT EXISTS idx_asl_host ON athletics_source_locations(host);
 CREATE INDEX IF NOT EXISTS idx_asl_entity ON athletics_source_locations(athletics_entity_id);
 
+-- ===========================================================================
+-- PLAYER HISTORY IDENTITY (Phase 8B.1A) — an observation is not a person.
+--
+-- `roster_players` rows are ROSTER OBSERVATIONS: a name on programme P's official
+-- roster for season S. They are factual when the source is valid and never need a
+-- global person resolution. A claim that two observations are the same human (a
+-- transfer, a prior programme, a cross-school progression) is a separate thing with
+-- its own evidence, and lives here. `roster_players.prior_programme` is only a
+-- projection of the FACTUAL links below (VERIFIED_SAME_PERSON), written by
+-- `npm run project-minutes`; nothing else may set it.
+--
+-- player_prior_school_evidence — what an official roster page SAYS about where a
+-- player came from, verbatim, with the field type the markup declares. An
+-- observation of the source, not a decision. Never free-text bio prose.
+CREATE TABLE IF NOT EXISTS player_prior_school_evidence (
+  evidence_id TEXT PRIMARY KEY,           -- deterministic: observation|source_url|field_type
+  observation_id TEXT NOT NULL,           -- roster_players.id of the DESTINATION row
+  source_url TEXT NOT NULL,
+  observed_at TEXT,                       -- when the page was fetched
+  field_type TEXT NOT NULL,
+  raw_value TEXT NOT NULL,
+  resolution TEXT NOT NULL,               -- per-part kinds, '+'-joined (COLLEGE / HIGH_SCHOOL_OR_CLUB / ...)
+  resolved_programmes TEXT,               -- JSON array of canonical college_name the value resolves to
+  resolved_entity TEXT,                   -- athletics_entity_id when exactly one
+  evidence_strength TEXT NOT NULL,
+  parser_version TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  CHECK (field_type IN ('PREVIOUS_SCHOOL', 'HIGH_SCHOOL_OR_PREVIOUS_COMBINED', 'HOMETOWN_PREVIOUS_COMBINED')),
+  CHECK (evidence_strength IN ('STRUCTURED_COLLEGE', 'STRUCTURED_AMBIGUOUS', 'STRUCTURED_HIGH_SCHOOL', 'STRUCTURED_UNRESOLVED'))
+);
+CREATE INDEX IF NOT EXISTS idx_ppse_observation ON player_prior_school_evidence(observation_id);
+
+-- player_observation_links — one PAIRWISE identity claim and its decision.
+--   relation  SAME_PROGRAMME_CONTINUATION | CROSS_PROGRAMME_PRIOR | EXPLICIT_PRIOR_INSTITUTION
+--   decision  VERIFIED_SAME_PERSON (the ONLY factual one) | PROBABLE_SAME_PERSON (internal,
+--             review queue) | CANDIDATE | AMBIGUOUS | CONTRADICTED | DIFFERENT_PERSON
+-- A link never edits either observation. Deleting every row here loses no roster fact.
+CREATE TABLE IF NOT EXISTS player_observation_links (
+  link_id TEXT PRIMARY KEY,               -- deterministic: relation|to_observation|from_programme
+  relation TEXT NOT NULL,
+  to_observation_id TEXT NOT NULL,        -- roster_players.id, the later observation
+  from_observation_id TEXT,               -- roster_players.id, the earlier one (NULL: explicit institution, no prior observation on file)
+  sport TEXT NOT NULL,
+  to_programme TEXT NOT NULL,
+  to_season TEXT NOT NULL,
+  from_programme TEXT NOT NULL,
+  from_season TEXT,                       -- NULL when only an explicit previous school is known
+  decision TEXT NOT NULL,
+  evidence_class TEXT NOT NULL,
+  evidence_json TEXT NOT NULL,            -- the signals and the reasons, exactly as decided
+  evidence_id TEXT,                       -- player_prior_school_evidence row, when one was used
+  method TEXT NOT NULL,                   -- rule version, e.g. p8b1a-identity-1
+  reviewed_at TEXT,
+  reviewed_by TEXT,
+  review_note TEXT,
+  recorded_at TEXT NOT NULL,
+  CHECK (relation IN ('SAME_PROGRAMME_CONTINUATION', 'CROSS_PROGRAMME_PRIOR', 'EXPLICIT_PRIOR_INSTITUTION')),
+  CHECK (decision IN ('VERIFIED_SAME_PERSON', 'PROBABLE_SAME_PERSON', 'CANDIDATE', 'AMBIGUOUS', 'CONTRADICTED', 'DIFFERENT_PERSON')),
+  CHECK (relation <> 'EXPLICIT_PRIOR_INSTITUTION' OR evidence_id IS NOT NULL),
+  CHECK (relation = 'EXPLICIT_PRIOR_INSTITUTION' OR from_observation_id IS NOT NULL),
+  CHECK (decision <> 'VERIFIED_SAME_PERSON' OR evidence_class IN ('EXPLICIT_PRIOR_SCHOOL', 'MULTI_SIGNAL', 'REVIEWED', 'PROGRAMME_SCOPED')),
+  CHECK (evidence_class <> 'PROGRAMME_SCOPED' OR relation = 'SAME_PROGRAMME_CONTINUATION'),
+  CHECK (evidence_class <> 'REVIEWED' OR reviewed_at IS NOT NULL)
+);
+CREATE INDEX IF NOT EXISTS idx_pol_to ON player_observation_links(to_observation_id);
+CREATE INDEX IF NOT EXISTS idx_pol_from ON player_observation_links(from_observation_id);
+CREATE INDEX IF NOT EXISTS idx_pol_decision ON player_observation_links(sport, to_season, decision);
+
 -- programme_row_links — one programme, more than one colleges row, said explicitly.
 --
 -- Importers match exact `sport|name`, so a physical merge of two spellings is

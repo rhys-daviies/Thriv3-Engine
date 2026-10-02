@@ -349,8 +349,8 @@ describe('transfer behaviour is what the squad is made of', () => {
   const copy = pathwayCopyFor(transfer);
   const t = text(render('Clemson'));
 
-  it('counts current-squad players who came from elsewhere', () => {
-    expect(copy.headline).toBe(`${transfer.facts.arrivals} of ${transfer.facts.squadSize} came from another programme`);
+  it('counts current-squad players whose transfer is VERIFIED (Phase 8B.1A), and says so', () => {
+    expect(copy.headline).toBe(`${transfer.facts.arrivals} of ${transfer.facts.squadSize} are verified transfers from another programme`);
   });
 
   it('may say how many play this position, because one object states both', () => {

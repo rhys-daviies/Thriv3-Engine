@@ -41,11 +41,14 @@ describe('name keys', () => {
 });
 
 describe('same-name players are never merged', () => {
-  it('the same name on two programmes in one season: two independent observations, the second flagged for review', () => {
+  // Phase 8B.1A: an observation is not a person. The second programme's row is a factual
+  // observation of ITS roster; the shared name is an identity question, noted and never linked,
+  // and an uncertain identity never blocks storing a truthful observation.
+  it('the same name on two programmes in one season: two independent observations, neither linked, neither blocked', () => {
     const out = run(ctxPage([{ player_name: 'Jordan Lee', class_year_label: 'Fr.' }]), [row('x1', CUNE, 2027, 'Jordan Lee', 'So.')]);
     const o = out.find((x) => x.proposed_action === 'INSERT_ROSTER_ROW');
-    expect(o.classification).toBe('NEW_RECORD'); expect(o.requires_review).toBe(1);
-    expect(ev(o).notes.join(' ')).toMatch(/same name on another 2027 roster: Concordia \(NE\)/);
+    expect(o.classification).toBe('NEW_RECORD'); expect(o.requires_review).toBe(0);
+    expect(ev(o).notes.join(' ')).toMatch(/SAME NAME ELSEWHERE THIS SEASON: Concordia \(NE\) 2027 — a separate observation; identity not linked/);
     expect(out.some((x) => x.target_key === 'x1')).toBe(false); // the other programme's row is never a target
   });
   it('two players with the same name on ONE roster are ambiguous, not one person', () => {
@@ -112,13 +115,13 @@ describe('missing players (Part O): on the 2026 roster, absent from 2027', () =>
 });
 
 describe('roster promotion classification (what 8B.2 could do automatically)', () => {
-  it('only an unambiguous, review-free new player-season becomes a write; ambiguity / not-observed / same-name are never auto-written', () => {
+  it('only an unambiguous new player-season becomes a write; ambiguity / not-observed are never auto-written; a same name elsewhere does not block', () => {
     const roster = [row('amb', CTX, 2027, 'Smith, John', 'So.'), row('gone', CTX, 2026, 'Casey Keeper', 'So.'), row('elsewhere', CUNE, 2027, 'Jordan Lee', 'Jr.')];
     const out = run(ctxPage([{ player_name: 'Alex Keeper', class_year_label: 'Fr.' }, { player_name: 'John Smith', class_year_label: 'So.' }, { player_name: 'Jordan Lee', class_year_label: 'Fr.' }]), roster)
       .map((o, i) => ({ ...o, observation_id: `o${i}`, proposed_json: JSON.stringify(o.proposed_json ?? null), expected_old_json: JSON.stringify(o.expected_old_json ?? null) }));
     const plan = planPromotion({ batch: { batch_id: 'B' }, observations: out });
-    expect(plan.ops.map((x) => x.proposed.player_name)).toEqual(['Alex Keeper']);
-    expect(plan.refused.map((r) => r.why)).toEqual(['INSERT_ROSTER_ROW requires an APPROVED review']); // Jordan Lee: same name on another 2027 roster
+    expect(plan.ops.map((x) => x.proposed.player_name)).toEqual(['Alex Keeper', 'Jordan Lee']);
+    expect(plan.refused).toEqual([]); // Jordan Lee's same name at another programme is identity, not observation, uncertainty
     expect(plan.skipped.IDENTITY_AMBIGUOUS).toBe(1); expect(plan.skipped.DISAPPEARED_FROM_SOURCE).toBe(1);
   });
 });

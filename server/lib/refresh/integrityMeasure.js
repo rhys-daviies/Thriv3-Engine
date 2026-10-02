@@ -37,8 +37,12 @@ export function copyDatabase(src, dst) {
 export function reconcileCopy(src, { scope = 'NAIA' } = {}) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rm7e-'));
   const db = path.join(tmp, 'r.sqlite');
-  copyDatabase(src, db);
-  execFileSync(process.execPath, [REC, '--db', db, '--csv', path.join(tmp, 'o.csv')], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, STRICT_CORROB_SCOPE: scope }, stdio: ['ignore', 'pipe', 'pipe'] });
+  // a failed copy (a full disk, a locked file) must not leave a 250 MB orphan behind: the
+  // rm7e-* directories found in Phase 8B.1A were exactly that
+  try {
+    copyDatabase(src, db);
+    execFileSync(process.execPath, [REC, '--db', db, '--csv', path.join(tmp, 'o.csv')], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, STRICT_CORROB_SCOPE: scope }, stdio: ['ignore', 'pipe', 'pipe'] });
+  } catch (err) { fs.rmSync(tmp, { recursive: true, force: true }); throw err; }
   return { tmp, db };
 }
 

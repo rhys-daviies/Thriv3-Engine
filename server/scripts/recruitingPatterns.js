@@ -264,7 +264,7 @@ function programmeReport(p, { named = 6 } = {}) {
     for (const a of rows.slice(0, named)) {
       console.log(`    ${a.arrivalSeason}  ${a.playerName.padEnd(26)} ${String(a.canonicalPosition).padEnd(11)}`
         + ` ${(a.country ?? 'domestic').padEnd(18)} ${a.entryType.padEnd(12)} ${a.coachAttribution}`
-        + (a.priorProgramme ? `  <- ${a.priorProgramme}` : ''));
+        + (a.priorProgramme ? `  <- ${a.priorProgramme} (${a.priorConfidence ?? 'unlabelled'}: a name match, not a verified origin)` : ''));
     }
   }
 }

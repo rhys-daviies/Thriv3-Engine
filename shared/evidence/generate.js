@@ -880,9 +880,11 @@ export function transferBehaviour(athlete, ctx) {
   return defineEvidence('TRANSFER_BEHAVIOUR', {
     confidence: CONFIDENCE.MEDIUM,
     season: seasonSpan(ctx.squad),
+    // VERIFIED_SAME_PERSON origins only (Phase 8B.1A); never a bare name match
     source: 'roster_players:prior_programme',
     freshness: ctx.freshness,
     data: {
+      identity: 'VERIFIED_ONLY',
       arrivals: arrivals.length,
       atPosition: position === 'UNKNOWN'
         ? null

@@ -30,6 +30,7 @@ import { measureDatabase } from '../lib/refresh/integrityMeasure.js';
 import { personKey, selfIdentifies } from '../lib/refresh/changeClassifier.js';
 import { hostOf } from '../lib/athleticsEntity.js';
 import { classRank } from '../../shared/lifecycle/lifecycle.js';
+import { playerHistoryChecks } from '../lib/players/historyMonitor.js';
 
 const NAIA_FREEZE = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../../shared/naiaIntegrityFreeze.json');
 export function loadNaiaFreeze(p = NAIA_FREEZE) { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; } }
@@ -120,6 +121,9 @@ export function runMonitor(dbPath, { now = new Date(), season, reconcile = true 
     const backwards = [];
     for (const [k, list] of byProgPerson) { const s = list.slice().sort((a, b) => a.season - b.season); for (let i = 1; i < s.length; i++) { const a = classRank(s[i - 1].class_year_label); const b = classRank(s[i].class_year_label); if (a != null && b != null && Number(s[i].season) === Number(s[i - 1].season) + 1 && b < a) { backwards.push(`${k.split('|').slice(0, 2).join(' ')} ${s[i - 1].season}->${s[i].season}`); break; } } }
     add('ROSTER', 'improbable_class_movement', 'INFO', backwards, 'same name, same programme, class going backwards year on year (same-name collision or data error)');
+
+    // PLAYER HISTORY (Phase 8B.1A) — a name match is a candidate, not a person
+    for (const c of playerHistoryChecks(db)) add('PLAYER', c.id, c.severity, c.list, c.note);
 
     // DOMAIN
     const redirects = ctx.domains.filter((d) => ['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) && d.final_url).filter((d) => { const fh = hostOf(d.final_url); if (!fh || fh === d.domain || fh.endsWith(`.${d.domain}`) || d.domain.endsWith(`.${fh}`)) return false; const own = ctx.resolver.index.entityForHost(fh); const mine = d.athletics_entity_id || ctx.resolver.unitidEntity(d.unitid)?.entity; return own && mine && own !== mine; }).map((d) => `${d.domain} -> ${hostOf(d.final_url)}`);

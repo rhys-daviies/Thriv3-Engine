@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest';
+import fs from 'node:fs';
 import Database from 'better-sqlite3';
 import { projectMinutes } from './projectRosterMinutes.js';
+
+/** The two Phase 8B.1A player-history tables, exactly as server/db/schema.sql declares them. */
+const SCHEMA = fs.readFileSync(new URL('../db/schema.sql', import.meta.url), 'utf8');
+const historyTables = () => ['player_prior_school_evidence', 'player_observation_links']
+  .map((t) => SCHEMA.match(new RegExp(`CREATE TABLE IF NOT EXISTS ${t} \\([\\s\\S]*?\\n\\);`))[0]).join('\n');
 
 /**
  * THE FAILURE THIS FILE EXISTS FOR, AND WHY IT WAS INVISIBLE.
@@ -34,9 +40,11 @@ function seed() {
       id TEXT PRIMARY KEY, college_name TEXT, sport TEXT, season TEXT,
       player_name TEXT, minutes_played INTEGER,
       projected_minutes INTEGER, projected_minutes_season TEXT,
-      prior_programme TEXT, estimated_graduation_year INTEGER
+      prior_programme TEXT, estimated_graduation_year INTEGER,
+      hometown TEXT, class_year_label TEXT, position TEXT
     );
   `);
+  db.exec(historyTables());
   const add = db.prepare(`INSERT INTO roster_players
     (id, college_name, sport, season, player_name, minutes_played, projected_minutes, projected_minutes_season, prior_programme, estimated_graduation_year)
     VALUES (@id, @college, 'mens-soccer', @season, @name, @minutes, @proj, @projSeason, @prior, 2028)`);
@@ -77,21 +85,34 @@ describe('projectMinutes', () => {
     const { changes, source } = projectMinutes(db, { season: '2026' });
     expect(source).toBe('2025');
     // One projection, not two: Moved Player changed programmes, and a
-    // transfer's minutes are deliberately never carried across. Both players
-    // are still LOCATED on the 2025 roster, so both get a prior programme.
+    // transfer's minutes are deliberately never carried across. Phase 8B.1A:
+    // only Kept Player has a FACTUAL prior programme (a same-programme
+    // continuation). Moved Player matches A by name alone — a CANDIDATE, kept
+    // in player_observation_links and never written to prior_programme.
     expect(changes).toBe(1);
-    expect(stateOf(db)).toEqual({ proj: 1, prior: 2 });
+    expect(stateOf(db)).toEqual({ proj: 1, prior: 1 });
+    expect(db.prepare("SELECT decision FROM player_observation_links WHERE to_observation_id = 'c2'").get().decision).toBe('CANDIDATE');
     db.close();
   });
 
   it('does not carry a transfer\'s minutes across programmes', () => {
     const db = seed();
     projectMinutes(db, { season: '2026' });
-    // Moved Player was at A in 2025 and is at B in 2026. Their prior programme
-    // is recorded, their minutes are not carried forward.
+    // A same-named player was at A in 2025; with nothing but the name, that is
+    // not a transfer. Their minutes are not carried forward either way.
     const moved = db.prepare("SELECT * FROM roster_players WHERE id = 'c2'").get();
-    expect(moved.prior_programme).toBe('A');
+    expect(moved.prior_programme).toBeNull();
     expect(moved.projected_minutes).toBeNull();
+    db.close();
+  });
+
+  it('records a VERIFIED transfer only when hometown and class progression corroborate the name', () => {
+    const db = seed();
+    db.prepare("UPDATE roster_players SET hometown = 'Reno, NV', class_year_label = 'So.' WHERE id = 'p2'").run();
+    db.prepare("UPDATE roster_players SET hometown = 'Reno, Nev.', class_year_label = 'Jr.' WHERE id = 'c2'").run();
+    projectMinutes(db, { season: '2026' });
+    expect(db.prepare("SELECT prior_programme FROM roster_players WHERE id = 'c2'").get().prior_programme).toBe('A');
+    expect(db.prepare("SELECT decision, evidence_class FROM player_observation_links WHERE to_observation_id = 'c2'").get()).toEqual({ decision: 'VERIFIED_SAME_PERSON', evidence_class: 'MULTI_SIGNAL' });
     db.close();
   });
 

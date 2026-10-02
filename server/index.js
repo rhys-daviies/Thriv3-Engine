@@ -31,6 +31,7 @@ import { contactIntelligenceRouter } from './routes/contactIntelligence.js';
 import { OUTREACH_ORIGIN } from '../shared/outreachOrigin.js';
 import { rosterGapsRouter } from './routes/rosterGaps.js';
 import { rosterSeasonTrustRouter } from './routes/rosterSeasonTrust.js';
+import { playerHistoryRouter } from './routes/playerHistory.js';
 import { UPLOADS_DIR } from './lib/uploadPath.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
@@ -624,6 +625,11 @@ app.use('/api', rosterGapsRouter);
 // exists to enforce. The write path here is built and deliberately disabled
 // until the application has an authenticated operator.
 app.use('/api', rosterSeasonTrustRouter);
+
+// ---- Player history (Phase 8B.1A) ----
+// Read only. Unverified prior-programme claims, labelled factual:false, so a
+// POSSIBLE transfer is visible to the operator without ever passing as one.
+app.use('/api', playerHistoryRouter);
 
 // ---- Uploads (UploadFile integration replacement) ----
 //
