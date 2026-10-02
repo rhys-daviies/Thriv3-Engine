@@ -15,6 +15,7 @@ import { PROMOTABLE, personKey } from './changeClassifier.js';
 import { isProtected } from './destructivePolicy.js';
 import { sha256 } from './staging.js';
 import { tableExists, columnsOf } from './context.js';
+import { conformRosterRow } from './rosterRowConformance.js';
 
 const NON_WRITING = new Set([null, 'INVESTIGATE_CURRENTNESS', 'INVESTIGATE_MEMBERSHIP', 'INVESTIGATE_DOMAIN', 'REVIEW_ROSTER_FIELDS']);
 const COACH_UPDATE_ACTIONS = new Set(['REFRESH_COACH_EVIDENCE', 'UPDATE_COACH_ROLE', 'CONFIRM_OBSERVED_EMAIL', 'ADD_PUBLISHED_EMAIL', 'REPLACE_VERIFIED_EMAIL', 'REINSTATE_COACH', 'MARK_PROVEN_STALE']);
@@ -81,7 +82,8 @@ export function applyOp(db, op) {
     const held = db.prepare(`SELECT player_name FROM roster_players WHERE sport=? AND season=? AND college_name IN (${E.college_names.map(() => '?').join(',')})`).all(E.sport, E.season, ...E.college_names);
     if (held.some((r) => personKey(r.player_name) === E.name_key)) throw guardFail(`INSERT_ROSTER_ROW ${E.name_key}: player-season now held`);
     const rc = columnsOf(db, 'roster_players');
-    const vals = { ...P, id: op.insert_id, created_date: now(), updated_date: now() };
+    // Phase 8B.2: the staged proposal is not shaped like an imported row (see rosterRowConformance.js): minutes would default to 0
+    const vals = { ...conformRosterRow(P), id: op.insert_id, created_date: now(), updated_date: now() };
     const cols = Object.keys(vals).filter((c) => rc.has(c));
     db.prepare(`INSERT INTO roster_players (${cols.join(',')}) VALUES (${cols.map((c) => `@${c}`).join(',')})`).run(Object.fromEntries(cols.map((c) => [c, vals[c] ?? null])));
     return { kind: 'INSERT', table: 'roster_players', key: { id: op.insert_id }, new: Object.fromEntries(cols.map((c) => [c, vals[c] ?? null])) };
@@ -200,9 +202,10 @@ export function applyPromotion(db, plan, { batchHash, gate = null, record = true
  * the promoted value; an INSERT is removed only where the row is still exactly what the
  * promotion inserted (reverting our own insertion is the one deletion a refresh performs).
  */
-export function revertManifest(db, manifest) {
+export function revertManifest(db, manifest, { inTransaction = false } = {}) {
   let reverted = 0; const conflicts = [];
-  db.exec('BEGIN');
+  // inTransaction: the caller owns BEGIN/COMMIT/ROLLBACK (so it can make its own writes atomic with the revert)
+  if (!inTransaction) db.exec('BEGIN');
   try {
     for (const m of [...manifest].reverse()) {
       for (const e of [...m.entries].reverse()) {
@@ -223,10 +226,10 @@ export function revertManifest(db, manifest) {
       }
     }
     if (conflicts.length) throw Object.assign(new Error(`revert refused: ${conflicts.length} conflict(s)`), { conflicts });
-    db.exec('COMMIT');
+    if (!inTransaction) db.exec('COMMIT');
     return { reverted };
   } catch (err) {
-    try { db.exec('ROLLBACK'); } catch { /* */ }
+    if (!inTransaction) { try { db.exec('ROLLBACK'); } catch { /* */ } }
     throw err;
   }
 }
