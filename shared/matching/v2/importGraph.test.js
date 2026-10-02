@@ -129,6 +129,17 @@ const MAY_IMPORT_V2 = [
   'server/scripts/v2ArchitectureCheckpoint.js',
   'server/scripts/v2PreferenceParity.js',
   /**
+   * A8.0. The full-universe validation baseline reads PROFILES - the frozen
+   * preference vocabulary - so that the artifact records the preference inputs
+   * a cell was produced under. Restating the eight profiles in the harness
+   * would let the baseline claim an athlete declared something the model never
+   * offered, which is the one thing a validation artifact must not do.
+   *
+   * It imports nothing else from shared/matching/v2: the layers reach it
+   * through server/lib/v2, as the approved surface requires.
+   */
+  'server/scripts/a8Baseline.js',
+  /**
    * A7.13. The V3 outreach packs: athlete definitions, the generator and the
    * blind audit that gates it. All three are validation instruments - none
    * serves a route, renders a page or writes a recommendation.
