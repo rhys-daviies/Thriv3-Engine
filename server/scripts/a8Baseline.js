@@ -125,7 +125,36 @@ function drop(o) {
   return o;
 }
 
-export async function buildBaseline({ profileName = 'UNDECLARED', fixtures = null } = {}) {
+/**
+ * A8.0B. One component's own state, lifted out of the Opportunity basis.
+ *
+ * The A8.0 cell records each LAYER's state and value, which is all the
+ * baseline needed. Validating `majorFit` needs the component itself: whether
+ * it scored, refused, or was not applicable because nobody stated a major -
+ * three outcomes the layer total cannot distinguish between, since all three
+ * leave Opportunity scoreable.
+ *
+ * Off by default, so the A8.0 baseline rebuilds to the same digest. The
+ * caller names the components it wants; nothing is captured speculatively.
+ */
+function componentCell(result, name) {
+  if (!result || result.ok === false) return { s: 'LAYER_UNSCOREABLE' };
+  const b = result.basis ?? {};
+  const got = b.components?.[name];
+  if (got) {
+    return drop({ s: 'SCOREABLE', v: num(got.value), g: got.grade ?? null, w: num(got.weight), sh: num(got.share) });
+  }
+  const na = b.notApplicable ?? [];
+  if (Array.isArray(na) && na.some((x) => (x?.key ?? x) === name)) return { s: 'NOT_APPLICABLE' };
+  const miss = b.missing ?? [];
+  const m = Array.isArray(miss) ? miss.find((x) => (x?.key ?? x) === name) : null;
+  if (m) return drop({ s: 'UNSCOREABLE', r: m?.reason ?? null });
+  return { s: 'ABSENT' };
+}
+
+export async function buildBaseline({
+  profileName = 'UNDECLARED', fixtures = null, components = null,
+} = {}) {
   const { default: db } = await import('../db/client.js');
   const { canonicalPosition } = await import('../../shared/positions.js');
   const { normaliseAthlete } = await import('../../shared/matching/pool.js');
@@ -183,6 +212,15 @@ export async function buildBaseline({ profileName = 'UNDECLARED', fixtures = nul
       },
     };
 
+    /**
+     * Components are captured PER FIXTURE, not per run. An arm that varies the
+     * family contribution needs no Opportunity component at all, and carrying
+     * three for it anyway cost two megabytes of artifact describing cells
+     * nothing asks about.
+     */
+    const wanted = Array.isArray(components) ? components
+      : (components?.[f.id] ?? components?.['*'] ?? []);
+
     const rep = runPursuit({ athlete, sport: p.sport, colleges, ctx });
     const rankById = new Map(rep.pipeline.ranked.map((r) => [r.id, r.rank]));
 
@@ -235,6 +273,9 @@ export async function buildBaseline({ profileName = 'UNDECLARED', fixtures = nul
         R: layerCell(e.recruitability),
         F: layerCell(e.financial),
         O: layerCell(e.opportunity),
+        cmp: wanted.length
+          ? Object.fromEntries(wanted.map((n) => [n, componentCell(e.opportunity, n)]))
+          : null,
       }));
     }
   }

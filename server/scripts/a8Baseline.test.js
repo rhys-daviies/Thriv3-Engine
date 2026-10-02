@@ -33,8 +33,27 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
  * BROKEN artifact and shown to fail. A preregistered blocker test that has
  * never been seen to fail is an assertion about itself, not about the engine.
  */
-const file = (process.env.A8_BASELINE_FILE ?? '').trim()
-  || path.join(root, 'docs/validation/A8.0-baseline.json');
+const override = (process.env.A8_BASELINE_FILE ?? '').trim();
+
+/**
+ * A8.0B. Both artifacts, through the SAME assertions.
+ *
+ * The A8.0B coverage extension is a second artifact of the same shape, and the
+ * brief requires S0-S15 to hold over it too. Restating the suite against it
+ * would be a second copy that drifts the first time one of these is tightened,
+ * so the file list is parameterised instead and the extension gets the
+ * identical sixteen checks.
+ */
+const ARTIFACTS = override
+  ? [['override', override]]
+  : [
+    ['A8.0 baseline', path.join(root, 'docs/validation/A8.0-baseline.json')],
+    ['A8.0B extension', path.join(root, 'docs/validation/A8.0B-extension.json')],
+  ];
+
+const LAYERS = ['recruitability', 'financial', 'opportunity'];
+
+describe.each(ARTIFACTS)('A8 structural: %s describes what it claims to', (_label, file) => {
 const baseline = JSON.parse(fs.readFileSync(file, 'utf8'));
 const cells = decodeBaseline(baseline);
 const byFixture = new Map();
@@ -42,9 +61,6 @@ for (const c of cells) {
   if (!byFixture.has(c.fixtureId)) byFixture.set(c.fixtureId, []);
   byFixture.get(c.fixtureId).push(c);
 }
-const LAYERS = ['recruitability', 'financial', 'opportunity'];
-
-describe('A8 structural: the artifact describes what it claims to', () => {
   it('S0. the recorded digest is the digest of the cells it carries', () => {
     const actual = crypto.createHash('sha256').update(JSON.stringify(baseline.cells)).digest('hex');
     expect(actual).toBe(baseline.cellDigest);
