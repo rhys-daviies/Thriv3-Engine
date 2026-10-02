@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { evaluateOpportunity, opportunityRow } from './opportunityRun.js';
+import { buildPositionIndex } from './rosterEvidence.js';
 import { REASON } from '../../../shared/matching/v2/index.js';
 
 const DIVISIONS = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA'];
@@ -18,6 +19,38 @@ const colleges = Array.from({ length: 100 }, (_, i) => ({
 /** NJCAA carries no roster, exactly as the real data has it. */
 const rosterProgrammes = new Set(colleges.filter((c) => c.division !== 'NJCAA').map((c) => c.name));
 
+/**
+ * A7.45B. THE FIXTURE USED TO PASS NO ROSTER INDEX AT ALL.
+ *
+ * Under the old fallback that was invisible: positional competition refused
+ * for all 100 programmes, Playing Pathway quietly continued on rotation alone,
+ * and the pool reported 80 scoreable. The numbers below are the same 80 - but
+ * they now rest on the positional evidence the pool is supposed to be scoring,
+ * rather than on a rotation statistic standing in for it.
+ *
+ * Every programme we hold a roster for gets a readable position group with
+ * readable class years. NJCAA still gets nothing, which is what the real data
+ * looks like and what keeps the refusal below meaningful.
+ */
+const ROSTER_SEASON = 2026;
+const ENTRY_YEAR = 2027;
+const rosterRows = colleges
+  .filter((c) => c.division !== 'NJCAA')
+  .flatMap((c) => Array.from({ length: 12 }, (_, j) => ({
+    college_name: c.name,
+    sport: 'mens-soccer',
+    season: ROSTER_SEASON,
+    division: c.division,
+    player_name: `${c.name} player ${j}`,
+    position: ['GK', 'D', 'M', 'F'][j % 4],
+    class_year_label: ['Fr.', 'So.', 'Jr.', 'Sr.'][j % 4],
+    minutes_played: j < 6 ? 900 : 100,
+    games_started: j < 6 ? 12 : 1,
+    projected_minutes: null,
+    projected_games_started: null,
+  })));
+const rosterIndex = buildPositionIndex(rosterRows);
+
 const athlete = (over = {}) => ({
   sport: 'mens-soccer', position: 'MIDFIELD',
   intendedMajor: null, priorityRanking: null,
@@ -25,18 +58,36 @@ const athlete = (over = {}) => ({
 });
 
 const run = (over, overrides) => evaluateOpportunity({
-  athlete: athlete(over), colleges, rosterProgrammes, overrides,
+  athlete: athlete(over), colleges, rosterProgrammes, rosterIndex,
+  entryYear: ENTRY_YEAR, rosterSeason: ROSTER_SEASON, overrides,
 });
 
 describe('scoring a pool', () => {
   const rep = run();
 
   it('refuses every programme it holds neither a roster nor minutes for', () => {
-    // A7.8.2: Playing Pathway can be carried by either half, so a refusal now
-    // means both are missing. This pool passes no roster index, so returning
-    // competition has nothing either way and the minutes history decides.
+    // A7.8.2 let Playing Pathway be carried by either half; A7.45B requires
+    // the competition half, so a refusal means the entry-year evidence is
+    // missing. NJCAA has neither a roster nor an eligibility rule, so both
+    // halves are gone and the minutes history still decides the reason.
     expect(rep.byDivision.NJCAA.scoreable).toBe(0);
     expect(rep.unscoreableReasons[REASON.NO_MINUTES_HISTORY]).toBe(20);
+  });
+
+  it('A7.45B: a caller that passes no roster index now scores nothing', () => {
+    /**
+     * THE SHAPE THIS FIXTURE USED TO HAVE, kept as a test because a stale
+     * caller is how this goes wrong in practice - `buildPositionIndex`'s own
+     * header records a query that forgot two columns and made MIT unrankable.
+     *
+     * Without a roster index there is no positional competition anywhere, so
+     * under A7.45B there is no Playing Pathway anywhere, and Opportunity -
+     * which requires it - refuses the whole pool. Loudly wrong beats quietly
+     * scoring every programme on a rotation statistic.
+     */
+    const blind = evaluateOpportunity({ athlete: athlete(), colleges, rosterProgrammes });
+    expect(blind.counts.scoreable).toBe(0);
+    expect(blind.counts.unscoreable).toBe(100);
   });
 
   it('scores everything it does hold minutes for', () => {
@@ -68,23 +119,23 @@ describe('the things that must not move it', () => {
   const base = run().opportunity;
 
   it('athlete budget', () => {
-    expect(evaluateOpportunity({ athlete: { ...athlete(), budgetRange: '$40k+/yr' }, colleges, rosterProgrammes }).opportunity).toEqual(base);
+    expect(evaluateOpportunity({ athlete: { ...athlete(), budgetRange: '$40k+/yr' }, colleges, rosterProgrammes, rosterIndex, entryYear: ENTRY_YEAR, rosterSeason: ROSTER_SEASON }).opportunity).toEqual(base);
   });
 
   it('a financial viability result handed in alongside the athlete', () => {
-    expect(evaluateOpportunity({ athlete: { ...athlete(), financialViability: 0.9 }, colleges, rosterProgrammes }).opportunity).toEqual(base);
+    expect(evaluateOpportunity({ athlete: { ...athlete(), financialViability: 0.9 }, colleges, rosterProgrammes, rosterIndex, entryYear: ENTRY_YEAR, rosterSeason: ROSTER_SEASON }).opportunity).toEqual(base);
   });
 
   it('a recruitability result handed in alongside the athlete', () => {
-    expect(evaluateOpportunity({ athlete: { ...athlete(), recruitability: 0.9, rating: 10 }, colleges, rosterProgrammes }).opportunity).toEqual(base);
+    expect(evaluateOpportunity({ athlete: { ...athlete(), recruitability: 0.9, rating: 10 }, colleges, rosterProgrammes, rosterIndex, entryYear: ENTRY_YEAR, rosterSeason: ROSTER_SEASON }).opportunity).toEqual(base);
   });
 
   it('academics on their own', () => {
-    expect(evaluateOpportunity({ athlete: { ...athlete(), gpa: 4.0, sat: 1600 }, colleges, rosterProgrammes }).opportunity).toEqual(base);
+    expect(evaluateOpportunity({ athlete: { ...athlete(), gpa: 4.0, sat: 1600 }, colleges, rosterProgrammes, rosterIndex, entryYear: ENTRY_YEAR, rosterSeason: ROSTER_SEASON }).opportunity).toEqual(base);
   });
 
   it('the athlete home state, absent a stated preference', () => {
-    expect(evaluateOpportunity({ athlete: { ...athlete(), state: 'OH' }, colleges, rosterProgrammes }).opportunity).toEqual(base);
+    expect(evaluateOpportunity({ athlete: { ...athlete(), state: 'OH' }, colleges, rosterProgrammes, rosterIndex, entryYear: ENTRY_YEAR, rosterSeason: ROSTER_SEASON }).opportunity).toEqual(base);
   });
 });
 
