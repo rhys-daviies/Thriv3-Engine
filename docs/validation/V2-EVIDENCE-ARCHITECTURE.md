@@ -10,6 +10,8 @@ and must say so explicitly rather than drift.
 | A7.44 — unreadable positional evidence | **FROZEN** | [A7.44-report.md](A7.44-report.md) |
 | A7.45 / Policy B — Playing Pathway refusal | **FROZEN** | [A7.45-report.md](A7.45-report.md) |
 | A7.46 — caller contract | enforced in tests | `server/scripts/v2CallerContract.test.js` |
+| A7.47 — closure audit | read-only | [A7.47-report.md](A7.47-report.md) |
+| A7.48 — refusal vocabulary | **FROZEN** | below |
 
 ---
 
@@ -116,3 +118,52 @@ which before Policy B would have scored every programme on rotation alone.
   omits it already fails loudly: every programme refuses.
 
 Enforced mechanically by `server/scripts/v2CallerContract.test.js`.
+
+---
+
+## A7.48 — the refusal vocabulary
+
+A refusal must name the evidence condition it is actually in. Five states, five
+reasons, and none of them may describe evidence that does not exist.
+
+| state | reason | what the reader is told |
+|---|---|---|
+| no roster held for the programme | `NO_ROSTER_ON_FILE` | Thriv3 holds no current roster for this programme |
+| roster held, positions unreadable | `NO_READABLE_POSITIONS` | the roster is on file and does not say clearly enough who plays where |
+| roster held, class/horizon unreadable | `NO_CLASS_LABELS` | the roster carries no readable class years |
+| roster held and read, nobody at this position | `NO_PLAYERS_AT_POSITION` | the roster is on file and records nobody at this position |
+| departing cohort unplaceable | `NO_MINUTES_HISTORY` | nobody leaving this position could be placed as a starter or squad player |
+
+The last two were previously folded into the first and the fourth
+respectively, and the resulting sentences were false on 2,286 cells.
+
+`PATHWAY_NOT_RANKED` is split on whether rotation survived. The discriminator
+is `ROTATION_OWN_REFUSALS` and it is exact rather than heuristic: the pathway
+refuses by two routes, one inheriting rotation's reason and one — reachable
+only when rotation is scoreable — inheriting competition's, and the two reason
+sets are disjoint. `explain/truthTable.test.js` asserts all twelve states on
+machine reason, evidence state and user-facing meaning at once.
+
+**A7.48 moved no number.** Measured against a frozen pre-repair artifact over
+21,016 cells and eight full-universe rankings: every value and coverage
+unchanged, every rank, pursuit priority and Top-25/50/100 membership unchanged.
+13,716 reason codes changed, every one a truthful split.
+
+### The review packs could not be regenerated
+
+A7.47 recorded 17 committed review packs generated before A7.44 and carrying
+the defective phrases. They remain stale, for two reasons that are not A7.48's.
+
+**The generator refuses, correctly.** `v2ValidationPack.js` compares V2 against
+the V1 baseline the packs name, `480a915`, and V1 scoring was changed at
+`711af51` (2026-09-25), which is not an ancestor of it. A pack generated now
+would name a baseline it did not measure against. Resolving this is a V1-freeze
+decision and belongs to whoever owns `docs/v1-freeze.md`.
+
+**Reviews are bound to their instrument.** Five committed reviews carry a
+`packId` and `provenance` naming the exact generation they answer —
+`pack-A-FULLY_DECLARED_LEVEL`, `pack-C-ACADEMIC_FIRST` and the three V3
+reveals — and a sixth review of `pack-C-UNDECLARED` is in progress and
+uncommitted. Regenerating those in place would leave the answers pointing at
+nothing. Only the four packs with no review attached were in scope, and the
+generator guard blocked those too.
