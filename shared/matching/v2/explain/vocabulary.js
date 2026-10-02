@@ -349,6 +349,12 @@ export const REFUSAL_PHRASE = Object.freeze({
   NO_LOCATION: 'no location is recorded',
   NO_STATED_PREFERENCE: 'the athlete has stated no preference',
   NO_PROGRAMME_MAJOR_EVIDENCE: 'no list of notable majors is recorded for this institution',
+  /**
+   * Deliberately says what the list IS rather than what it lacks. "This major
+   * is not listed" reads as "they do not offer it", which is the inference
+   * A8.2 removed from the engine - it must not return in the sentence.
+   */
+  MAJOR_NOT_IN_PARTIAL_EVIDENCE: 'this institution\'s recorded majors cover its largest fields of study, which do not include this one, so whether it is offered is not established',
   NO_WIN_RATES: 'no season results are recorded',
   NOT_APPLICABLE: 'it does not apply here',
 });

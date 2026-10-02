@@ -96,10 +96,17 @@ describe('major fit', () => {
     expect(r.basis.majorFamily).toBe('Kinesiology');
   });
 
-  it('scores a measured zero where the programme does not teach it', () => {
+  /**
+   * A8.2. This was "scores a measured zero where the programme does not teach
+   * it" - and the title was the defect. `notable_majors` is built from College
+   * Scorecard completion shares and names an institution's largest fields of
+   * study, so it never established that a programme does not teach something.
+   */
+  it('refuses where the list exists but does not settle the question', () => {
     const r = majorFit({ intendedMajor: 'exercise science', notableMajors: '["Business"]' });
-    expect(r.ok).toBe(true);
-    expect(r.value).toBe(0);
+    expect(r.ok).toBe(false);
+    expect(r.reason).toBe(REASON.MAJOR_NOT_IN_PARTIAL_EVIDENCE);
+    expect(r.value ?? null).toBe(null);
   });
 
   it('is NOT_APPLICABLE when nobody asked, when undecided, and when unplaceable', () => {

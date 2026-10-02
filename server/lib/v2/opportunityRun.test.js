@@ -142,11 +142,22 @@ describe('the things that must not move it', () => {
 });
 
 describe('the things that must move it', () => {
+  /**
+   * A8.2. `componentCoverage.majorFit` used to be asserted above 0.9, because
+   * every programme with a list produced an answer - a 1 for a match and a 0
+   * for everything else. The 0 was an inference from a partial list, so it is
+   * gone, and the component now scores only where the major is NAMED. The
+   * coverage that remains is the share of the pool Thriv3 can actually speak
+   * to, which is the honest number and must be strictly between nothing and
+   * everything.
+   */
   it('a declared major', () => {
     const declared = run({ intendedMajor: 'exercise science' });
     expect(declared.preferenceKnown).toBe(true);
-    expect(declared.componentCoverage.majorFit).toBeGreaterThan(0.9);
+    /** The athlete DID state one, so it is never "not applicable" here. */
     expect(declared.notApplicable.majorFit).toBe(0);
+    expect(declared.componentCoverage.majorFit).toBeGreaterThan(0);
+    expect(declared.componentCoverage.majorFit).toBeLessThan(1);
     expect(declared.opportunity.median).not.toBe(run().opportunity.median);
   });
 

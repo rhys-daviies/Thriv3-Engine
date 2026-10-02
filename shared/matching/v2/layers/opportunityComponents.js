@@ -765,13 +765,41 @@ export function majorFit({ intendedMajor, notableMajors }) {
     // thing that changes is which side is reported as missing.
     return unscoreable({ reason: REASON.NO_PROGRAMME_MAJOR_EVIDENCE, missing: ['notableMajors'], available: ['intendedMajor'] });
   }
-  const matched = offered.includes(wanted);
+  if (!offered.includes(wanted)) {
+    /**
+     * A8.2. ABSENCE FROM THIS LIST IS NOT EVIDENCE OF ABSENCE.
+     *
+     * This branch returned a MEASURED 0 at full coverage, under a comment
+     * saying nothing was inferred. It was: `notable_majors` is derived from
+     * College Scorecard PCIP COMPLETION SHARES and names an institution's
+     * largest fields of study - a mean of 7.55 of 14 families - not its
+     * catalogue. 321 of 349 Division I women's programmes omit Mathematics,
+     * including Penn State, Ohio State, Wisconsin and Texas A&M, all of which
+     * grant mathematics degrees. Scoring those 0 asserted a fact about the
+     * institution that nobody had established.
+     *
+     * It is the same unknown as an empty list, so it refuses the same way and
+     * renormalises the same way - only the reason differs, because one
+     * institution has no list and this one has a list that does not settle
+     * the question.
+     *
+     * A genuine negative would belong here as a negative fit. None exists:
+     * the repository holds no programme catalogue and no "not offered" field.
+     */
+    return unscoreable({
+      reason: REASON.MAJOR_NOT_IN_PARTIAL_EVIDENCE,
+      missing: ['majorInProgrammeEvidence'],
+      available: ['intendedMajor', 'notableMajors'],
+      detail: { intendedMajor, majorFamily: wanted, notableMajors: offered },
+    });
+  }
   return scoreable({
-    value: matched ? 1 : 0,
-    // A named list of families against a matched family. Nothing is inferred.
+    value: 1,
+    // The family is NAMED in the institution's own list. This half was always
+    // a measurement, and stays one.
     grade: GRADE.MEASURED,
     coverage: 1,
-    basis: { intendedMajor, majorFamily: wanted, matched, notableMajors: offered },
+    basis: { intendedMajor, majorFamily: wanted, matched: true, notableMajors: offered },
   });
 }
 

@@ -158,27 +158,40 @@ describe('7. academic-strength priority does not touch the raw major evidence', 
   });
 });
 
-describe('the evidence is still binary, and nothing here pretends otherwise', () => {
-  it('produces only 0, 1 or no answer', () => {
+describe('the evidence is positive-only, and nothing here pretends otherwise', () => {
+  /**
+   * A8.2 rewrote this expectation. It read "produces only 0, 1 or no answer",
+   * which encoded the defect: a major absent from `notable_majors` scored a
+   * MEASURED 0. That field is built from College Scorecard PCIP completion
+   * shares and names an institution's largest fields of study - 321 of 349
+   * Division I women's programmes omit Mathematics - so absence never
+   * established that the major was unavailable.
+   */
+  it('produces 1 or no answer, and never 0', () => {
     for (const [athlete, programme, expected] of [
       ['Engineering', ['Engineering'], 1],
-      ['Engineering', ['Biology'], 0],
+      ['Engineering', ['Biology'], null],
       [null, ['Engineering'], null],
     ]) {
       const r = majorFit({ intendedMajor: athlete, notableMajors: programme });
-      if (expected === null) expect(isScoreable(r)).toBe(false);
-      else expect(r.value).toBe(expected);
+      if (expected === null) {
+        expect(isScoreable(r)).toBe(false);
+        expect(r.value ?? null).toBe(null);
+      } else expect(r.value).toBe(expected);
     }
   });
 
   it('weight is not comparable to playingPathway, and the test says so rather than asserting an order', () => {
     /**
      * majorFit at 1.2 exceeds playingPathway's 0.65 and that is NOT a claim
-     * that a major matters more than playing time. One is a binary fact about
-     * a course catalogue with a deviation of +0.40 or -0.60 from its
-     * neighbours; the other is a continuous estimate that clusters on the
-     * mean, which is why A7.20 measured eight times its weight range moving
-     * nothing. The weights are in different units of effect.
+     * that a major matters more than playing time. One is a named positive
+     * match in an institution's own list, which either applies at full
+     * strength or does not apply at all; the other is a continuous estimate
+     * that clusters on the mean, which is why A7.20 measured eight times its
+     * weight range moving nothing. The weights are in different units.
+     *
+     * A8.2: this previously called the field "a course catalogue". It is not
+     * one - see above - and the weight was left untouched by that repair.
      */
     expect(PREFERENCE_WEIGHTS.majorFit).toBeGreaterThan(0);
     expect(VALUE_WEIGHTS.playingPathway).toBe(0.65);

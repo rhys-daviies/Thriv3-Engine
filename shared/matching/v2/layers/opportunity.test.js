@@ -65,12 +65,18 @@ describe('required evidence', () => {
 });
 
 describe('preferences change the answer only when declared', () => {
-  it('a matched major raises it and a missed one lowers it', () => {
+  /**
+   * A8.2. This read "a matched major raises it and a missed one lowers it".
+   * The second half encoded the defect - absence from a partial list is not a
+   * miss, it is an unanswered question, and it must leave the layer exactly
+   * where it would be had the athlete never stated a major.
+   */
+  it('a matched major raises it, and an unanswerable one leaves it alone', () => {
     const none = O().value;
     const matched = O({ major: majorFit({ intendedMajor: 'exercise science', notableMajors: '["Kinesiology"]' }) }).value;
-    const missed = O({ major: majorFit({ intendedMajor: 'exercise science', notableMajors: '["Business"]' }) }).value;
+    const unknown = O({ major: majorFit({ intendedMajor: 'exercise science', notableMajors: '["Business"]' }) }).value;
     expect(matched).toBeGreaterThan(none);
-    expect(missed).toBeLessThan(none);
+    expect(unknown).toBe(none);
   });
 
   it('a stated location preference is scored and an unstated one is not', () => {
