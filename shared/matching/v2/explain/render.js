@@ -262,6 +262,21 @@ const SENTENCE = {
     + `there: this programme's roster does not record a usable position for ${e.unplaceable} of its `
     + `${e.rosterRows} listed players. That is a gap in what is published about the squad, and it is not `
     + `evidence that the position is open.`,
+  /**
+   * A7.45B. INSUFFICIENT EVIDENCE, NOT NEGATIVE EVIDENCE.
+   *
+   * IT NAMES NOTHING IT IS DENYING. An earlier draft spelled out what the
+   * refusal does not mean - that the position is closed, that minutes would be
+   * hard to win - and a test caught it: a denial still puts the words in front
+   * of the reader, and the sentence exists precisely because Thriv3 cannot
+   * speak to any of that. It now says only what is true.
+   */
+  [REASON_CODE.PATHWAY_NOT_RANKED]: () =>
+    `Thriv3 cannot establish who will still hold this position when the athlete arrives, so it does `
+    + `not use playing pathway to rank this programme. This reflects the limits of what Thriv3 can `
+    + `see here, rather than anything it has found about the programme. What is known - how widely `
+    + `this programme has shared minutes at the position in recent seasons - is kept and reported, `
+    + `and on its own it cannot answer the question.`,
   [REASON_CODE.PATHWAY_ROTATION_ONLY]: () =>
     `This reads only how the programme has shared minutes in past seasons. It carries no assessment of who `
     + `will be competing for the place when the athlete arrives.`,

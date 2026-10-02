@@ -521,9 +521,43 @@ export function returningCompetition({
  * has historically used players at this position.
  *
  * Competition leads because it is specific to this athlete's entry year;
- * rotation is context. Either alone is scoreable - a programme we hold no
- * minutes history for can still have a readable roster, and vice versa - and
- * the grade is the weaker of whatever was used.
+ * rotation is context.
+ *
+ * -- A7.45B. ROTATION ALONE DOES NOT CARRY A PATHWAY ------------------------
+ *
+ * It used to. When competition refused, the pathway continued from rotation
+ * alone at coverage 0.4, and A7.45 measured what that was actually worth:
+ *
+ *   THE REDUCED COVERAGE NEVER REACHED THE LAYER. `coverage.js` derives a
+ *   layer's coverage from component WEIGHTS, not from component coverage, so
+ *   a rotation-only pathway entered Athlete Opportunity at its full 0.65
+ *   share, with the same value a fully evidenced one would have carried. The
+ *   0.4 was reported and discarded, and grade never enters a ranking - so the
+ *   whole of the restraint was cosmetic.
+ *
+ *   ROTATION IS NOT A PROXY FOR COMPETITION. r = +0.174 across the 7,837
+ *   cells where both are scoreable: it explains about 3% of competition's
+ *   variance. `squadRotation`'s own header says so in words - "it knows
+ *   nothing about who will be on the roster when they arrive. That is why it
+ *   is half of Playing Pathway and not the whole of it."
+ *
+ *   LESS EVIDENCE WAS PRODUCING MORE EXTREME CLAIMS. The 403 fallback cells
+ *   carried sd 0.223 against 0.136 for blended cells, hitting exactly 0.000
+ *   eight times and exactly 1.000 ten times, where the blended measure cannot
+ *   reach zero at all. And 42% of them rested on a division or sport average
+ *   rather than on this programme's own seasons.
+ *
+ * ROTATION IS NOT DISCARDED AND IS NOT BAD EVIDENCE. It is a split-half
+ * stable measurement of a real programme trait, it is still computed, and it
+ * is carried on this refusal so an explanation can say what IS known. It
+ * simply does not answer the question the pathway is asked - "how realistic is
+ * this athlete's route to minutes at this position when they arrive" - and a
+ * rank-bearing score must not be built from an answer to a different question.
+ *
+ * COMPETITION-ONLY IS UNCHANGED and remains scoreable at coverage 0.6. That
+ * asymmetry is deliberate: competition answers the pathway's actual question
+ * and rotation does not, so losing rotation costs context while losing
+ * competition costs the subject.
  */
 export function playingPathway({ competition, rotation, competitionShare = COMPETITION_SHARE }) {
   const hasC = isScoreable(competition);
@@ -540,6 +574,41 @@ export function playingPathway({ competition, rotation, competitionShare = COMPE
       reason: rotation?.reason ?? competition?.reason ?? REASON.NO_MINUTES_HISTORY,
       missing: [...new Set([...(rotation?.missing ?? []), ...(competition?.missing ?? [])])],
       available: [],
+    });
+  }
+  /**
+   * A7.45B. Competition is the subject of the pathway, so its absence ends the
+   * pathway - whatever rotation knows.
+   *
+   * PLACED AFTER the both-refuse branch on purpose, so the case where neither
+   * half survives keeps the reason A7.37 chose for it rather than being
+   * relabelled by this one.
+   *
+   * THE ROTATION EVIDENCE TRAVELS ON THE REFUSAL. A refusal that threw it away
+   * would turn "we cannot rank on this" into "we know nothing about this
+   * programme", which is false and is the opposite of the failure A7.45 found.
+   */
+  if (!hasC) {
+    return unscoreable({
+      reason: competition.reason,
+      missing: [...new Set([...(competition.missing ?? []), 'positionalCompetition'])],
+      // Rotation IS available. It is not sufficient, which is a different fact.
+      available: ['squadRotation'],
+      coverage: 0,
+      detail: {
+        ...(competition.detail ?? {}),
+        competitionRefusedBecause: competition.reason,
+        rotation: {
+          value: rotation.value,
+          grade: rotation.grade,
+          level: rotation.basis?.level ?? null,
+          seasons: rotation.basis?.seasons ?? null,
+          playingShare: rotation.basis?.playingShare ?? null,
+        },
+        note: 'how widely this programme has historically shared minutes at this position IS known, '
+          + 'and who will still hold the position at the entry year is not - so there is evidence '
+          + 'about the programme and none about the pathway, and the two must not be reported as one',
+      },
     });
   }
   const value = (hasC && hasR)

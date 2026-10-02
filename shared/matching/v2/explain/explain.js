@@ -263,8 +263,20 @@ function financialReasons(result) {
 
 function opportunityReasons(result) {
   if (!isScoreable(result)) {
-    return [reason(REASON_CODE.LAYER_UNSCOREABLE, LAYER.OPPORTUNITY, POLARITY.UNKNOWN,
+    const out = [reason(REASON_CODE.LAYER_UNSCOREABLE, LAYER.OPPORTUNITY, POLARITY.UNKNOWN,
       BAND.UNKNOWN, { layer: LAYER.OPPORTUNITY, missing: [...result.missing], reason: result.reason, coverage: result.coverage })];
+    /**
+     * A7.45B. The generic layer sentence names the missing component and the
+     * reason, which for this state reads as a data gap somebody should go and
+     * fill. True, and not the thing an athlete needs to be told: that Thriv3
+     * is DECLINING to rank on evidence it holds, rather than scoring the
+     * programme down. Said as its own sentence.
+     */
+    if (result.detail?.requiredMissing === 'playingPathway') {
+      out.push(reason(REASON_CODE.PATHWAY_NOT_RANKED, LAYER.OPPORTUNITY, POLARITY.UNKNOWN,
+        BAND.SECONDARY_EVIDENCE, { reason: result.reason }));
+    }
+    return out;
   }
   const b = result.basis;
   const out = [];

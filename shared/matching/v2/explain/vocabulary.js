@@ -124,6 +124,13 @@ export const REASON_CODE = Object.freeze({
    */
   POSITION_EVIDENCE_PARTIAL: 'POSITION_EVIDENCE_PARTIAL',
   POSITION_EVIDENCE_INSUFFICIENT: 'POSITION_EVIDENCE_INSUFFICIENT',
+  /**
+   * A7.45B. The pathway is not ranked here, and that is a statement about
+   * EVIDENCE, never about the programme. It must not be readable as "the
+   * pathway is poor", "you will not play" or "the position is closed" - the
+   * sentence exists precisely because Thriv3 cannot say any of those things.
+   */
+  PATHWAY_NOT_RANKED: 'PATHWAY_NOT_RANKED',
   PATHWAY_ROTATION_ONLY: 'PATHWAY_ROTATION_ONLY',
   PLAYING_SHARE_WIDE: 'PLAYING_SHARE_WIDE',
   PLAYING_SHARE_NARROW: 'PLAYING_SHARE_NARROW',
