@@ -1,10 +1,19 @@
 # The V1 freeze
 
-**Frozen at the tip of `fix/v1-baseline-repair`, 2026-09-19 — the commit carrying this document.**
+**Frozen 2026-09-19 at `480a915`. Moved once, to `711af51` on 2026-09-25, for
+an input-compatibility repair — see [The freeze moved once](#the-freeze-moved-once).**
 
-The last commit to change behaviour or move a baseline is
-`480a915645425c3286a19c2da10e3a1d60b3a3ec`; this one adds only the record. If
-you need a single SHA to compare V2 against, use the tip.
+| | |
+|---|---|
+| **Authoritative comparison baseline** | `711af51da9b16e4037ef990a6c1175a3cb70a2f8` |
+| **Original freeze** | `480a915645425c3286a19c2da10e3a1d60b3a3ec` — retained as historical provenance |
+
+Packs generated before 2026-10-02 name `480a915` and are correct to do so:
+that is the baseline they were measured against, and it is not rewritten here.
+
+V1 is the comparison baseline Matchmaking V2 will be measured against. It is
+not the best model we can build. It is a model whose answers are recorded, so
+that a V2 answer can be shown to differ and the difference can be argued about.
 
 V1 is the comparison baseline Matchmaking V2 will be measured against. It is
 not the best model we can build. It is a model whose answers are recorded, so
@@ -22,7 +31,7 @@ a V1 bug.
 
 | | |
 |---|---|
-| **Last behavioural commit** | `480a915` |
+| **Last behavioural commit** | `480a915` (original freeze); `711af51` carries the input-compatibility repair below |
 | **Freeze point** | tip of `fix/v1-baseline-repair` |
 | **Branch** | `fix/v1-baseline-repair` (not merged to `main` at freeze time) |
 | **Matching baseline** | `server/scripts/__baselines__/matching-v1-2026-09-19.json` — 8 athlete fixtures, 5 roster probes |
@@ -150,3 +159,72 @@ unconfigured divisions return UNKNOWN rather than a claimed zero.
 - **Seven roster queries feed `buildRosterIndex`** and each names its columns.
   `assertEligibilityInputsSelected` throws when one omits `class_year_label`,
   `division` or `season`; it has caught three real omissions so far.
+
+
+---
+
+## The freeze moved once
+
+**`711af51` — "Let V1 read the family's answer, without teaching it anything new"
+(2026-09-25). Classified `V1_INPUT_COMPATIBILITY_REPAIR` and audited at A7.48B.**
+
+### Why it sits after the freeze
+
+`96095d3` replaced the budget-band picker with the question Financial actually
+needs — the maximum a family can contribute in a year — and stopped writing
+`budget_range`. V1 reads a band and nothing else, so a newly-onboarded athlete
+reached V1 with **no budget at all**. The damage was mostly not affordability:
+a missing band takes `scholarshipNeed` to `null`, and `null` switches off all
+three need couplings at once. Six of eight fixtures lost between a quarter and
+three-fifths of their top 100.
+
+### Why that justifies moving the freeze rather than breaching it
+
+The freeze's own exception is *"a genuine implementation or data defect —
+something that makes it answer a different question than it claims to"*. An
+engine that claims to score affordability and silently receives nothing is
+exactly that. `711af51` restores the input; it does not change the model.
+
+### This is representation compatibility, not adoption of V2 theory
+
+V2 Financial and V1 affordability are different quantities that agree at
+Kendall 0.545; swapping one for the other moves 433 programmes by 100+ ranks.
+The bridge does none of that. It lets the **same number V1 has always
+consumed** arrive from the field that now holds it, and `familyBudgetCeiling`
+returns the same three kinds of value `budgetCeiling` already returned — a
+number, `Infinity`, or `undefined`.
+
+The bridge is marked temporary in `constants.js` and names its three call
+sites, to be deleted when live matchmaking no longer uses V1 affordability.
+
+### Identity evidence
+
+Audited at A7.48B against `480a915`. Every V1 scoring-relevant line classified;
+no `ACTUAL_SCORING_THEORY_CHANGE` found.
+
+| check | result |
+|---|---|
+| `budgetCeiling()` | byte-identical |
+| `shared/matching/weights.js` | byte-identical |
+| `affordability()` body | byte-identical apart from the signature |
+| `AFFORDABILITY_FLOOR`, `NO_NEED_BUDGET`, `UNDECLARED_BUDGET`, `NEUTRAL_PRIOR`, `INTERNATIONAL_FLOOR`, `CONTRIBUTION_ANCHOR`, both ceiling maps | unchanged |
+| exported V1 criteria | identical set — no criterion added |
+| coupling thresholds and multipliers | unchanged; only the ceiling lookup is redirected |
+| **all 14 budget bands**, legacy and current | ceiling, scholarship need, affordability, coupling state, criterion parts and final score **identical** under both representations |
+| `NOT_A_CONSTRAINT` vs the open-ended bands | identical |
+| `NEEDS_CONFIRMATION`, and four malformed pairs | numerically identical to `Undeclared`; the affordability *explanation* differs on purpose, because a deliberate answer and a corrupt record are different states |
+| **full-universe V1 ranking**, 8 reference athletes | **0 rank movements, 0 Top-25/50/100 changes** between the two representations |
+
+The last row is the one that matters: the same athlete, the same financial
+intent, expressed in either schema, produces the same V1 list.
+
+Reproduce with `node server/scripts/v1BridgeProof.js`, and
+`shared/matching/familyBudgetBridge.test.js` (59 tests with
+`contributionVocabulary.test.js`, which fails if the restated vocabulary drifts
+from V2's).
+
+### What did not move
+
+`96095d3` also added two fields to `normaliseAthlete` in `pool.js`. They are
+read only by V2 Financial; V1 never looks at them. No other commit since
+`480a915` touches `criteria.js`, `score.js`, `weights.js` or `couplings.js`.

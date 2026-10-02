@@ -21,8 +21,18 @@ import { VALIDATION_FIXTURES, FIRST_PACK_SET, PACK_SET_V2, ARCHETYPE_COVERAGE, P
 const SEASON = '2026';
 const DEFAULT_OUT = 'docs/validation';
 
-/** The freeze point recorded in docs/v1-freeze.md. Named, not inferred. */
-const V1_FREEZE_COMMIT = '480a915645425c3286a19c2da10e3a1d60b3a3ec';
+/**
+ * The freeze point recorded in docs/v1-freeze.md. Named, not inferred.
+ *
+ * MOVED ONCE, at A7.48B, from `480a915` to `711af51` - the input-compatibility
+ * repair that let V1 keep reading a budget after the form stopped writing
+ * bands. The audit is in the freeze record: no V1 formula, constant, threshold
+ * or criterion changed, all fourteen bands resolve identically under either
+ * representation, and the eight reference athletes rank identically across the
+ * full universe. Packs generated before the move name `480a915` and are right
+ * to; that is the baseline they were measured against.
+ */
+const V1_FREEZE_COMMIT = '711af51da9b16e4037ef990a6c1175a3cb70a2f8';
 
 function usage(code) {
   console.error('Usage: v2ValidationPack.js (--first-set | --v2-set | --fixture=<A-H|V-ELITE|V-WMID> | --athlete=<file.json>) [--profile=<UNDECLARED|LEVEL_FIRST|PLAYING_FIRST|BOTH_HIGH|BALANCED>] [--out=dir] [--quiet]');
