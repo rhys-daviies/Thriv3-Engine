@@ -69,9 +69,11 @@ describe('scoring a pool', () => {
     // A7.8.2 let Playing Pathway be carried by either half; A7.45B requires
     // the competition half, so a refusal means the entry-year evidence is
     // missing. NJCAA has neither a roster nor an eligibility rule, so both
-    // halves are gone and the minutes history still decides the reason.
+    // halves are gone - and after A7.48 D1 the reason names the thing that is
+    // actually absent, which is the roster, not a minutes history.
     expect(rep.byDivision.NJCAA.scoreable).toBe(0);
-    expect(rep.unscoreableReasons[REASON.NO_MINUTES_HISTORY]).toBe(20);
+    expect(rep.unscoreableReasons[REASON.NO_ROSTER_ON_FILE]).toBe(20);
+    expect(rep.unscoreableReasons[REASON.NO_MINUTES_HISTORY]).toBeUndefined();
   });
 
   it('A7.45B: a caller that passes no roster index now scores nothing', () => {
@@ -180,6 +182,6 @@ describe('the flattened row', () => {
     const row = opportunityRow(run().results.find((r) => !r.result.ok));
     expect(row.scoreable).toBe(false);
     expect(row).not.toHaveProperty('opportunity');
-    expect(row.reason).toBe(REASON.NO_MINUTES_HISTORY);
+    expect(row.reason).toBe(REASON.NO_ROSTER_ON_FILE);
   });
 });

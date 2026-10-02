@@ -67,8 +67,20 @@ const stated = (v) => v !== null && v !== undefined && v !== '' && Number.isFini
  * (split-half r = 0.002 at goalkeeper).
  */
 export function squadRotation({ sport, position, division, programme, rosterOnFile }) {
+  /**
+   * A7.48 D1. `NO_ROSTER_ON_FILE`, not `NO_MINUTES_HISTORY`.
+   *
+   * This branch means Thriv3 holds no current roster for the PROGRAMME, and
+   * the sentence attached to `NO_MINUTES_HISTORY` describes something else
+   * entirely - a departing cohort nobody could place as starter or squad,
+   * which is `positionalOpportunity`'s refusal and its phrase. One code was
+   * carrying both meanings, and because `playingPathway` inherits rotation's
+   * reason when both halves refuse, the wrong one reached 2,280 cells: a
+   * programme we hold nothing for was explained as one whose leavers we could
+   * not classify.
+   */
   if (!rosterOnFile) {
-    return unscoreable({ reason: REASON.NO_MINUTES_HISTORY, missing: ['minutesHistory'], available: [] });
+    return unscoreable({ reason: REASON.NO_ROSTER_ON_FILE, missing: ['roster'], available: [] });
   }
   const norm = playingShareFor({ sport, division, position, programme });
   const scale = playingScale(sport, position);
@@ -272,6 +284,25 @@ export function returningCompetition({
             + 'also carries players whose position could not be read at all - so an empty group here is '
             + 'what we failed to read, not what the programme does not have',
         },
+      });
+    }
+    /**
+     * A7.48 D2. A ROSTER WE READ AND A POSITION IT DOES NOT FILL.
+     *
+     * Reporting `NO_ROSTER_ON_FILE` here said Thriv3 holds no roster for a
+     * programme whose roster it holds and has read completely - false, and it
+     * sends a reader to acquire data that is already present. The state is a
+     * measurement: this roster records nobody at this position. A7.44 left it
+     * refusing rather than scoring it, deliberately, and A7.48 changes only
+     * what it is CALLED.
+     */
+    if (programmeRosterOnFile) {
+      return unscoreable({
+        reason: REASON.NO_PLAYERS_AT_POSITION,
+        missing: ['positionGroup'],
+        available: ['roster'],
+        coverage: 0,
+        detail: { position, programmeRows, note: 'the roster is on file and was read; it records nobody at this position' },
       });
     }
     return unscoreable({ reason: REASON.NO_ROSTER_ON_FILE, missing: ['roster'], available: [] });
@@ -559,6 +590,22 @@ export function returningCompetition({
  * and rotation does not, so losing rotation costs context while losing
  * competition costs the subject.
  */
+/**
+ * A7.48 D3. The reasons that belong to ROTATION rather than to competition.
+ *
+ * WHY THIS IS EXACT, not a heuristic. `playingPathway` refuses by exactly two
+ * routes. The both-halves branch inherits ROTATION's reason, and rotation only
+ * ever refuses for these two. The A7.45B branch fires only when rotation IS
+ * scoreable and inherits COMPETITION's reason, which cannot be either of these
+ * - a programme with no roster has no rotation either, so that case is taken
+ * by the first branch before the second is reached.
+ *
+ * So a pathway refusal carrying one of these is a refusal with NO rotation
+ * evidence behind it, and any other refusal has rotation evidence that
+ * survived. `pathwayRefusal.test.js` pins both directions.
+ */
+export const ROTATION_OWN_REFUSALS = Object.freeze([REASON.NO_ROSTER_ON_FILE, REASON.NO_MINUTES_HISTORY]);
+
 export function playingPathway({ competition, rotation, competitionShare = COMPETITION_SHARE }) {
   const hasC = isScoreable(competition);
   const hasR = isScoreable(rotation);

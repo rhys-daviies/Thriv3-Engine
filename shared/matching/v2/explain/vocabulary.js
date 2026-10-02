@@ -130,7 +130,16 @@ export const REASON_CODE = Object.freeze({
    * pathway is poor", "you will not play" or "the position is closed" - the
    * sentence exists precisely because Thriv3 cannot say any of those things.
    */
-  PATHWAY_NOT_RANKED: 'PATHWAY_NOT_RANKED',
+  /**
+   * A7.48 D3. SPLIT IN TWO, because one sentence cannot be true of both.
+   *
+   * The single version promised that what is known about how the programme
+   * shares minutes "is kept and reported" - true where rotation survived, and
+   * false on the 2,280 cells where rotation had refused as well, which is
+   * every programme Thriv3 holds no roster for.
+   */
+  PATHWAY_NOT_RANKED_ROTATION_KNOWN: 'PATHWAY_NOT_RANKED_ROTATION_KNOWN',
+  PATHWAY_NOT_RANKED_NOTHING_KNOWN: 'PATHWAY_NOT_RANKED_NOTHING_KNOWN',
   PATHWAY_ROTATION_ONLY: 'PATHWAY_ROTATION_ONLY',
   PLAYING_SHARE_WIDE: 'PLAYING_SHARE_WIDE',
   PLAYING_SHARE_NARROW: 'PLAYING_SHARE_NARROW',
@@ -328,6 +337,8 @@ export const REFUSAL_PHRASE = Object.freeze({
   NO_ELIGIBILITY_RULE: 'no eligibility rule is established for this association',
   NO_CLASS_LABELS: 'the roster carries no readable class years',
   NO_READABLE_POSITIONS: 'the roster is on file and it does not say clearly enough who plays where',
+  /** A7.48. A measurement, not an absence of data - and not a judgement either. */
+  NO_PLAYERS_AT_POSITION: 'the roster is on file and records nobody at this position',
   NO_MINUTES_HISTORY: 'nobody leaving this position could be placed as a starter or a squad player, so a count of zero would be silence rather than a measurement',
   NO_PROGRAMME_LEVEL: 'this programme carries no strength rating',
   NO_ATHLETE_LEVEL: 'this athlete carries no ability rating',

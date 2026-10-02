@@ -361,11 +361,18 @@ describe('5. what A7.37 deliberately did NOT change', () => {
     expect(comp(R(3, 0, 0), { places: 4 }).basis.pressure).toBeCloseTo(0.75, 9);
   });
 
-  it('squadRotation was not touched at all', () => {
+  it('squadRotation still refuses on exactly the same input', () => {
+    /**
+     * A7.37 did not touch this component and A7.48 did not change its
+     * BEHAVIOUR either - only the name of this refusal. It used to report
+     * NO_MINUTES_HISTORY, which is the departing-cohort refusal belonging to
+     * `positionalOpportunity`, and whose sentence described a cohort that
+     * does not exist when the programme has no roster at all.
+     */
     const r = squadRotation({
       sport: 'mens-soccer', position: 'MIDFIELD', division: 'NCAA D1', programme: 'nowhere', rosterOnFile: false,
     });
     expect(isScoreable(r)).toBe(false);
-    expect(r.reason).toBe(REASON.NO_MINUTES_HISTORY);
+    expect(r.reason).toBe(REASON.NO_ROSTER_ON_FILE);
   });
 });

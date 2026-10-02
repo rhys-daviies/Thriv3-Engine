@@ -18,6 +18,7 @@
 import { isScoreable, isNotApplicable, GRADE } from '../types.js';
 import { RANKING_STATE } from '../types.js';
 import { AID_POLICY_STATUS } from '../aidPolicy.js';
+import { ROTATION_OWN_REFUSALS } from '../layers/opportunityComponents.js';
 import {
   LAYER, POLARITY, BAND, REASON_CODE, EVIDENCE,
   sampleStrength, bandFor, ABSOLUTE,
@@ -273,8 +274,23 @@ function opportunityReasons(result) {
      * programme down. Said as its own sentence.
      */
     if (result.detail?.requiredMissing === 'playingPathway') {
-      out.push(reason(REASON_CODE.PATHWAY_NOT_RANKED, LAYER.OPPORTUNITY, POLARITY.UNKNOWN,
-        BAND.SECONDARY_EVIDENCE, { reason: result.reason }));
+      /**
+       * A7.48 D3. WHICH sentence depends on whether rotation survived, and the
+       * layer refusal is the only thing available to decide it - `combine`
+       * carries the required component's reason but not its detail.
+       *
+       * The reason is a sufficient discriminator, and that is a property
+       * rather than a guess: `playingPathway` refuses by two routes, one
+       * inheriting rotation's reason and one - which fires only when rotation
+       * IS scoreable - inheriting competition's, and the two reason sets are
+       * disjoint. See `ROTATION_OWN_REFUSALS`, where the argument is written
+       * out, and `pathwayRefusal.test.js`, which pins both directions.
+       */
+      const nothingKnown = ROTATION_OWN_REFUSALS.includes(result.reason);
+      out.push(reason(
+        nothingKnown ? REASON_CODE.PATHWAY_NOT_RANKED_NOTHING_KNOWN : REASON_CODE.PATHWAY_NOT_RANKED_ROTATION_KNOWN,
+        LAYER.OPPORTUNITY, POLARITY.UNKNOWN, BAND.SECONDARY_EVIDENCE, { reason: result.reason },
+      ));
     }
     return out;
   }

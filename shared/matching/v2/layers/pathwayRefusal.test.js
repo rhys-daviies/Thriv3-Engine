@@ -272,7 +272,7 @@ describe('12. downstream — no missing evidence becomes a number anywhere', () 
 describe('12b. the explanation keeps the rotation evidence and blames nobody', () => {
   it('says it is an evidence limit, not a verdict on the programme', () => {
     const text = renderReason({
-      code: REASON_CODE.PATHWAY_NOT_RANKED, layer: LAYER.OPPORTUNITY,
+      code: REASON_CODE.PATHWAY_NOT_RANKED_ROTATION_KNOWN, layer: LAYER.OPPORTUNITY,
       polarity: POLARITY.UNKNOWN, band: BAND.SECONDARY_EVIDENCE, evidence: {},
     });
     expect(text).toBeTruthy();

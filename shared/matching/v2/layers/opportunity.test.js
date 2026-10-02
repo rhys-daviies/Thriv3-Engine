@@ -50,7 +50,9 @@ describe('required evidence', () => {
   it('refuses without playing opportunity, however good the trajectory', () => {
     const r = O({ pathway: play({ rosterOnFile: false }), trajectory: traj(1, 0) });
     expect(r.ok).toBe(false);
-    expect(r.reason).toBe(REASON.NO_MINUTES_HISTORY);
+    // A7.48 D1: the layer still inherits the required component's reason. The
+    // reason itself is now the truthful one for "no roster held".
+    expect(r.reason).toBe(REASON.NO_ROSTER_ON_FILE);
     expect('value' in r).toBe(false);
   });
 

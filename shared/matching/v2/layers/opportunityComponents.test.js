@@ -22,7 +22,9 @@ describe('playing opportunity', () => {
   it('needs a roster, and never returns a neutral score without one', () => {
     const r = P({ rosterOnFile: false });
     expect(r.ok).toBe(false);
-    expect(r.reason).toBe(REASON.NO_MINUTES_HISTORY);
+    // A7.48 D1: no roster is NO_ROSTER_ON_FILE. NO_MINUTES_HISTORY belongs to
+    // positionalOpportunity's departing-cohort refusal, whose sentence it is.
+    expect(r.reason).toBe(REASON.NO_ROSTER_ON_FILE);
     expect('value' in r).toBe(false);
   });
 

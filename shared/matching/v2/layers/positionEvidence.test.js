@@ -240,7 +240,13 @@ describe('5. a measured zero is not an unknown, and the two must never converge'
   const unknownZero = comp({ rosterOnFile: false, returning: null, positionRows: 0, programmeRosterOnFile: true, positionUnreadable: 12 });
 
   it('gives them different reasons', () => {
-    expect(readableZero.reason).toBe(REASON.NO_ROSTER_ON_FILE);
+    /**
+     * A7.48 D2 sharpened the first of these. A7.44 separated the two states
+     * and left the readable zero reporting NO_ROSTER_ON_FILE, which said
+     * Thriv3 holds no roster for a programme whose roster it had just read
+     * completely. It now says what it actually found.
+     */
+    expect(readableZero.reason).toBe(REASON.NO_PLAYERS_AT_POSITION);
     expect(unknownZero.reason).toBe(REASON.NO_READABLE_POSITIONS);
     expect(readableZero.reason).not.toBe(unknownZero.reason);
   });
@@ -259,6 +265,24 @@ describe('5. a measured zero is not an unknown, and the two must never converge'
   it('still says NO_ROSTER_ON_FILE when there genuinely is no roster', () => {
     const none = comp({ rosterOnFile: false, returning: null, programmeRosterOnFile: false, positionUnreadable: 0 });
     expect(none.reason).toBe(REASON.NO_ROSTER_ON_FILE);
+  });
+
+  it('A7.48: three empty-at-this-position states, three different reasons', () => {
+    /**
+     * The whole point of the split, in one assertion. All three hold nobody at
+     * the position; they differ in WHY, and a reader needs a different thing
+     * from each - acquire a roster, fix the position labels, or nothing at all
+     * because the answer is simply that this programme has no one here.
+     */
+    const noRoster = comp({ rosterOnFile: false, returning: null, programmeRosterOnFile: false });
+    const unreadable = comp({ rosterOnFile: false, returning: null, programmeRosterOnFile: true, positionUnreadable: 12 });
+    const genuinelyEmpty = comp({ rosterOnFile: false, returning: null, programmeRosterOnFile: true, positionUnreadable: 0 });
+    expect(noRoster.reason).toBe(REASON.NO_ROSTER_ON_FILE);
+    expect(unreadable.reason).toBe(REASON.NO_READABLE_POSITIONS);
+    expect(genuinelyEmpty.reason).toBe(REASON.NO_PLAYERS_AT_POSITION);
+    expect(new Set([noRoster.reason, unreadable.reason, genuinelyEmpty.reason]).size).toBe(3);
+    // and none of them carries a value: unknown never becomes a number
+    for (const r of [noRoster, unreadable, genuinelyEmpty]) expect(r.value).toBeUndefined();
   });
 });
 

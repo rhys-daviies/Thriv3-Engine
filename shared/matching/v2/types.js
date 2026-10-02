@@ -73,6 +73,23 @@ export const REASON = Object.freeze({
    * whoever read them to look for data that is already there.
    */
   NO_READABLE_POSITIONS: 'NO_READABLE_POSITIONS',
+  /**
+   * A7.48. The roster IS on file, it WAS read, and it records nobody at this
+   * position.
+   *
+   * SPLIT OUT OF NO_ROSTER_ON_FILE BECAUSE THAT WORD WAS FALSE HERE. A
+   * programme with fourteen listed players and no goalkeeper was being
+   * explained as one Thriv3 holds no roster for, which sends a reader to
+   * acquire data that is already present and describes the programme wrongly.
+   *
+   * IT IS NOT NEGATIVE EVIDENCE AND MUST NOT BE READ AS ANY. A7.44 ruled that
+   * this state is a genuine MEASUREMENT - the roster reads completely and the
+   * position is empty - and deliberately left it refusing rather than scoring
+   * it, because scoring it is a separate question that moves rankings. What
+   * A7.48 adds is only that it can now be told apart from an absent roster and
+   * from an unreadable one.
+   */
+  NO_PLAYERS_AT_POSITION: 'NO_PLAYERS_AT_POSITION',
   NOT_APPLICABLE: 'NOT_APPLICABLE',
   BELOW_COVERAGE_FLOOR: 'BELOW_COVERAGE_FLOOR',
 });
