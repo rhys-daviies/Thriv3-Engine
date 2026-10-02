@@ -145,14 +145,28 @@ describe('the two halves stay separate', () => {
     expect(COMPETITION_SHARE).toBeGreaterThan(0.5);
   });
 
-  it('uses whichever half it has when the other refuses', () => {
+  /**
+   * A7.45B SUPERSEDED THE SYMMETRY. This read "uses whichever half it has when
+   * the other refuses", and that was true of both halves until A7.45 measured
+   * what the rotation-only case was actually worth: the coverage 0.4 it
+   * reported never reached the Opportunity layer, so rotation entered at the
+   * pathway's full 0.65 share with the authority of a complete answer.
+   *
+   * The halves are not interchangeable. Competition answers the pathway's
+   * question - who will be here when the athlete arrives - and rotation
+   * answers a different one, at r = +0.174 against it.
+   */
+  it('uses competition alone when rotation refuses, and refuses when competition does', () => {
     const noRoster = unscoreable({ reason: REASON.NO_ROSTER_ON_FILE, missing: ['roster'], available: [] });
     const noMinutes = unscoreable({ reason: REASON.NO_MINUTES_HISTORY, missing: ['minutesHistory'], available: [] });
-    expect(playingPathway({ competition: noRoster, rotation: S(0.7) }).value).toBe(0.7);
     expect(playingPathway({ competition: S(0.3), rotation: noMinutes }).value).toBe(0.3);
+    const rotationOnly = playingPathway({ competition: noRoster, rotation: S(0.7) });
+    expect(rotationOnly.ok).toBe(false);
+    // The rotation measurement is kept, it just does not carry a rank.
+    expect(rotationOnly.detail.rotation.value).toBe(0.7);
   });
 
-  it('refuses only when both halves do', () => {
+  it('refuses when both halves do, with rotation\'s reason', () => {
     const noRoster = unscoreable({ reason: REASON.NO_ROSTER_ON_FILE, missing: ['roster'], available: [] });
     const noMinutes = unscoreable({ reason: REASON.NO_MINUTES_HISTORY, missing: ['minutesHistory'], available: [] });
     const r = playingPathway({ competition: noRoster, rotation: noMinutes });

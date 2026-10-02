@@ -206,10 +206,21 @@ describe('4. a single-half pathway reports the weight it actually has', () => {
    * of the MISSING half. A7.36 found 52 men's and 72 women's cells in that
    * state, every one rotation-only, so the error only ever overstated.
    */
-  it('rotation-only reports 0.4, the weight of the half it holds', () => {
+  /**
+   * A7.45B SUPERSEDED THIS CASE. A7.37 corrected rotation-only coverage from
+   * 0.6 to 0.4 - the weight of the half actually held - and that correction
+   * was right about the arithmetic and inert in effect: A7.45 proved the
+   * number never reached the layer, because `coverage.combine` derives a
+   * layer's coverage from component WEIGHTS. Rotation-only entered Athlete
+   * Opportunity at the pathway's full 0.65 share regardless.
+   *
+   * There is no rotation-only pathway to report a coverage for any more.
+   */
+  it('rotation-only no longer produces a pathway at all', () => {
     const r = playingPathway({ competition: REFUSED, rotation: S(0.7) });
-    expect(r.value).toBe(0.7);
-    expect(r.coverage).toBeCloseTo(1 - COMPETITION_SHARE, 9);
+    expect(r.ok).toBe(false);
+    expect(r.value).toBeUndefined();
+    expect(r.coverage).toBe(0);
   });
 
   it('competition-only still reports 0.6', () => {
@@ -222,16 +233,31 @@ describe('4. a single-half pathway reports the weight it actually has', () => {
 
   it('is never MEASURED on one half, however certain that half is', () => {
     // A programme's rotation habit is a true thing to know and is not an
-    // answer to how crowded the position will be. It may carry the value; it
-    // must not carry the certainty.
-    const r = playingPathway({ competition: REFUSED, rotation: S(0.7, GRADE.MEASURED) });
+    // answer to how crowded the position will be. A7.37 let it carry the value
+    // but not the certainty; A7.45B found that distinction had no downstream
+    // effect and stopped letting it carry the value either. The surviving
+    // single-half case is competition-only, and it is still never MEASURED.
+    const r = playingPathway({
+      competition: S(0.3, GRADE.MEASURED),
+      rotation: unscoreable({ reason: REASON.NO_MINUTES_HISTORY, missing: ['minutesHistory'], available: [] }),
+    });
     expect(r.grade).toBe(GRADE.PARTIAL);
   });
 
-  it('says it is rotation-only, and why the other half refused', () => {
+  it('still says why competition refused - now on the refusal, not in a basis', () => {
+    /**
+     * A7.37's whole point was that the silence was the problem: when the
+     * entry-year half refused, nothing was emitted and the rotation sentence
+     * stood alone looking like a complete answer. That requirement survives
+     * A7.45B unchanged. What moved is where the evidence lives - a refused
+     * result carries no basis, so it travels in `detail` instead, rotation
+     * measurement included.
+     */
     const r = playingPathway({ competition: REFUSED, rotation: S(0.7) });
-    expect(r.basis.rotationOnly).toBe(true);
-    expect(r.basis.competitionRefusedBecause).toBe(REASON.NO_CLASS_LABELS);
+    expect(r.reason).toBe(REASON.NO_CLASS_LABELS);
+    expect(r.detail.competitionRefusedBecause).toBe(REASON.NO_CLASS_LABELS);
+    expect(r.detail.rotation.value).toBe(0.7);
+    expect(r.available).toContain('squadRotation');
   });
 
   it('both halves present is unchanged: 0.6 / 0.4 and full coverage', () => {
@@ -242,16 +268,27 @@ describe('4. a single-half pathway reports the weight it actually has', () => {
     expect(r.basis.rotationOnly).toBe(false);
   });
 
-  it('pathway survives every competition refusal, so no programme leaves the ranking', () => {
+  it('a competition refusal now DOES reach the pathway, and that is the blast radius', () => {
     /**
-     * THE BLAST-RADIUS INVARIANT. `playingPathway` is a REQUIRED component of
-     * Opportunity, so a refusal that reached the pathway itself would drop the
-     * programme into LIMITED_DATA. Rotation depends on neither the entry year
-     * nor class readability, so it survives every refusal A7.37 introduced.
+     * THE INVARIANT A7.45B DELIBERATELY BROKE, kept here inverted rather than
+     * deleted so the change stays visible.
+     *
+     * A7.37 relied on rotation surviving every refusal, which kept
+     * `playingPathway` - a REQUIRED component of Opportunity - scoreable, so no
+     * programme ever left the ranking. A7.45 measured the price of that
+     * guarantee: the surviving half entered at full authority on 40% of the
+     * evidence weight, and the coverage meant to restrain it never reached the
+     * layer. Policy B pays the blast radius instead of hiding it, and the
+     * programme becomes LIMITED_DATA rather than being ranked on a different
+     * question.
      */
     for (const entryYear of [2027, 2028, 2029, 2030]) {
       const c = comp(R(0, 0, 0), { entryYear, maxLastSeason: 2029, positionRows: 9, unreadable: 9 });
-      expect(isScoreable(playingPathway({ competition: c, rotation: S(0.5) })), String(entryYear)).toBe(true);
+      expect(isScoreable(c), String(entryYear)).toBe(false);
+      const pw = playingPathway({ competition: c, rotation: S(0.5) });
+      expect(isScoreable(pw), String(entryYear)).toBe(false);
+      // and the rotation evidence is still there to be explained
+      expect(pw.detail.rotation.value).toBe(0.5);
     }
   });
 });
