@@ -129,24 +129,46 @@ describe('3. any surviving hand-rolled roster query still selects the appearance
   });
 });
 
-describe('4. the contexts that feed runPursuit carry the roster season', () => {
+describe('4. nothing that feeds runPursuit assembles its own context', () => {
   /**
-   * `pursuitRun.js` reads `ctx.rosterSeason ?? null`, and a null disables
-   * A7.37's horizon-depth grading without any error. A caller that assembles a
-   * context object for runPursuit must therefore supply it.
+   * A7.48 G tightened this. A7.46 only required a hand-rolled context to
+   * supply `rosterSeason`, because that was the field then known to be
+   * missing. A7.47's path inventory found the same file still short of
+   * `marketIndex` and `centroids`, so `recruitingMarket` had nothing to read
+   * and refused for every programme - an architecture comparison running on a
+   * layer that was quietly switched off.
+   *
+   * Enumerating the required fields one at a time loses that race every time a
+   * field is added. The contract is now the builder itself.
    */
-  const ctxBuilders = scripts.filter((f) => {
+  const PURSUIT_CTX_FIELDS = ['rosterProgrammes', 'rosterIndex', 'arrivalIndex', 'arrivalsHorizon',
+    'rosterSeason', 'marketIndex', 'centroids'];
+
+  const handRolledForPursuit = scripts.filter((f) => {
     const s = read(f);
     return /rosterIndex\s*:\s*buildPositionIndex\(/.test(s) && /runPursuit\(/.test(s);
   });
 
-  it('has something to check, or nothing hand-rolls a runPursuit context', () => {
-    expect(Array.isArray(ctxBuilders)).toBe(true);
+  it('finds no script building its own runPursuit context', () => {
+    expect(handRolledForPursuit).toEqual([]);
   });
 
-  it.each(ctxBuilders.length ? ctxBuilders : ['(none)'])('%s supplies rosterSeason', (file) => {
-    if (file === '(none)') return;
-    expect(read(file), `${file}: rosterSeason`).toMatch(/rosterSeason\s*:/);
+  it('pursuitRun reads exactly the context fields this test knows about', () => {
+    /**
+     * The guard on the guard: if `pursuitRun` starts reading a field this list
+     * does not have, the list is stale and so is the assertion above it.
+     */
+    const src = fs.readFileSync(path.join(dir, '../lib/v2/pursuitRun.js'), 'utf8');
+    const read_ = [...src.matchAll(/ctx\.([a-zA-Z]+)/g)].map((m) => m[1]);
+    expect([...new Set(read_)].sort()).toEqual([...PURSUIT_CTX_FIELDS].sort());
+  });
+
+  it('buildPoolContext supplies every one of them', () => {
+    const src = fs.readFileSync(path.join(dir, '../lib/v2/poolContext.js'), 'utf8');
+    // `centroids` is returned as a shorthand property, so accept both forms.
+    for (const f of PURSUIT_CTX_FIELDS) {
+      expect(src, `poolContext should supply ${f}`).toMatch(new RegExp(`\\b${f}\\s*(:|,|\n)`));
+    }
   });
 });
 

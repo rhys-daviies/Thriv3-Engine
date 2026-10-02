@@ -11,8 +11,8 @@
  */
 import db from '../db/client.js';
 import { canonicalPosition } from '../../shared/positions.js';
+import { buildPoolContext } from '../lib/v2/poolContext.js';
 import { normaliseAthlete } from '../../shared/matching/pool.js';
-import { buildPositionIndex, buildArrivalIndex, divisionArrivalRates } from '../lib/v2/rosterEvidence.js';
 import { runPursuit } from '../lib/v2/pursuitRun.js';
 import { isScoreable, CORE_FLOOR, PURSUIT_WEIGHTS, PURSUIT_GATES, tailGate } from '../../shared/matching/v2/index.js';
 import { FIXTURES } from './v2Fixtures.js';
@@ -172,29 +172,18 @@ export function marketMatch({ athleteIsInternational, distanceKm, prog }) {
 function runFixture(f, ctxCache) {
   const sport = f.player.sport;
   if (!ctxCache.has(sport)) {
-    const colleges = db.prepare('SELECT * FROM colleges WHERE sport = ? AND active = 1').all(sport);
-    const roster = db.prepare(`
-      SELECT college_name, player_name, position, minutes_played, projected_minutes,
-             games_started, projected_games_started,
-             estimated_graduation_year, eligibility_end_year, country, season, division, class_year_label
-        FROM roster_players WHERE sport = ? AND season = ?`).all(sport, SEASON);
-    const arr = db.prepare('SELECT programme, sport, arrival_season, canonical_position, is_international FROM recruiting_arrivals WHERE sport = ?').all(sport);
-    ctxCache.set(sport, {
-      colleges,
-      rosterProgrammes: new Set(roster.map((r) => r.college_name)),
-      rosterIndex: buildPositionIndex(roster),
-      arrivalIndex: buildArrivalIndex(arr),
-      divisionArrivals: divisionArrivalRates(arr, new Map(colleges.map((c) => [c.name, c]))),
-      arrivalsHorizon: arr.reduce((m, r) => Math.max(m, Number(r.arrival_season) || 0), 0),
-      /**
-       * A7.46. Held by every other caller and missing here, so `pursuitRun`
-       * passed `rosterSeason: null` and A7.37's horizon-depth grading was
-       * silently disabled - a cell could be graded MEASURED that the canonical
-       * path grades PARTIAL. It changes no value; it changed authority.
-       */
-      rosterSeason: Number(SEASON),
-      behaviour: behaviour(sport),
-    });
+    /**
+     * A7.48 G. THE CANONICAL BUILDER, not a fourth hand-rolled copy.
+     *
+     * A7.46 repaired two callers this way and left this one, adding only the
+     * `rosterSeason` it was missing. A7.47's path inventory then found it was
+     * still short of `marketIndex` and `centroids`, so `recruitingMarket` had
+     * nothing to read and refused for every programme - an architecture
+     * comparison run on a layer that was quietly switched off.
+     *
+     * `behaviour` is this script's own evidence and stays its own.
+     */
+    ctxCache.set(sport, { ...buildPoolContext({ db, sport, season: SEASON }), behaviour: behaviour(sport) });
   }
   const ctx = ctxCache.get(sport);
   const position = canonicalPosition(f.player.position);
