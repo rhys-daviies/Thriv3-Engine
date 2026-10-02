@@ -61,6 +61,22 @@ export const REASON = Object.freeze({
    * question they already answered.
    */
   NO_PROGRAMME_MAJOR_EVIDENCE: 'NO_PROGRAMME_MAJOR_EVIDENCE',
+  /**
+   * A8.2. The institution HAS a notable-majors list and the athlete's family
+   * is not on it - which is not evidence the major is unavailable.
+   *
+   * `colleges.notable_majors` is built from College Scorecard PCIP COMPLETION
+   * SHARES, so it names an institution's largest fields of study, not its
+   * catalogue: a mean of 7.55 of the 14 families, and 321 of 349 Division I
+   * women's programmes omit Mathematics - Penn State, Ohio State, Wisconsin
+   * and Texas A&M among them, all of which grant mathematics degrees.
+   *
+   * Separate from NO_PROGRAMME_MAJOR_EVIDENCE because the data situations
+   * differ and an explanation should be able to say which: there, no list is
+   * recorded at all; here, a list exists and does not settle the question.
+   * The epistemic state is the same, which is why both refuse.
+   */
+  MAJOR_NOT_IN_PARTIAL_EVIDENCE: 'MAJOR_NOT_IN_PARTIAL_EVIDENCE',
   NO_WIN_RATES: 'NO_WIN_RATES',
   /**
    * A7.44. The roster IS on file and its POSITIONS could not be read - either
