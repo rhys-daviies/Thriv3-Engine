@@ -647,6 +647,47 @@ export const matchmaking = {
   run(runId) {
     return request(`/api/matchmaking/runs/${runId}`);
   },
+
+  /**
+   * WHERE ONE PROGRAMME SITS in this athlete's persisted universe — A9.5.
+   *
+   * A lookup, not a score. `programme: null` inside a successful answer means
+   * the registry holds this school and this athlete's evaluated pool does not,
+   * which is a real answer; RUN_NOT_FOUND means there is nothing to look
+   * inside yet, and the UI offers to generate rather than ranking one school
+   * on its own.
+   */
+  programme(playerId, { name, sport = null, runId = null } = {}) {
+    const qs = new URLSearchParams({ name });
+    if (sport) qs.set('sport', sport);
+    if (runId) qs.set('runId', runId);
+    return request(`/api/players/${playerId}/matchmaking/programme?${qs.toString()}`);
+  },
+
+  /** The Top 100 of a run as selection candidates. Ranked only, by construction. */
+  top(playerId, { runId = null } = {}) {
+    const qs = new URLSearchParams();
+    if (runId) qs.set('runId', runId);
+    return request(`/api/players/${playerId}/matchmaking/top?${qs.toString()}`);
+  },
+
+  /**
+   * Record that a programme was chosen for outreach out of a specific run.
+   *
+   * PROVENANCE ONLY. No campaign is created, no message drafted and nothing
+   * sent — this is the record of a decision, never its execution.
+   */
+  select(playerId, { collegeName, sport = null, runId = null, source } = {}) {
+    return request(`/api/players/${playerId}/matchmaking/selections`, {
+      method: 'POST',
+      body: JSON.stringify({ collegeName, sport, runId, source }),
+    });
+  },
+
+  /** This athlete's selection history. */
+  selections(playerId) {
+    return request(`/api/players/${playerId}/matchmaking/selections`);
+  },
 };
 /**
  * A blob AND the name the server gave it — 13J / §14.

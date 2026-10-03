@@ -59,20 +59,24 @@ export default function MatchingTabSwitch() {
   return (
     <div className="space-y-4">
       {/*
-        SPECIFIC SCHOOLS IS NOT REBUILT HERE, AND IS NOT LOST EITHER.
+        SEARCH MOVED TO V2 IN A9.5. RELATIONSHIP MANAGEMENT HAS NOT.
 
-        It lives inside the V1 tab, wired to the workspace's relationship
-        helpers, and A9.5 owns bringing it onto the V2 run — the brief is
-        explicit that A9.3 does not replace it. Removing the only route to it
-        for the length of the rollout would be a functional regression dressed
-        up as scope discipline, so the one control that reaches it is kept,
-        pointing at the screen that still has it.
+        This link said "Specific Schools (previous engine)" while V2 had no
+        search at all, and leaving that label now would be actively misleading:
+        V2 answers "where does Stanford rank" itself, out of the persisted run,
+        and sends nobody to V1 for it.
+
+        What still lives only on the V1 tab is the RELATIONSHIP work around a
+        requested school — flag, note, contact stance, withdraw, and the manual
+        outreach dialog those drive. None of that is matchmaking, none of it is
+        rebuilt here, and removing the only route to it would be a regression
+        dressed up as scope discipline.
       */}
       <div className="flex items-center justify-end">
         <Button size="sm" variant="outline" asChild>
           <Link to={`?matching=${MATCHING_V1}`}>
             <Search className="h-3.5 w-3.5 mr-1.5" />
-            Specific Schools (previous engine)
+            Requested schools &amp; outreach (previous engine)
           </Link>
         </Button>
       </div>

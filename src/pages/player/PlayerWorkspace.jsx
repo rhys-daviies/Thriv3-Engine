@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link, NavLink, Navigate, Outlet, useNavigate, useOutletContext, useParams } from 'react-router-dom';
+import { Link, NavLink, Navigate, Outlet, useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Sparkles, MapPin, GraduationCap, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { entities, integrations } from '@/api/client';
 import { analyze } from '@/lib/playerAnalysis';
 import { readReserve } from '@shared/matching/reserve.js';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
+import { matchmakingVersion, MATCHING_V1 } from '@/lib/matchmakingVersion';
 import { cn } from '@/lib/utils';
 
 const TABS = [
@@ -93,6 +94,15 @@ export function usePlayerWorkspace() {
 export default function PlayerWorkspace() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  /**
+   * WHICH ENGINE THIS HEADER'S BUTTON BELONGS TO — A9.5 §P.
+   *
+   * Read through the same one-line switch the Matching route uses, so the
+   * header and the tab beneath it can never disagree about which product the
+   * operator is looking at.
+   */
+  const v1 = matchmakingVersion(searchParams) === MATCHING_V1;
   const [player, setPlayer] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [recommendations, setRecommendations] = useState(null);
@@ -241,10 +251,41 @@ export default function PlayerWorkspace() {
           <Button variant="outline" onClick={() => navigate(`/player/${id}/edit`)}>
             <Pencil className="h-4 w-4 mr-1.5" /> Edit Profile
           </Button>
-          <Button onClick={handleAnalyze} disabled={analyzing}>
-            <Sparkles className="h-4 w-4 mr-1.5" />
-            {recommendations ? 'Re-Analyze' : 'Find Matches'}
-          </Button>
+          {/*
+            THE HEADER BUTTON STOPS RANKING THINGS UNDER V2 — A9.5 §P.
+
+            ===================================================================
+            Under V2 this button NAVIGATES. It does not compute.
+
+            `handleAnalyze` runs the V1 analysis in the browser, uploads a file
+            and repoints `players.recommendations`. Leaving that as the most
+            prominent control on a V2 screen meant the obvious button silently
+            ran the OLD engine and overwrote V1's stored answer — while the tab
+            below it showed a V2 run that the click had not touched. Two
+            engines, one button, and no way for an operator to tell which one
+            had just answered.
+
+            Under V2 the act of ranking is explicit and lives where the results
+            are: Generate Matches on an athlete with no run, Refresh Matches on
+            a stale one. Both write an immutable, dated run. So this becomes
+            what it now means — the way to the matches.
+
+            V1 IS UNCHANGED AND IS NOT DELETED. Under `?matching=v1` this is
+            byte-for-byte the previous control, calling the same handler, which
+            is still on the context for the V1 tab that uses it.
+            ===================================================================
+          */}
+          {v1 ? (
+            <Button onClick={handleAnalyze} disabled={analyzing}>
+              <Sparkles className="h-4 w-4 mr-1.5" />
+              {recommendations ? 'Re-Analyze' : 'Find Matches'}
+            </Button>
+          ) : (
+            <Button onClick={() => navigate(`/player/${id}/matching`)} data-testid="open-matches">
+              <Sparkles className="h-4 w-4 mr-1.5" />
+              Matches
+            </Button>
+          )}
         </div>
       </div>
 

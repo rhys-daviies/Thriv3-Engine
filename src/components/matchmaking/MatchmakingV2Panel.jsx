@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, AlertCircle } from 'lucide-react';
+import { Sparkles, AlertCircle, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useMatchmakingV2, MM2, MM2_BUSY, MM2_ERROR } from '@/lib/useMatchmakingV2';
 import MatchmakingResults from './MatchmakingResults';
 import MatchmakingRunBar from './MatchmakingRunBar';
 import MatchmakingPreferences from './MatchmakingPreferences';
+import MatchmakingSpecificSearch from './MatchmakingSpecificSearch';
 
 /**
  * The family contribution is unanswered — §E.
@@ -141,6 +142,7 @@ export default function MatchmakingV2Panel({ player }) {
   const {
     run, status, busy, error, generate, refresh, reload,
   } = useMatchmakingV2(player?.id);
+  const [searching, setSearching] = useState(false);
 
   /**
    * A contribution refusal replaces the screen only when there is nothing to
@@ -178,6 +180,17 @@ export default function MatchmakingV2Panel({ player }) {
               Thriv3 has not ranked programmes for this athlete. Generating matches
               creates a dated set of results that stays on record.
             </p>
+            {/*
+              §E. Said HERE rather than discovered by opening a search box that
+              cannot answer. A specific school's rank only means anything inside
+              a full universe — "#431 of 824" needs the 824 — so there is
+              nothing honest to show for one programme until a run exists, and
+              scoring one on its own is exactly what this must not do.
+            */}
+            <p className="text-xs text-muted-foreground max-w-md mx-auto" data-testid="no-run-search-note">
+              Looking up a specific school also needs a run: a programme&rsquo;s rank only has
+              meaning inside the full universe it was ranked against.
+            </p>
           </div>
           <Button onClick={generate} disabled={busy === MM2_BUSY.GENERATING}>
             <Sparkles className="h-4 w-4 mr-1.5" />
@@ -196,6 +209,25 @@ export default function MatchmakingV2Panel({ player }) {
   return (
     <div className="space-y-4">
       <MatchmakingRunBar run={run} onRefresh={refresh} busy={busy === MM2_BUSY.REFRESHING} />
+
+      <div className="flex items-center justify-end">
+        <Button
+          size="sm"
+          variant={searching ? 'default' : 'outline'}
+          onClick={() => setSearching((v) => !v)}
+          aria-expanded={searching}
+        >
+          <Search className="h-3.5 w-3.5 mr-1.5" />
+          Specific Search
+        </Button>
+      </div>
+
+      {/*
+        §C. The search reads the run that is ON SCREEN — `run` is handed to it
+        rather than letting the server pick the current one, so a standing can
+        never come from a newer run than the list the operator is reading.
+      */}
+      {searching && <MatchmakingSpecificSearch player={player} run={run} />}
 
       {contributionBlocked ? (
         <ContributionBlocked playerId={player?.id} />
