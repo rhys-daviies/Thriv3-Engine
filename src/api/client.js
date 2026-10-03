@@ -689,6 +689,47 @@ export const matchmaking = {
     return request(`/api/players/${playerId}/matchmaking/selections`);
   },
 };
+
+/**
+ * OUTCOME OBSERVATIONS — A9.6 §N.
+ *
+ * Matches server/routes/observations.js exactly, and interprets nothing: what
+ * an observation MEANS on screen is `src/lib/outreachOutcomeView.js`.
+ *
+ * -- THE VOCABULARY IS FETCHED, NOT KEPT HERE -------------------------------
+ *
+ * `vocabulary()` exists so the operator surface renders the legal kinds and
+ * their required attributes from the server rather than from a second copy in
+ * the client. A second copy is how a form comes to offer a value the service
+ * will refuse — which is exactly what A7.9.3 found when the contribution
+ * options drifted from the model that read them.
+ */
+export const observations = {
+  vocabulary() {
+    return request('/api/observations/vocabulary');
+  },
+
+  /** Everything observed about one athlete and one programme, plus the derived state. */
+  forProgramme(playerId, { collegeName, sport }) {
+    const qs = new URLSearchParams({ collegeName, sport });
+    return request(`/api/players/${playerId}/observations?${qs.toString()}`);
+  },
+
+  record(playerId, body) {
+    return request(`/api/players/${playerId}/observations`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
+  /** Confirm or reject one classification. There is no un-review. */
+  review(observationId, state) {
+    return request(`/api/observations/${observationId}/review`, {
+      method: 'POST',
+      body: JSON.stringify({ state }),
+    });
+  },
+};
 /**
  * A blob AND the name the server gave it — 13J / §14.
  *

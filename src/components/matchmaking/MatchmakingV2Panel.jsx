@@ -8,6 +8,7 @@ import MatchmakingResults from './MatchmakingResults';
 import MatchmakingRunBar from './MatchmakingRunBar';
 import MatchmakingPreferences from './MatchmakingPreferences';
 import MatchmakingSpecificSearch from './MatchmakingSpecificSearch';
+import OutreachOutcomePanel from './OutreachOutcomePanel';
 
 /**
  * The family contribution is unanswered — §E.
@@ -143,6 +144,14 @@ export default function MatchmakingV2Panel({ player }) {
     run, status, busy, error, generate, refresh, reload,
   } = useMatchmakingV2(player?.id);
   const [searching, setSearching] = useState(false);
+  /**
+   * THE LAST PROGRAMME CHOSEN FOR OUTREACH IN THIS SESSION — A9.6 §U.
+   *
+   * Held here rather than fetched, because the point of the surface is to
+   * verify the path that was just walked: search, choose, observe. It is not a
+   * selections browser, and A9.7 is where a persistent one belongs.
+   */
+  const [recorded, setRecorded] = useState(null);
 
   /**
    * A contribution refusal replaces the screen only when there is nothing to
@@ -227,7 +236,36 @@ export default function MatchmakingV2Panel({ player }) {
         rather than letting the server pick the current one, so a standing can
         never come from a newer run than the list the operator is reading.
       */}
-      {searching && <MatchmakingSpecificSearch player={player} run={run} />}
+      {searching && (
+        <MatchmakingSpecificSearch
+          player={player}
+          run={run}
+          onSelected={(out) => setRecorded(out)}
+        />
+      )}
+
+      {/*
+        §U. What came of it. The rank and band are the ones the SELECTION
+        froze, handed straight through - this panel never re-reads today's run,
+        so a programme chosen out of an older run is reported as that run saw
+        it.
+      */}
+      {recorded && (
+        <OutreachOutcomePanel
+          player={player}
+          universeSize={run?.counts?.ranked ?? null}
+          selection={{
+            id: recorded.id,
+            collegeName: recorded.programme?.name,
+            sport: run?.sport,
+            status: recorded.programme?.status,
+            rank: recorded.programme?.rank ?? null,
+            band: recorded.programme?.band ?? null,
+            source: 'SPECIFIC_SEARCH',
+            runWasStale: recorded.runWasStale,
+          }}
+        />
+      )}
 
       {contributionBlocked ? (
         <ContributionBlocked playerId={player?.id} />
