@@ -233,11 +233,29 @@ export default function MatchmakingResultCard({
         */}
         {context && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="programme-context">
+            {/*
+              PROGRAMME STRENGTH, RELATIVE TO ITS OWN DIVISION — A11.1 §1.
+
+              NOT `soccer_score / 10`. That is a national ladder on which the
+              strongest D3 programme in the country scores below the weakest
+              D1 one, so "4.1/10" on an excellent D3 programme mostly says
+              "is D3". The division is named in the sentence, so a reader can
+              check what the number is relative to.
+            */}
             <div>
-              <p className="text-[11px] text-muted-foreground">Program Rating</p>
-              <p className="text-sm font-medium" data-testid="program-rating">
-                {context.programRating != null ? `${context.programRating.toFixed(1)}/10` : '—'}
-              </p>
+              <p className="text-[11px] text-muted-foreground">Program Strength</p>
+              {context.programStrength ? (
+                <p className="text-sm font-medium" data-testid="program-strength">
+                  Top {context.programStrength.topPercent}%
+                  <span className="text-muted-foreground font-normal">
+                    {' '}in {context.programStrength.division}
+                  </span>
+                </p>
+              ) : (
+                <p className="text-sm font-medium text-muted-foreground" data-testid="program-strength">
+                  Not established
+                </p>
+              )}
             </div>
             <div>
               <p className="text-[11px] text-muted-foreground">Academic Rating</p>
@@ -263,7 +281,7 @@ export default function MatchmakingResultCard({
 
         {/* FOURTH: the engine's own explanation of this ranking — §7, §8. */}
         {open && explanationState !== 'loading' && (
-          <MatchmakingExplanation explanation={explanation} />
+          <MatchmakingExplanation explanation={explanation} programme={programme} />
         )}
         {open && explanationState === 'loading' && (
           <p className="text-xs text-muted-foreground" data-testid="explanation-loading">

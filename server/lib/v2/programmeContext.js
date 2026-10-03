@@ -139,10 +139,97 @@ function departingNames(rows, entryYear) {
   return byPosition;
 }
 
-/** `soccer_score` is a 0–100 national scale; V1 has always shown it over 10. */
-const programRating = (c) => (
-  Number.isFinite(c?.soccer_score) ? Number((c.soccer_score / 10).toFixed(1)) : null
-);
+/**
+ * PROGRAMME STRENGTH, RELATIVE TO ITS OWN DIVISION — A11.1 §1.
+ *
+ * ===========================================================================
+ * WHY NOT `soccer_score / 10`, WHICH IS WHAT V1 SHOWS.
+ *
+ * A11 measured it: `soccer_score` is a national ladder and division dominates
+ * it. D1 runs 55–100 and D3 runs 25–58, so the STRONGEST D3 programme in the
+ * country scores below the WEAKEST D1 one. "Program Rating 4.1/10" on an
+ * excellent D3 programme is therefore mostly saying "is D3", and a family
+ * reading it as a verdict on the programme would be reading it wrong.
+ *
+ * `shared/matching/criteria.js` already says this in `programQuality()`, and
+ * V1 solves it the same way: it scores a PERCENTILE WITHIN A COHORT rather
+ * than the raw score, "so a D3 athlete is not told every school is weak".
+ *
+ * -- THE COHORT IS THE PROGRAMME'S OWN DIVISION -----------------------------
+ *
+ * V1 ranks within the divisions the ATHLETE selected. This ranks within the
+ * programme's own (sport, division), because the sentence on screen names it:
+ * "Top 15% in NCAA D3" is checkable by the reader, and is the same statement
+ * whoever is looking at it.
+ *
+ * -- NO NEW SCORING. THIS IS A DESCRIPTIVE STATISTIC ------------------------
+ *
+ * It ranks an existing stored column within an existing stored grouping. It
+ * feeds nothing, is not persisted in a run, and changes no value the engine
+ * produced. `percentileWithin` is the same rule as V1's `qualityPercentiles`,
+ * ties and all, and a test asserts the two agree on identical input.
+ *
+ * -- WHY IT IS COPIED RATHER THAN IMPORTED ----------------------------------
+ *
+ * `shared/matching/pool.js` holds V1's version and imports `score.js`,
+ * `weights.js` and `couplings.js` — all three on the V2 import boundary's
+ * forbidden list. Importing it would pull V1's scorer into the V2 serving
+ * graph to borrow ten lines of arithmetic. The agreement test is the cheaper
+ * guarantee.
+ * ===========================================================================
+ */
+
+/**
+ * Percentile of each id's value within the given rows. Ties share the LOWER
+ * rank, so a hundred identically-scored programmes do not fan out into a
+ * spurious ordering. Fewer than two scored rows is not a distribution.
+ */
+export function percentileWithin(rows, valueOf, idOf) {
+  const scored = rows.filter((r) => Number.isFinite(valueOf(r)));
+  const out = new Map(rows.map((r) => [idOf(r), null]));
+  if (scored.length < 2) return out;
+  const sorted = [...scored].sort((a, b) => valueOf(a) - valueOf(b));
+  let i = 0;
+  while (i < sorted.length) {
+    let j = i;
+    while (j + 1 < sorted.length && valueOf(sorted[j + 1]) === valueOf(sorted[i])) j += 1;
+    const pct = i / (sorted.length - 1);
+    for (let k = i; k <= j; k += 1) out.set(idOf(sorted[k]), pct);
+    i = j + 1;
+  }
+  return out;
+}
+
+/** Build one percentile map per (division) cohort within this sport. */
+function divisionPercentiles(colleges) {
+  const byDivision = new Map();
+  for (const c of colleges) {
+    const d = c.division ?? null;
+    if (!byDivision.has(d)) byDivision.set(d, []);
+    byDivision.get(d).push(c);
+  }
+  const out = new Map();
+  const sizes = new Map();
+  for (const [division, cohort] of byDivision) {
+    sizes.set(division, cohort.filter((c) => Number.isFinite(c.soccer_score)).length);
+    const pcts = percentileWithin(cohort, (c) => c.soccer_score, (c) => c.name);
+    for (const [name, pct] of pcts) out.set(name, pct);
+  }
+  return { percentileByName: out, cohortSizeByDivision: sizes };
+}
+
+/**
+ * "Top 15%" from a percentile. A percentile of 0.85 means 85% of the division
+ * sits at or below this programme, i.e. it is in the top 15.
+ *
+ * Rounded to whole percent and FLOORED AT 1, because "Top 0%" is not a
+ * statement anybody can act on and the strongest programme in a division is
+ * top 1%, not top none.
+ */
+export function topPercentFrom(percentile) {
+  if (!Number.isFinite(percentile)) return null;
+  return Math.max(1, Math.round((1 - percentile) * 100));
+}
 
 /**
  * Academic ratings that are not ratings.
@@ -188,6 +275,12 @@ export function programmeContext(db, {
 
   const { ctx, colleges } = poolContextFor(db, sport);
   const collegeByName = new Map(colleges.map((c) => [c.name, c]));
+  /**
+   * Computed over the WHOLE active sport universe, not over `names`: a
+   * percentile within the twenty programmes on one page would be a different
+   * number on every page, for the same school.
+   */
+  const strength = divisionPercentiles(colleges);
 
   /**
    * ONE QUERY FOR EVERY NAME, not one per programme. The names are bounded by
@@ -260,8 +353,21 @@ export function programmeContext(db, {
       sport,
       division,
       conference: college?.conference ?? null,
-      /** V1's long-standing presentation: soccer_score / 10. See the report. */
-      programRating: programRating(college),
+      /**
+       * DIVISION-RELATIVE, AND IT NAMES THE DIVISION — A11.1 §1. Null where
+       * the cohort is too small to be a distribution or the score is absent,
+       * and the UI prints "Not established" rather than inventing a band.
+       */
+      programStrength: (() => {
+        const pct = strength.percentileByName.get(name);
+        if (!Number.isFinite(pct)) return null;
+        return {
+          percentile: Number(pct.toFixed(4)),
+          topPercent: topPercentFrom(pct),
+          division,
+          cohortSize: strength.cohortSizeByDivision.get(division) ?? null,
+        };
+      })(),
       academicRating: academicRating(college),
       netPrice: Number.isFinite(college?.net_price) ? college.net_price : null,
       rosterOnFile: ctx.rosterProgrammes.has(name),

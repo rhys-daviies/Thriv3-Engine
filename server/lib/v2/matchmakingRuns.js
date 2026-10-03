@@ -28,7 +28,7 @@
  */
 import crypto from 'node:crypto';
 import { FREEZE_ENGINE_HEAD } from '../../../shared/matching/v2/freeze.js';
-import { bandForRank, STATUS, SEASON, serviceError } from './matchmakingService.js';
+import { bandForRank, STATUS, SEASON, TOP_N, serviceError } from './matchmakingService.js';
 import { cachedCorpusDigests } from './corpusIdentity.js';
 import { UNIVERSE } from './validationUniverse.js';
 
@@ -140,6 +140,39 @@ function withLayerReasons(explanation) {
   return { ...explanation, layerReasons };
 }
 
+/**
+ * WHICH PROGRAMMES GET A PERSISTED EXPLANATION — A11.1 §3.
+ *
+ * ===========================================================================
+ * THE TOP 100, AND NOTHING ELSE.
+ *
+ * A11 persisted one for all 1,205 programmes in a run, which measured 3.6 MB
+ * PER RUN. Runs are immutable and never deleted, so that is unbounded growth
+ * on a persistent disk to carry prose for programmes nobody expands.
+ *
+ * The bound is the Top 100 because that is the set this product asks an
+ * operator to act on, and it is the set the explanation was designed to
+ * justify. Everything else keeps its full scoring row — the universe is
+ * persisted exactly as before — and simply carries no prose.
+ *
+ * WHAT THIS DOES NOT TOUCH, and the tests say so: `resultDigest`, the
+ * ranking, layer values, evidence grades, full-universe persistence, Specific
+ * Search standing, selection provenance. An explanation has never been an
+ * input to any of them, which is why it can be bounded without consequence.
+ *
+ * NON-RANKED STATES GET NOTHING, DELIBERATELY. A SUPPORTED_LIMITED_DATA or
+ * UNSUPPORTED_ASSOCIATION programme has no ranking to explain, and generating
+ * prose for one "for UI completeness" would be manufacturing an explanation
+ * of a rank that does not exist.
+ * ===========================================================================
+ */
+export function explanationToStore(programme) {
+  if (!programme?.explanation) return null;
+  if (programme.status !== STATUS.RANKED) return null;
+  if (!Number.isFinite(programme.rank) || programme.rank > TOP_N) return null;
+  return JSON.stringify(storableExplanation(programme.explanation));
+}
+
 export function persistRun(db, player, result, { runId = crypto.randomUUID(), now = new Date().toISOString() } = {}) {
   if (!result || result.matcherVersion !== 'v2') {
     throw serviceError('RESULT_REQUIRED', 'A computed V2 result is required.');
@@ -224,7 +257,7 @@ export function persistRun(db, player, result, { runId = crypto.randomUUID(), no
          * computed before A11 stores null, and that is a true record of a run
          * whose explanation was never captured — not a row to backfill.
          */
-        explanation: p.explanation ? JSON.stringify(storableExplanation(p.explanation)) : null,
+        explanation: explanationToStore(p),
       });
     }
   });

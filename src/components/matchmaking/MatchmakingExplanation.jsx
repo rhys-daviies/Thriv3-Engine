@@ -33,7 +33,21 @@ import { layerLabel } from '@/lib/matchmakingV2View';
  * ===========================================================================
  */
 
-export const NO_EXPLANATION = 'This ranking was generated before Thriv3 began recording explanations, so there is none stored for it. Refreshing the matches will produce one.';
+/**
+ * TWO DIFFERENT ABSENCES, AND THEY ARE NOT THE SAME SENTENCE — A11.1 §2, §4.
+ *
+ * A run from before A11 recorded no explanation for ANY programme, and
+ * refreshing produces one. A programme outside the Top 100 has a perfectly
+ * current run that deliberately stores no prose for it, and refreshing
+ * changes nothing. Telling an operator to refresh in the second case would
+ * send them to do something that cannot work.
+ */
+export const NO_EXPLANATION_LEGACY_RUN = 'Detailed explanation not available for this run. Refreshing the matches will produce one.';
+
+export const NO_EXPLANATION_OUTSIDE_TOP_100 = 'Detailed explanation is available for Top 100 recommendations.';
+
+/** The rank bound explanations are stored for. Matches the server's TOP_N. */
+export const EXPLAINED_TOP_N = 100;
 
 function Reasons({ rows, testid }) {
   if (!rows?.length) return null;
@@ -48,11 +62,22 @@ function Reasons({ rows, testid }) {
   );
 }
 
-export default function MatchmakingExplanation({ explanation }) {
+export default function MatchmakingExplanation({ explanation, programme = null }) {
   if (!explanation) {
+    /**
+     * A ranked programme outside the bound, or a non-ranked one, is not a
+     * missing explanation — it is one this product does not store. Said
+     * differently from a legacy run, because the operator's next action
+     * differs: one is "refresh", the other is "there is nothing to fetch".
+     */
+    const outsideBound = programme
+      && (!programme.ranked || !Number.isFinite(programme.rank) || programme.rank > EXPLAINED_TOP_N);
+
     return (
       <div className="rounded-lg border border-border p-3" data-testid="explanation-absent">
-        <p className="text-xs text-muted-foreground">{NO_EXPLANATION}</p>
+        <p className="text-xs text-muted-foreground" data-absent={outsideBound ? 'OUTSIDE_TOP_100' : 'LEGACY_RUN'}>
+          {outsideBound ? NO_EXPLANATION_OUTSIDE_TOP_100 : NO_EXPLANATION_LEGACY_RUN}
+        </p>
       </div>
     );
   }

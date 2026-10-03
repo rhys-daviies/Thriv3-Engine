@@ -96,7 +96,7 @@ const ctx = (name, over = {}) => ({
   sport: SPORT,
   division: 'NCAA D1',
   conference: 'Test Conference',
-  programRating: 7.4,
+  programStrength: { percentile: 0.85, topPercent: 15, division: 'NCAA D3', cohortSize: 316 },
   academicRating: 4.8,
   netPrice: 19638,
   rosterOnFile: true,
@@ -267,6 +267,8 @@ const find = (sel) => container.querySelector(sel);
 const all = (sel) => Array.from(container.querySelectorAll(sel));
 const cards = () => all('[data-testid^="programme-"]');
 const cardFor = (name) => cards().find((c) => c.textContent.includes(name));
+const tabFor = (label) => all('[data-testid="matchmaking-tabs"] [role="tab"]')
+  .find((t) => t.textContent.includes(label));
 const buttonIn = (scope, label) => Array.from(scope.querySelectorAll('button'))
   .find((b) => b.textContent.trim().startsWith(label));
 
@@ -404,16 +406,20 @@ describe('A11 §5. the expanded card', () => {
   it('E2. ratings render over 10 from the real values', async () => {
     stubFetch();
     const card = await expand('Lindenwood');
-    expect(card.querySelector('[data-testid="program-rating"]').textContent).toBe('7.4/10');
+    /** Division-relative and it NAMES the division — A11.1 §1. */
+    const strength = card.querySelector('[data-testid="program-strength"]').textContent;
+    expect(strength).toContain('Top 15%');
+    expect(strength).toContain('NCAA D3');
+    expect(strength, 'never the national /10').not.toContain('/10');
     expect(card.querySelector('[data-testid="academic-rating"]').textContent).toBe('4.8/10');
   });
 
-  it('E3. an unestablished rating is an em dash, NEVER a zero', async () => {
-    stubFetch({ contexts: (n) => ctx(n, { programRating: null, academicRating: null }) });
+  it('E3. an unestablished strength or rating is never a zero', async () => {
+    stubFetch({ contexts: (n) => ctx(n, { programStrength: null, academicRating: null }) });
     const card = await expand('Lindenwood');
-    expect(card.querySelector('[data-testid="program-rating"]').textContent).toBe('—');
+    expect(card.querySelector('[data-testid="program-strength"]').textContent).toBe('Not established');
     expect(card.querySelector('[data-testid="academic-rating"]').textContent).toBe('—');
-    expect(card.querySelector('[data-testid="program-rating"]').textContent).not.toContain('0');
+    expect(card.querySelector('[data-testid="program-strength"]').textContent).not.toContain('0');
   });
 });
 
@@ -527,12 +533,50 @@ describe('A11 §7, §8. the explanation', () => {
       .toMatch(/cost|price|contribut|budget/i);
   });
 
-  it('X3. a run with no stored explanation SAYS SO, and invents nothing', async () => {
+  it('X3. a LEGACY run says so, and invents nothing — A11.1 §2', async () => {
     stubFetch({ programmeExplanation: null });
     const card = await expand('Lindenwood');
-    expect(card.querySelector('[data-testid="explanation-absent"]').textContent)
-      .toContain('before Thriv3 began recording explanations');
+    const absent = card.querySelector('[data-testid="explanation-absent"]');
+
+    /** Lindenwood is #1, so the only reason it can lack prose is the run. */
+    expect(absent.querySelector('[data-absent]').dataset.absent).toBe('LEGACY_RUN');
+    expect(absent.textContent).toContain('Detailed explanation not available for this run');
+    expect(absent.textContent, 'and what to do about it').toContain('Refreshing');
     expect(card.querySelector('[data-testid="explanation-overall"]'), 'no fabricated summary').toBeFalsy();
+  });
+
+  it('X3b. a #101+ programme says something DIFFERENT — A11.1 §4', async () => {
+    /**
+     * TWO ABSENCES, TWO SENTENCES, AND THE DIFFERENCE IS ACTIONABLE.
+     *
+     * A legacy run can be refreshed into one that has explanations. A
+     * programme outside the Top 100 cannot: the bound is deliberate, and
+     * telling an operator to refresh would send them to do something that
+     * cannot work.
+     */
+    stubFetch({ programmeExplanation: null });
+    await render();
+    await click(tabFor('Full Universe'));
+
+    const card = cardFor('Millikin'); // rank 101 in the fixture
+    const toggle = card.querySelector('[aria-expanded]') ?? card.querySelector('button');
+    await click(toggle);
+
+    const absent = cardFor('Millikin').querySelector('[data-testid="explanation-absent"]');
+    expect(absent.querySelector('[data-absent]').dataset.absent).toBe('OUTSIDE_TOP_100');
+    expect(absent.textContent).toContain('available for Top 100 recommendations');
+    expect(absent.textContent, 'does NOT tell them to refresh').not.toContain('Refreshing');
+  });
+
+  it('X3c. a #101+ programme keeps its full standing — only prose is bounded', async () => {
+    stubFetch({ programmeExplanation: null });
+    await render();
+    await click(tabFor('Full Universe'));
+
+    const card = cardFor('Millikin');
+    expect(card.textContent, 'the rank is there').toContain('#101');
+    expect(card.textContent, 'the band is there').toContain('Broader universe');
+    expect(card.textContent).toMatch(/Pursuit\s*\d+/);
   });
 
   it('X4. the prohibited claims never appear', async () => {

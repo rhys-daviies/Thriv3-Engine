@@ -7,7 +7,8 @@
 | freeze guard | **17/17** |
 | `shared/matching/` | **byte-identical to main** — tree `756c8108266d3e0e389c4fd461852be0fec04a23` |
 | schema | one additive nullable column: `matchmaking_programme_results.explanation` |
-| verdict | `V2_MATCH_EXPLANATION_UI_READY` |
+| A11.1 | product decisions applied — see §13 |
+| verdict | `A11_MERGE_READY` |
 
 ---
 
@@ -55,10 +56,46 @@ The best D3 programme (58) scores below the weakest D1 (55). So "Program Rating
 the athlete selected* "so a D3 athlete is not told every school is weak", and
 notes that exposing `soccer_score / 10` conflated level with fit.
 
-**Decision: keep V1's exact label and value, and keep the division badge beside
-it.** Renaming a number that has been on screen for a year would be a different
-change from the one this phase was asked for, and the card already shows
-`NCAA D3` immediately above the rating. Flagged in §24 as a product decision.
+**A11 kept V1's label and flagged it. A11.1 ruled it out for this surface.**
+
+**`soccer_score / 10` is NOT shown in the V2 expanded card.** What is shown is
+the programme's percentile **within its own (sport, division)**:
+
+> **Program Strength** — Top 15% in NCAA D3
+
+| | |
+|---|---|
+| source | `colleges.soccer_score`, ranked within `(sport, division)` among active programmes |
+| rule | `percentileWithin` in `server/lib/v2/programmeContext.js` — ties share the **lower** rank |
+| provenance | the same rule as V1's `qualityPercentiles` (`shared/matching/pool.js`), which V1 applies to the athlete's selected divisions "so a D3 athlete is not told every school is weak" |
+| cohort | the programme's **own** division, because the sentence names it and must be checkable |
+| unavailable | `Not established` — never a fabricated band |
+| from display rank | **never** — the percentile is over the stored score, not over the list |
+
+**It is a descriptive statistic, not scoring.** It ranks an existing stored
+column within an existing stored grouping, is not persisted in any run, and
+feeds nothing. No weight, gate or layer value moved.
+
+**Why the rule is copied rather than imported.** `shared/matching/pool.js`
+imports `score.js`, `weights.js` and `couplings.js` — all three on the V2
+import boundary's forbidden list. Importing it would pull V1's scorer into the
+V2 serving graph to borrow ten lines of arithmetic. `S1` asserts the two
+implementations agree exactly, ties included, so there is one behaviour and a
+proof of it.
+
+Measured on the real corpus (men's soccer, cohort = active programmes with a
+score in that division):
+
+| programme | division | shown |
+|---|---|---|
+| Judson University | NAIA | Top 40% of 185 |
+| Lindenwood | NCAA D1 | Top 49% of 213 |
+| Catawba | NCAA D2 | Top 43% of 202 |
+| Millikin | NCAA D3 | Top 70% of 316 |
+
+**Academic Rating stays `X/10`**, because the inventory proves that semantic:
+`academic_rating` is a 1–9.9 institutional measure from College Scorecard and
+is *not* division-dominated (D1 6.18, D3 5.94, D2 4.03).
 
 ### C. Academic strength — a genuine 0–10 rating
 
@@ -203,18 +240,43 @@ two are allowed to disagree and the screen would show both without saying so.
 explanations produces an **identical `resultDigest`** (`X-S1`), and every rank
 and status matches position for position.
 
-**Storage.** Trimmed before writing: `layerReasons` is dropped (it is the same
-objects as `reasons`, regrouped at read by each reason's own `layer`), and
-`gateEffects`/`evidenceQuality` are dropped because `render.js` marks them
-`CLIENT_UNSAFE`. Measured **6,581 → 3,059 bytes per row**; a 1,205-programme
-run stores **3.6 MB**.
+**Storage, bounded to the Top 100 by A11.1 §3.** Trimmed before writing:
+`layerReasons` is dropped (the same objects as `reasons`, regrouped at read),
+and `gateEffects`/`evidenceQuality` are dropped because `render.js` marks them
+`CLIENT_UNSAFE`. Then explanations are persisted **only for ranked programmes
+with `rank <= TOP_N`**.
+
+| | per run |
+|---|---|
+| A11, all 1,205 programmes | 3.6 MB |
+| **A11.1, ranked Top 100 only** | **361 KB over exactly 100 rows** |
+
+Measured on the same corpus and athlete. `SUPPORTED_LIMITED_DATA` and
+`UNSUPPORTED_ASSOCIATION` get none — a programme with no ranking has no
+ranking to explain, and generating prose "for UI completeness" would be
+manufacturing an explanation of a rank that does not exist.
+
+**The bound costs prose, never standing.** The full universe is still
+persisted — 1,205 result rows — and a #101 programme keeps its rank, band,
+Pursuit, all three layers and its evidence state. `T8`, `T9` and `T10` assert
+exactly that, and `resultDigest` is unchanged (`T7`).
 
 **Explanations are NOT in the list payload.** `runs/current` stays at **554 KB**
 and carries none; the per-programme route serves the one that was opened.
 
-**A run with no stored explanation says so.** Every run persisted before A11
-carries none and none can be reconstructed. The card states that and offers
-refreshing, rather than deriving a story from the score.
+**Two different absences, two different sentences — A11.1 §2 and §4.**
+
+| case | rendered |
+|---|---|
+| run predates A11 | *"Detailed explanation not available for this run. Refreshing the matches will produce one."* |
+| ranked #101+, or not ranked | *"Detailed explanation is available for Top 100 recommendations."* |
+
+The difference is actionable: a legacy run **can** be refreshed into one that
+has explanations; a programme outside the bound cannot, and telling an operator
+to refresh would send them to do something that cannot work. `X3` and `X3b`
+assert each message appears only in its own case.
+
+**No legacy run is backfilled, rewritten or reverse-engineered.**
 
 ### Example sentences, rendered from real codes
 
@@ -313,22 +375,55 @@ nullable, so main's code reads an A11 database and an A11 build reads a
 pre-A11 database — the latter shows "no explanation stored", which is true.
 Reverting the branch requires no data migration.
 
-## 12. Product and data decisions still required (§24)
+## 12. Production transition proof (A11.1 §5) — a merge blocker
 
-1. **"Program Rating" is a national ladder, not a within-division strength.**
-   A good D3 programme scores ~4/10 largely because it is D3. V1 has shown this
-   number for a year and this phase kept it. The alternatives are to rename it,
-   or to show the division-relative percentile `programQuality()` already
-   computes. **This is a product call, not a technical one.**
+`server/db/a11Transition.test.js`, 11 tests. It builds a genuinely **pre-A11**
+database — the `explanation` column physically dropped with
+`ALTER TABLE … DROP COLUMN`, which is what makes this an upgrade test rather
+than a tautology — fills it with a persisted V2 run, programme results and a
+Specific School, and then migrates.
+
+| assertion | result |
+|---|---|
+| column absent before, present after | ✓ |
+| every scoring value on the legacy run, unchanged | ✓ (field-by-field) |
+| legacy run still readable | ✓ |
+| legacy `resultDigest` unchanged | ✓ |
+| legacy run carries **no** explanation — nothing backfilled | ✓ |
+| API answers `null`, UI states it | ✓ |
+| Specific Schools unchanged | ✓ |
+| `integrity_check` / `foreign_key_check` | ok / 0 |
+| migrate ×2 more — idempotent, still no backfill | ✓ |
+| NEW run: digest identical with explanations on/off | ✓ |
+| NEW run: full universe persisted (1,205 rows) | ✓ |
+| NEW run: explanations for ranked Top 100 and nothing else | ✓ |
+| #101+ keeps rank, band, Pursuit, layers; only prose absent | ✓ |
+| older run still readable after a newer one exists | ✓ |
+
+## 13. Server boot regression guard (A11.1 §6)
+
+`server/serverBoots.test.js` is **permanent**. It starts the real entry point
+under Node's own ESM loader with `RECRUITMATCH_DB=':memory:'` and `PORT=0`, so
+it cannot reach any real database or bind a real port; it exits immediately on
+success and is bounded at 60 s (90 s test timeout).
+
+It exists because **the whole suite passed while the server could not boot**.
+Vitest transforms through Vite, whose interop accepted a named import that Node
+rejects at instantiation. Only starting the real server found it. Verified to
+fail when the export is removed again.
+
+## 14. Product and data decisions still required
+
+1. ~~"Program Rating" is a national ladder.~~ **Decided in A11.1 §1** — the V2
+   card shows a division-relative percentile. V1's own surfaces still show
+   `Program Rating X/10`; that was out of scope here and is unchanged.
 2. **Explanations exist only for runs generated from now on.** Existing runs —
    including the production one — carry none until an operator refreshes that
    athlete's matches. Regenerating production runs is a rollout action and was
    not taken.
-3. **3.6 MB of explanation per persisted run.** Immutable runs accumulate and
-   A9.7 deliberately left retention unimplemented. If that growth is not
-   acceptable, the bound is to store explanations for the Top 100 only
-   (~300 KB/run) at the cost of unranked and Specific-Schools programmes
-   having none.
+3. ~~3.6 MB of explanation per run.~~ **Decided in A11.1 §3** — bounded to the
+   ranked Top 100, measured at **361 KB**. The accepted cost: a Specific School
+   ranked #101+ shows its full standing and no prose.
 4. **Women's soccer has no `graduating_seniors` evidence at all.** A11 does not
    depend on it, but anything else that reads that table is silently empty for
    half the corpus.
