@@ -28,6 +28,7 @@ import { athleteProgrammesRouter } from './routes/athleteProgrammes.js';
 import { programmeCoachesRouter } from './routes/programmeCoaches.js';
 import { manualOutreachRouter } from './routes/manualOutreach.js';
 import { contactIntelligenceRouter } from './routes/contactIntelligence.js';
+import { matchmakingRouter } from './routes/matchmaking.js';
 import { OUTREACH_ORIGIN } from '../shared/outreachOrigin.js';
 import { rosterGapsRouter } from './routes/rosterGaps.js';
 import { rosterSeasonTrustRouter } from './routes/rosterSeasonTrust.js';
@@ -591,6 +592,19 @@ app.use('/api', manualOutreachRouter);
 // screen. Read-only: there is no sibling that writes, and nothing here marks a
 // programme contacted.
 app.use('/api', contactIntelligenceRouter);
+
+// ---- Matchmaking V2 ----
+//
+// READ-ONLY and ADDITIVE. V1 still serves every recommendation the product
+// shows: `playerAnalysis.js` runs in the browser, writes
+// `players.recommendations`, and nothing here touches it. This route computes
+// the accepted V2 result and returns it, so the backend boundary can be proven
+// before A9.2 gives results durable versioned storage.
+//
+// Absent from ENTITIES for the reason campaigns gives: that registry is
+// unvalidated pass-through CRUD, and a matchmaking result is computed from a
+// frozen engine rather than described by a request.
+app.use('/api', matchmakingRouter);
 // ---- NCAA roster-gap review ----
 //
 // Purpose-built for the same reason as campaignsRouter: `roster_gap_reviews`
