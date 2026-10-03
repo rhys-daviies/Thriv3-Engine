@@ -71,25 +71,22 @@ export function projectMinutes(db, { season, from }) {
   /**
    * ONE TRANSACTION, BECAUSE THE CLEAR ALONE IS A VALID-LOOKING DATABASE.
    *
-   * Ported from 754a70c, which is the commit that produced the current
-   * canonical projection. These were three separate write units: wipe the
-   * columns, rebuild the projections, backfill the prior programme. A process
-   * that died between the first and the second left every 2026 row with a NULL
-   * projection — which is not a crash, it is a silently degraded matcher.
-   * `isStarter` falls back to `false`, every departure drops from starter to
-   * squad at 0.4 weight, and nothing in the suite goes red.
+   * These were three separate write units: wipe the columns, rebuild the
+   * projections, backfill the prior programme. A process that died between
+   * the first and the second left every 2026 row with a NULL projection —
+   * which is not a crash, it is a silently degraded matcher. `isStarter`
+   * falls back to `false`, every departure drops from starter to squad at
+   * 0.4 weight, and nothing in the suite goes red. It happened three times
+   * during the A5.x work, twice unnoticed until a baseline probe caught it.
    *
    * better-sqlite3 runs the callback inside BEGIN/COMMIT and rolls back on a
    * throw, so an interrupted rebuild now leaves the previous projections in
    * place rather than no projections at all. The clear is only durable if
    * everything after it also is.
-   *
-   * L7ZN VERIFIED: this changes DURABILITY, not output. The pre-transaction
-   * code on this branch reproduced the canonical 39,430-row projection with
-   * zero mismatches across 281,159 rows before the wrapper was added.
    */
   const rebuild = db.transaction(() => {
     db.prepare('UPDATE roster_players SET projected_minutes = NULL, projected_minutes_season = NULL, '
+      + 'projected_games_started = NULL, projected_games_played = NULL, projected_games_season = NULL, '
       + 'prior_programme = NULL WHERE season = ?').run(season);
 
     const info = db.prepare(`
@@ -107,6 +104,40 @@ export function projectMinutes(db, { season, from }) {
                 WHERE p.season = @source AND p.college_name = t.college_name
                   AND p.sport = t.sport AND ${NORM.replace(/player_name/g, 'p.player_name')} = ${NORM.replace(/player_name/g, 't.player_name')}
                   AND p.minutes_played IS NOT NULL)
+    `).run({ season, source });
+
+    /**
+     * Appearances, carried forward under exactly the same rule.
+     *
+     * A separate statement rather than a wider one, because the two are
+     * available independently: a programme may publish games and not minutes
+     * (MIT: 35 of 35 rows carry games in 2025, 5 carry minutes) or the reverse.
+     * Joining them would make each one's coverage the intersection of both.
+     *
+     * Same programme only, and only where the current season has no real
+     * figure - identical conditions to the minutes carry-forward, so a
+     * transfer's appearances are no more carried than their minutes are.
+     */
+    const games = db.prepare(`
+      UPDATE roster_players AS t
+         SET projected_games_started = (
+               SELECT MAX(p.games_started) FROM roster_players p
+                WHERE p.season = @source AND p.college_name = t.college_name
+                  AND p.sport = t.sport AND ${NORM.replace(/player_name/g, 'p.player_name')} = ${NORM.replace(/player_name/g, 't.player_name')}
+                  AND p.games_started IS NOT NULL),
+             projected_games_played = (
+               SELECT MAX(p.games_played) FROM roster_players p
+                WHERE p.season = @source AND p.college_name = t.college_name
+                  AND p.sport = t.sport AND ${NORM.replace(/player_name/g, 'p.player_name')} = ${NORM.replace(/player_name/g, 't.player_name')}
+                  AND p.games_played IS NOT NULL),
+             projected_games_season = @source
+       WHERE t.season = @season
+         AND t.games_started IS NULL
+         AND EXISTS (
+               SELECT 1 FROM roster_players p
+                WHERE p.season = @source AND p.college_name = t.college_name
+                  AND p.sport = t.sport AND ${NORM.replace(/player_name/g, 'p.player_name')} = ${NORM.replace(/player_name/g, 't.player_name')}
+                  AND p.games_started IS NOT NULL)
     `).run({ season, source });
 
     // ---- where each player was the season before -------------------------
@@ -144,9 +175,9 @@ export function projectMinutes(db, { season, from }) {
     })();
     const byId = new Map(inputs.rows.filter((r) => String(r.season) === String(season)).map((r) => [r.id, r]));
     for (const [id, was] of built.prior) if (was && byId.get(id)?.college_name !== was) movedIn += 1;
-    return { info, located, movedIn };
+    return { info, games, located, movedIn };
   });
-  const { info, located, movedIn } = rebuild();
+  const { info, games, located, movedIn } = rebuild();
 
   const tot = db.prepare('SELECT COUNT(*) n FROM roster_players WHERE season = ?').get(season).n;
   const grad = db.prepare(`
@@ -155,7 +186,8 @@ export function projectMinutes(db, { season, from }) {
   `).get(season, Number(season) + 1);
 
   console.log(`\n  ${season} projected from ${source}:`);
-  console.log(`    ${info.changes} of ${tot} rows carry a projection (${(100 * info.changes / tot).toFixed(1)}%)`);
+  console.log(`    ${info.changes} of ${tot} rows carry a minutes projection (${(100 * info.changes / tot).toFixed(1)}%)`);
+  console.log(`    ${games.changes} of ${tot} rows carry an appearances projection (${(100 * games.changes / tot).toFixed(1)}%)`);
   console.log(`    graduating cohort (${Number(season) + 1}): ${grad.proj} of ${grad.n} (${(100 * grad.proj / grad.n).toFixed(1)}%)`);
   console.log(`    the remainder are newcomers with no prior season — unknown, NOT zero`);
   console.log(`    ${located} rows with a VERIFIED prior programme, of which ${movedIn} at a different programme`);

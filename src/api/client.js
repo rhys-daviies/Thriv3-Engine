@@ -611,6 +611,157 @@ export const matchingSummary = {
     });
   },
 };
+
+/**
+ * MATCHMAKING V2 — the persisted-run API. A9.3 / §U.
+ *
+ * Three calls, matching server/routes/matchmaking.js exactly. Nothing here
+ * interprets a result; the shape of a run is the frontend adapter's business
+ * (src/lib/useMatchmakingV2.js) and the shape of a programme is the view
+ * model's (src/lib/matchmakingV2View.js).
+ *
+ * -- NO RUN IS NOT AN ERROR -------------------------------------------------
+ *
+ * `currentRun` answers `null` for RUN_NOT_FOUND rather than throwing, because
+ * an athlete who has never been matched is the ORDINARY first state of this
+ * screen and not a failure of anything. Everything else — a 404 for the
+ * player, a 409 for the contribution, a 500 — is rethrown with the server's
+ * own `code` intact, because each of those is a different sentence on screen
+ * and collapsing them into one would be the exact thing §P forbids.
+ *
+ * The distinction is the server's, not a guess: `handle()` sends
+ * `code: 'RUN_NOT_FOUND'` for the empty case and `code: 'PLAYER_NOT_FOUND'`
+ * for an unknown athlete, and both are 404s. Branching on the status alone
+ * would read a deleted player as "no matches yet" and offer to generate some.
+ */
+export const matchmaking = {
+  /** The latest persisted run plus its staleness, or null when there is none. */
+  async currentRun(playerId) {
+    try {
+      return await request(`/api/players/${playerId}/matchmaking/runs/current`);
+    } catch (err) {
+      if (err?.code === 'RUN_NOT_FOUND') return null;
+      throw err;
+    }
+  },
+
+  /** Compute and persist a NEW immutable run. Never mutates an existing one. */
+  generate(playerId) {
+    return request(`/api/players/${playerId}/matchmaking`, { method: 'POST' });
+  },
+
+  /** One historical run by id. Immutable, so it carries no staleness. */
+  run(runId) {
+    return request(`/api/matchmaking/runs/${runId}`);
+  },
+
+  /**
+   * WHERE ONE PROGRAMME SITS in this athlete's persisted universe — A9.5.
+   *
+   * A lookup, not a score. `programme: null` inside a successful answer means
+   * the registry holds this school and this athlete's evaluated pool does not,
+   * which is a real answer; RUN_NOT_FOUND means there is nothing to look
+   * inside yet, and the UI offers to generate rather than ranking one school
+   * on its own.
+   */
+  programme(playerId, { name, sport = null, runId = null } = {}) {
+    const qs = new URLSearchParams({ name });
+    if (sport) qs.set('sport', sport);
+    if (runId) qs.set('runId', runId);
+    return request(`/api/players/${playerId}/matchmaking/programme?${qs.toString()}`);
+  },
+
+  /** The Top 100 of a run as selection candidates. Ranked only, by construction. */
+  top(playerId, { runId = null } = {}) {
+    const qs = new URLSearchParams();
+    if (runId) qs.set('runId', runId);
+    return request(`/api/players/${playerId}/matchmaking/top?${qs.toString()}`);
+  },
+
+  /**
+   * Record that a programme was chosen for outreach out of a specific run.
+   *
+   * PROVENANCE ONLY. No campaign is created, no message drafted and nothing
+   * sent — this is the record of a decision, never its execution.
+   */
+  select(playerId, { collegeName, sport = null, runId = null, source } = {}) {
+    return request(`/api/players/${playerId}/matchmaking/selections`, {
+      method: 'POST',
+      body: JSON.stringify({ collegeName, sport, runId, source }),
+    });
+  },
+
+  /** This athlete's selection history. */
+  selections(playerId) {
+    return request(`/api/players/${playerId}/matchmaking/selections`);
+  },
+};
+
+/**
+ * OUTCOME OBSERVATIONS — A9.6 §N.
+ *
+ * Matches server/routes/observations.js exactly, and interprets nothing: what
+ * an observation MEANS on screen is `src/lib/outreachOutcomeView.js`.
+ *
+ * -- THE VOCABULARY IS FETCHED, NOT KEPT HERE -------------------------------
+ *
+ * `vocabulary()` exists so the operator surface renders the legal kinds and
+ * their required attributes from the server rather than from a second copy in
+ * the client. A second copy is how a form comes to offer a value the service
+ * will refuse — which is exactly what A7.9.3 found when the contribution
+ * options drifted from the model that read them.
+ */
+export const observations = {
+  vocabulary() {
+    return request('/api/observations/vocabulary');
+  },
+
+  /** Everything observed about one athlete and one programme, plus the derived state. */
+  forProgramme(playerId, { collegeName, sport }) {
+    const qs = new URLSearchParams({ collegeName, sport });
+    return request(`/api/players/${playerId}/observations?${qs.toString()}`);
+  },
+
+  record(playerId, body) {
+    return request(`/api/players/${playerId}/observations`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
+  /** Every selection for this athlete and what came of it — A9.7 §K. */
+  selectionsOverview(playerId) {
+    return request(`/api/players/${playerId}/selections/overview`);
+  },
+
+  /** Record that a reply arrived. Classifies nothing — A9.7 §H. */
+  recordReply(sendId, { observedAt = null, note = null } = {}) {
+    return request(`/api/sends/${sendId}/reply`, {
+      method: 'POST',
+      body: JSON.stringify({ observedAt, note }),
+    });
+  },
+
+  /**
+   * Record what a reply MEANT — A9.7 §I. The caller names a kind and nothing
+   * else about the subject: the programme and the selection come from the
+   * message, so a classification cannot be misfiled.
+   */
+  classifyReply(sendId, body) {
+    return request(`/api/sends/${sendId}/classification`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
+  /** Confirm or reject one classification. There is no un-review. */
+  review(observationId, state) {
+    return request(`/api/observations/${observationId}/review`, {
+      method: 'POST',
+      body: JSON.stringify({ state }),
+    });
+  },
+};
 /**
  * A blob AND the name the server gave it — 13J / §14.
  *

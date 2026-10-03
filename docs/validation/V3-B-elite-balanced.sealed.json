@@ -1,0 +1,488 @@
+{
+  "packId": "V3-B-elite-balanced",
+  "sealedAt": "2026-09-25T06:09:11.367Z",
+  "digests": {
+    "athlete": "14877a2eb6061ecf",
+    "pool": "86b911af2515ab10",
+    "sample": "96f6d726084f782a",
+    "viewA": "dc83ca6bbe3be69f",
+    "metrics": "a30c23bf49cae7b8",
+    "orderingSeed": "V3-B-elite-balanced",
+    "orderCorrelation": -0.2425
+  },
+  "note": "SEALED. Do not open until View A is answered. Opening this file ends the blind review.",
+  "rows": [
+    {
+      "id": "001de5ba-835d-4fc3-9f2d-61a58273feab",
+      "reviewNo": 35,
+      "name": "DePauw",
+      "rank": 1,
+      "strata": [
+        "TOP_1_10",
+        "SUBSTANTIALLY_BELOW"
+      ],
+      "programmeStrength": 44.31,
+      "strengthDelta": -39.27
+    },
+    {
+      "id": "684f223f-3d4c-4ee9-afd9-a44b36c02c1a",
+      "reviewNo": 1,
+      "name": "Hawaii Pacific",
+      "rank": 2,
+      "strata": [
+        "HIGH_R_WEAK_PROGRAMME"
+      ],
+      "programmeStrength": 48.53,
+      "strengthDelta": -35.05
+    },
+    {
+      "id": "0a70334b-1c8c-4043-bf01-9041c8b6674e",
+      "reviewNo": 31,
+      "name": "Southwestern (TX)",
+      "rank": 3,
+      "strata": [
+        "TOP_1_10"
+      ],
+      "programmeStrength": 49.35,
+      "strengthDelta": -34.23
+    },
+    {
+      "id": "64d5c0aa-b5a4-4c95-8e85-6ee9e331de9a",
+      "reviewNo": 29,
+      "name": "Case Western Reserve",
+      "rank": 5,
+      "strata": [
+        "TOP_1_10",
+        "HIGH_R_WEAK_PROGRAMME"
+      ],
+      "programmeStrength": 47.85,
+      "strengthDelta": -35.73
+    },
+    {
+      "id": "db4289ce-d577-43f5-9ea6-d28136cd402f",
+      "reviewNo": 30,
+      "name": "Williams",
+      "rank": 6,
+      "strata": [
+        "TOP_1_10"
+      ],
+      "programmeStrength": 50.41,
+      "strengthDelta": -33.17
+    },
+    {
+      "id": "57b522c9-faa2-438f-80f3-a4d115f801c4",
+      "reviewNo": 38,
+      "name": "Fredonia State",
+      "rank": 8,
+      "strata": [
+        "TOP_1_10"
+      ],
+      "programmeStrength": 39.32,
+      "strengthDelta": -44.26
+    },
+    {
+      "id": "25506340-fc8f-459a-a07d-78d879fd2559",
+      "reviewNo": 37,
+      "name": "Augsburg",
+      "rank": 10,
+      "strata": [
+        "TOP_1_10"
+      ],
+      "programmeStrength": 54.16,
+      "strengthDelta": -29.42
+    },
+    {
+      "id": "527ef283-39c5-47ac-aeb1-ed54de0bee0e",
+      "reviewNo": 42,
+      "name": "Whitman",
+      "rank": 11,
+      "strata": [
+        "RANKS_11_25"
+      ],
+      "programmeStrength": 47.07,
+      "strengthDelta": -36.51
+    },
+    {
+      "id": "9662887a-797a-4a54-84d3-b5cfc2e065b8",
+      "reviewNo": 26,
+      "name": "Southern Virginia",
+      "rank": 18,
+      "strata": [
+        "RANKS_11_25"
+      ],
+      "programmeStrength": 39.13,
+      "strengthDelta": -44.45
+    },
+    {
+      "id": "fb2e81f1-9eba-4840-bb18-f590102cf60d",
+      "reviewNo": 17,
+      "name": "Luther",
+      "rank": 25,
+      "strata": [
+        "RANKS_11_25"
+      ],
+      "programmeStrength": 43.83,
+      "strengthDelta": -39.75
+    },
+    {
+      "id": "679aa02f-15a4-4899-a566-9b53ba6e64ce",
+      "reviewNo": 41,
+      "name": "Covenant",
+      "rank": 26,
+      "strata": [
+        "RANKS_26_50"
+      ],
+      "programmeStrength": 46.12,
+      "strengthDelta": -37.46
+    },
+    {
+      "id": "7957f1a6-db68-435d-afdf-542a51a3ebca",
+      "reviewNo": 22,
+      "name": "The Master's University",
+      "rank": 38,
+      "strata": [
+        "RANKS_26_50"
+      ],
+      "programmeStrength": 47.84,
+      "strengthDelta": -35.74
+    },
+    {
+      "id": "3690c57d-c769-4b3b-bc54-2cd95acf2a76",
+      "reviewNo": 3,
+      "name": "UC Merced",
+      "rank": 50,
+      "strata": [
+        "RANKS_26_50"
+      ],
+      "programmeStrength": 51.81,
+      "strengthDelta": -31.77
+    },
+    {
+      "id": "bed6cb32-856d-4363-8dd6-64c55882df8c",
+      "reviewNo": 24,
+      "name": "Carthage",
+      "rank": 51,
+      "strata": [
+        "RANKS_51_100"
+      ],
+      "programmeStrength": 39.04,
+      "strengthDelta": -44.54
+    },
+    {
+      "id": "78006bf5-e489-4405-9e9b-8bf8a5d7bfce",
+      "reviewNo": 12,
+      "name": "Kansas City",
+      "rank": 52,
+      "strata": [
+        "MODERATELY_BELOW"
+      ],
+      "programmeStrength": 74.65,
+      "strengthDelta": -8.93
+    },
+    {
+      "id": "b8392a0a-22ac-4445-b142-d71910932dc9",
+      "reviewNo": 11,
+      "name": "Centre",
+      "rank": 67,
+      "strata": [
+        "RANKS_51_100"
+      ],
+      "programmeStrength": 38.83,
+      "strengthDelta": -44.75
+    },
+    {
+      "id": "4c5dc3ac-7e23-4d11-8370-67b49e452792",
+      "reviewNo": 14,
+      "name": "Chaminade",
+      "rank": 84,
+      "strata": [
+        "RANKS_51_100"
+      ],
+      "programmeStrength": 40.02,
+      "strengthDelta": -43.56
+    },
+    {
+      "id": "754ab2b2-8c7e-4854-bc93-b61ed5e9c568",
+      "reviewNo": 27,
+      "name": "Waynesburg",
+      "rank": 100,
+      "strata": [
+        "RANKS_51_100"
+      ],
+      "programmeStrength": 40.75,
+      "strengthDelta": -42.83
+    },
+    {
+      "id": "fbf7aa9f-242e-4c48-88a7-94c18e21d9ba",
+      "reviewNo": 16,
+      "name": "Bethel (MN)",
+      "rank": 101,
+      "strata": [
+        "RANKS_101_150"
+      ],
+      "programmeStrength": 47.01,
+      "strengthDelta": -36.57
+    },
+    {
+      "id": "31b7b0ca-829d-4931-9348-473c31a9f36a",
+      "reviewNo": 40,
+      "name": "Furman",
+      "rank": 108,
+      "strata": [
+        "NEAR_LEVEL"
+      ],
+      "programmeStrength": 83.6,
+      "strengthDelta": 0.02
+    },
+    {
+      "id": "3bf568a6-e573-47d1-9371-6657c412eae9",
+      "reviewNo": 33,
+      "name": "Ferrum",
+      "rank": 126,
+      "strata": [
+        "RANKS_101_150"
+      ],
+      "programmeStrength": 35,
+      "strengthDelta": -48.58
+    },
+    {
+      "id": "918baa0d-b714-4b0f-8a16-853eb193b9b9",
+      "reviewNo": 6,
+      "name": "Salisbury",
+      "rank": 150,
+      "strata": [
+        "RANKS_101_150"
+      ],
+      "programmeStrength": 40.17,
+      "strengthDelta": -43.41
+    },
+    {
+      "id": "7620be75-27f0-4b7f-8254-e36048639572",
+      "reviewNo": 13,
+      "name": "Westminster (UT)",
+      "rank": 151,
+      "strata": [
+        "RANKS_151_250"
+      ],
+      "programmeStrength": 57.61,
+      "strengthDelta": -25.97
+    },
+    {
+      "id": "1a7533ef-d1b3-48e6-bab6-ea27fb01ba43",
+      "reviewNo": 21,
+      "name": "Scranton",
+      "rank": 201,
+      "strata": [
+        "RANKS_151_250"
+      ],
+      "programmeStrength": 46.36,
+      "strengthDelta": -37.22
+    },
+    {
+      "id": "8a3be6df-892b-47a0-b7cd-aa77cefd7593",
+      "reviewNo": 15,
+      "name": "Point (GA)",
+      "rank": 250,
+      "strata": [
+        "RANKS_151_250"
+      ],
+      "programmeStrength": 44.14,
+      "strengthDelta": -39.44
+    },
+    {
+      "id": "c834686d-3500-494d-bd46-300a2d88f6e5",
+      "reviewNo": 10,
+      "name": "West Chester",
+      "rank": 251,
+      "strata": [
+        "RANKS_251_500"
+      ],
+      "programmeStrength": 59.63,
+      "strengthDelta": -23.95
+    },
+    {
+      "id": "b9c8a969-3137-4bdf-bc43-2492d2d310ea",
+      "reviewNo": 4,
+      "name": "Colgate",
+      "rank": 376,
+      "strata": [
+        "RANKS_251_500"
+      ],
+      "programmeStrength": 72.35,
+      "strengthDelta": -11.23
+    },
+    {
+      "id": "6bf75e98-d785-4ba6-ad92-23e4dea24a38",
+      "reviewNo": 8,
+      "name": "Wisconsin-Platteville",
+      "rank": 500,
+      "strata": [
+        "RANKS_251_500"
+      ],
+      "programmeStrength": 46.96,
+      "strengthDelta": -36.62
+    },
+    {
+      "id": "3cf31f14-5ab6-4792-bff0-4081f598cb5a",
+      "reviewNo": 23,
+      "name": "Our Lady of the Lake University",
+      "rank": 501,
+      "strata": [
+        "RANKS_501_PLUS"
+      ],
+      "programmeStrength": 49.51,
+      "strengthDelta": -34.07
+    },
+    {
+      "id": "d40431ac-639b-40cc-b526-89f58c3f18e5",
+      "reviewNo": 36,
+      "name": "Georgetown",
+      "rank": 503,
+      "strata": [
+        "MODEST_REACH"
+      ],
+      "programmeStrength": 93.24,
+      "strengthDelta": 9.66
+    },
+    {
+      "id": "4eba52ae-b8f5-40f4-a6d0-b86b0244a6c4",
+      "reviewNo": 39,
+      "name": "Gardner-Webb",
+      "rank": 607,
+      "strata": [
+        "NEAR_LEVEL"
+      ],
+      "programmeStrength": 82.24,
+      "strengthDelta": -1.34
+    },
+    {
+      "id": "7201889b-5881-41c7-adb7-fe0160f001cb",
+      "reviewNo": 2,
+      "name": "Christian Brothers",
+      "rank": 680,
+      "strata": [
+        "RANKS_501_PLUS"
+      ],
+      "programmeStrength": 60.13,
+      "strengthDelta": -23.45
+    },
+    {
+      "id": "79febff5-eef0-4876-99d6-2355894a2c54",
+      "reviewNo": 32,
+      "name": "West Virginia",
+      "rank": 759,
+      "strata": [
+        "LOW_R_NEAR_LEVEL"
+      ],
+      "programmeStrength": 85.45,
+      "strengthDelta": 1.87
+    },
+    {
+      "id": "435c3d97-49d5-4283-8072-c4d0c023d2a2",
+      "reviewNo": 9,
+      "name": "Loyola Marymount",
+      "rank": 823,
+      "strata": [
+        "MODERATELY_BELOW"
+      ],
+      "programmeStrength": 80.13,
+      "strengthDelta": -3.45
+    },
+    {
+      "id": "4315ac1d-11d6-4491-b638-637fafd59539",
+      "reviewNo": 7,
+      "name": "Rutgers",
+      "rank": 843,
+      "strata": [
+        "LOW_R_NEAR_LEVEL"
+      ],
+      "programmeStrength": 85.3,
+      "strengthDelta": 1.72
+    },
+    {
+      "id": "0a757568-0fd0-4fcc-b838-59b26ff1e2c7",
+      "reviewNo": 19,
+      "name": "Penn State",
+      "rank": 846,
+      "strata": [
+        "NEAR_LEVEL"
+      ],
+      "programmeStrength": 83,
+      "strengthDelta": -0.58
+    },
+    {
+      "id": "d4df182c-22d3-444a-934d-85ea215dfd41",
+      "reviewNo": 25,
+      "name": "Colorado School of Mines",
+      "rank": 854,
+      "strata": [
+        "SUBSTANTIALLY_BELOW"
+      ],
+      "programmeStrength": 52.12,
+      "strengthDelta": -31.46
+    },
+    {
+      "id": "a11ef3f0-b444-4921-8238-f6e00986f320",
+      "reviewNo": 34,
+      "name": "North Carolina",
+      "rank": 856,
+      "strata": [
+        "MODEST_REACH"
+      ],
+      "programmeStrength": 92.86,
+      "strengthDelta": 9.28
+    },
+    {
+      "id": "020c5cc8-7ace-4b8e-b17d-ad520fd94e7c",
+      "reviewNo": 18,
+      "name": "Virginia",
+      "rank": 858,
+      "strata": [
+        "RANKS_501_PLUS"
+      ],
+      "programmeStrength": 98.75,
+      "strengthDelta": 15.17
+    },
+    {
+      "id": "29cc94cb-890e-495d-9c57-7a27662f8271",
+      "reviewNo": 5,
+      "name": "Baker",
+      "rank": null,
+      "strata": [
+        "LIMITED_DATA"
+      ],
+      "programmeStrength": 59.06,
+      "strengthDelta": -24.52
+    },
+    {
+      "id": "fd55c4f7-e430-40b9-a80b-f6054ab099a6",
+      "reviewNo": 20,
+      "name": "Lincoln Trail",
+      "rank": null,
+      "strata": [
+        "LIMITED_DATA"
+      ],
+      "programmeStrength": 25.8,
+      "strengthDelta": -57.78
+    },
+    {
+      "id": "f6986698-cbb5-4bab-92f2-d4c355730c35",
+      "reviewNo": 28,
+      "name": "Lower Columbia",
+      "rank": null,
+      "strata": [
+        "LIMITED_DATA"
+      ],
+      "programmeStrength": null,
+      "strengthDelta": null
+    }
+  ],
+  "counts": {
+    "evaluated": 1166,
+    "ranked": 858,
+    "limitedData": 308,
+    "ineligible": 0,
+    "suppressed": 0,
+    "actionable": 100
+  }
+}

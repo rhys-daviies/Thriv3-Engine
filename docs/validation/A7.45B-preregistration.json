@@ -1,0 +1,3279 @@
+{
+ "phase": "A7.45B",
+ "policy": "B",
+ "rule": "If positional competition is UNSCOREABLE, Playing Pathway is UNSCOREABLE, regardless of whether rotation remains measurable. Rotation stays measurable and explainable; it simply does not carry a rank-bearing Playing Pathway score alone.",
+ "why": "Rotation answers \"how widely has this programme historically shared minutes?\". It does not independently answer \"how realistic is this athlete's pathway to minutes at this position when they arrive?\". Selected on evidence semantics, not ranking stability.",
+ "snapshot": {
+  "digest": "1e36644a62c430d1719f8855647e3c2ee8cad78f66f28026bbdf56f1a163022a",
+  "rosterRows": 62251,
+  "entryYear": 2027
+ },
+ "preregistered": {
+  "playingPathwayCells": 8240,
+  "scoreable": 7837,
+  "unscoreable": 403,
+  "preExisting": 133,
+  "a744Created": 270,
+  "positionDistribution": {
+   "GOALKEEPER": 138,
+   "FORWARD": 101,
+   "DEFENSE": 83,
+   "MIDFIELD": 81
+  },
+  "rotationLevel": {
+   "programme": 235,
+   "division": 164,
+   "sport": 4
+  },
+  "competitionRefusalReason": {
+   "NO_READABLE_POSITIONS": 377,
+   "NO_ROSTER_ON_FILE": 6,
+   "NO_CLASS_LABELS": 20
+  }
+ },
+ "diagnosticSimulationObserved": {
+  "note": "Observed in the A7.45 read-only simulation. Expectations, NOT targets to force. Measured against the pre-A7.44 baseline on a corpus whose pool has since grown.",
+  "limitedData": 3025,
+  "medianRankMovement": 23,
+  "maxRankMovement": 63,
+  "top25Swaps": 7,
+  "top50Swaps": 15,
+  "top100Swaps": 38,
+  "athletesAffected": "8/8"
+ },
+ "cellFormat": [
+  "programme|sport",
+  "position",
+  "origin",
+  "competitionRefusalReason",
+  "rotationEvidenceLevel",
+  "policyA_pathwayValue"
+ ],
+ "cellDigest": "6201ad8fd99c63538b021053d1e50cb724c809012df203c96337f0810efb21ea",
+ "cells": [
+  [
+   "Adams State|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.782409
+  ],
+  [
+   "Adams State|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.259193
+  ],
+  [
+   "Agnes Scott College|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   1
+  ],
+  [
+   "Agnes Scott College|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.94098
+  ],
+  [
+   "Alfred State|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.562803
+  ],
+  [
+   "Alfred State|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.746789
+  ],
+  [
+   "Aquinas|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399032
+  ],
+  [
+   "Aquinas|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "Aquinas|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Aurora University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.922755
+  ],
+  [
+   "Ave Maria University|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Belmont Abbey|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.591713
+  ],
+  [
+   "Beloit|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.910852
+  ],
+  [
+   "Beloit|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.805699
+  ],
+  [
+   "Beloit|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.552217
+  ],
+  [
+   "Beloit|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.268759
+  ],
+  [
+   "Bethany Lutheran College|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.693469
+  ],
+  [
+   "Bethany Lutheran College|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.949058
+  ],
+  [
+   "Bethany Lutheran College|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.599565
+  ],
+  [
+   "Bethany Lutheran|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.294788
+  ],
+  [
+   "Bethany Lutheran|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.523575
+  ],
+  [
+   "Bethany Lutheran|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.399322
+  ],
+  [
+   "Bethany Lutheran|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.378475
+  ],
+  [
+   "Bethel College (Kansas)|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Bethel University (IN)|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Brewton-Parker Christian University|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "Brewton-Parker Christian University|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Brewton-Parker Christian University|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555782
+  ],
+  [
+   "Brewton-Parker Christian University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Briar Cliff University|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "Briar Cliff University|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Briar Cliff University|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.388042
+  ],
+  [
+   "Bryant|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.660741
+  ],
+  [
+   "Caltech|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.613216
+  ],
+  [
+   "Caltech|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.66114
+  ],
+  [
+   "Caltech|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.811728
+  ],
+  [
+   "Caltech|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.411659
+  ],
+  [
+   "Carthage|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.388418
+  ],
+  [
+   "Central Christian College of Kansas|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591582
+  ],
+  [
+   "Central Christian College of Kansas|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555782
+  ],
+  [
+   "Central Christian College of Kansas|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Central Christian College of Kansas|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.646519
+  ],
+  [
+   "Central Christian|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399032
+  ],
+  [
+   "Central Christian|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Central Christian|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.388042
+  ],
+  [
+   "Chatham University|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_ROSTER_ON_FILE",
+   "programme",
+   0.966123
+  ],
+  [
+   "Christian Brothers|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.665622
+  ],
+  [
+   "Christian Brothers|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.275389
+  ],
+  [
+   "Christian Brothers|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.166222
+  ],
+  [
+   "Christian Brothers|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0
+  ],
+  [
+   "Christian Brothers|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.917728
+  ],
+  [
+   "Christian Brothers|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.396422
+  ],
+  [
+   "Clark (MA)|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   1
+  ],
+  [
+   "Clark (MA)|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.90544
+  ],
+  [
+   "Clark (MA)|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.645505
+  ],
+  [
+   "Clark (MA)|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   1
+  ],
+  [
+   "Clarkson|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.885218
+  ],
+  [
+   "Clarkson|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.391969
+  ],
+  [
+   "Clarkson|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.396414
+  ],
+  [
+   "Clarkson|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.768311
+  ],
+  [
+   "Clemson|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.567075
+  ],
+  [
+   "Clemson|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.530311
+  ],
+  [
+   "Clemson|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.358129
+  ],
+  [
+   "Clemson|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.544694
+  ],
+  [
+   "Clemson|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.448766
+  ],
+  [
+   "Clemson|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.41569
+  ],
+  [
+   "Clemson|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.282394
+  ],
+  [
+   "Clemson|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.441481
+  ],
+  [
+   "Columbia International University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Columbus State|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.178229
+  ],
+  [
+   "Columbus State|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.571829
+  ],
+  [
+   "Columbus State|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.457281
+  ],
+  [
+   "Columbus State|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.693926
+  ],
+  [
+   "Cumberlands|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399032
+  ],
+  [
+   "Cumberlands|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "Cumberlands|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Dominican (IL)|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.397038
+  ],
+  [
+   "Dominican (IL)|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.129793
+  ],
+  [
+   "Dominican (IL)|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.562636
+  ],
+  [
+   "Dominican (IL)|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.185052
+  ],
+  [
+   "Eastern Connecticut|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_ROSTER_ON_FILE",
+   "programme",
+   0.882796
+  ],
+  [
+   "Eastern Mennonite|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.872401
+  ],
+  [
+   "Eastern Mennonite|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.840674
+  ],
+  [
+   "Eastern Mennonite|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.654955
+  ],
+  [
+   "Eastern Oregon|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399032
+  ],
+  [
+   "Eastern Oregon|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "Eastern Oregon|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Elmira College|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.566225
+  ],
+  [
+   "Elmira College|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.202976
+  ],
+  [
+   "Elmira College|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.395556
+  ],
+  [
+   "Franciscan (OH)|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.539375
+  ],
+  [
+   "George Mason|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.448766
+  ],
+  [
+   "George Mason|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.41569
+  ],
+  [
+   "George Mason|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.282394
+  ],
+  [
+   "George Mason|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.441481
+  ],
+  [
+   "Grand Canyon|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.136599
+  ],
+  [
+   "Grinnell College|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.809869
+  ],
+  [
+   "Grinnell College|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.709883
+  ],
+  [
+   "Grinnell College|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.738672
+  ],
+  [
+   "Grinnell College|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.633481
+  ],
+  [
+   "Hannibal-LaGrange University|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591582
+  ],
+  [
+   "Hannibal-LaGrange University|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555782
+  ],
+  [
+   "Hannibal-LaGrange University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Hannibal-LaGrange University|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.646519
+  ],
+  [
+   "Hannibal-LaGrange|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399032
+  ],
+  [
+   "Hannibal-LaGrange|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "Hannibal-LaGrange|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Hannibal-LaGrange|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.388042
+  ],
+  [
+   "Hanover College|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.821771
+  ],
+  [
+   "Hanover College|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0
+  ],
+  [
+   "Hanover College|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.247283
+  ],
+  [
+   "Hanover College|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.284148
+  ],
+  [
+   "Hesston College|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Holy Cross College|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Hope College|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.571553
+  ],
+  [
+   "Hope College|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.443454
+  ],
+  [
+   "Hope College|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.636181
+  ],
+  [
+   "Hope College|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.486519
+  ],
+  [
+   "Hope|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.310738
+  ],
+  [
+   "Hope|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.884456
+  ],
+  [
+   "Hope|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.305307
+  ],
+  [
+   "Hope|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.641854
+  ],
+  [
+   "Howard|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.44715
+  ],
+  [
+   "Illinois Institute of Technology|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.626415
+  ],
+  [
+   "Illinois Institute of Technology|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.279419
+  ],
+  [
+   "Illinois Institute of Technology|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.515633
+  ],
+  [
+   "Jackson State|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0
+  ],
+  [
+   "Jackson State|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.716435
+  ],
+  [
+   "Jefferson|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.000871
+  ],
+  [
+   "Jefferson|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.523688
+  ],
+  [
+   "Jefferson|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.342752
+  ],
+  [
+   "Jefferson|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0
+  ],
+  [
+   "John Carroll University|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.096662
+  ],
+  [
+   "John Carroll University|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.183902
+  ],
+  [
+   "John Carroll University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.643203
+  ],
+  [
+   "John Carroll University|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.010074
+  ],
+  [
+   "John Carroll|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.181145
+  ],
+  [
+   "John Carroll|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.095596
+  ],
+  [
+   "John Carroll|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.169615
+  ],
+  [
+   "John Carroll|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0
+  ],
+  [
+   "Judson University|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Kansas State|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.188096
+  ],
+  [
+   "Kentucky Christian|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Kentucky Wesleyan|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.233091
+  ],
+  [
+   "Kentucky Wesleyan|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.095008
+  ],
+  [
+   "Kentucky Wesleyan|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.692526
+  ],
+  [
+   "Kentucky Wesleyan|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.651852
+  ],
+  [
+   "Keystone College|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.584906
+  ],
+  [
+   "Keystone College|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591187
+  ],
+  [
+   "Keystone College|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.520983
+  ],
+  [
+   "Keystone College|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.595556
+  ],
+  [
+   "King's (PA)|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.650836
+  ],
+  [
+   "Knox College|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.520983
+  ],
+  [
+   "Knox College|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.595556
+  ],
+  [
+   "Knox|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.513814
+  ],
+  [
+   "Knox|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.534974
+  ],
+  [
+   "Knox|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555609
+  ],
+  [
+   "Knox|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.552765
+  ],
+  [
+   "La Sierra University|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_ROSTER_ON_FILE",
+   "division",
+   0.458117
+  ],
+  [
+   "Lakeland|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.607221
+  ],
+  [
+   "Lancaster Bible College|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.770102
+  ],
+  [
+   "Lancaster Bible College|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.545339
+  ],
+  [
+   "Lancaster Bible College|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.622638
+  ],
+  [
+   "Lancaster Bible College|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.856
+  ],
+  [
+   "Lancaster Bible|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.656223
+  ],
+  [
+   "Lancaster Bible|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.613472
+  ],
+  [
+   "Lancaster Bible|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.714805
+  ],
+  [
+   "Lancaster Bible|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.796114
+  ],
+  [
+   "Lawrence University|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.65283
+  ],
+  [
+   "Lawrence University|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   1
+  ],
+  [
+   "Lawrence University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.291924
+  ],
+  [
+   "Lawrence University|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.646519
+  ],
+  [
+   "Lawrence|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.714896
+  ],
+  [
+   "Lawrence|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.197668
+  ],
+  [
+   "Lawrence|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.929973
+  ],
+  [
+   "Lawrence|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.445441
+  ],
+  [
+   "Lebanon Valley College|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.520983
+  ],
+  [
+   "Lebanon Valley|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555609
+  ],
+  [
+   "Life Pacific University|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591582
+  ],
+  [
+   "Life Pacific University|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555782
+  ],
+  [
+   "Life Pacific University|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Life Pacific University|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.646519
+  ],
+  [
+   "Macalester College|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.43588
+  ],
+  [
+   "Malone|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.289072
+  ],
+  [
+   "Malone|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.46485
+  ],
+  [
+   "Malone|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.173382
+  ],
+  [
+   "Malone|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.295407
+  ],
+  [
+   "Marymount (VA)|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.951581
+  ],
+  [
+   "Marymount (VA)|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.744819
+  ],
+  [
+   "Marymount (VA)|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.789193
+  ],
+  [
+   "Marymount (VA)|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.340807
+  ],
+  [
+   "Massachusetts Maritime Academy|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.584906
+  ],
+  [
+   "Massachusetts Maritime Academy|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591187
+  ],
+  [
+   "Massachusetts Maritime Academy|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.520983
+  ],
+  [
+   "Massachusetts Maritime Academy|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.595556
+  ],
+  [
+   "Massachusetts Maritime|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.513814
+  ],
+  [
+   "Massachusetts Maritime|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.534974
+  ],
+  [
+   "Massachusetts Maritime|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555609
+  ],
+  [
+   "Massachusetts Maritime|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.552765
+  ],
+  [
+   "Millsaps College|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.948331
+  ],
+  [
+   "Millsaps College|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.971982
+  ],
+  [
+   "Millsaps College|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.669286
+  ],
+  [
+   "Millsaps College|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.510815
+  ],
+  [
+   "Milwaukee School of Engineering|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.559361
+  ],
+  [
+   "Milwaukee School of Engineering|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.921294
+  ],
+  [
+   "Milwaukee School of Engineering|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.307306
+  ],
+  [
+   "Milwaukee School of Engineering|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.537185
+  ],
+  [
+   "Missouri Baptist University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Montclair State|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.500712
+  ],
+  [
+   "Montclair State|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.423834
+  ],
+  [
+   "Montclair State|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.581779
+  ],
+  [
+   "Montclair State|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.356951
+  ],
+  [
+   "Mount Olive|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.147668
+  ],
+  [
+   "Mount Olive|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.156772
+  ],
+  [
+   "Mount Olive|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.26108
+  ],
+  [
+   "Mount Union|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.06323
+  ],
+  [
+   "Mount Union|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.113731
+  ],
+  [
+   "Mount Union|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.694209
+  ],
+  [
+   "Mount Union|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.046637
+  ],
+  [
+   "Nelson University|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591582
+  ],
+  [
+   "Nelson University|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555782
+  ],
+  [
+   "Nelson University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Nelson University|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.646519
+  ],
+  [
+   "New Haven|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.508602
+  ],
+  [
+   "North Carolina Wesleyan|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0
+  ],
+  [
+   "North Carolina Wesleyan|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.001938
+  ],
+  [
+   "Northwestern|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "programme",
+   0.924238
+  ],
+  [
+   "Northwestern|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "programme",
+   0.589378
+  ],
+  [
+   "Northwestern|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "programme",
+   0.13448
+  ],
+  [
+   "Northwestern|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "programme",
+   0.38296
+  ],
+  [
+   "Oral Roberts|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.192228
+  ],
+  [
+   "Ottawa University Arizona|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555782
+  ],
+  [
+   "Ottawa University Arizona|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Ottawa University Arizona|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.646519
+  ],
+  [
+   "Otterbein University|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.584906
+  ],
+  [
+   "Otterbein University|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591187
+  ],
+  [
+   "Otterbein University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.520983
+  ],
+  [
+   "Otterbein University|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.595556
+  ],
+  [
+   "Pacific Union College|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399032
+  ],
+  [
+   "Pacific Union College|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "Pacific Union College|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.437364
+  ],
+  [
+   "Pacific Union College|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.388042
+  ],
+  [
+   "Park University|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555782
+  ],
+  [
+   "Park University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Park University|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.646519
+  ],
+  [
+   "Park|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Paul Quinn College|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399032
+  ],
+  [
+   "Paul Quinn College|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "Paul Quinn College|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Paul Quinn College|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.388042
+  ],
+  [
+   "Paul Quinn College|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.591582
+  ],
+  [
+   "Paul Quinn College|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.555782
+  ],
+  [
+   "Paul Quinn College|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.458117
+  ],
+  [
+   "Paul Quinn College|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "division",
+   0.646519
+  ],
+  [
+   "Penn State Behrend|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555609
+  ],
+  [
+   "Pennsylvania State University-Penn State Schuylkill|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "sport",
+   0.495791
+  ],
+  [
+   "Pennsylvania State University-Penn State Schuylkill|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "sport",
+   0.488538
+  ],
+  [
+   "Pennsylvania State University-Penn State Schuylkill|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "sport",
+   0.391908
+  ],
+  [
+   "Pennsylvania State University-Penn State Schuylkill|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_CLASS_LABELS",
+   "sport",
+   0.500444
+  ],
+  [
+   "Regent University|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.700713
+  ],
+  [
+   "Regent University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.8736
+  ],
+  [
+   "Rensselaer|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.382512
+  ],
+  [
+   "Rensselaer|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.239119
+  ],
+  [
+   "Rensselaer|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.750666
+  ],
+  [
+   "Rensselaer|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.61136
+  ],
+  [
+   "Roger Williams University|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.584906
+  ],
+  [
+   "Roger Williams University|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591187
+  ],
+  [
+   "Roger Williams University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.520983
+  ],
+  [
+   "Roger Williams University|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.595556
+  ],
+  [
+   "SUNY Old Westbury|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.986938
+  ],
+  [
+   "SUNY Old Westbury|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.887927
+  ],
+  [
+   "SUNY Old Westbury|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   1
+  ],
+  [
+   "SUNY Old Westbury|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.723556
+  ],
+  [
+   "Saint Elizabeth University|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   1
+  ],
+  [
+   "Saint Elizabeth University|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.664544
+  ],
+  [
+   "Saint Elizabeth University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.963384
+  ],
+  [
+   "Saint Elizabeth University|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.758222
+  ],
+  [
+   "Saint Francis (PA)|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.364284
+  ],
+  [
+   "Saint Francis (PA)|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.200259
+  ],
+  [
+   "Saint Francis (PA)|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.271868
+  ],
+  [
+   "Saint Francis (PA)|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.630792
+  ],
+  [
+   "Saint Mary's (MN)|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.497864
+  ],
+  [
+   "Saint Mary's (MN)|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.534974
+  ],
+  [
+   "Saint Mary's (MN)|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.480252
+  ],
+  [
+   "Saint Mary's (MN)|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.583558
+  ],
+  [
+   "Saint Mary's University of Minnesota|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.142235
+  ],
+  [
+   "Saint Mary's University of Minnesota|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.770504
+  ],
+  [
+   "Saint Mary's University of Minnesota|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.319679
+  ],
+  [
+   "Saint Mary's University of Minnesota|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.432593
+  ],
+  [
+   "Southern Virginia|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.48631
+  ],
+  [
+   "Southwest Baptist|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.66174
+  ],
+  [
+   "Southwestern Christian University|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591582
+  ],
+  [
+   "Southwestern Christian University|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555782
+  ],
+  [
+   "Southwestern Christian University|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Southwestern Christian University|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.646519
+  ],
+  [
+   "Southwestern College (Kansas)|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Stevens Institute of Technology|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.319884
+  ],
+  [
+   "Stevens Institute of Technology|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   1
+  ],
+  [
+   "Stevens Institute of Technology|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.356128
+  ],
+  [
+   "Stevens Institute of Technology|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.610074
+  ],
+  [
+   "Stevens Tech|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.612076
+  ],
+  [
+   "Stevens Tech|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.429793
+  ],
+  [
+   "Stevens Tech|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.100315
+  ],
+  [
+   "Stevens Tech|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.652018
+  ],
+  [
+   "Swarthmore|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.643406
+  ],
+  [
+   "Swarthmore|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.715544
+  ],
+  [
+   "Swarthmore|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.44536
+  ],
+  [
+   "Swarthmore|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.8571
+  ],
+  [
+   "Tabor College|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555782
+  ],
+  [
+   "Tabor College|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Talladega College|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_ROSTER_ON_FILE",
+   "division",
+   0.437364
+  ],
+  [
+   "Tampa|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.438083
+  ],
+  [
+   "Tampa|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399079
+  ],
+  [
+   "Tampa|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.446001
+  ],
+  [
+   "Tampa|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.36315
+  ],
+  [
+   "Tampa|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.436741
+  ],
+  [
+   "Texas A&M International|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.939666
+  ],
+  [
+   "Thomas Jefferson|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.882939
+  ],
+  [
+   "Thomas Jefferson|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.602591
+  ],
+  [
+   "Thomas Jefferson|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.696874
+  ],
+  [
+   "Thomas Jefferson|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.683707
+  ],
+  [
+   "Trine University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.223541
+  ],
+  [
+   "Trinity Washington University|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_ROSTER_ON_FILE",
+   "division",
+   0.591187
+  ],
+  [
+   "Truett McConnell University|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399032
+  ],
+  [
+   "Truett McConnell University|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "Truett McConnell University|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Truett McConnell University|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.388042
+  ],
+  [
+   "UC Merced|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.426852
+  ],
+  [
+   "Union (KY)|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399032
+  ],
+  [
+   "Union (KY)|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "Union (KY)|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Union (KY)|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.388042
+  ],
+  [
+   "Union Commonwealth University|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591582
+  ],
+  [
+   "Union Commonwealth University|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555782
+  ],
+  [
+   "Union Commonwealth University|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Union Commonwealth University|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.646519
+  ],
+  [
+   "United States Merchant Marine Academy|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.531075
+  ],
+  [
+   "United States Merchant Marine Academy|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.896171
+  ],
+  [
+   "University of Dallas|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.888534
+  ],
+  [
+   "University of Dallas|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   1
+  ],
+  [
+   "University of Dallas|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.905534
+  ],
+  [
+   "University of Dallas|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.584593
+  ],
+  [
+   "University of Mobile|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399032
+  ],
+  [
+   "University of Mobile|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "University of Mobile|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "University of Mount Union|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.173875
+  ],
+  [
+   "University of Mount Union|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.536679
+  ],
+  [
+   "University of Mount Union|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.669453
+  ],
+  [
+   "University of Mount Union|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0
+  ],
+  [
+   "University of the Cumberlands|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591582
+  ],
+  [
+   "University of the Cumberlands|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "University of the Southwest (New Mexico)|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399032
+  ],
+  [
+   "University of the Southwest (New Mexico)|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "University of the Southwest (New Mexico)|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "University of the Southwest (New Mexico)|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.388042
+  ],
+  [
+   "Ursinus|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.886116
+  ],
+  [
+   "Ursinus|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.579073
+  ],
+  [
+   "Utah State|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.448766
+  ],
+  [
+   "Utah State|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.41569
+  ],
+  [
+   "Utah State|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.282394
+  ],
+  [
+   "Utah State|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.441481
+  ],
+  [
+   "Vermont State University-Johnson|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.584906
+  ],
+  [
+   "Vermont State University-Johnson|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591187
+  ],
+  [
+   "Vermont State University-Johnson|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.520983
+  ],
+  [
+   "Walsh|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.148534
+  ],
+  [
+   "Wartburg College|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.481567
+  ],
+  [
+   "Wartburg College|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.311258
+  ],
+  [
+   "Wartburg College|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.681491
+  ],
+  [
+   "Wartburg College|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.472889
+  ],
+  [
+   "West Texas A&M|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.147251
+  ],
+  [
+   "West Texas A&M|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.168135
+  ],
+  [
+   "West Texas A&M|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.139084
+  ],
+  [
+   "West Texas A&M|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0
+  ],
+  [
+   "West Virginia University Institute of Technology|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.591582
+  ],
+  [
+   "West Virginia University Institute of Technology|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.555782
+  ],
+  [
+   "West Virginia University Institute of Technology|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Westminster (MO)|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.32327
+  ],
+  [
+   "Westminster (MO)|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.661917
+  ],
+  [
+   "Westminster (MO)|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.552944
+  ],
+  [
+   "Westminster (MO)|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.998505
+  ],
+  [
+   "Westminster University (MO)|womens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.914949
+  ],
+  [
+   "Westminster University (MO)|womens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.719817
+  ],
+  [
+   "Westminster University (MO)|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.625982
+  ],
+  [
+   "Westminster University (MO)|womens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.721185
+  ],
+  [
+   "Whitman|mens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_ROSTER_ON_FILE",
+   "programme",
+   1
+  ],
+  [
+   "Whittier College|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.437446
+  ],
+  [
+   "Whittier College|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.472236
+  ],
+  [
+   "Whittier College|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.517305
+  ],
+  [
+   "Whittier College|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.123852
+  ],
+  [
+   "Wiley University|mens-soccer",
+   "DEFENSE",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.399032
+  ],
+  [
+   "Wiley University|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.379793
+  ],
+  [
+   "Wiley University|mens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.437364
+  ],
+  [
+   "Wiley University|mens-soccer",
+   "MIDFIELD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.388042
+  ],
+  [
+   "Wiley University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.458117
+  ],
+  [
+   "Wright State|mens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.187981
+  ],
+  [
+   "Wright State|mens-soccer",
+   "FORWARD",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.396114
+  ],
+  [
+   "Wright State|mens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.422583
+  ],
+  [
+   "Wright State|mens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   0.324963
+  ],
+  [
+   "Wyoming|womens-soccer",
+   "DEFENSE",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.448766
+  ],
+  [
+   "Wyoming|womens-soccer",
+   "FORWARD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.41569
+  ],
+  [
+   "Wyoming|womens-soccer",
+   "GOALKEEPER",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.282394
+  ],
+  [
+   "Wyoming|womens-soccer",
+   "MIDFIELD",
+   "PRE_EXISTING",
+   "NO_READABLE_POSITIONS",
+   "division",
+   0.441481
+  ],
+  [
+   "Yeshiva University|womens-soccer",
+   "GOALKEEPER",
+   "A744_CREATED",
+   "NO_READABLE_POSITIONS",
+   "programme",
+   1
+  ]
+ ]
+}

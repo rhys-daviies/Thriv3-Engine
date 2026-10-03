@@ -1,0 +1,78 @@
+{
+ "packId": "A7.30-independent",
+ "cardDigest": "8a4943bbd5feecf97a4eabacbf9f2a2e71a3f60ad189471ca0db36e0e63c770a",
+ "promptDigest": "770c289c18727d97f00af9213fafa549a022b4243e4f5388c460bbf3e2ea847a",
+ "shadowRevealed": false,
+ "evaluators": [
+  {
+   "id": "a8c9d5faadc5a35b5",
+   "model": "fable (Fable 5.1)",
+   "toolUses": 2,
+   "tokens": 64420,
+   "answers": {
+    "U-01": "PRE_READ_BEFORE_RELIANCE",
+    "U-02": "PRE_READ_BEFORE_RELIANCE",
+    "U-03": "PRE_READ_BEFORE_RELIANCE",
+    "U-04": "PRE_READ_BEFORE_RELIANCE",
+    "U-05": "PRE_READ_BEFORE_RELIANCE",
+    "U-06": "PRE_READ_BEFORE_RELIANCE",
+    "U-07": "PRE_READ_BEFORE_RELIANCE",
+    "U-08": "VERIFY_EARLY",
+    "U-09": "PRE_READ_BEFORE_RELIANCE",
+    "U-10": "PRE_READ_BEFORE_RELIANCE",
+    "U-11": "VERIFY_EARLY",
+    "U-12": "PRE_READ_BEFORE_RELIANCE",
+    "U-13": "NORMAL",
+    "U-14": "PRE_READ_BEFORE_RELIANCE",
+    "U-15": "NORMAL"
+   }
+  },
+  {
+   "id": "acdef270802dd87b2",
+   "model": "sonnet (Sonnet 5)",
+   "toolUses": 2,
+   "tokens": 91366,
+   "answers": {
+    "U-01": "PRE_READ_BEFORE_RELIANCE",
+    "U-02": "PRE_READ_BEFORE_RELIANCE",
+    "U-03": "PRE_READ_BEFORE_RELIANCE",
+    "U-04": "PRE_READ_BEFORE_RELIANCE",
+    "U-05": "PRE_READ_BEFORE_RELIANCE",
+    "U-06": "VERIFY_EARLY",
+    "U-07": "PRE_READ_BEFORE_RELIANCE",
+    "U-08": "PRE_READ_BEFORE_RELIANCE",
+    "U-09": "PRE_READ_BEFORE_RELIANCE",
+    "U-10": "PRE_READ_BEFORE_RELIANCE",
+    "U-11": "VERIFY_EARLY",
+    "U-12": "PRE_READ_BEFORE_RELIANCE",
+    "U-13": "NORMAL",
+    "U-14": "PRE_READ_BEFORE_RELIANCE",
+    "U-15": "PRE_READ_BEFORE_RELIANCE"
+   }
+  },
+  {
+   "id": "ad04c6e8fc9323209",
+   "model": "opus (Opus 5.5)",
+   "toolUses": 2,
+   "tokens": 61032,
+   "answers": {
+    "U-01": "PRE_READ_BEFORE_RELIANCE",
+    "U-02": "PRE_READ_BEFORE_RELIANCE",
+    "U-03": "PRE_READ_BEFORE_RELIANCE",
+    "U-04": "PRE_READ_BEFORE_RELIANCE",
+    "U-05": "PRE_READ_BEFORE_RELIANCE",
+    "U-06": "PRE_READ_BEFORE_RELIANCE",
+    "U-07": "PRE_READ_BEFORE_RELIANCE",
+    "U-08": "VERIFY_EARLY",
+    "U-09": "VERIFY_EARLY",
+    "U-10": "PRE_READ_BEFORE_RELIANCE",
+    "U-11": "VERIFY_EARLY",
+    "U-12": "PRE_READ_BEFORE_RELIANCE",
+    "U-13": "NORMAL",
+    "U-14": "PRE_READ_BEFORE_RELIANCE",
+    "U-15": "VERIFY_EARLY"
+   }
+  }
+ ],
+ "answerDigest": "d9fc4daa691ddabc042cd6733f470421b0a8bde9d77dcdd4dff3e983567f3a22"
+}

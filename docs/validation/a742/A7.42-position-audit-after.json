@@ -1,0 +1,159 @@
+{
+ "phase": "A7.41",
+ "season": "2026",
+ "entryYear": 2027,
+ "sports": {
+  "mens-soccer": {
+   "rows": 29000,
+   "readable": 28113,
+   "categoryA_absent": 0,
+   "categoryB_presentButRejected": 887,
+   "distinctRejectedValues": [
+    {
+     "value": "UNKNOWN",
+     "rows": 887
+    }
+   ],
+   "programmesAffected": 177,
+   "guard": {
+    "catastrophic": [
+     {
+      "programme": "Saint Francis (PA)",
+      "rows": 15,
+      "positioned": 0,
+      "priorSquad": 28,
+      "nameOverlapWithPriorSeason": 0.036,
+      "reading": "SUSPECT"
+     },
+     {
+      "programme": "Union (KY)",
+      "rows": 44,
+      "positioned": 0,
+      "priorSquad": 82,
+      "nameOverlapWithPriorSeason": 0.317,
+      "reading": "PLAUSIBLE_CONTINUATION"
+     },
+     {
+      "programme": "Thomas Jefferson",
+      "rows": 36,
+      "positioned": 0,
+      "priorSquad": 31,
+      "nameOverlapWithPriorSeason": 0.613,
+      "reading": "PLAUSIBLE_CONTINUATION"
+     }
+    ],
+    "drop": 6,
+    "ok": 163,
+    "noBaseline": 5
+   },
+   "consequence": {
+    "entryYear": 2027,
+    "programmePositionCells": 3472,
+    "cellsInProgrammesCarryingUnreadableRows": 718,
+    "measuredZeroReturnerCells": 52,
+    "measuredZeroCellsExposedToUnreadablePositions": 19,
+    "unaccountedPlayersBehindThoseCells": 219
+   }
+  },
+  "womens-soccer": {
+   "rows": 33185,
+   "readable": 32388,
+   "categoryA_absent": 0,
+   "categoryB_presentButRejected": 797,
+   "distinctRejectedValues": [
+    {
+     "value": "UNKNOWN",
+     "rows": 797
+    }
+   ],
+   "programmesAffected": 149,
+   "guard": {
+    "catastrophic": [
+     {
+      "programme": "University of Dallas",
+      "rows": 18,
+      "positioned": 0,
+      "priorSquad": 21,
+      "nameOverlapWithPriorSeason": 0.429,
+      "reading": "PLAUSIBLE_CONTINUATION"
+     },
+     {
+      "programme": "Whittier College",
+      "rows": 35,
+      "positioned": 0,
+      "priorSquad": 40,
+      "nameOverlapWithPriorSeason": 0.475,
+      "reading": "PLAUSIBLE_CONTINUATION"
+     },
+     {
+      "programme": "Southwestern Christian University",
+      "rows": 24,
+      "positioned": 0,
+      "priorSquad": 27,
+      "nameOverlapWithPriorSeason": 0.481,
+      "reading": "PLAUSIBLE_CONTINUATION"
+     },
+     {
+      "programme": "Union Commonwealth University",
+      "rows": 27,
+      "positioned": 0,
+      "priorSquad": 24,
+      "nameOverlapWithPriorSeason": 0.542,
+      "reading": "PLAUSIBLE_CONTINUATION"
+     },
+     {
+      "programme": "SUNY Old Westbury",
+      "rows": 22,
+      "positioned": 0,
+      "priorSquad": 17,
+      "nameOverlapWithPriorSeason": 0.588,
+      "reading": "PLAUSIBLE_CONTINUATION"
+     },
+     {
+      "programme": "Jefferson",
+      "rows": 32,
+      "positioned": 0,
+      "priorSquad": 36,
+      "nameOverlapWithPriorSeason": 0.639,
+      "reading": "PLAUSIBLE_CONTINUATION"
+     },
+     {
+      "programme": "Utah State",
+      "rows": 30,
+      "positioned": 0,
+      "priorSquad": 23,
+      "nameOverlapWithPriorSeason": 0.696,
+      "reading": "PLAUSIBLE_CONTINUATION"
+     },
+     {
+      "programme": "Hanover College",
+      "rows": 35,
+      "positioned": 0,
+      "priorSquad": 30,
+      "nameOverlapWithPriorSeason": 0.7,
+      "reading": "PLAUSIBLE_CONTINUATION"
+     },
+     {
+      "programme": "George Mason",
+      "rows": 26,
+      "positioned": 0,
+      "priorSquad": 19,
+      "nameOverlapWithPriorSeason": 0.737,
+      "reading": "PLAUSIBLE_CONTINUATION"
+     }
+    ],
+    "drop": 5,
+    "ok": 131,
+    "noBaseline": 4
+   },
+   "consequence": {
+    "entryYear": 2027,
+    "programmePositionCells": 4647,
+    "cellsInProgrammesCarryingUnreadableRows": 570,
+    "measuredZeroReturnerCells": 136,
+    "measuredZeroCellsExposedToUnreadablePositions": 40,
+    "unaccountedPlayersBehindThoseCells": 290
+   }
+  }
+ }
+}

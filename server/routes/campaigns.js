@@ -7,6 +7,12 @@ import {
   CAMPAIGN_STATES, PROGRAMME_CAMPAIGN_STATES, TIERS,
 } from '../lib/campaigns.js';
 import { campaignExecutionPlan } from '../lib/campaignExecution.js';
+/**
+ * A9.7 §E. Campaign creation from a PERSISTED V2 run. A separate module and a
+ * separate route: `createCampaign` above is untouched, so rolling V2 back is
+ * "stop calling the other endpoint" rather than a code change.
+ */
+import { createCampaignFromRun } from '../lib/v2/campaignFromRun.js';
 import {
   executeProgrammeMessage, reattemptExecution, EXECUTION_REFUSAL,
 } from '../lib/executeProgrammeMessage.js';
@@ -227,6 +233,19 @@ const STATUS_BY_CODE = Object.freeze({
   // the state of the world, and the caller can fix it and retry.
   CAMPAIGN_ACTIVE_CONFLICT: 409,
   NO_STORED_ANALYSIS: 409,
+
+  /* ---- A9.7 §E: creating a campaign from a persisted run ---------------- */
+  /** There is no run yet. The operator generates one and asks again. */
+  RUN_NOT_FOUND: 404,
+  /** A run id that is not this athlete's — a routing mistake, not a refusal. */
+  RUN_PLAYER_MISMATCH: 422,
+  /**
+   * The run exists and ranked nothing. 409 rather than 422 for the same reason
+   * `NO_STORED_ANALYSIS` is: nothing about the request is wrong, the record is
+   * in a state this operation cannot run against, and an unresolved family
+   * contribution is the usual cause.
+   */
+  EMPTY_RUN_UNIVERSE: 409,
 
   // Well-formed, and asking for something that is not allowed to be true.
   ILLEGAL_TRANSITION: 422,
@@ -453,6 +472,49 @@ campaignsRouter.post('/players/:playerId/campaigns', handle('campaigns/create', 
   return {
     status: 201,
     body: { campaign: campaignDetail(campaign), programmes: programmes.map(programmeCampaign) },
+  };
+}));
+
+/**
+ * Freeze the Top 100 of a PERSISTED MATCHMAKING RUN into a draft campaign —
+ * A9.7 §E.
+ *
+ * ===========================================================================
+ * A SECOND ROUTE, NOT A BRANCH INSIDE THE FIRST.
+ *
+ * `POST /players/:id/campaigns` is byte-identical to what it was and still
+ * reads `players.recommendations`. This one reads the run. Nothing switches
+ * between them at runtime, which is what makes the rollback in §W a matter of
+ * calling the other endpoint rather than deploying a change.
+ * ===========================================================================
+ *
+ * It RANKS NOTHING. Every programme, rank, band and layer comes out of
+ * `matchmaking_programme_results` as the run stored it, and the body cannot
+ * supply a programme list for the same reason the V1 route refuses one: what a
+ * campaign records must be what the product ranked, not what a long-open
+ * browser tab was holding.
+ *
+ * `runId` is OPTIONAL and defaults to the athlete's current run. Supplying one
+ * is how a consultant deliberately pursues a historical run; it is checked
+ * against the athlete either way.
+ */
+campaignsRouter.post('/players/:playerId/campaigns/from-matchmaking', handle('campaigns/create-v2', (req) => {
+  const body = readBody(req.body, [...CREATE_FIELDS, 'run_id'], 'campaign creation');
+  const { campaign, programmes, runId, runWasStale } = createCampaignFromRun(req.params.playerId, {
+    runId: body.run_id ?? null,
+    label: body.label ?? null,
+    startsOn: body.starts_on ?? null,
+    outreachEndsOn: body.outreach_ends_on ?? null,
+    endsOn: body.ends_on ?? null,
+  });
+  return {
+    status: 201,
+    body: {
+      campaign: campaignDetail(campaign),
+      programmes: programmes.map(programmeCampaign),
+      runId,
+      runWasStale,
+    },
   };
 }));
 

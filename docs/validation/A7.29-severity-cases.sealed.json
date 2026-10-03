@@ -1,0 +1,345 @@
+{
+ "note": "SEALED. Opening this file ends the blind review.",
+ "cases": [
+  {
+   "code": "T-08",
+   "caseId": "e01",
+   "cell": "contested 5-10% / -250",
+   "programme": "Colby College",
+   "base": "W3-C-strong-playing-focused",
+   "profile": "C-good",
+   "rank": 31,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "ACADEMIC_REVIEW",
+    "gap": -251,
+    "acceptanceRate": 0.0709,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "251 points below the enrolled average at a selective institution",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-14",
+   "caseId": "e02",
+   "cell": "contested 5-10% / -300 (a)",
+   "programme": "Amherst",
+   "base": "V3-C-strong-playing-focused",
+   "profile": "C-good",
+   "rank": 9,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "ACADEMIC_REVIEW",
+    "gap": -283,
+    "acceptanceRate": 0.0901,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "283 points below the enrolled average at a selective institution",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-10",
+   "caseId": "e03",
+   "cell": "contested 5-10% / -300 (b)",
+   "programme": "Penn",
+   "base": "V3-A-elite-level-focused",
+   "profile": "C-good",
+   "rank": 15,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "ACADEMIC_REVIEW",
+    "gap": -303,
+    "acceptanceRate": 0.054,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "303 points below the enrolled average at a selective institution",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-16",
+   "caseId": "e04",
+   "cell": "contested 5-10% / -400",
+   "programme": "Bowdoin",
+   "base": "V3-E-academic-priority",
+   "profile": "D-moderate",
+   "rank": 41,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -420,
+    "acceptanceRate": 0.0713,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "420 points below the enrolled average at an institution accepting 7%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-15",
+   "caseId": "e05",
+   "cell": "contested 10-20% / -250",
+   "programme": "Washington and Lee University",
+   "base": "W3-E-academic-priority",
+   "profile": "C-good",
+   "rank": 7,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "ACADEMIC_REVIEW",
+    "gap": -248,
+    "acceptanceRate": 0.1397,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "248 points below the enrolled average at a selective institution",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-11",
+   "caseId": "e06",
+   "cell": "contested 10-20% / -300",
+   "programme": "Washington University in St Louis",
+   "base": "W3-E-academic-priority",
+   "profile": "C-good",
+   "rank": 1,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "ACADEMIC_REVIEW",
+    "gap": -280,
+    "acceptanceRate": 0.1206,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "280 points below the enrolled average at a selective institution",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-04",
+   "caseId": "e07",
+   "cell": "contested 10-20% / -400",
+   "programme": "Boston College",
+   "base": "V3-A-elite-level-focused",
+   "profile": "D-moderate",
+   "rank": 11,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -407,
+    "acceptanceRate": 0.1643,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "407 points below the enrolled average at an institution accepting 16%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-07",
+   "caseId": "e08",
+   "cell": "contested 20-30% / -250",
+   "programme": "Smith College",
+   "base": "W3-D-developmental-balanced",
+   "profile": "C-good",
+   "rank": 14,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "ACADEMIC_REVIEW",
+    "gap": -250,
+    "acceptanceRate": 0.21,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "250 points below the enrolled average at a selective institution",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-12",
+   "caseId": "e09",
+   "cell": "contested 20-30% / -300",
+   "programme": "Trinity University",
+   "base": "W3-E-academic-priority",
+   "profile": "D-moderate",
+   "rank": 3,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "ACADEMIC_REVIEW",
+    "gap": -316,
+    "acceptanceRate": 0.2592,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "316 points below the enrolled average at a selective institution",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-17",
+   "caseId": "e10",
+   "cell": "contested 20-30% / -400",
+   "programme": "Carleton",
+   "base": "V3-E-academic-priority",
+   "profile": "D-moderate",
+   "rank": 38,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -417,
+    "acceptanceRate": 0.2041,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "417 points below the enrolled average at an institution accepting 20%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-02",
+   "caseId": "e11",
+   "cell": "contested 30-45% / -300",
+   "programme": "South Florida",
+   "base": "V3-A-elite-level-focused",
+   "profile": "E-weak",
+   "rank": 13,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "ACADEMIC_REVIEW",
+    "gap": -277,
+    "acceptanceRate": 0.4319,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "277 points below the enrolled average at a selective institution",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-09",
+   "caseId": "e12",
+   "cell": "contested 30-45% / -350",
+   "programme": "Oberlin",
+   "base": "V3-D-developmental-balanced",
+   "profile": "D-moderate",
+   "rank": 1,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "ACADEMIC_REVIEW",
+    "gap": -347,
+    "acceptanceRate": 0.3418,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "347 points below the enrolled average at a selective institution",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-03",
+   "caseId": "e13",
+   "cell": "contested 30-45% / -400",
+   "programme": "Millsaps",
+   "base": "V3-D-developmental-balanced",
+   "profile": "F-very-weak",
+   "rank": 2,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -381,
+    "acceptanceRate": 0.4312,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "381 points below the enrolled average at an institution accepting 43%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-06",
+   "caseId": "e14",
+   "cell": "CONTROL clearly normal",
+   "programme": "CUNY Lehman College",
+   "base": "W3-D-developmental-balanced",
+   "profile": "A-very-strong",
+   "rank": 1,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "NO_MATERIAL_CONCERN",
+    "gap": 530,
+    "acceptanceRate": 0.5658,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "acceptance rate 57% - the institution is not selecting on this margin",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-01",
+   "caseId": "e15",
+   "cell": "CONTROL clearly substantial",
+   "programme": "Brown",
+   "base": "V3-A-elite-level-focused",
+   "profile": "E-weak",
+   "rank": 18,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -596,
+    "acceptanceRate": 0.0539,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "596 points below the enrolled average at an institution accepting 5%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-13",
+   "caseId": "e16",
+   "cell": "CONTROL big shortfall, high acceptance",
+   "programme": "Fairmont State",
+   "base": "W3-C-strong-playing-focused",
+   "profile": "G-extreme-diagnostic",
+   "rank": 2,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "NO_MATERIAL_CONCERN",
+    "gap": -596,
+    "acceptanceRate": 0.9862,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "acceptance rate 99% - the institution is not selecting on this margin",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "T-05",
+   "caseId": "e17",
+   "cell": "CONTROL small shortfall, highly selective",
+   "programme": "Williams",
+   "base": "V3-E-academic-priority",
+   "profile": "A-very-strong",
+   "rank": 15,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "NO_MATERIAL_CONCERN",
+    "gap": -33,
+    "acceptanceRate": 0.0825,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "the athlete sits at or above the enrolled body on the evidence we hold",
+     "test policy not on file"
+    ]
+   }
+  }
+ ]
+}

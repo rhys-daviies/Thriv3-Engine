@@ -283,6 +283,42 @@ export function coachFirstName(name) {
 }
 
 /**
+ * What a coach may truthfully be told about this family's budget.
+ *
+ * `{{player_yearly_budget}}` has always been A FIGURE, and the templates
+ * already in the database put it after a label their author wrote - usually
+ * "Annual Budget:". So the rule is: render a figure when there is one, and
+ * gate the line off when there is not. Nothing is fabricated and no existing
+ * template changes meaning.
+ *
+ *   STATED $47,500        "$47,500/year", line shown
+ *   NOT_A_CONSTRAINT      gated off. There is no figure, and "Annual Budget:
+ *                         cost is not a meaningful constraint" is a sentence
+ *                         no template author asked for. Saying it properly
+ *                         needs its own token, which is a template-system
+ *                         change this phase deliberately does not make.
+ *   NEEDS_CONFIRMATION    gated off. Nothing has been confirmed.
+ *   malformed pair        gated off, for the same reason the matcher refuses
+ *                         to read one.
+ *   legacy band           exactly as before
+ */
+function budgetToken(player) {
+  const state = player?.contribution_state ?? null;
+  const max = player?.max_annual_contribution_usd;
+  if (state === 'STATED') {
+    const n = typeof max === 'string' ? Number(max) : max;
+    return (typeof n === 'number' && Number.isFinite(n) && n >= 0)
+      ? { value: `$${n.toLocaleString('en-US')}/year`, present: true }
+      : { value: 'N/A', present: false };
+  }
+  if (state !== null) return { value: 'N/A', present: false };
+  return {
+    value: player?.budget_range || 'N/A',
+    present: Boolean(player?.budget_range) && player.budget_range !== UNDECLARED_BUDGET,
+  };
+}
+
+/**
  * "exercise science" -> "Exercise Science".
  *
  * The athlete types their intended field in free text and it is almost always
@@ -452,10 +488,11 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     // what the templates already say rather than renaming and breaking them.
     player_sat_score: player.sat_score != null && player.sat_score !== '' ? String(player.sat_score) : 'N/A',
     player_act_score: player.act_score != null && player.act_score !== '' ? String(player.act_score) : 'N/A',
-    player_yearly_budget: player.budget_range || 'N/A',
     // Undeclared is the absence of a budget, so it gates the line off rather
-    // than sending a coach "Annual Budget: Undeclared".
-    has_yearly_budget: player.budget_range && player.budget_range !== UNDECLARED_BUDGET ? 'true' : '',
+    // than sending a coach "Annual Budget: Undeclared". Since A7.9.5 the
+    // figure may come from the exact contribution instead - see budgetToken.
+    player_yearly_budget: budgetToken(player).value,
+    has_yearly_budget: budgetToken(player).present ? 'true' : '',
     // Both names resolve to the same value. `player_graduation_year` is kept
     // because saved templates in the database still use it, and renaming a
     // token does not error — it silently renders nothing.

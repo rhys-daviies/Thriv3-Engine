@@ -50,6 +50,8 @@ export function scoreMatch({ athlete, college, weights, shapes }) {
     }),
     affordability: affordability({
       budgetRange: athlete.budgetRange,
+      contributionState: athlete.contributionState ?? null,
+      maxAnnualContributionUsd: athlete.maxAnnualContributionUsd ?? null,
       netPrice: college.netPrice,
       control: college.control,
       tuitionIn: college.tuitionIn,

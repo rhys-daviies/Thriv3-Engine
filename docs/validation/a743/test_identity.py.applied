@@ -1,0 +1,143 @@
+"""
+A7.43 regression suite for roster sport/season identity.
+
+    python3 -m pytest test_identity.py -q     (or: python3 test_identity.py)
+
+Every fixture is a signal captured during A7.42 from a real page, not an
+invented one. The suite's job is to make the A7.41/A7.42 contamination
+impossible to reproduce through the tested paths.
+"""
+import re
+import sys
+import identity
+import lib
+
+FAILED = []
+
+
+def check(name, cond, detail=''):
+    if cond:
+        print('  PASS  %s' % name)
+    else:
+        FAILED.append(name)
+        print('  FAIL  %s %s' % (name, detail))
+
+
+# --- the real captured signals ------------------------------------------------
+GCU_WRONG = {'title': 'Ashley Fairbanks - Cross Country - Grand Canyon University Athletics',
+             'canonical': 'https://gculopes.com/sports/mens-cross-country/roster/season/2026',
+             'display_title': '2026 Cross Country Roster'}
+KSU_WRONG = {'title': "Brady Grunder - Men's Track & Field - Kansas State University Athletics",
+             'canonical': 'https://www.kstatesports.com/sports/mens-track-and-field/roster/season/1536',
+             'display_title': "2016 Men's Track & Field"}
+GCU_RIGHT = {'title': "2026 Women's Soccer Roster - Grand Canyon University Athletics",
+             'canonical': 'https://gculopes.com/sports/womens-soccer/roster',
+             'display_title': "2026 Women's Soccer Roster"}
+KSU_RIGHT = {'title': 'Soccer Roster - Kansas State University Athletics',
+             'canonical': 'https://www.kstatesports.com/sports/womens-soccer/roster',
+             'display_title': '2026 Soccer Roster'}
+CONTROLS = {
+    'Clemson M': ({'title': "Men's Soccer 2026-27 - Clemson University Athletics"}, 'mens-soccer'),
+    'Northwestern M': ({'title': "2026 Men's Soccer Roster - Northwestern Wildcats - Official Athletics Website"}, 'mens-soccer'),
+    'George Mason W': ({'title': "2026 Women's Soccer Roster - George Mason University Athletics",
+                        'canonical': 'https://gomason.com/sports/womens-soccer/roster/2026'}, 'womens-soccer'),
+    'Utah State W': ({'title': "2026 Women's Soccer Roster - Utah State University Athletics",
+                      'canonical': 'https://utahstateaggies.com/sports/womens-soccer/roster/2026'}, 'womens-soccer'),
+    'Wright State M': ({'title': "2026 Men's Soccer Roster - Wright State University Athletics",
+                        'canonical': 'https://wsuraiders.com/sports/mens-soccer/roster/2026',
+                        'display_title': "2026 Men's Soccer Roster"}, 'mens-soccer'),
+}
+A = lambda sig, sport='womens-soccer', season=2026: identity.assess(signals=sig, requested_sport=sport, requested_season=season)
+
+print('\n-- the two contaminated pages are refused ---------------------------')
+r = A(GCU_WRONG)
+check('GCU wrong source: sport CONTRADICTS', r['sport'] == identity.CONTRADICTS)
+check('GCU wrong source: season AGREES (right year, wrong sport)', r['season'] == identity.AGREES)
+check('GCU wrong source: REFUSE', r['action'] == identity.REFUSE)
+r = A(KSU_WRONG)
+check('KSU wrong source: sport CONTRADICTS', r['sport'] == identity.CONTRADICTS)
+check('KSU wrong source: season CONTRADICTS', r['season'] == identity.CONTRADICTS)
+check('KSU wrong source: 2016 seen', '2016' in r['years_seen'])
+check('KSU wrong source: REFUSE', r['action'] == identity.REFUSE)
+
+print('\n-- the correct sources pass ----------------------------------------')
+for nm, sig in (('GCU correct', GCU_RIGHT), ('KSU correct', KSU_RIGHT)):
+    r = A(sig)
+    check('%s: AGREES and EXTRACT' % nm, r['sport'] == identity.AGREES and r['action'] == identity.EXTRACT, r)
+
+print('\n-- controls ---------------------------------------------------------')
+for nm, (sig, sport) in CONTROLS.items():
+    r = A(sig, sport)
+    check('%s: AGREES/EXTRACT' % nm, r['sport'] == identity.AGREES and r['action'] == identity.EXTRACT, r)
+
+print('\n-- adversarial: the four quadrants, assessed independently ----------')
+r = A({'title': "2016 Women's Soccer Roster"})
+check('right sport + wrong season -> REFUSE', r['sport'] == identity.AGREES and r['season'] == identity.CONTRADICTS and r['action'] == identity.REFUSE)
+r = A({'title': '2026 Cross Country Roster'})
+check('wrong sport + right season -> REFUSE', r['sport'] == identity.CONTRADICTS and r['season'] == identity.AGREES and r['action'] == identity.REFUSE)
+r = A({'title': '2016 Track & Field Roster'})
+check('wrong sport + wrong season -> REFUSE', r['action'] == identity.REFUSE)
+r = A({'title': "2026 Women's Soccer Roster"})
+check('right sport + right season -> EXTRACT', r['action'] == identity.EXTRACT)
+r = A({'title': 'Roster 2026'})
+check('unknown sport + known season -> REVIEW, not EXTRACT', r['sport'] == identity.UNKNOWN and r['action'] == identity.REVIEW)
+r = A({'title': "Women's Soccer Roster"})
+check('known sport + unknown season -> EXTRACT (a live page often has no year)', r['season'] == identity.UNKNOWN and r['action'] == identity.EXTRACT)
+
+print('\n-- UNKNOWN is never AGREES -----------------------------------------')
+r = A({})
+check('no signal at all -> REVIEW', r['action'] == identity.REVIEW)
+check('no signal: sport is UNKNOWN not AGREES', r['sport'] == identity.UNKNOWN)
+r = A({'title': 'Soccer and Cross Country - Athletics'})
+check('a foreign sport contradicts even alongside the wanted word', r['sport'] == identity.CONTRADICTS)
+
+print('\n-- identity never consults downstream signals -----------------------')
+r = identity.assess(signals={'title': '2026 Cross Country Roster'}, requested_sport='womens-soccer',
+                    requested_season=2026)
+check('plausible positions/rows/turnover cannot be supplied at all',
+      r['action'] == identity.REFUSE and 'positions' not in r and 'turnover' not in r)
+# A soccer page for the WRONG soccer programme still parses as soccer: position
+# vocabulary can never detect that, which is why identity is page-level.
+r = A({'title': "2026 Women's Soccer Roster - Some Other University"})
+check('soccer positions on the wrong soccer programme are not an identity signal',
+      r['sport'] == identity.AGREES)
+
+print('\n-- season_ok rejects any explicit other year (A7.43 widening) -------')
+_s = lib.SEASON
+check("season_ok('2016 ...') is False, not None", lib.season_ok("2016 Men's Track & Field", season=2026) is False)
+check("season_ok('2013 ...') is False", lib.season_ok('2013 Cross Country Roster', season=2026) is False)
+check('season_ok names the target season True', lib.season_ok('2026 Roster', season=2026) is True)
+check('season_ok stays None with no year at all', lib.season_ok("Men's Soccer Roster", season=2026) is None)
+
+print('\n-- EXTRACTION ORDER: a contradiction never reaches the parser -------')
+called = {'n': 0}
+_real = lib.parse_any
+def _spy(html):
+    called['n'] += 1
+    return _real(html)
+lib.parse_any = _spy
+try:
+    html = ('<html><head><title>Ashley Fairbanks - Cross Country - Grand Canyon University Athletics</title>'
+            '<link rel="canonical" href="https://gculopes.com/sports/mens-cross-country/roster/season/2026"></head>'
+            '<body><li class="sidearm-roster-player"><div class="sidearm-roster-player-name">A Runner</div></li></body></html>')
+    recs, title, parser, ident = lib.parse_roster(html, 'womens-soccer', 2026)
+    check('REFUSE returns no records', recs is None)
+    check('REFUSE returns no parser', parser is None)
+    check('parse_any was NEVER invoked', called['n'] == 0, 'calls=%d' % called['n'])
+    good = '<html><head><title>2026 Women\'s Soccer Roster</title></head><body></body></html>'
+    lib.parse_roster(good, 'womens-soccer', 2026)
+    check('parse_any IS invoked once identity agrees', called['n'] == 1, 'calls=%d' % called['n'])
+finally:
+    lib.parse_any = _real
+
+print('\n-- the unsafe season synthesis is not recreated ---------------------')
+import variants
+lad = variants.ladder('https://gculopes.com/sports/womens-soccer/roster', '')
+check('no /season/{YEAR} guessed for a year-less source',
+      not any('/season/' in u for u in lad), lad)
+lad2 = variants.ladder('https://x.edu/sports/womens-soccer/roster/season/1536', '')
+check('/season/{YEAR} still offered where the SOURCE spells it that way',
+      any('/season/' in u for u in lad2), lad2)
+
+print('\n' + ('ALL PASS' if not FAILED else 'FAILURES: %s' % FAILED))
+sys.exit(1 if FAILED else 0)

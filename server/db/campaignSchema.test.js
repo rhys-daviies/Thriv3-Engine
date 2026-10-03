@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -123,6 +123,16 @@ describe('the tables exist as designed', () => {
       'tier', 'tier_source', 'tier_set_at',
       'state', 'state_reason', 'state_changed_at',
       'created_at', 'updated_at',
+      /**
+       * A9.7. Which matchmaking selection put this programme in this campaign.
+       * Null for every V1 campaign - one frozen from `players.recommendations`
+       * has no matchmaking run behind it - and never backfilled.
+       *
+       * PROGRAMME-LEVEL on purpose: a campaign may legitimately mix the Top 100
+       * of one run with a #101+ school searched out of a later one, and a single
+       * run id on `campaigns` would attribute the second to the first.
+       */
+      'matchmaking_selection_id',
     ]);
   });
 
@@ -334,6 +344,15 @@ afterAll(() => {
 });
 
 live('booting against the live database', () => {
+  /**
+   * These tests copy the WHOLE working database - 222MB today - and then walk
+   * it twice. At vitest's 5-second default that left about half a second of
+   * headroom, so they failed whenever the suite happened to be busy, and the
+   * margin shrinks every time the database grows. A timeout is not an
+   * assertion about behaviour; every row-level check below still runs in full.
+   */
+  vi.setConfig({ testTimeout: 60000 });
+
   it('adds the tables and changes not one existing row', async () => {
     fs.mkdirSync(path.dirname(COPY), { recursive: true });
     const source = new Database(LIVE_DB, { readonly: true });

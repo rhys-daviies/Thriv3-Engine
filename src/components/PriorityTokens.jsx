@@ -6,6 +6,7 @@ import {
   defaultRanking, moveItem, readRanking, resolveWeights, boostedCriteria,
 } from '@/lib/criteriaRanking';
 import { resolveCouplings } from '@shared/matching/couplings.js';
+import { contributionAthleteFields } from '@/lib/contributionIntake';
 
 /**
  * Rank an athlete's priorities as moveable tokens, inside the intake form.
@@ -19,7 +20,7 @@ import { resolveCouplings } from '@shared/matching/couplings.js';
  * keys for the keyboard, and tap-to-select-then-tap-to-place for touch, where
  * HTML5 drag does not fire at all.
  */
-export default function PriorityTokens({ value, onChange, budgetRange, state, origin }) {
+export default function PriorityTokens({ value, onChange, budgetRange, contribution = null, state, origin }) {
   // Location means a different thing for an overseas athlete, so it is named
   // for what it actually scores rather than for the domestic case.
   const { short: CRITERION_SHORT, blurb: CRITERION_BLURB } = criterionCopy(origin);
@@ -37,10 +38,12 @@ export default function PriorityTokens({ value, onChange, budgetRange, state, or
   // admissibility coupling fires, so it has to be resolved before couplings.
   const coupled = useMemo(
     () => resolveCouplings(
-      { budgetRange, state, origin },
+      // A7.9.5: the same financial answer the live ranking will read, so the
+      // weights shown here cannot disagree with the weights applied.
+      { budgetRange, ...contributionAthleteFields(contribution), state, origin },
       { academicWeight: resolveWeights({ ranking: activeRanking }).academic }
     ),
-    [budgetRange, state, origin, activeRanking]
+    [budgetRange, contribution, state, origin, activeRanking]
   );
   const weights = useMemo(
     () => resolveWeights({ ranking: activeRanking, couplings: coupled.weights }),

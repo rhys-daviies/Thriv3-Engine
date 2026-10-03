@@ -98,7 +98,20 @@ function badges(athlete) {
     items.push(`<span class="badge status">${esc(athlete.commitment_status)}</span>`);
   }
   items.push(`<span class="badge">Class of ${esc(classYearOf(athlete))}</span>`);
-  if (present(athlete.ncaa_eligibility_id)) items.push('<span class="badge">NCAA ID verified</span>');
+  /**
+   * NO NCAA BADGE HERE, AND THE ABSENCE IS THE POINT.
+   *
+   * This said "NCAA ID verified" whenever `ncaa_eligibility_id` was non-empty.
+   * Thriv3 performs no format check, no checksum, no NCAA lookup and no
+   * Eligibility Center certification check, so the only thing presence
+   * established was that somebody typed into a free-text box. The page is
+   * published to coaches, which made it a verification claim to the people
+   * making the recruiting decision.
+   *
+   * Do not reintroduce this under another name. "NCAA verified", "eligibility
+   * verified", "NCAA registered" and "eligibility confirmed" are all equally
+   * unsupported: only the NCAA Eligibility Center can establish any of them.
+   */
   if (present(athlete.nationality)) items.push(`<span class="badge">${esc(athlete.nationality)}</span>`);
   return `<div class="badges">${items.join('\n      ')}</div>`;
 }
@@ -200,7 +213,16 @@ function academicsAndContact(athlete) {
     row('GPA', athlete.gpa),
     row('SAT', athlete.sat_score),
     row('ACT', athlete.act_score),
-    row('NCAA Eligibility ID', athlete.ncaa_eligibility_id),
+    /**
+     * THE NCAA ELIGIBILITY ID IS NOT PUBLISHED.
+     *
+     * It is a third-party identifier tied to a minor's academic record, and
+     * nothing in coach evaluation needs it: a coach assesses the athlete, and
+     * the Eligibility Center is the party that looks the number up. Anyone
+     * holding the link sees this page, so data minimisation says keep it
+     * internal. The value is unchanged in the database and still visible in
+     * the operator workspace.
+     */
     row('Intended major', athlete.intended_major),
   ]);
 

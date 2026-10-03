@@ -24,6 +24,21 @@ CREATE TABLE IF NOT EXISTS players (
   forty_yard_dash REAL,
   preferred_conferences TEXT DEFAULT '[]',
   budget_range TEXT,
+
+  -- What the family can actually pay, which is the one number Financial
+  -- needs. `budget_range` is kept for records written before this existed;
+  -- see shared/matching/v2/financialRules.js for why a band is not enough.
+  max_annual_contribution_usd INTEGER,
+  contribution_state TEXT,
+
+  -- What the athlete WANTS, on 1-5, and NULL where nobody has asked. NULL is
+  -- not 3: an undeclared preference leaves Opportunity's denominator instead
+  -- of scoring at a midpoint. Never derived from ability, grades or the
+  -- legacy criterion_ranking - see shared/matching/v2/athletePreferences.js.
+  competitive_level_priority INTEGER CHECK (competitive_level_priority IS NULL OR (competitive_level_priority >= 1 AND competitive_level_priority <= 5 AND competitive_level_priority = CAST(competitive_level_priority AS INTEGER))),
+  playing_opportunity_priority INTEGER CHECK (playing_opportunity_priority IS NULL OR (playing_opportunity_priority >= 1 AND playing_opportunity_priority <= 5 AND playing_opportunity_priority = CAST(playing_opportunity_priority AS INTEGER))),
+  academic_strength_priority INTEGER CHECK (academic_strength_priority IS NULL OR (academic_strength_priority >= 1 AND academic_strength_priority <= 5 AND academic_strength_priority = CAST(academic_strength_priority AS INTEGER))),
+
   highlights_url TEXT,
   additional_notes TEXT,
   email_subject TEXT,
@@ -3019,3 +3034,650 @@ CREATE TABLE IF NOT EXISTS recruiting_arrivals_build (
   -- since I looked" answerable without comparing timestamps.
   generation INTEGER NOT NULL
 );
+
+-- ===========================================================================
+-- MATCHMAKING V2 RUNS — A9.2
+--
+-- An IMMUTABLE record of one V2 calculation. Nothing here is ever updated:
+-- re-running an athlete writes a new run, and a historical run keeps the ranks
+-- it had even after the player, the corpus or a future engine moves under it.
+-- That is the whole point. Outreach has to be attributable to the matchmaking
+-- state AT THE TIME, and a mutable pointer cannot answer "what did Thriv3
+-- think when we emailed this coach".
+--
+-- WHY THIS COEXISTS WITH players.recommendations RATHER THAN REPLACING IT.
+-- V1's answer is a JSON blob in server/uploads/ addressed by that single
+-- mutable column; re-analysing overwrites it and saving a profile nulls it.
+-- It is still the product's live path, campaigns still resolve it, and
+-- identifyModel() still classifies it. Nothing below reads or writes it.
+--
+-- The precedent for copying rather than pointing is programme_campaigns, for
+-- the same reason stated there: a campaign from last season must stay readable
+-- after the model has been retuned twice.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS matchmaking_runs (
+  id TEXT PRIMARY KEY,
+
+  -- OWNED BY THE ATHLETE, as campaigns and athlete_programmes are. The delete
+  -- path issues a bare DELETE with no cascade of its own, so it is declared
+  -- here rather than left to a caller that does not exist.
+  player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+
+  -- ---- version identity: the four questions a historical run must answer ---
+  -- WHICH MATCHER. Recorded, never inferred. identifyModel() exists because
+  -- V1 never wrote this down and has to be classified from the shape of its
+  -- own output; it stays as the fallback for those rows and is not consulted
+  -- for anything below.
+  matcher_version TEXT NOT NULL,
+  -- WHICH ENGINE. The adopted freeze SHA from docs/validation/V2-FREEZE.md.
+  engine_freeze TEXT NOT NULL,
+  -- WHICH EVIDENCE. The SUPPORTED-universe digest, which is what
+  -- server/lib/v2/corpusIdentity.js means by the corpus: the three tables V2
+  -- actually reads, split so that junior-college growth is not mistaken for a
+  -- scoring-relevant change.
+  corpus_digest TEXT NOT NULL,
+  -- WHEN.
+  computed_at TEXT NOT NULL,
+
+  -- Two schema versions, because they move independently. The result shape can
+  -- gain a field without the input contract changing, and a reader must be
+  -- able to tell which it is looking at.
+  result_schema_version INTEGER NOT NULL,
+  input_schema_version INTEGER NOT NULL,
+
+  -- SNAPSHOT of players.sport, as everywhere else: the athlete row is mutable
+  -- and a sport changed afterwards would re-interpret every programme row
+  -- underneath this run.
+  sport TEXT NOT NULL,
+
+  -- ---- the athlete, frozen -------------------------------------------------
+  -- The matchmaking-relevant inputs ONLY, as JSON. A historical run has to
+  -- stay interpretable after the athlete's rating, position, major,
+  -- contribution or preferences change, and the mutable players row cannot
+  -- do that. Deliberately NOT the whole player object: no contact details, no
+  -- guardian, no club coach, nothing a ranking did not read.
+  input_snapshot TEXT NOT NULL,
+
+  -- Counts, so a list of runs is readable without opening the programme rows.
+  pool_size INTEGER NOT NULL,
+  supported_universe_count INTEGER NOT NULL,
+  ranked_count INTEGER NOT NULL,
+  limited_data_count INTEGER NOT NULL,
+  unsupported_count INTEGER NOT NULL,
+
+  -- The contribution state this run was computed under. A run cannot exist
+  -- without a resolved one, so this is never NEEDS_CONFIRMATION.
+  contribution_state TEXT NOT NULL,
+
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_matchmaking_runs_player
+  ON matchmaking_runs (player_id, computed_at DESC);
+
+-- ===========================================================================
+-- One programme's result inside one run.
+--
+-- WHAT IS STORED AND WHAT IS DERIVED. Everything a later reader cannot
+-- recompute is a column: the rank, the Pursuit value, each layer's value,
+-- grade, coverage and refusal reason. Three things are deliberately absent
+-- because they are pure functions of what IS stored, and storing them would be
+-- a second copy that could disagree with the first:
+--
+--   ranking_band   bandForRank(rank), frozen; result_schema_version pins which
+--                  band map applied
+--   layer state    SCOREABLE exactly when the value is not null
+--   missingLayers  the layers whose value is null
+--
+-- Explanation prose is also absent. It is generated from the frozen
+-- explanation vocabulary over the state stored here, so persisting the
+-- sentences would freeze a rendering rather than a fact — and A8.2 is the
+-- worked example of why that matters: the engine's answer changed and every
+-- sentence had to change with it.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS matchmaking_programme_results (
+  run_id TEXT NOT NULL REFERENCES matchmaking_runs(id) ON DELETE CASCADE,
+
+  -- Programme identity SNAPSHOTTED, not referenced — the athlete_programmes
+  -- rule, for the same reason: a programme is retired by setting
+  -- colleges.active = 0 and renamed in place, and a REFERENCES here would turn
+  -- a registry correction into a refused write on frozen history.
+  college_name TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  college_id TEXT,              -- nullable: a name with no colleges row is still a programme
+  division TEXT,
+
+  status TEXT NOT NULL
+    CHECK (status IN ('RANKED', 'SUPPORTED_LIMITED_DATA', 'UNSUPPORTED_ASSOCIATION')),
+
+  -- NULL for anything not ranked. Never 0: a refusal has no number, and a zero
+  -- here would sort as "worst" to every consumer that forgot to check status.
+  rank INTEGER,
+  pursuit REAL,
+  pursuit_grade TEXT,
+
+  recruitability REAL,
+  recruitability_grade TEXT,
+  recruitability_coverage REAL,
+  recruitability_reason TEXT,
+
+  financial REAL,
+  financial_grade TEXT,
+  financial_coverage REAL,
+  financial_reason TEXT,
+
+  opportunity REAL,
+  opportunity_grade TEXT,
+  opportunity_coverage REAL,
+  opportunity_reason TEXT,
+
+  PRIMARY KEY (run_id, college_name, sport)
+);
+
+-- Rank order within a run: the Top 100 read, and the full ordering.
+CREATE INDEX IF NOT EXISTS idx_matchmaking_results_rank
+  ON matchmaking_programme_results (run_id, rank);
+
+-- NO SEPARATE INDEX ON college_id, and that was measured rather than assumed.
+-- The PRIMARY KEY above already indexes (run_id, college_name, sport), which
+-- IS the programme identity this repository uses everywhere else -
+-- athlete_programmes and programme_campaigns both key on name and sport, with
+-- college_id as a nullable convenience. A second index on (run_id, college_id)
+-- cost 109 KB per run, 21% of the whole table, to make a lookup 0.082ms
+-- instead of 0.034ms on a run of 1,205 programmes. A9.5's Specific Search
+-- resolves by name and sport like every other programme surface.
+
+-- ===========================================================================
+-- MATCHMAKING SELECTIONS — A9.5
+--
+-- One row per ACT of choosing a programme for outreach out of a specific
+-- matchmaking run. It answers the question A9.2 reserved this space for:
+--
+--     "What did Thriv3 believe when this programme was pursued?"
+--
+-- -- WHY A LEDGER AND NOT A COLUMN -----------------------------------------
+--
+-- The obvious design is `athlete_programmes.matchmaking_run_id`, and it is
+-- wrong for one reason: that table is an UPSERT keyed on
+-- (athlete_id, college_name, sport), so there is exactly one mutable row per
+-- programme. An operator who selected Lindenwood from Tuesday's run and
+-- selected it again from Friday's would have Tuesday's provenance overwritten
+-- - and the record of what they actually acted on in Tuesday's conversation
+-- would be gone. A9.5 §Q forbids precisely that relinking.
+--
+-- Append-only, in the same idiom as tracking_events and outreach_send_event.
+-- A second selection is a second row; nothing is ever updated.
+--
+-- -- WHY NOT ON programme_campaigns -----------------------------------------
+--
+-- Inspected first, and the answer is in createCampaign: it reads
+-- `players.recommendations`, the V1 analysis FILE, and freezes its own rank,
+-- match_score and breakdown. There is no V2-originated path into a campaign
+-- today, so a `matchmaking_run_id` column there would have no writer -
+-- speculative schema that reads as a promise the code does not keep. When
+-- campaign creation moves onto persisted runs, it carries the selection's
+-- run id from here, and that is the phase that adds the column.
+--
+-- -- WHAT IS SNAPSHOTTED, AND WHY ------------------------------------------
+--
+-- `status`, `rank` and `band` are copied from the run at selection time even
+-- though they are derivable from (run_id, college_name, sport). The run is
+-- immutable, so this is redundancy rather than drift - and it is what lets an
+-- analyst read this table alone without joining 1,205-row result sets, and
+-- what keeps the record legible if a future result schema changes shape.
+--
+-- `rank` and `band` are NULLABLE and that is the point: a SUPPORTED_LIMITED_DATA
+-- or UNSUPPORTED_ASSOCIATION programme has no rank, and A9.5 §M forbids
+-- inventing one to make downstream code accept it. A null here is the truth.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS matchmaking_selections (
+  id TEXT PRIMARY KEY,
+
+  -- The athlete whose run this was. Cascades with the player, like every
+  -- other athlete-owned record.
+  player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+
+  -- THE RUN THAT INFORMED THIS SELECTION. Immutable by construction, so this
+  -- reference can never come to describe something other than what was shown.
+  -- RESTRICT rather than CASCADE: a run with selections against it is a run
+  -- somebody acted on, and deleting it would silently destroy the provenance
+  -- this table exists to hold. A9.2 established that runs are never deleted.
+  matchmaking_run_id TEXT NOT NULL REFERENCES matchmaking_runs(id) ON DELETE RESTRICT,
+
+  -- Programme identity, in the spelling every other programme surface uses.
+  -- Verified against the run before this row is written - see
+  -- `recordSelection` in server/lib/v2/matchmakingSelection.js.
+  college_name TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  college_id TEXT,
+
+  -- What the run said about it, at the moment it was chosen.
+  status TEXT NOT NULL
+    CHECK (status IN ('RANKED', 'SUPPORTED_LIMITED_DATA', 'UNSUPPORTED_ASSOCIATION')),
+  rank INTEGER,
+  band TEXT,
+  pursuit REAL,
+
+  -- Which surface the operator chose from. Not a UI detail: "they searched for
+  -- this school by name" and "they took the top of the ranked list" are
+  -- different acts, and A9.6 will want to tell them apart when it asks which
+  -- selections led anywhere.
+  source TEXT NOT NULL CHECK (source IN ('TOP_100', 'SPECIFIC_SEARCH', 'FULL_UNIVERSE')),
+
+  -- Whether the run was already stale when it was acted on - §Q. Recorded
+  -- rather than forbidden: acting on a historical run is a legitimate choice,
+  -- and the fact that it was historical is part of what happened.
+  run_was_stale INTEGER NOT NULL DEFAULT 0 CHECK (run_was_stale IN (0, 1)),
+
+  selected_at TEXT NOT NULL
+);
+
+-- The athlete's selection history, newest first.
+CREATE INDEX IF NOT EXISTS idx_matchmaking_selections_player
+  ON matchmaking_selections (player_id, selected_at);
+
+-- "What was selected out of this run", which is the A9.6 attribution read.
+CREATE INDEX IF NOT EXISTS idx_matchmaking_selections_run
+  ON matchmaking_selections (matchmaking_run_id);
+
+/**
+ * A SELECTION IS IMMUTABLE, AND FROM A9.6 THE DATABASE SAYS SO.
+ *
+ * A9.5 wrote this table with no UPDATE path and called it immutable by
+ * construction. That was true of the code and unenforced by the schema, and
+ * A9.6 is the phase that makes outreach POINT at these rows: once a send
+ * resolves its rank, band and status through a selection, an UPDATE here would
+ * silently rewrite the recorded cause of a message that has already gone out.
+ *
+ * The same trigger `outreach_send_event`, `tracking_events` and
+ * `outbound_send_attempt` carry, for the same reason and in the same words.
+ * DELETE is left alone deliberately: nothing deletes a selection, and the
+ * REFERENCES above already refuse the delete that would matter.
+ */
+CREATE TRIGGER IF NOT EXISTS trg_matchmaking_selections_append_only
+BEFORE UPDATE ON matchmaking_selections
+BEGIN
+  SELECT RAISE(ABORT, 'matchmaking_selections is append-only');
+END;
+
+/* ===========================================================================
+ * WHAT HAPPENED AFTERWARDS — A9.6.
+ *
+ * The append-only record of what Thriv3 LEARNED about one athlete and one
+ * programme: whether the programme wanted the athlete, whether the athlete
+ * wanted the programme, and what the programme said about its own recruiting.
+ *
+ * ---------------------------------------------------------------------------
+ * WHY THIS IS NOT `outreach_send_event`, which is already an append-only
+ * observation ledger with `source`, `confidence`, `observed_at` and a payload.
+ *
+ * Because that table's key is `outreach_send_id NOT NULL`, and most of what
+ * this one records DID NOT HAPPEN TO A MESSAGE. An athlete commits; a coach
+ * says on a phone call that the 2027 goalkeeper spot is gone; a consultant
+ * records that the family ruled out the state. None of those has a message to
+ * hang from, and the choices there would be to block the honest case or to
+ * invent a send for it. The schema already made this exact judgement once, in
+ * the note explaining why `outbound_send_attempt.outreach_send_id` is
+ * nullable: "A NOT NULL column would make the honest case unrecordable."
+ *
+ * The scope differs too, and it is written into that table: "THINGS THIS
+ * SYSTEM LEARNED ABOUT ONE MESSAGE". Recruiting intelligence is a fact about a
+ * PROGRAMME OVER TIME that outlives every message, every campaign and every
+ * athlete it was learned through.
+ *
+ * And that table is load-bearing for execution safety — `executionRetry.js`
+ * reads `TRANSPORT_REFUSED` out of it to license a re-send. Its vocabulary is
+ * a transport vocabulary and is best left one.
+ *
+ * So the two are SIBLINGS. `outreach_send_event` says a reply arrived; this
+ * says what the reply meant, and carries who decided that and whether anybody
+ * checked.
+ * ---------------------------------------------------------------------------
+ */
+CREATE TABLE IF NOT EXISTS recruiting_observations (
+  id TEXT PRIMARY KEY,
+
+  /**
+   * THE SUBJECT: one athlete, one programme.
+   *
+   * Programme identity is FROZEN HERE, in the (college_name, sport) spelling
+   * every other programme surface uses, and is never re-derived from the coach
+   * below. A9.6 found two live relationships whose recommendation named
+   * Trinity (TX) / Wheaton (MA) while the coach row named Trinity (CT) /
+   * Wheaton (IL) — so deriving a programme from staffing data is already
+   * demonstrably wrong on this data, not merely risky.
+   */
+  athlete_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+  college_name TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  college_id TEXT,
+
+  /**
+   * THE OPTIONAL ANCHORS, each null for a good reason rather than for
+   * convenience.
+   *
+   *   coach_id                   null when the programme said something no
+   *                              individual is attributed with, or when a
+   *                              consultant records a fact about the programme
+   *   outreach_send_id           null when the observation did not come from a
+   *                              message — a call, a visit, a family decision
+   *   matchmaking_selection_id   null for a V1 / pre-provenance pursuit, which
+   *                              is every pursuit on file today
+   *
+   * NO ON DELETE on any of the three: the referenced rows are durable history
+   * and a delete that would strand an observation should fail loudly. The
+   * athlete alone cascades, matching every other athlete-owned record.
+   */
+  coach_id TEXT REFERENCES coaches(id),
+  outreach_send_id TEXT REFERENCES outreach_send(id),
+  matchmaking_selection_id TEXT REFERENCES matchmaking_selections(id),
+
+  /**
+   * WHAT WAS LEARNED. One bounded vocabulary, in
+   * shared/recruitingObservations.js, validated in code rather than by a CHECK
+   * — the same decision `outreach_send_event.type` records, and for the same
+   * stated reason: this list grows as ingestion lands, and a new observation
+   * must not need a schema migration before it can be recorded.
+   *
+   * THE CATEGORY IS NOT STORED. It is a total function of `kind`
+   * (`CATEGORY_OF_KIND`), and a stored copy is a second account of the same
+   * fact that nothing would keep in step — which is precisely how, in this
+   * schema's own words, `outreach_evidence` and `outreach_send` "came to
+   * disagree". It is derived on read and asserted total by the tests.
+   */
+  kind TEXT NOT NULL,
+
+  /**
+   * THE STRUCTURED PART OF THE CLAIM — JSON, validated per kind.
+   *
+   * "The position is filled" is not a usable statement without saying which
+   * position, so POSITION_FILLED requires one from the canonical four.
+   * Nothing is defaulted: a recruiting class nobody stated is ABSENT, never
+   * this year, and an urgency nobody stated is absent, never LOW.
+   */
+  attributes TEXT,
+
+  /**
+   * THE HUMAN SENTENCE, AND IT IS TREATED AS SENSITIVE — §V.
+   *
+   * Optional, never required to interpret the row, and deliberately NOT the
+   * machine state: every question analytics asks is answered by `kind` and
+   * `attributes`. No email body is copied here; a message that exists has
+   * `outreach_send_id` above and the body stays where it was written. No
+   * fixture in this repository contains a real one.
+   */
+  note TEXT,
+
+  /**
+   * WHO SAYS SO, AND HOW IT WAS CLASSIFIED — two different questions, §H/§I.
+   *
+   * `source` is the actor the information came from (a coach's reply, a call,
+   * the athlete, an operator, a provider). `classifier_method` is how the
+   * words became a `kind`: MANUAL, RULE_BASED or AI_ASSISTED.
+   *
+   * THE SCHEMA IS USABLE WITH ONLY MANUAL, which is the point of §I. A model
+   * arriving later writes AI_ASSISTED beside a `classifier_version` and a
+   * `confidence`, and every row written before it keeps saying truthfully that
+   * a person decided. Added afterwards, this column would have left every
+   * existing row ambiguous between the two.
+   */
+  source TEXT NOT NULL,
+  classifier_method TEXT NOT NULL,
+  classifier_version TEXT,
+  confidence REAL,
+
+  /**
+   * WHETHER A HUMAN HAS CHECKED IT. A MANUAL observation is CONFIRMED on
+   * arrival — the person recording it IS the review. A machine one starts
+   * UNREVIEWED, and the current-state projection can therefore be asked for
+   * "the latest REVIEWED state" rather than the latest guess.
+   */
+  review_state TEXT NOT NULL
+    CHECK (review_state IN ('UNREVIEWED', 'CONFIRMED', 'REJECTED')),
+  reviewed_by_operator_id TEXT REFERENCES operator_users(id),
+  reviewed_at TEXT,
+
+  /**
+   * CORRECTIONS POINT BACKWARDS — §P.
+   *
+   * The brief sketches `retracted_by_event_id`, which cannot be built here:
+   * writing it onto the OLD row is an UPDATE of history, and the trigger below
+   * forbids exactly that. So a correction is a NEW row naming the one it
+   * corrects.
+   *
+   *   SUPERSEDES  this replaces that — the coach said interested, then said
+   *               the spot was filled. The old row WAS TRUE WHEN MADE and
+   *               still belongs in any question about what was believed then.
+   *   RETRACTS    that should never have been recorded — misread, or filed
+   *               against the wrong programme. It was never true.
+   *
+   * Nothing silently flips a NEGATIVE classification to POSITIVE. Both rows
+   * survive and the history reads in order.
+   */
+  corrects_observation_id TEXT REFERENCES recruiting_observations(id),
+  correction TEXT
+    CHECK (correction IS NULL OR correction IN ('SUPERSEDES', 'RETRACTS')),
+
+  /**
+   * THE PROVIDER'S OWN IDENTITY FOR THIS EVENT — §O.
+   *
+   * External systems redeliver. Where a provider names its event, that name is
+   * the dedupe key and the unique index below makes a redelivery a no-op
+   * rather than a second reply.
+   *
+   * NULL FOR EVERY MANUAL OBSERVATION, and the index is partial so they do not
+   * collide: a coach who says "still interested" in March and again in June
+   * said it twice, and both are real. §O asks for exactly this asymmetry.
+   */
+  provider_event_id TEXT,
+
+  /**
+   * WHEN IT HAPPENED, AND WHEN WE HEARD — §K, and they are not the same.
+   *
+   * A reply observed on Tuesday may have been sent on Sunday; a coach saying
+   * in June that a position was filled "in the spring" is a June record of an
+   * April fact. Every recruiting-cycle question asked later keys on
+   * `observed_at`, and one keyed on the wrong column is wrong by months.
+   */
+  observed_at TEXT NOT NULL,
+  recorded_at TEXT NOT NULL
+);
+
+/* The projection read: everything about one athlete and one programme. */
+CREATE INDEX IF NOT EXISTS idx_recruiting_obs_pair
+  ON recruiting_observations (athlete_id, college_name, sport, observed_at, id);
+
+/* The coach-intelligence read: one programme across time, every athlete. */
+CREATE INDEX IF NOT EXISTS idx_recruiting_obs_programme
+  ON recruiting_observations (college_name, sport, observed_at, id);
+
+/* The attribution read: what came of the programmes chosen out of a run. */
+CREATE INDEX IF NOT EXISTS idx_recruiting_obs_selection
+  ON recruiting_observations (matchmaking_selection_id)
+  WHERE matchmaking_selection_id IS NOT NULL;
+
+/* A corrected row is found from the row that corrects it. */
+CREATE INDEX IF NOT EXISTS idx_recruiting_obs_corrects
+  ON recruiting_observations (corrects_observation_id)
+  WHERE corrects_observation_id IS NOT NULL;
+
+/**
+ * ONE ROW PER PROVIDER EVENT. Partial, so the manual observations — which have
+ * no provider identity and may legitimately repeat — are outside it entirely.
+ */
+CREATE UNIQUE INDEX IF NOT EXISTS idx_recruiting_obs_provider_event
+  ON recruiting_observations (provider_event_id)
+  WHERE provider_event_id IS NOT NULL;
+
+/**
+ * THE CLASSIFICATION IS IMMUTABLE. THE REVIEW OF IT IS NOT.
+ *
+ * The three sibling ledgers forbid UPDATE outright, and that is right for
+ * them: nothing legitimately happens to a tracking hit or a transport attempt
+ * after it is written. An observation is different in exactly one way —
+ * somebody may later CHECK a machine classification — and §I requires that
+ * review state to be readable per row so the projection can be asked for the
+ * latest REVIEWED state rather than the latest guess.
+ *
+ * So rather than a blanket ban, this names the columns that may never move.
+ * What a row CLAIMS — the athlete, the programme, the kind, the attributes,
+ * the source, how it was classified, when it was observed, the correction it
+ * makes, the provider event it came from, and the human note — is frozen. Only
+ * `review_state`, `reviewed_by_operator_id` and `reviewed_at` are left
+ * writable, and they are the only three absent from this list.
+ *
+ * This is what makes the correction design above load-bearing rather than
+ * advisory. A classifier that wanted to turn NEGATIVE_REPLY into
+ * POSITIVE_REPLY cannot: it must REJECT this row on review, or write a new one
+ * that SUPERSEDES or RETRACTS it, and either way the first judgement stays
+ * visible and in order.
+ *
+ * `IS NOT` rather than `<>`, so a column going to or from NULL is caught;
+ * `<>` is NULL-propagating and would silently permit exactly that edit.
+ */
+CREATE TRIGGER IF NOT EXISTS trg_recruiting_observations_claim_immutable
+BEFORE UPDATE ON recruiting_observations
+WHEN OLD.id IS NOT NEW.id
+  OR OLD.athlete_id IS NOT NEW.athlete_id
+  OR OLD.college_name IS NOT NEW.college_name
+  OR OLD.sport IS NOT NEW.sport
+  OR OLD.college_id IS NOT NEW.college_id
+  OR OLD.coach_id IS NOT NEW.coach_id
+  OR OLD.outreach_send_id IS NOT NEW.outreach_send_id
+  OR OLD.matchmaking_selection_id IS NOT NEW.matchmaking_selection_id
+  OR OLD.kind IS NOT NEW.kind
+  OR OLD.attributes IS NOT NEW.attributes
+  OR OLD.note IS NOT NEW.note
+  OR OLD.source IS NOT NEW.source
+  OR OLD.classifier_method IS NOT NEW.classifier_method
+  OR OLD.classifier_version IS NOT NEW.classifier_version
+  OR OLD.confidence IS NOT NEW.confidence
+  OR OLD.corrects_observation_id IS NOT NEW.corrects_observation_id
+  OR OLD.correction IS NOT NEW.correction
+  OR OLD.provider_event_id IS NOT NEW.provider_event_id
+  OR OLD.observed_at IS NOT NEW.observed_at
+  OR OLD.recorded_at IS NOT NEW.recorded_at
+BEGIN
+  SELECT RAISE(ABORT,
+    'recruiting_observations: a recorded observation is immutable. Review it, '
+    || 'or write a SUPERSEDES/RETRACTS row.');
+END;
+
+/* ===========================================================================
+ * THE CORPUS REVISION — A9.7B.
+ *
+ * A cheap, PRECISE answer to one question: could the data V2's corpus identity
+ * is computed from have changed since we last verified it?
+ *
+ * ---------------------------------------------------------------------------
+ * WHY THIS EXISTS. A9.4 gated the authoritative digest behind
+ * `corpusChangeToken`, which is `data_version:total_changes()`.
+ * `total_changes()` counts EVERY write on the connection, so a tracking pixel
+ * invalidated a cache whose only job was to avoid re-hashing 350,000 rows.
+ * A9.7 measured the consequence on the live corpus:
+ *
+ *   GET .../matchmaking/runs/current                   9.6 ms
+ *   ... after ONE tracking_events INSERT             895.2 ms
+ *
+ * The digest was recomputed and came back IDENTICAL every time. The cost was
+ * real and the information gained was nil.
+ * ---------------------------------------------------------------------------
+ *
+ * WHY TRIGGERS AND NOT AN APPLICATION COUNTER. There is no single service
+ * through which corpus writes flow. A9.7B traced the writers and found them
+ * spread across roughly fifteen standalone scripts - `loadMatchingInputs`,
+ * `applyWomensProgrammes`, `buildRecruitingHistory`, `projectRosterMinutes`,
+ * `alignRosterSchoolNames` and more - plus `migrate.js` and the test seeder,
+ * each its own process. An increment placed in application code would have to
+ * be added to every one of them, and the next script anybody writes would
+ * silently not have it. That is a FALSE NEGATIVE generator, and a false
+ * negative here serves a stale corpus identity.
+ *
+ * A trigger cannot be forgotten. It fires for a script, a migration, a test,
+ * or somebody typing SQL into a shell.
+ *
+ * THREE TABLES, AND ONLY THESE THREE. Re-derived in A9.7B from
+ * `buildPoolContext` and `corpusDigests` rather than from documentation:
+ *
+ *   colleges             SELECT *            WHERE sport AND active = 1
+ *   roster_players       ROSTER_COLUMNS      WHERE sport AND season
+ *   recruiting_arrivals  five columns        WHERE sport
+ *
+ * (`buildPoolContext`'s `marketRows` joins the same three and nothing else.)
+ *
+ * `coaches`, `tracking_events`, `outreach*`, `campaigns*`, `matchmaking_*`,
+ * `recruiting_observations` and `players` are NOT here, because V2's corpus
+ * does not read them. Phase 7B writes coach data continuously and must not
+ * cost a rehash.
+ *
+ * DELIBERATELY TABLE-LEVEL, NOT COLUMN-LEVEL. The digest hashes a SUBSET of
+ * each table's columns, but `buildPoolContext`'s market join also reads
+ * `roster_players.id` and `recruiting_arrivals.roster_row_id`, which the digest
+ * does not hash. A column-scoped trigger would miss a write to those and
+ * rebuild nothing. Invalidating on any write to these tables is strictly safer
+ * and costs only an occasional confirmed-identical recomputation.
+ *
+ * ONE ROW, FOREVER. `CHECK (id = 1)` makes that a database guarantee rather
+ * than a convention - §H asks for bounded constant-size state, and a revision
+ * LOG would grow by one row per imported roster row.
+ * =========================================================================== */
+CREATE TABLE IF NOT EXISTS corpus_revision (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+
+  /**
+   * Monotonic, and meaningless as a number. It is NOT an identity and must
+   * never be compared across databases or stored as provenance: two unrelated
+   * databases reach revision 40 by unrelated routes. `corpusDigests` remains
+   * the only thing that says WHAT the corpus is; this only ever says THAT it
+   * may have moved.
+   *
+   * Incremented per ROW rather than per statement, because SQLite has no
+   * statement-level triggers. Measured cost on a 50,000-row import: 30 ms,
+   * which extrapolates to ~0.2 s on a full 286,002-row roster load.
+   */
+  revision INTEGER NOT NULL DEFAULT 0
+);
+
+INSERT OR IGNORE INTO corpus_revision (id, revision) VALUES (1, 0);
+
+/* colleges */
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_colleges_insert
+AFTER INSERT ON colleges BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_colleges_update
+AFTER UPDATE ON colleges BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_colleges_delete
+AFTER DELETE ON colleges BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+
+/* roster_players */
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_roster_insert
+AFTER INSERT ON roster_players BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_roster_update
+AFTER UPDATE ON roster_players BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_roster_delete
+AFTER DELETE ON roster_players BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+
+/* recruiting_arrivals */
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_arrivals_insert
+AFTER INSERT ON recruiting_arrivals BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_arrivals_update
+AFTER UPDATE ON recruiting_arrivals BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_arrivals_delete
+AFTER DELETE ON recruiting_arrivals BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;

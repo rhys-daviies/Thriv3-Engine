@@ -13,19 +13,78 @@ import { resolveCouplings } from './couplings.js';
 import { distanceFromState } from './geo.js';
 import { canonicalPosition } from '../positions.js';
 import { STARTER_MINUTES, PROJECTED_STARTER_MINUTES } from './constants.js';
+import { readClassYear } from '../classYear.js';
+import { eligibilityCeiling } from '../eligibility.js';
 
 /**
  * Index roster rows by school so opportunity is a lookup rather than a scan.
  *
- * Also counts how many of each school's rows have no estimated_graduation_year,
+ * Also counts how many of each school's rows carry no departure year at all,
  * which is what lets rosterOpportunity tell "nobody is graduating" apart from
  * "we do not know who is graduating". Phase 0 still has 3,118 unlabelled rows.
+ *
+ * ---------------------------------------------------------------------------
+ * WHICH SEASON A PLACE OPENS — division-aware since 2026-09-19 (A5.3).
+ *
+ * The cohort key is the season a place OPENS, which is the season after the
+ * last one its holder may play, and how many seasons that is depends on which
+ * association the programme belongs to. That is now asked of
+ * shared/eligibility.js per row rather than read off a stored column, because
+ * the stored columns are written once for every division under one model.
+ *
+ *   NCAA D1, D2   age-based five-year period from the 2026 season. A senior
+ *                 listed in 2026 may play 2027, so their place opens 2028.
+ *   NCAA D3       four seasons of participation; the five-year model is a 2027
+ *                 Convention proposal and is NOT adopted. A 2026 senior's
+ *                 place opens 2027.
+ *   NAIA          four seasons within the first ten semesters. Same arithmetic
+ *                 as D3 for this question; a separate association, quoted from
+ *                 its own published rule rather than by analogy.
+ *   NJCAA, USCAA  no rule on file, so no ceiling is computed and every row
+ *                 falls to UNREADABLE. Both carry zero rows this season.
+ *
+ * WHAT THIS REVERSES, AND WHAT IT KEEPS. A5.2 moved every division one year
+ * earlier on the strength of a measured 8.6% senior return rate. That rate is
+ * real and it is not a retention rate: under the pre-2026 rules a fourth-year
+ * player had spent four seasons of competition and COULD NOT return, so it
+ * measured a supply constraint. Division I and II no longer have that
+ * constraint, and 2026-27 is the first season in which they do not, so the
+ * five-year offsets those divisions already carried were right and A5.2 made
+ * them wrong. They are restored here. Division III and the NAIA are still on
+ * four seasons, so for them A5.2's arithmetic was correct and is kept — by
+ * rule now rather than by accident.
+ *
+ * NO RETENTION PROBABILITY IS APPLIED, and none may be. Eligibility to remain
+ * and likelihood of remaining are different variables; see the header of
+ * shared/eligibility.js. Nothing in this file estimates fifth-year uptake, and
+ * the 2026 -> 2027 roster is the first observation that could.
+ *
+ * A CONSEQUENCE WORTH READING BEFORE THE NUMBERS LOOK WRONG. Because the 2026
+ * rosters were built under the old rules they are four-year shaped — 29.5% of
+ * the men's squad are first years and 3.3% are graduate students — while
+ * carrying five-year eligibility at D1 and D2. Those two divisions therefore
+ * show very few eligibility-driven openings for the 2027 intake. That is a
+ * real transitional squeeze rather than a defect, and it normalises from 2028.
+ * ---------------------------------------------------------------------------
  */
 export function buildRosterIndex(rosterRows) {
+  assertEligibilityInputsSelected(rosterRows);
   const index = new Map();
   for (const r of rosterRows) {
     let e = index.get(r.college_name);
-    if (!e) { e = { rows: 0, missingGradYear: 0, international: 0, byCountry: new Map(), cohorts: new Map() }; index.set(r.college_name, e); }
+    if (!e) {
+      e = {
+        rows: 0, missingGradYear: 0, international: 0, byCountry: new Map(), cohorts: new Map(),
+        // Every row that produced a ceiling, filed by the LAST SEASON it may
+        // play and its position. The cohorts map above answers "who opens a
+        // place in year Y"; this answers "who may still be here in year Y",
+        // which is a different question and must not be derived from the
+        // first by subtraction — a row with no readable ceiling belongs to
+        // neither and is counted in `missingGradYear`.
+        byPositionLastSeason: new Map(),
+      };
+      index.set(r.college_name, e);
+    }
     e.rows++;
 
     // `country` is populated exactly when nationality reads International, so
@@ -37,8 +96,23 @@ export function buildRosterIndex(rosterRows) {
       e.byCountry.set(country, (e.byCountry.get(country) || 0) + 1);
     }
 
-    if (r.estimated_graduation_year === null || r.estimated_graduation_year === undefined) { e.missingGradYear++; continue; }
-    const key = `${r.estimated_graduation_year}|${String(r.position || '').toUpperCase()}`;
+    // One reader of the class vocabulary, as everywhere else: readClassYear
+    // parses, eligibility.js applies the rule that governs this row's own
+    // division. A row whose class cannot be read, or whose association has no
+    // rule on file, produces no ceiling and is counted as doubt rather than as
+    // a player who is staying.
+    const position = String(r.position || '').toUpperCase();
+    const read = readClassYear(r.class_year_label, { season: r.season });
+    const ceiling = eligibilityCeiling({
+      klass: read.klass, redshirt: read.redshirt, season: r.season, division: r.division,
+    });
+    if (ceiling.lastSeason === null) { e.missingGradYear++; continue; }
+
+    const byPos = e.byPositionLastSeason.get(position) ?? new Map();
+    byPos.set(ceiling.lastSeason, (byPos.get(ceiling.lastSeason) ?? 0) + 1);
+    e.byPositionLastSeason.set(position, byPos);
+
+    const key = `${ceiling.lastSeason + 1}|${position}`;
     let c = e.cohorts.get(key);
     if (!c) { c = { starters: 0, squad: 0, names: [], starterNames: [] }; e.cohorts.set(key, c); }
     // Starter names kept separately, not derivable afterwards from a flat
@@ -50,6 +124,74 @@ export function buildRosterIndex(rosterRows) {
     c.names.push(r.player_name);
   }
   return index;
+}
+
+/**
+ * A caller that forgot to SELECT the columns the ceiling is computed from.
+ *
+ * Six queries feed this index and every one of them names its columns, so
+ * dropping `class_year_label`, `division` or `season` from one is a one-word
+ * omission that fails SILENTLY and catastrophically: every row reads as having
+ * no eligibility ceiling, every school falls back to the neutral prior, and
+ * the ranking still looks entirely reasonable. That is the same class of
+ * defect as the presentation columns this file already lost once by building
+ * its result object field by field.
+ *
+ * The test is deliberately narrow, so a genuinely unlabelled roster cannot
+ * trip it: rows exist, NOT ONE carries the field, and at least one carries a
+ * stored year column — which only a real roster query would have selected. A
+ * roster with none of them is a fixture, and fixtures are allowed to be thin.
+ */
+function assertEligibilityInputsSelected(rosterRows) {
+  if (!rosterRows?.length) return;
+  const present = (k) => rosterRows.some((r) => r[k] !== null && r[k] !== undefined && r[k] !== '');
+  const looksLikeARosterQuery = present('estimated_graduation_year') || present('eligibility_end_year');
+  if (!looksLikeARosterQuery) return;
+  for (const field of ['class_year_label', 'division', 'season']) {
+    if (!present(field)) {
+      throw new Error(
+        `buildRosterIndex: no row carries ${field}. The eligibility ceiling is computed `
+        + 'per division from the class label and season — add it to the SELECT.',
+      );
+    }
+  }
+}
+
+/**
+ * How the current squad at one position stands against an arriving athlete.
+ *
+ * FOUR COUNTS THAT DO NOT COLLAPSE INTO ONE. `departures` answers how many
+ * places open in the entry year, which is what V1 scores. This answers the
+ * wider question V2 will need and V1 deliberately does not use: how many
+ * players are already gone, how many go at the end of the athlete's first
+ * season, how many the rules permit to still be there, and how many we cannot
+ * say either way.
+ *
+ * `eligibleToRemain` IS NOT A FORECAST. It counts players the rules allow to
+ * stay. Whether they do is retention, it is a separate variable, and nothing
+ * in this repository can yet estimate it for the divisions whose rules changed
+ * in 2026 — see the header of shared/eligibility.js.
+ *
+ * Returned but not scored. Wiring it into the V1 match score would change
+ * ranking semantics, which A5.3 is explicitly not doing.
+ */
+export function positionAvailability(roster, entryYear, position) {
+  const empty = { expired: 0, finalSeason: 0, eligibleToRemain: 0, unreadable: 0 };
+  if (!roster || entryYear == null) return empty;
+  const want = String(position || '').toUpperCase();
+  const byLastSeason = roster.byPositionLastSeason?.get(want);
+  const out = { ...empty };
+  for (const [lastSeason, count] of byLastSeason ?? []) {
+    if (lastSeason < entryYear) out.expired += count;
+    else if (lastSeason === entryYear) out.finalSeason += count;
+    else out.eligibleToRemain += count;
+  }
+  // Rows with no readable ceiling are held at programme level rather than by
+  // position, because a row we could not read a class for is frequently a row
+  // we could not read a position for either. Reported as the programme's doubt
+  // rather than apportioned, which would invent a distribution.
+  out.unreadable = roster.missingGradYear ?? 0;
+  return out;
 }
 
 /**
@@ -304,6 +446,16 @@ export function rankMatches({ athlete, colleges, rosterIndex, weights, limit }) 
       graduating_total: departing.total,
       graduating_starters_total: departing.totalStarters,
       graduating_names_total: departing.names,
+      /**
+       * The four availability counts at the athlete's position, carried for
+       * the V2 layer split and READ BY NOTHING IN V1's SCORE.
+       *
+       * `position_eligible_to_remain` is the count the rules permit to stay.
+       * It is not a prediction that they will, and any surface treating it as
+       * expected returning depth has merged eligibility with retention — the
+       * two variables shared/eligibility.js exists to keep apart.
+       */
+      position_availability: positionAvailability(roster, athlete.classYear, athlete.position),
       international_players: roster?.international || 0,
       players_from_country: athlete.country ? (roster?.byCountry.get(athlete.country) || 0) : 0,
       match_score: scored.score,
@@ -354,6 +506,13 @@ export function normaliseAthlete(player) {
     sat: toNum(player.sat_score),
     act: toNum(player.act_score),
     budgetRange: player.budget_range || null,
+    /**
+     * A7.9.2, read ONLY by V2 Financial. V1 scores affordability from
+     * `budgetRange` alone and never looks at these, so carrying them here
+     * changes no V1 output - the pinned baseline is what proves it.
+     */
+    contributionState: player.contribution_state || null,
+    maxAnnualContributionUsd: toNum(player.max_annual_contribution_usd),
     state: player.state || null,
     academicMinimum: toNum(player.academic_minimum),
     // `origin` decides which half of the location criterion applies. Older

@@ -1,0 +1,43 @@
+{
+  "pack": "A7.29-severity-cases",
+  "sealedOpened": false,
+  "question": "Based on the academic and recruiting evidence available, what action should Thriv3 take before treating this programme as a straightforward recruitment option for this athlete?",
+  "frame": [
+    "VERIFY_EARLY means: I expect this to be workable, confirm it early so nobody is surprised. The athlete can still build a plan around it.",
+    "PRE_READ_BEFORE_RELIANCE means: I would not let the athlete count on this until somebody has checked. Still pursue it; do not depend on it.",
+    "The distinction I am applying is whether the athlete's plan should be allowed to rest on the programme before anyone asks.",
+    "A low acceptance rate matters here not as a probability but because it tells you how NARROW the admitted band is. At 5-10% the band is tight and coach support moves a recruit a limited distance within it; at 30-45% the band is wide and the same shortfall sits inside it."
+  ],
+  "verdicts": [
+    { "code": "T-01", "action": "PRE_READ_BEFORE_RELIANCE", "why": "596 below at 5% acceptance. Institutions of this type run a formal academic index for recruits with minimum bands, and a shortfall of this size does not clear them however good the player is. Athletically an excellent fit, which is exactly what makes an unasked question expensive." },
+    { "code": "T-02", "action": "VERIFY_EARLY", "why": "277 below, but at 43% acceptance and a 1227 enrolled average — this is a large public admitting nearly half its applicants, and a recruited athlete at 950 is inside the range it takes. Confirm early because the 2.8 GPA is worth a sentence, but the athlete can plan around this." },
+    { "code": "T-03", "action": "PRE_READ_BEFORE_RELIANCE", "why": "43% acceptance would normally make this a VERIFY_EARLY, and the thing that changes it is that a 2.2 GPA with an 800 SAT is weak in ABSOLUTE terms and not only relative to this institution. A developmental athlete brings little recruiting weight to offset it. This is the one card where GPA, rather than the shortfall, carried my answer." },
+    { "code": "T-04", "action": "PRE_READ_BEFORE_RELIANCE", "why": "407 below at 16% acceptance, and over the family ceiling besides. Too far outside the band to plan around." },
+    { "code": "T-05", "action": "NORMAL", "why": "33 points below an enrolled average of 1533, with a 4.0 GPA. The 8% acceptance rate describes the applicant pool; this athlete is sitting in the middle of the class." },
+    { "code": "T-06", "action": "NORMAL", "why": "530 points ABOVE the enrolled average at 57% acceptance. Nothing to do." },
+    { "code": "T-07", "action": "VERIFY_EARLY", "why": "250 below at 21% acceptance with a 3.5 GPA. A real reach and the smallest shortfall on these cards; at roughly one applicant in five admitted the band is wide enough that coach support plausibly covers it. Worth confirming early, not worth withholding the programme from the plan." },
+    { "code": "T-08", "action": "PRE_READ_BEFORE_RELIANCE", "why": "THE SAME 250-POINT SHORTFALL AS T-07, at 7% acceptance instead of 21%, and my answer changes. At that level of selectivity the admitted band is tight and a coach's support moves a recruit a limited distance inside it. The athlete is also international, where admission at institutions of this type is more competitive again, and athletically 22 points above the programme — so the coach's appetite is high and their admissions leverage is not." },
+    { "code": "T-09", "action": "PRE_READ_BEFORE_RELIANCE", "why": "347 below an enrolled average of 1447. 34% acceptance is genuinely wide, but the institution's lower quartile is still far above 1100, this is a developmental athlete with minimal recruiting weight, and the net price is nearly $39,000. Not something to build a plan on unchecked." },
+    { "code": "T-10", "action": "PRE_READ_BEFORE_RELIANCE", "why": "303 below at 5% acceptance. An Ivy-type institution applies a published academic-index floor to recruits, and a 1250 against a 1553 average is below where that floor typically sits. Athletically an exact match, which again is what makes it worth asking rather than assuming." },
+    { "code": "T-11", "action": "PRE_READ_BEFORE_RELIANCE", "why": "280 below at 12% acceptance. Sits between T-08 (251 at 7%) and T-07 (250 at 21%), and 12% is near enough the tight end that I would not let the plan rest on it. Offering the intended major changes nothing: admission is a precondition of studying anything there." },
+    { "code": "T-12", "action": "VERIFY_EARLY", "why": "316 below at 26% acceptance. A larger shortfall than T-07 but at an institution admitting a quarter of applicants, whose lower quartile is well below its 1416 average. This is the kind of gap a coach conversation resolves, and the programme belongs in the plan while that happens." },
+    { "code": "T-13", "action": "NORMAL", "why": "596 below, at 99% acceptance. Institutional admission is simply not the question at an institution that admits essentially everyone. A 1.0 GPA is a serious problem for NCAA initial eligibility, but that is a different system, it is not on this card, and it should not be smuggled in as an institutional-admissions concern." },
+    { "code": "T-14", "action": "PRE_READ_BEFORE_RELIANCE", "why": "283 below at 9% acceptance, international athlete. Same reasoning as T-08 — at single-digit acceptance the band is tight enough that a shortfall of this size needs checking before reliance." },
+    { "code": "T-15", "action": "VERIFY_EARLY", "why": "248 below at 14% acceptance with a 3.5 GPA — the smallest shortfall on the sheet, at a coach-supported D3. Close to the line and I would not argue hard against the stronger action, but 14% is not 7% and 248 is not 400." },
+    { "code": "T-16", "action": "PRE_READ_BEFORE_RELIANCE", "why": "420 below at 7% acceptance. Unambiguous. Does not offer the intended major either, though that is a separate matter." },
+    { "code": "T-17", "action": "PRE_READ_BEFORE_RELIANCE", "why": "417 below at 20% acceptance. The shortfall is large enough that the wider band does not rescue it." }
+  ],
+  "tally": { "NORMAL": 3, "VERIFY_EARLY": 4, "PRE_READ_BEFORE_RELIANCE": 10, "INSUFFICIENT_EVIDENCE": 0 },
+  "Z1": {
+    "question": "Are VERIFY_EARLY and PRE_READ_BEFORE_RELIANCE genuinely different actions?",
+    "answer": "Yes, and T-12 against T-17 is the clearest proof. Trinity at 316 below / 26% I would leave in the athlete's plan while the question is asked; Carleton at 417 below / 20% I would not let the athlete count on until somebody checks. Those produce different behaviour downstream - one changes the order of a conversation, the other changes whether a programme is load-bearing in a recruiting plan. The distinction is not artificial, but it IS the whole difficulty: NORMAL versus not-NORMAL was easy on every card, and the two concern levels were genuinely hard on five or six."
+  },
+  "Z2": {
+    "question": "What moved you between the two levels?",
+    "answer": "Both, and their interaction, which is the point. Holding the shortfall at roughly 250: at 7% acceptance I went to PRE_READ (T-08), at 14% and 21% to VERIFY (T-15, T-07). Holding acceptance at roughly 40%: at 277 I went to VERIFY (T-02), at 347 and 381 to PRE_READ (T-09, T-03). So neither quantity decides alone, and THE SHORTFALL REQUIRED TO REACH THE STRONGER ACTION RISES AS THE INSTITUTION BECOMES LESS SELECTIVE. My own frontier, read off my own answers rather than designed: roughly 250 at 5-10%, 250-280 at 10-20%, 320-420 at 20-30%, 280-350 at 30-45%. The mechanism I was reasoning from is not probability but BAND WIDTH - a 5% institution admits a narrow slice and a coach moves a recruit a short distance within it; a 40% institution admits a wide slice and the same shortfall is already inside."
+  },
+  "Z3": {
+    "question": "Did GPA affect any of your answers?",
+    "answer": "Once, decisively: T-03, where a 2.2 GPA with an 800 SAT is weak in absolute terms rather than merely relative to the institution, and that pushed a 43%-acceptance card to the stronger action when the shortfall alone would not have. It was a near-factor on T-02 (2.8 GPA) and it changed nothing there. On every other card GPA moved in lockstep with SAT and added nothing independent. TWO HONEST CAVEATS: these cards pair GPA and SAT by construction, so this pack cannot separate their contributions; and there is no programme-side GPA evidence anywhere, so a GPA can only ever be read against a general sense of what is weak, never against this institution."
+  }
+}

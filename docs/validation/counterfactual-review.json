@@ -1,0 +1,358 @@
+{
+  "formatVersion": "thriv3-v2-counterfactual-review/1",
+  "designCommit": "2ccd4ef",
+  "v2Commit": "6ffcef2",
+  "athlete": "A-strong-high-budget-strong-academics · competitive level 5, playing opportunity 1, academic strength 3",
+  "meta": {
+    "reviewer": "rhys.davies@cardaxia.ai (blind, conducted conversationally, one pair at a time)",
+    "startedAt": "2026-09-23T20:30:03.775436+00:00",
+    "completedAt": "2026-09-23T20:48:13.085793+00:00",
+    "modelRevealed": true,
+    "blindnessRule": "no athletic plausibility, positional or market component, recruitability, financial, opportunity, pursuit priority, gate, rank, V2 preference or magnitude was shown at any point during the review",
+    "rulePolicy": "every pair judged individually; no threshold offered or applied across pairs",
+    "revealedAt": "2026-09-23T21:12:46.821Z"
+  },
+  "pairs": [
+    {
+      "pair": "1.1",
+      "A": "Marshall",
+      "B": "Green Bay",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:33:51.299256+00:00"
+    },
+    {
+      "pair": "1.2",
+      "A": "Princeton",
+      "B": "Evansville",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:34:31.448925+00:00"
+    },
+    {
+      "pair": "1.3",
+      "A": "Western Michigan",
+      "B": "Kansas City",
+      "firstPursuit": "B",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:36:17.845417+00:00"
+    },
+    {
+      "pair": "1.4",
+      "A": "Vermont",
+      "B": "UC Irvine",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:36:49.992731+00:00"
+    },
+    {
+      "pair": "1.5",
+      "A": "UConn",
+      "B": "Davidson",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:37:08.036043+00:00"
+    },
+    {
+      "pair": "1.6",
+      "A": "Furman",
+      "B": "UC Riverside",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:37:42.510016+00:00"
+    },
+    {
+      "pair": "1.7",
+      "A": "UMBC",
+      "B": "Canisius",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "NO",
+      "why": "",
+      "answeredAt": "2026-09-23T20:38:27.399723+00:00"
+    },
+    {
+      "pair": "1.8",
+      "A": "SMU",
+      "B": "Case Western Reserve",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "NO",
+      "why": "",
+      "answeredAt": "2026-09-23T20:38:56.059158+00:00"
+    },
+    {
+      "pair": "2.1",
+      "A": "Clemson",
+      "B": "Pittsburgh",
+      "firstPursuit": "BOTH_ABOUT_EQUALLY",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:40:13.363529+00:00"
+    },
+    {
+      "pair": "2.2",
+      "A": "Louisville",
+      "B": "North Florida",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:40:39.670579+00:00"
+    },
+    {
+      "pair": "2.3",
+      "A": "Saint Mary's",
+      "B": "VMI",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "NO",
+      "why": "",
+      "answeredAt": "2026-09-23T20:41:18.255926+00:00"
+    },
+    {
+      "pair": "2.4",
+      "A": "UC Davis",
+      "B": "Rollins",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "NO",
+      "why": "",
+      "answeredAt": "2026-09-23T20:42:30.742125+00:00"
+    },
+    {
+      "pair": "3.1",
+      "A": "Akron",
+      "B": "Harvard",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:42:53.926414+00:00"
+    },
+    {
+      "pair": "3.2",
+      "A": "Tiffin",
+      "B": "Carleton",
+      "firstPursuit": "NEITHER",
+      "includeA": "NO",
+      "includeB": "NO",
+      "why": "",
+      "answeredAt": "2026-09-23T20:43:54.575934+00:00"
+    },
+    {
+      "pair": "3.3",
+      "A": "UTRGV",
+      "B": "University of Chicago",
+      "firstPursuit": "NEITHER",
+      "includeA": "NO",
+      "includeB": "NO",
+      "why": "",
+      "answeredAt": "2026-09-23T20:44:39.020657+00:00"
+    },
+    {
+      "pair": "4.1",
+      "A": "Loyola Marymount",
+      "B": "Penn State",
+      "firstPursuit": "B",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:45:10.626650+00:00"
+    },
+    {
+      "pair": "4.2",
+      "A": "Xavier",
+      "B": "Kentucky",
+      "firstPursuit": "BOTH_ABOUT_EQUALLY",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:46:00.511979+00:00"
+    },
+    {
+      "pair": "4.3",
+      "A": "Lehigh",
+      "B": "Yale",
+      "firstPursuit": "BOTH_ABOUT_EQUALLY",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:46:30.115201+00:00"
+    },
+    {
+      "pair": "4.4",
+      "A": "Oakland",
+      "B": "Oral Roberts",
+      "firstPursuit": "BOTH_ABOUT_EQUALLY",
+      "includeA": "CONDITIONAL_LOWER_PRIORITY",
+      "includeB": "CONDITIONAL_LOWER_PRIORITY",
+      "why": "depends on other matches but i would say this is lower priority (not definitive yes or no)",
+      "answeredAt": "2026-09-23T20:48:13.085793+00:00",
+      "note": "Recorded verbatim rather than forced to YES/NO/INSUFFICIENT INFORMATION. The reviewer declined a definitive inclusion call and made it relative to the rest of the pool. This is not INSUFFICIENT INFORMATION in the rubric sense - the facts were sufficient - so a distinct value was used."
+    }
+  ],
+  "diagnostic": {
+    "phase": "A7.7.11 counterfactual View B + full-universe diagnostic",
+    "ordering": {
+      "decisive": 13,
+      "agree": 3,
+      "rate": 0.2308,
+      "bySet": {
+        "1": "3/8",
+        "2": "0/3",
+        "3": "0/1",
+        "4": "0/1"
+      },
+      "humanTies": 4,
+      "humanNeither": 2
+    },
+    "inclusion": {
+      "n": 38,
+      "humanYesInside100": 4,
+      "humanYesOutside100": 24,
+      "humanNoInside100": 2,
+      "humanNoOutside100": 6,
+      "conditional": 2,
+      "outsideDistance": {
+        "mild": 4,
+        "material": 5,
+        "severe": 15
+      }
+    },
+    "universe": {
+      "eligible": 1166,
+      "ranked": 858,
+      "limitedData": 308,
+      "ineligible": 0,
+      "suppressed": 0
+    },
+    "athleteRelativeBands": {
+      "equivalentStrength": 83.58,
+      "bands": [
+        {
+          "label": "substantially above (>= +10)",
+          "n": 13,
+          "medR": 0.244,
+          "medO": 0.796,
+          "medP": 0.548,
+          "medRank": 536,
+          "in100": 0
+        },
+        {
+          "label": "moderately above (+3 to +10)",
+          "n": 17,
+          "medR": 0.25,
+          "medO": 0.806,
+          "medP": 0.539,
+          "medRank": 590,
+          "in100": 0
+        },
+        {
+          "label": "approximately at level (-3 to +3)",
+          "n": 28,
+          "medR": 0.251,
+          "medO": 0.805,
+          "medP": 0.561,
+          "medRank": 463,
+          "in100": 2
+        },
+        {
+          "label": "moderately below (-15 to -3)",
+          "n": 106,
+          "medR": 0.334,
+          "medO": 0.726,
+          "medP": 0.572,
+          "medRank": 390,
+          "in100": 4
+        },
+        {
+          "label": "substantially below (< -15)",
+          "n": 694,
+          "medR": 0.485,
+          "medO": 0.392,
+          "medP": 0.566,
+          "medRank": 431,
+          "in100": 94
+        }
+      ]
+    },
+    "sensitivity": {
+      "note": "recomputed arithmetically from the production layer values; no weight, gate or threshold was changed in the model",
+      "gateNeutralised": "top 10 identical to production; Clemson 857->825, Virginia 858->854. The recruitability gate is close to inert.",
+      "rWeight040": "top 10 still entirely below strength 58; Stanford 352->141, Wake Forest 274->127",
+      "rWeight030": "top 10 becomes mixed - Princeton, DePauw, Tufts, Kansas City, Furman, UC Irvine, UAB - but Stanford rises to 35 and Wake Forest to 52",
+      "conclusion": "the base weight is the mechanism, not the gate; and the realism guard degrades between 0.40 and 0.30"
+    },
+    "doubleUse": {
+      "corr(positionalOpportunity, playingOpportunity)": 0.077,
+      "finding": "no double counting. playingOpportunity reads how widely a programme spreads minutes across its position group, from the programme own seasons; positionalOpportunity reads the departing cohort, fill rate and arrival claims. Disjoint inputs.",
+      "scopeGap": "eligibleToRemain is scored nowhere. positionalOpportunity excludes returning depth deliberately (it measured as position-group size in disguise) and playingOpportunity never reads it, so the depth an athlete would actually join is context in both layers and evidence in neither."
+    },
+    "financial": {
+      "rankedWithFBelow1": 69,
+      "allFromOpenEndedBudgetBand": true,
+      "largestDistortions": [
+        {
+          "name": "Michigan",
+          "rank": 599,
+          "ifFullyViable": 143
+        },
+        {
+          "name": "Howard",
+          "rank": 690,
+          "ifFullyViable": 295
+        },
+        {
+          "name": "Pittsburgh",
+          "rank": 557,
+          "ifFullyViable": 212
+        },
+        {
+          "name": "Santa Clara",
+          "rank": 511,
+          "ifFullyViable": 173
+        }
+      ]
+    },
+    "limitedData": {
+      "n": 308,
+      "byLayer": {
+        "recruitability": 14,
+        "financial": 7,
+        "opportunity": 6,
+        "recruitability+opportunity": 277,
+        "recruitability+financial": 1,
+        "recruitability+financial+opportunity": 3
+      },
+      "byDivision": {
+        "NJCAA": 228,
+        "NAIA": 47,
+        "USCAA": 11,
+        "NCAA D3": 10,
+        "NCAA D2": 7,
+        "NCAA D1": 5
+      },
+      "plausibleTargetsAffected": 2,
+      "names": [
+        "George Mason (76.3, opportunity:NO_MINUTES_HISTORY)",
+        "Army West Point (70.1, financial:NO_COST_BASIS)"
+      ]
+    },
+    "modelBugCandidates": 0,
+    "modelChangeJustified": false
+  }
+}

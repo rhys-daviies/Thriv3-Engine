@@ -658,6 +658,22 @@ const CLAIM = db.transaction(({
     collegeName: context.collegeName,
     sport: context.sport,
     programmeCampaignId: context.programmeCampaignId,
+    /**
+     * A9.7 — THE PROVENANCE LINK, FROM THE CAMPAIGN ROW AND NOWHERE ELSE.
+     *
+     * `programme_campaigns.matchmaking_selection_id` is what a V2 campaign
+     * froze when a consultant chose this programme. It arrives here through
+     * `programmeMessageWithContext` and is never supplied by a caller, so a
+     * claim cannot assert a provenance the campaign does not hold.
+     *
+     * NULL FOR EVERY V1 CAMPAIGN, and the claim then proceeds exactly as
+     * before: `recordDraft` writes the null and the send is PRE_PROVENANCE.
+     * This is the line that lets V1 campaigns keep working untouched.
+     *
+     * Inside this transaction, so a refused link unwinds the whole claim — no
+     * relationship, no send, no capacity spent, nothing half-attributed.
+     */
+    matchmakingSelectionId: context.matchmakingSelectionId,
     onDate,
     // The evidence the composer recorded, re-projected rather than re-derived.
     evidence: rehydrateEvidence(message.evidence_snapshot),

@@ -1,0 +1,89 @@
+{
+  "packId": "A7.25-V3-C-strong-playing-focused",
+  "digests": { "athlete": "3198b241fc2acf2c", "programmes": "0ad61eb2b6dfa44c", "lists": "2677247a9515809c" },
+  "sealedOpened": false,
+  "athleteRestated": "Forward, ability 7 (78th percentile, equivalent programme strength 62.1), entry 2028, English, family ceiling $18,000/yr. Level 2 of 5, PLAYING 5 of 5, academic 3 of 5, no declared major.",
+  "adviserFrame": [
+    "The binding constraints are money and visa-realistic recruiting, not level. $18,000 is a hard ceiling and an international forward needs a coach who already recruits abroad.",
+    "Equivalent strength 62.1 means the natural band is roughly 56-63. Level priority 2 reduces the premium on reaching higher; per the stated scale it is NOT a request for weak programmes, so a 34-44 strength side with a losing record is still a bad recommendation.",
+    "Playing 5 means the forward room is the first thing to read: total forwards, how many depart before 2028, and how many are eligible to remain."
+  ],
+  "lists": {
+    "A": {
+      "firstWave": ["P-012 Mercy", "P-025 Christian Brothers", "P-019 Cumberlands", "P-037 Roosevelt", "P-028 Missouri Valley", "P-036 North Georgia", "P-005 Mid-America Christian", "P-022 Bellevue"],
+      "lowerPriority": ["P-035 Roberts Wesleyan", "P-015 St. Cloud State", "P-008 Aquinas", "P-032 Trevecca Nazarene", "P-003 Canisius"],
+      "questionable": ["P-023 Chicago", "P-017 Amherst", "P-031 Williams", "P-040 Caltech", "P-013 Illinois College", "P-026 Cornell College", "P-034 Grace Christian"],
+      "substantiallyLower": [
+        "P-007 Beloit at #7 — strength 34.0 against the athlete's 62.1, 793rd nationally, 27% win rate in both seasons, $21,526 net (over ceiling), 12% international squad taking 3% of minutes. This is the single worst placement on the page. Level priority 2 lowers the premium on reaching up; it does not make a losing programme 28 strength points below the athlete a top-ten contact.",
+        "P-023 Chicago at #1 and P-017 Amherst at #2 — 5% and 9% admit rates against a 3.3 GPA with no SAT on file. Leading an outreach list with two schools the athlete is unlikely to be admitted to is a wasted first wave.",
+        "P-040 Caltech at #23 — 3% admit rate, zero international players in the squad and zero in 33 recent arrivals, strength 43.2. There is no recruiting path here at all.",
+        "P-039 Eastern Illinois at #20 — 10 forwards on the roster, 0 departing starters, 2 eligible to remain. The most crowded forward room in the list, for the athlete whose first priority is playing.",
+        "P-006 Life (GA) at #18 — $29,791 net against an $18,000 ceiling, 66% over.",
+        "P-010 Staten Island at #13 — strength 45.9, 21% win rate, roster evidence INSUFFICIENT. Ranked on being cheap."
+      ],
+      "missingFromFirstWave": [
+        "At-level NAIA programmes that recruit heavily from abroad and have a forward room emptying: nothing of this type is in the first eight, and the list carries only six NAIA programmes in total.",
+        "P-016 Chicago State sits at #24 with ONE forward on the entire roster, $12,335 net and strength 56.5. Whatever one thinks of a 15% win rate, that is the largest playing opening on the page and it is 24th.",
+        "The two cheapest strong fits — P-025 Christian Brothers at $9,854 and P-036 North Georgia at $9,823, both D2 at 57-60 strength, both recruiting internationally in numbers — are at #12 and #14 behind six programmes that are worse on every axis the athlete named."
+      ],
+      "calibration": "TOO CONSERVATIVE",
+      "calibrationWhy": "The athlete's stated priority barely registers. The ordering is explained better by academic prestige at the top and low net price in the middle than by anything about playing time. Eleven of the 25 are more than 8 strength points below the athlete's level and four have sub-15% admit rates.",
+      "wrongTradeOffs": [
+        "Academic prestige is beating playing pathway, and the athlete rated academics 3 and playing 5. Chicago, Amherst, Williams and Caltech occupy four top-25 places between them on the strength of ratings 9.6-9.7 that the athlete did not ask for and probably cannot access.",
+        "Cheapness is beating level and pathway in the middle of the list: Staten Island (45.9, 21% win) and Grace Christian (43.7) are there on net price.",
+        "International recruiting behaviour is not being weighed where it decides everything. Williams has taken 1 international player in 30 arrivals; Caltech none in 33; Illinois College 4 in 53. All three are ranked above at-level programmes whose squads are 70-95% international."
+      ]
+    },
+    "B": {
+      "firstWave": ["P-022 Bellevue", "P-019 Cumberlands", "P-012 Mercy", "P-028 Missouri Valley", "P-025 Christian Brothers", "P-005 Mid-America Christian", "P-037 Roosevelt", "P-036 North Georgia"],
+      "lowerPriority": ["P-035 Roberts Wesleyan", "P-015 St. Cloud State", "P-008 Aquinas", "P-030 Lenoir-Rhyne", "P-018 Carroll (MT)", "P-006 Life (GA)", "P-033 Columbia (MO)"],
+      "questionable": ["P-023 Chicago", "P-017 Amherst", "P-031 Williams", "P-002 Albion", "P-032 Trevecca Nazarene", "P-029 Ottawa"],
+      "substantiallyLower": [
+        "P-020 Drury at #24 — 9 forwards, 1 departing, SIX eligible to remain. The worst forward pathway anywhere in the three lists, in the list of an athlete who rated playing 5 of 5.",
+        "P-007 Beloit at #12 — same objection as in List A, demoted but still inside the first half.",
+        "P-023 Chicago #1 and P-017 Amherst #3 — the admissions objection is unchanged.",
+        "P-029 Ottawa at #25 ($27,963) and P-006 Life (GA) at #16 ($29,791) — both more than 55% over the family ceiling.",
+        "P-039 Eastern Illinois at #18 — 10 forwards, none of the departures a starter."
+      ],
+      "missingFromFirstWave": [
+        "Same gap as List A at the top: the first wave is led by a 5%-admit D3 and a NESCAC side rather than by at-level programmes that will actually recruit this player.",
+        "P-016 Chicago State has dropped out of the list entirely — the single largest forward opening on the page is now absent, not merely buried.",
+        "No programme in the first eight has both an emptying forward room and a squad already built on international players; the combination exists in the universe and the list finds it only by accident."
+      ],
+      "calibration": "TOO CONSERVATIVE",
+      "calibrationWhy": "Better than List A — the at-level NAIA and D2 programmes move up and the first eight are defensible — but the same two implausible admits still lead it, and the bottom third is filled with programmes that fail on budget (Ottawa, Life, Carroll, Columbia) or on pathway (Drury).",
+      "wrongTradeOffs": [
+        "Affordability discipline is worse than List A: eleven of 25 are over the ceiling against eight, and the median net price rises to $17,716.",
+        "Drury above Chicago State is the clearest single error in the list: six returning forwards preferred over one forward in the whole squad, for a playing-first athlete.",
+        "Prestige still leads. Whatever moved the middle of this list did not touch the top three."
+      ]
+    },
+    "C": {
+      "firstWave": ["P-019 Cumberlands", "P-012 Mercy", "P-025 Christian Brothers", "P-038 Madonna", "P-028 Missouri Valley", "P-004 Lindsey Wilson", "P-036 North Georgia", "P-014 William Carey"],
+      "lowerPriority": ["P-022 Bellevue", "P-005 Mid-America Christian", "P-035 Roberts Wesleyan", "P-037 Roosevelt", "P-041 Grand View", "P-009 Campbellsville", "P-015 St. Cloud State", "P-024 Anderson (SC)"],
+      "questionable": ["P-017 Amherst", "P-023 Chicago", "P-027 Western Illinois", "P-011 Indiana Institute of Technology", "P-021 Milligan"],
+      "substantiallyLower": [
+        "P-018 Carroll (MT) at #2 — $23,960 net, 33% over a hard $18,000 ceiling, ranked above Christian Brothers at $9,854 and North Georgia at $9,823. The forward room is genuinely good (9 forwards, 6 departing, 4 of them starters) but the family cannot pay for it, and second place is where a list says 'contact this one first'.",
+        "P-027 Western Illinois at #20 — 12 forwards, 4 eligible to remain, 37% win rate. The one D1 retained is the one with the most crowded forward room.",
+        "P-036 North Georgia at #18 — strength 57.7, $9,823 net, recruits internationally in numbers. On this athlete's constraints it is a top-five programme and it is eighteenth.",
+        "P-011 Indiana Tech at #24 ($23,206) and P-021 Milligan at #22 ($21,365) — both materially over budget in a list that has already spent most of its places on over-budget programmes."
+      ],
+      "missingFromFirstWave": [
+        "P-016 Chicago State is absent again — all three lists fail to surface the largest forward opening in the universe.",
+        "The cheap end is under-represented at the top rather than missing: the two sub-$10,000 D2 programmes are at #7 and #18 while four programmes over $20,000 sit above them.",
+        "No genuinely low-cost public option in the first wave at all."
+      ],
+      "calibration": "ABOUT RIGHT",
+      "calibrationWhy": "On what the athlete actually asked for this is the only one of the three that reads like a playing-first list. Only two programmes are more than 8 strength points below the athlete (against eleven and seven), the median strength is 59.4 against the athlete's 62.1, and it surfaces five at-level, internationally-recruiting programmes with emptying forward rooms — Madonna, Lindsey Wilson, William Carey, Campbellsville, Grand View — that neither other list contains at all. It is NOT too aggressive on playing.",
+      "wrongTradeOffs": [
+        "It has paid for the improvement in the wrong currency. Thirteen of 25 are over the family ceiling against eight in List A, and the median net price is $18,086 — at the ceiling rather than under it. The gain in pathway is real; the affordability cost is real too and is not a fair trade for a family with a hard $18,000 limit.",
+        "Ordering within the affordable set is wrong: Carroll (MT) at $23,960 above Christian Brothers at $9,854 cannot be justified on any axis this athlete named, because Christian Brothers is also higher on level and on international recruiting.",
+        "Western Illinois at #20 is a straightforward contradiction of the list's own logic."
+      ]
+    }
+  },
+  "acrossLists": {
+    "X1": "Where the lists disagree I prefer List C's placements on level and pathway and List A's on money. C is right that Madonna, Lindsey Wilson and William Carey belong in a playing-first list and that Beloit, Caltech, Cornell and Grace Christian do not. A is right that a $9,823 programme should outrank a $23,960 one for this family. The specific disagreements I would resolve against C are Carroll (MT) #2 (C) against #15 (B) and absent (A) — B's placement is the best of the three — and North Georgia #14 (A) / #11 (B) / #18 (C), where all three are too low and C is the worst.",
+    "X2": "All three make the same two mistakes. First, none of them weighs whether the athlete would be ADMITTED: Chicago (5%), Amherst (9%), Williams (8%) and Caltech (3%) appear in the top 25 of a 3.3-GPA athlete with no SAT on file, and in two of the three lists they lead it. Second, none of them reads coach behaviour as a recruiting fact — a programme that has taken one international player in thirty arrivals is not a realistic destination for an English forward, however it scores, and Williams, Caltech and Illinois College are all ranked above programmes whose squads are 70-100% international."
+  }
+}

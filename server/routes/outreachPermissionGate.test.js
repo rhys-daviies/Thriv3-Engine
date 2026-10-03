@@ -68,8 +68,8 @@ beforeAll(() => {
     });
   }
   roster({ season: '2023', player_name: 'Kiwi One', country: 'New Zealand', nationality: 'International' });
-  roster({ player_name: 'Leaver One', position: 'DEFENSE', estimated_graduation_year: 2027, projected_minutes: 1200 });
-  roster({ player_name: 'Leaver Two', position: 'DEFENSE', estimated_graduation_year: 2027, projected_minutes: 1100 });
+  roster({ player_name: 'Leaver One', position: 'DEFENSE', estimated_graduation_year: 2027, eligibility_end_year: 2026, class_year_label: 'Gr.', projected_minutes: 1200 });
+  roster({ player_name: 'Leaver Two', position: 'DEFENSE', estimated_graduation_year: 2027, eligibility_end_year: 2026, class_year_label: 'Gr.', projected_minutes: 1100 });
 });
 
 const DENIED = EVIDENCE_KIND_NAMES.filter((k) => permissionsFor(k).OUTREACH === PERMISSION.DENIED);

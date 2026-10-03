@@ -8,6 +8,7 @@ import { emailBodyFor, buildEmailContext, fillTemplate, validateTemplate, canCom
 import { countryPhrase, articleCountries, canonicalCountry } from '../recruiting/regions.js';
 import { seasonsInWindow, recentSeasons } from './outreachContract.js';
 import { OUTREACH_POLICY_VERSION, KNOWN_POLICY_VERSIONS } from './outreachPolicy.js';
+import { resolveFixtureDatabase, fixtureSkipNotice } from '../testing/fixtureDatabase.js';
 
 /**
  * K3C — the four remediations, each proved where it can be proved cheaply.
@@ -19,8 +20,16 @@ import { OUTREACH_POLICY_VERSION, KNOWN_POLICY_VERSIONS } from './outreachPolicy
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
-const d = fs.existsSync(DB) ? describe : describe.skip;
+/**
+ * Same defect and same fix as `shared/academicMajors.test.js`: a worktree
+ * stub satisfied `fs.existsSync` and the arrival probes then ran against an
+ * empty database. These need roster rows as well as colleges, because what
+ * they assert is that an OBSERVED arrival can be stated.
+ */
+const FIXTURE = resolveFixtureDatabase({ root: ROOT, requires: ['colleges', 'roster_players'] });
+const DB = FIXTURE.path;
+const d = FIXTURE.usable ? describe : describe.skip;
+if (!FIXTURE.usable) console.warn(fixtureSkipNotice('k3cRemediation.test.js', FIXTURE));
 
 /* -------------------------------------------------------------------------- */
 /* Country display grammar                                                     */

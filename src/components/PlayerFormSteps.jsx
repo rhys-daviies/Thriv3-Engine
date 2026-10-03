@@ -15,9 +15,15 @@ import PriorityTokens from '@/components/PriorityTokens';
 import ConferencePicker from '@/components/ConferencePicker';
 import { US_STATES, COUNTRIES, ORIGINS } from '@/lib/locations';
 import { DIVISIONS } from '@shared/divisions.js';
-// The bands and their ceilings live together, so the picker cannot offer a
-// band the model has no ceiling for.
-import { BUDGET_BANDS } from '@shared/matching/constants.js';
+import FamilyContributionField from '@/components/FamilyContributionField';
+import AthletePreferenceFields from '@/components/AthletePreferenceFields';
+import {
+  contributionFromPlayer, chooseContribution, setContributionAmount,
+  contributionValid, contributionPayload,
+} from '@/lib/contributionIntake';
+import {
+  preferencesFromPlayer, setPreference, preferencesValid, preferencePayload,
+} from '@/lib/preferenceIntake';
 import { positionLabel } from '@shared/positions.js';
 import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, validateTemplate } from '@/lib/emailTemplate';
 import { cn } from '@/lib/utils';
@@ -84,7 +90,20 @@ function defaultsFrom(initialData) {
     evaluation: initialData?.evaluation || '',
     sport_attributes: initialData?.sport_attributes || {},
     preferred_conferences: initialData?.preferred_conferences || [],
+    /**
+     * READ-ONLY from here on. Kept in form state so the previous answer can be
+     * shown as context and so the column survives a save untouched; the
+     * question the operator answers is `contribution` below.
+     */
     budget_range: initialData?.budget_range || '',
+    contribution: contributionFromPlayer(initialData),
+    /**
+     * All three NULL on a record written before A7.12.1, and NULL is what
+     * the form shows. Giving these a display default the way every other
+     * field above gets one would put an answer on screen for every athlete
+     * nobody has asked.
+     */
+    preferences: preferencesFromPlayer(initialData),
     criterion_ranking: initialData?.criterion_ranking ?? null,
     academic_minimum: initialData?.academic_minimum ?? 'Not Important',
     additional_notes: initialData?.additional_notes || '',
@@ -177,6 +196,12 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
 
   const step1Valid = data.full_name.trim().length > 0 && !!data.position && data.preferred_divisions.length > 0
     && !!data.recruiting_class_year;
+  /**
+   * NOT part of step1Valid. An athlete whose family has not discussed money is
+   * a complete, creatable athlete - the model has a word for unknown and it is
+   * not zero. Only a half-typed AMOUNT blocks the save.
+   */
+  const contributionReady = contributionValid(data.contribution);
 
   const steps = [
     { label: 'Soccer Profile' },
@@ -213,7 +238,28 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
       return;
     }
     setTemplateError(null);
-    onSubmit(data);
+
+    /**
+     * A malformed maximum never leaves the form. The server refuses it too -
+     * see checkContribution in db/entities/player.js - but a person who typed
+     * "20k" deserves to be told so beside the field rather than by a failed
+     * save.
+     */
+    if (!contributionValid(data.contribution)) {
+      setStep(1);
+      return;
+    }
+    /**
+     * Unreachable through the radio group, which can only ever set 1-5 or
+     * clear. It guards the other way in: `initialData` is a database row, and
+     * a row written by a script rather than this form could carry anything.
+     */
+    if (!preferencesValid(data.preferences)) {
+      setStep(1);
+      return;
+    }
+    const { contribution, preferences, ...rest } = data;
+    onSubmit({ ...rest, ...contributionPayload(contribution), ...preferencePayload(preferences) });
   }
 
   function insertVariable(variable) {
@@ -448,14 +494,22 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             )}
           </div>
 
-          <div className="space-y-1.5 max-w-sm">
-            <Label>Budget Range</Label>
-            <Select value={data.budget_range} onValueChange={set('budget_range')}>
-              <SelectTrigger><SelectValue placeholder="Select budget" /></SelectTrigger>
-              <SelectContent className="max-h-72">
-                {BUDGET_BANDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-              </SelectContent>
-            </Select>
+          <FamilyContributionField
+            value={data.contribution}
+            onChoice={(choice) => setData((d) => ({ ...d, contribution: chooseContribution(d.contribution, choice) }))}
+            onAmount={(raw) => setData((d) => ({ ...d, contribution: setContributionAmount(d.contribution, raw) }))}
+          />
+
+          {/* Above the legacy ranking on purpose: these three are the direct
+              questions, and the ranking below is a coarser ordering of six
+              tokens that an explicit answer overrides for the one component
+              they share. Reading them the other way round would invite an
+              operator to answer the vague question and skip the sharp ones. */}
+          <div className="border-t border-border pt-4">
+            <AthletePreferenceFields
+              value={data.preferences}
+              onChange={(field, v) => setData((d) => ({ ...d, preferences: setPreference(d.preferences, field, v) }))}
+            />
           </div>
 
           {/* A constraint, not a preference — how much academics *matter* is the
@@ -488,7 +542,12 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             <PriorityTokens
               value={data.criterion_ranking}
               onChange={set('criterion_ranking')}
+              /* The V1 coupling preview still reads the legacy band, because V1
+                 is frozen and reads nothing else. An athlete created after
+                 A7.9.3 has no band, so the preview shows the uncoupled
+                 weights — correct, since V1 has no budget for them either. */
               budgetRange={data.budget_range}
+              contribution={data.contribution}
               state={data.state}
               origin={data.origin}
             />
@@ -555,7 +614,16 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
 
           <div className="flex justify-between border-t border-border pt-4">
             <Button type="button" variant="outline" onClick={() => goToStep(1)}>Back</Button>
-            <Button type="submit">{submitLabel}</Button>
+            {/* Disabled only by a half-typed amount — never by an unanswered
+                question. The title says which, so the state is not conveyed
+                by the disabled styling alone. */}
+            <Button
+              type="submit"
+              disabled={!contributionReady}
+              title={contributionReady ? undefined : 'Enter a whole dollar amount for the maximum annual family contribution, or choose another option.'}
+            >
+              {submitLabel}
+            </Button>
           </div>
         </Card>
       )}

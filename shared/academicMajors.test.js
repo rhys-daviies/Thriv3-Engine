@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { majorLabelFor, CIP_FAMILIES } from './academicMajors.js';
+import { resolveFixtureDatabase, fixtureSkipNotice } from './testing/fixtureDatabase.js';
 
 /**
  * L3 — free text in, canonical academic family out.
@@ -16,8 +17,17 @@ import { majorLabelFor, CIP_FAMILIES } from './academicMajors.js';
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
-const d = fs.existsSync(DB) ? describe : describe.skip;
+/**
+ * The ACADEMIC_FIT probes below drive the real evidence path against a
+ * populated database. This used to be `path.join(ROOT, 'server/data/...')`
+ * gated on `fs.existsSync`, which in a git worktree resolved to a stub with
+ * zero `colleges` rows, passed the gate, and then failed two assertions
+ * because SMU and Adams State were not there to find.
+ */
+const FIXTURE = resolveFixtureDatabase({ root: ROOT, requires: ['colleges'] });
+const DB = FIXTURE.path;
+const d = FIXTURE.usable ? describe : describe.skip;
+if (!FIXTURE.usable) console.warn(fixtureSkipNotice('academicMajors.test.js', FIXTURE));
 
 describe('supported vocabulary maps to a canonical family', () => {
   it('maps every approved term', () => {

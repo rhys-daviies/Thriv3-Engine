@@ -1,0 +1,159 @@
+"""
+Does this page represent the team and season we asked for?
+
+A7.43 PORT of Thriv3's `shared/sportIdentity.js`, which is the specification.
+The semantics are deliberately the same and are NOT redesigned here.
+
+-- WHY THIS RUNS BEFORE A SINGLE PLAYER IS READ --------------------------
+
+A7.41/A7.42 found 72 rows filed as women's soccer that were a cross-country
+squad and a 2016 men's track squad. Every downstream signal looked healthy:
+
+    field completeness   every row had a name, a class year and a hometown
+    row count            43 and 29, entirely plausible for a soccer squad
+    turnover             100%, which `run.evaluate` reads as a NEW roster
+    position vocabulary  the only thing that objected, and only by accident
+
+The position mapper refusing "DIS" and "Throws" is a coincidence of the sports
+involved. TWO SOCCER PROGRAMMES SWAPPED WITH EACH OTHER WOULD HAVE PRODUCED
+PERFECT POSITIONS AND SHIPPED SILENTLY. So none of those establish identity.
+Only the page can say which team it is, and it says so before extraction.
+
+-- SPORT AND SEASON ARE INDEPENDENT --------------------------------------
+
+Grand Canyon was the wrong sport in the RIGHT year; Kansas State was wrong in
+both. A single combined verdict would have let Grand Canyon through on its
+correct year, so the two are never collapsed into one boolean.
+"""
+import re
+
+AGREES = 'AGREES'
+CONTRADICTS = 'CONTRADICTS'
+UNKNOWN = 'UNKNOWN'
+
+EXTRACT = 'EXTRACT'
+REFUSE = 'REFUSE'
+REVIEW = 'REVIEW'
+
+# Small on purpose: this tells SOCCER from NOT SOCCER on a page. It is not a
+# sport taxonomy, because Thriv3 acquires soccer.
+SPORT_TOKENS = {'soccer': ('soccer',)}
+
+# Sports observed contaminating soccer requests, plus the obvious neighbours.
+FOREIGN_SPORT_TOKENS = (
+    'cross country', 'cross-country', 'track', 'field hockey', 'lacrosse',
+    'basketball', 'volleyball', 'baseball', 'softball', 'tennis', 'golf',
+    'swimming', 'diving', 'wrestling', 'rowing', 'gymnastics', 'water polo',
+)
+
+
+def _sport_key(requested_sport):
+    """'womens-soccer' and 'soccer' both mean soccer to this check."""
+    s = (requested_sport or '').lower()
+    for key in SPORT_TOKENS:
+        if key in s:
+            return key
+    return s
+
+
+def page_signals(html):
+    """Every identity signal available WITHOUT touching a player record."""
+    out = {'title': None, 'canonical': None, 'og_url': None, 'display_title': None}
+    m = re.search(r'<title[^>]*>(.*?)</title>', html or '', re.S)
+    if m:
+        out['title'] = re.sub(r'\s+', ' ', m.group(1)).strip()
+    m = re.search(r'<link[^>]+rel="canonical"[^>]+href="([^"]+)"', html or '')
+    if m:
+        out['canonical'] = m.group(1)
+    m = re.search(r'<meta[^>]+property="og:url"[^>]+content="([^"]+)"', html or '')
+    if m:
+        out['og_url'] = m.group(1)
+    # The payload object that ALSO carries `players` - the one parse_nuxt
+    # already touches for a year and then throws the sport away.
+    try:
+        import lib
+        flat = lib._nuxt(html)
+        if flat:
+            for e in flat:
+                if isinstance(e, dict) and 'players' in e and 'displayTitle' in e:
+                    t = lib._scal(flat, e['displayTitle'])
+                    if isinstance(t, str):
+                        out['display_title'] = t
+                        break
+    except Exception:
+        pass
+    return out
+
+
+def assess(html=None, requested_sport='soccer', requested_season=None, signals=None):
+    """
+    Returns {'sport','season','action','signals','years_seen','reason'}.
+
+    `signals` may be supplied directly so the decision can be tested without a
+    page, which is how the adversarial cases below are written.
+    """
+    sig = signals if signals is not None else page_signals(html)
+    want = _sport_key(requested_sport)
+
+    hay = ' '.join(v.lower() for v in (
+        sig.get('title'), sig.get('canonical'), sig.get('og_url'),
+        sig.get('display_title'), sig.get('sport_slug')) if v)
+
+    if not hay:
+        sport = UNKNOWN
+    else:
+        says_foreign = any(t in hay for t in FOREIGN_SPORT_TOKENS)
+        says_wanted = any(t in hay for t in SPORT_TOKENS.get(want, (want,)))
+        # A page naming a FOREIGN sport contradicts even when it also contains
+        # the word we wanted: a combined athletics page mentions both, and the
+        # safe reading of an ambiguous page is not "yes".
+        #
+        # A page naming NEITHER is UNKNOWN, not a contradiction. Measured
+        # against the 2,060 real 2026 acquisitions, 8 legitimate pages are
+        # simply silent about the sport - "Pomona Pitzer Athletics", "Long
+        # Island University Athletics", "2026 Kangaroos", and one with a typo,
+        # "Men's Socccer". Reading silence as contradiction would refuse all
+        # eight, which is the working-path damage A7.43 was told to avoid.
+        # SILENCE IS NOT CONTRADICTION; it is absence, and absence is reviewed.
+        if says_foreign:
+            sport = CONTRADICTS
+        elif says_wanted:
+            sport = AGREES
+        else:
+            sport = UNKNOWN
+
+    # Season is read only from human-readable text. The `/season/NNNN` path
+    # segment is NOT a year - Kansas State's canonical reads season/1536 for a
+    # 2016 roster - so a URL is never used as season evidence.
+    season = UNKNOWN
+    season_text = ' '.join(v.lower() for v in (sig.get('title'), sig.get('display_title')) if v)
+    years = sorted(set(re.findall(r'(?:19|20)\d\d', season_text)))
+    if requested_season and years:
+        season = AGREES if str(requested_season) in years else CONTRADICTS
+
+    # ONLY AN EXPLICIT CONTRADICTION BLOCKS. UNKNOWN is reported as its own
+    # verdict and recorded on the row's provenance, so it is never silently
+    # certified - but it does not refuse, because a page that says nothing has
+    # not told us we are wrong. Both contaminated pages named a foreign sport,
+    # so the harm A7.42 found is caught by REFUSE, not by REVIEW.
+    if sport == CONTRADICTS or season == CONTRADICTS:
+        action = REFUSE
+    elif sport == UNKNOWN:
+        action = REVIEW
+    else:
+        action = EXTRACT
+
+    if action == REFUSE:
+        bits = []
+        if sport == CONTRADICTS:
+            bits.append('the page identifies a different sport')
+        if season == CONTRADICTS:
+            bits.append('the page identifies season %s rather than %s' % ('/'.join(years), requested_season))
+        reason = '; '.join(bits) + '. Do not extract players; raise a review.'
+    elif action == REVIEW:
+        reason = 'no page-level identity signal was found, and absence of a contradiction is not agreement'
+    else:
+        reason = 'page identity matches the request'
+
+    return {'sport': sport, 'season': season, 'action': action,
+            'signals': sig, 'years_seen': years, 'reason': reason}

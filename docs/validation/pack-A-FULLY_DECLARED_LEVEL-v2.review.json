@@ -1,0 +1,1043 @@
+{
+  "formatVersion": "thriv3-v2-validation-pack/1",
+  "packId": "A-FULLY_DECLARED_LEVEL",
+  "provenance": {
+    "generatedAt": "2026-09-23T08:12:31.940Z",
+    "v2Commit": "227b54f69371b59f4b98ce47bcd4aea583e0512c",
+    "explanationCommit": "227b54f69371b59f4b98ce47bcd4aea583e0512c",
+    "v1FreezeCommit": "480a915645425c3286a19c2da10e3a1d60b3a3ec",
+    "calibrationId": "ability-scale-2026-09-19",
+    "positionalNormsDigest": "4b2d7902f5f299a7",
+    "playingNormsDigest": "5edc2b0c8f64e9e3",
+    "weights": {
+      "recruitability": 0.5,
+      "financial": 0.2,
+      "opportunity": 0.3
+    },
+    "gates": {
+      "recruitability": {
+        "floor": 0.05,
+        "threshold": 0.25
+      },
+      "financial": {
+        "floor": 0.3,
+        "threshold": 0.5
+      }
+    },
+    "weightingArchitecture": "global",
+    "topN": 100,
+    "rosterSeason": "2026",
+    "fixtureId": "A-strong-high-budget-strong-academics",
+    "fixtureValidationOnly": false,
+    "profileId": "FULLY_DECLARED_LEVEL",
+    "effectiveProfile": "FULLY_DECLARED_LEVEL",
+    "preferenceProfile": "LEVEL_FIRST",
+    "fixtureDigest": "aa98901b74a4675c",
+    "poolDigest": "86b911af2515ab10"
+  },
+  "review": {
+    "meta": {
+      "packId": "A-FULLY_DECLARED_LEVEL",
+      "v2Commit": "227b54f69371b59f4b98ce47bcd4aea583e0512c",
+      "explanationCommit": "227b54f69371b59f4b98ce47bcd4aea583e0512c",
+      "calibrationId": "ability-scale-2026-09-19",
+      "fixtureDigest": "aa98901b74a4675c",
+      "poolDigest": "86b911af2515ab10",
+      "reviewer": "rhys.davies@cardaxia.ai (View A, blind, conducted conversationally)",
+      "startedAt": "2026-09-23T09:27:54.386Z",
+      "completedAt": "2026-09-23T09:41:38.354Z",
+      "modelRevealed": true,
+      "questionAnswers": {
+        "A": {
+          "answer": "PARTLY",
+          "basis": "Declaring level 5 moves corr(programme strength, Opportunity) from -0.022 to +0.834 and corr(strength, Pursuit) from -0.532 to -0.067; D1 programmes in the top 100 go from 1 to 10 and the top-100 strength ceiling from 58.2 to 83.6. It neutralises the anti-strength tilt rather than reversing it: the top 25 still contains nothing above strength 58.0, for an athlete whose own equivalent level is 83.6."
+        },
+        "B": {
+          "answer": "YES",
+          "basis": "Stanford 99.6 ranks 352, NC State 95.0 ranks 242, San Diego 95.3 ranks 229, Maryland 94.9 ranks 490, Ohio State 94.1 ranks 628, Michigan 89.8 ranks 599. Nothing beyond the athlete's plausible range is promoted, under either preference profile."
+        },
+        "C": {
+          "answer": "YES, strongly",
+          "basis": "Furman 83.6 ranks 93 and Rutgers 85.3 ranks 856. Similar strength, near-identical athletic plausibility (0.498 vs 0.484); the separation is positional opportunity 0.523 against 0.000 and market 0.658 against 0.239."
+        },
+        "D": {
+          "answer": "YES",
+          "basis": "Playing opportunity at 1/5 carries a 0.2 multiplier and takes a 0.098 share of Opportunity, about 3% of the base priority. Princeton is not penalised for a thin path to minutes (playing 0.391, O 0.934), and the top 100 contains rows with Opportunity as low as 0.265 carried there by recruitability."
+        },
+        "E": {
+          "answer": "YES",
+          "basis": "Academic priority 3 leaves academics visible but not decisive. Bard (academic 8.1, strength 39.0) ranks 21 while Southern Virginia (academic 2.0, strength 39.1) ranks 16; Kenyon (9.1) ranks 90 against Aurora (3.0) at 100. Moving academic priority from undeclared to 5 shifts corr(strength, Opportunity) by only +0.03."
+        },
+        "F": {
+          "answer": "SOME",
+          "basis": "Four realistic high-level targets sit below rank 800 - Vermont, Rutgers, Loyola Marymount, Penn State - and in every case the cause is roster evidence, not strength. Furman, Princeton, UC Irvine and Kansas City show that a strong programme with placeable departures does reach the actionable hundred."
+        }
+      },
+      "redFlagVerdicts": {
+        "AMBITION_INERT": {
+          "verdict": "REFUTED",
+          "blocking": false,
+          "finding": "Top-100 Jaccard between level-first and playing-first is 0.5625, well below the proposed 0.85 trigger. Individual programmes move by up to 604 ranks."
+        },
+        "DEVELOPMENTAL_ELITE_REACH": {
+          "verdict": "NOT_APPLICABLE",
+          "blocking": false,
+          "finding": "Fixture C measure; this athlete is rated 9."
+        },
+        "UNRECRUITABLE_IN_TOP_25": {
+          "verdict": "MIS_SPECIFIED",
+          "blocking": false,
+          "finding": "Fires on count - 15 WOULD_NOT_PURSUE inside the top 25 - but its evidence path is \"tagged athlete below level\", and here the athlete is above the level of all 15. Same defect recorded in Fixture C, now seen from the opposite direction.",
+          "action": "Validation-tooling backlog. Not repaired in this phase."
+        },
+        "MISSING_STRONG_TARGETS": {
+          "verdict": "CONFIRMED_WATCH",
+          "blocking": false,
+          "finding": "One PURSUE_STRONGLY (Vermont, rank 818) and three PURSUE fall outside the top 100, below the proposed trigger of three PURSUE_STRONGLY. The softer clause is met. Cause is roster evidence rather than ranking behaviour, so it is carried as DATA_GAP rather than as a ranking blocker."
+        },
+        "LIMITED_DATA_READ_AS_POOR": {
+          "verdict": "REFUTED",
+          "blocking": false,
+          "finding": "All 5 limited-data rows were set aside by the strength rule, not by the missing data; readAsPoor 0."
+        },
+        "BUDGET_IGNORED": {
+          "verdict": "REFUTED",
+          "blocking": false,
+          "finding": "The opposite occurs: with an open-ended $40k+ band, viability is reported at the pessimistic end of the range, costing Penn State 0.412 and Vermont 0.224 of financial viability. Recorded as INPUT_GAP."
+        },
+        "ORDERING_DISAGREEMENT": {
+          "verdict": "CONFIRMED_WATCH",
+          "blocking": false,
+          "finding": "Kendall tau-b -0.4346, pairwise 0.0942. The reviewer ordered on strength and the model on attainability, so the two orderings are close to inverted by construction."
+        },
+        "EXPLANATION_MISREPRESENTS": {
+          "verdict": "NOT_ASSESSED",
+          "blocking": false,
+          "finding": "No explanation review captured during the blind pass."
+        }
+      },
+      "overall": {
+        "wouldSendThisList": null,
+        "changeFirst": ""
+      },
+      "headerRestated": "The athlete block was restated in plain English before review, as in Fixture C. No pack content changed; the underlying pack file is unmodified.",
+      "thresholdControl": "The Fixture C academic threshold was deliberately not mentioned to the reviewer. Whether it reappears at a 3/5 academic priority is an observation of this review, not an instruction to it.",
+      "reviewMethod": {
+        "rowByRow": 7,
+        "ruleApplied": 35,
+        "rule": "programme strength < 80 (0-100 scale) -> WOULD_NOT_PURSUE",
+        "ruleBasis": "stated by the reviewer at row 2, unprompted, and confirmed against the strength scale: \"he is a 9/10 in athletic ability, high budget, cares about playing high level\"",
+        "caveat": "35 of 42 rows were classified by a stated threshold rule rather than individually. Agreement figures for those rows compare two rules, not a model against a human judgement."
+      },
+      "amendments": {
+        "at": "2026-09-23T09:41:38.354Z",
+        "count": 1,
+        "basis": "reviewer amendment made during View A, before the model reveal"
+      },
+      "triage": {
+        "at": "2026-09-23T10:20:08.804Z",
+        "phase": "A7.7.9 Fixture A View B reveal + disagreement triage",
+        "decidedBy": "rhys.davies@cardaxia.ai",
+        "reviewedRows": 42,
+        "agreements": 23,
+        "disagreements": 19,
+        "modelBugCandidates": 0,
+        "modelScopeGapCandidates": 0,
+        "agreement": {
+          "tauB": -0.4346,
+          "pairwiseOrderingAgreement": 0.0942,
+          "disagreementRate": 0.4524,
+          "top25Agreement": 0,
+          "humanWouldNotPursueInTop100": 0.9259,
+          "limitedDataReadAsPoor": 0
+        },
+        "summary": "The two lists answer different questions. The reviewer ordered 42 programmes by how strong they are; Thriv3 ordered 858 by how attainable they are. Four of the reviewer's six pursues are suppressed by roster evidence rather than by their strength, and the other two - Furman 93 and Princeton 95 - are inside the actionable hundred. The level preference is the largest single preference effect in the model, moving individual programmes by up to 604 ranks, but it cannot reverse the recruitability tilt: only 2 of the level-first top 100 have strength at or above 80. The 15 top-25 rows are held as HUMAN_JUDGEMENT / OPEN PRODUCT QUESTION rather than as acceptable differences: no bug is demonstrated, and neither is the ranking established as correct.",
+        "modelChangeJustified": false,
+        "modelChangeReasoning": "No arithmetic is wrong, no evidence is misread, and the elite guard holds - Stanford 352, NC State 242, Maryland 490, Michigan 599, Ohio State 628 for a 96th-percentile athlete. What remains is an open product question about how much authority a stated competitive-level preference should carry against attainability, and it should be settled by designed counterfactuals rather than by tuning to a 42-row review that moved on one axis.",
+        "openProductQuestion": {
+          "rows": 15,
+          "label": "HUMAN_JUDGEMENT / OPEN PRODUCT QUESTION",
+          "question": "Pursuit Priority means \"how strongly should Thriv3 pursue this school for this athlete\", not \"which school is easiest for this athlete to be recruited by\". Recruitability is dominant evidence because a programme cannot be actionable without a realistic recruiting path. Once several programmes are realistically recruitable, the athlete's explicit preferences should materially determine which are pursued first. Where that transition should occur is not yet established.",
+          "note": "Recorded as HUMAN_JUDGEMENT rather than ACCEPTABLE_DIFFERENCE so the question stays open. ACCEPTABLE_DIFFERENCE would close it as taste on both sides, and the evidence does not support closing it.",
+          "nextTest": "A7.7.10 controlled counterfactual trade-off pairs."
+        }
+      },
+      "crossFixture": {
+        "question": "Does V2 change behaviour when the primary stated preference changes?",
+        "answer": "YES, and the level preference is the strongest of the three.",
+        "measuredOnFixtureA": {
+          "corr(strength, Opportunity)": {
+            "UNDECLARED": -0.022,
+            "LEVEL_5_PLAYING_1": 0.834,
+            "PLAYING_5_LEVEL_1": -0.002,
+            "BALANCED_3_3": 0.258,
+            "ACADEMIC_5": 0.29
+          },
+          "corr(strength, Pursuit)": {
+            "UNDECLARED": -0.532,
+            "LEVEL_5_PLAYING_1": -0.067,
+            "PLAYING_5_LEVEL_1": -0.537,
+            "BALANCED_3_3": -0.469,
+            "ACADEMIC_5": -0.446
+          },
+          "top100 D1 count": {
+            "UNDECLARED": 1,
+            "LEVEL_5_PLAYING_1": 10,
+            "PLAYING_5_LEVEL_1": 1,
+            "ACADEMIC_5": 1
+          },
+          "top100 strength ceiling": {
+            "UNDECLARED": 58.2,
+            "LEVEL_5_PLAYING_1": 83.6,
+            "PLAYING_5_LEVEL_1": 58.2,
+            "ACADEMIC_5": 58.2
+          }
+        },
+        "academicPriority5vs3": "Small and non-substitutable for level: +0.03 on corr(strength, Opportunity), 0 change to the top-100 D1 count. Academic preference does not act as a strength proxy.",
+        "competitivePriority5vs3": "Large: +0.58 on corr(strength, Opportunity) between BALANCED (3) and FULLY_DECLARED_LEVEL (5), and the only profile that raises the top-100 strength ceiling.",
+        "overwhelmsRecruitability": "NO, under either. Recruitability keeps its 0.5 weight and its gate under every profile, and no programme beyond the athlete's plausible range is promoted under any of them.",
+        "preservesRealism": "YES under both fixtures. Fixture C: 0 of 67 elite-on-both programmes in the top 100 for a rating-3 athlete. Fixture A: every programme above strength 89 ranks below 490 for a rating-9 athlete."
+      },
+      "instrumentFinding": {
+        "ruleAppliedShare": {
+          "C-ACADEMIC_FIRST": 0.442,
+          "A-FULLY_DECLARED_LEVEL": 0.857
+        },
+        "finding": "The ~40-row blind pack is increasingly eliciting a single human threshold rather than trade-off judgement. Fixture C produced one academic cut, Fixture A one strength cut, each stated within the first few rows and then applied mechanically. Rank correlation against such a review measures the distance between two one-dimensional rules, not whether the ordering is useful.",
+        "recommendation": "Switch to controlled counterfactual trade-off pairs before running another full pack. Do not redesign the pack format yet."
+      }
+    },
+    "rows": [
+      {
+        "reviewNo": 1,
+        "programmeId": "35fd6506-5b79-4d1a-8d06-050be692be74",
+        "programmeName": "George Mason",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:32:35.110Z",
+        "method": "RULE_CONFIRMED"
+      },
+      {
+        "reviewNo": 2,
+        "programmeId": "7042bb3b-b5f0-4bbb-95f4-9da47ad89ae6",
+        "programmeName": "Bridgeport",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 3,
+        "programmeId": "1017a37a-5725-4a25-a331-d09afc85d732",
+        "programmeName": "UC Riverside",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 4,
+        "programmeId": "20b80c24-fbe2-45ed-8d88-23cb70e6b4e4",
+        "programmeName": "Vermont",
+        "classification": "PURSUE_STRONGLY",
+        "reasonTags": [],
+        "notes": "amended during the blind review, before any model reveal: raised from PURSUE to PURSUE_STRONGLY",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "DATA_GAP",
+        "reviewedAt": "2026-09-23T09:38:36.401Z",
+        "method": "ROW_BY_ROW",
+        "priorClassification": "PURSUE",
+        "amendedAt": "2026-09-23T09:41:38.354Z",
+        "triageReason": "Suppressed because neither behavioural signal could supply support, not because the programme is strong. The departing midfielders Thriv3 could place were squad players, and the rest could not be placed at all, so positional opportunity adds nothing above the floor. Under R-C an unknown and a measured zero contribute identically, so this is an absence of evidence rather than a judgement of no demand. Acquirable data. 5 departing at midfield, 2 placed as squad, 3 unplaceable; positional PARTIAL at 0.000, market 0.675, R 0.214, rank 818.",
+        "triagedAt": "2026-09-23T09:55:12.586Z",
+        "modelRank": 818
+      },
+      {
+        "reviewNo": 5,
+        "programmeId": "0a70334b-1c8c-4043-bf01-9041c8b6674e",
+        "programmeName": "Southwestern (TX)",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 3,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 6,
+        "programmeId": "2d96402f-5107-4e9d-9ecc-c4559b82a36b",
+        "programmeName": "Carlow",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 7,
+        "programmeId": "4aff0303-7476-483a-9786-897a8be11b82",
+        "programmeName": "Bridgewater (VA)",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 8,
+        "programmeId": "8dc0c337-afc5-4fb1-afd9-df8cdb2dcf6d",
+        "programmeName": "Hiram",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 17,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 9,
+        "programmeId": "bce6de36-7593-4acb-b18c-1d15698f92e6",
+        "programmeName": "Maine Maritime",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 10,
+        "programmeId": "e26ab30e-23fe-4fe8-8a65-062335b7ca37",
+        "programmeName": "New Hampshire",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 11,
+        "programmeId": "b957b1b6-3387-4c92-8e33-03d3c89ffd25",
+        "programmeName": "Bard",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 21,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 12,
+        "programmeId": "edacb5e0-a580-423c-bd81-eec51220b77e",
+        "programmeName": "Indiana University Northwest",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 13,
+        "programmeId": "29cc94cb-890e-495d-9c57-7a27662f8271",
+        "programmeName": "Baker",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 14,
+        "programmeId": "7cb1f025-2cc4-431c-bf65-d61c05dc83a3",
+        "programmeName": "Saint Olaf",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 9,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 15,
+        "programmeId": "ed25b74d-2e07-4068-a066-934af1e51fe0",
+        "programmeName": "Lewis & Clark",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 16,
+        "programmeId": "64d5c0aa-b5a4-4c95-8e85-6ee9e331de9a",
+        "programmeName": "Case Western Reserve",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 5,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 17,
+        "programmeId": "7a2f5f11-6aa9-4b63-b52f-750f1136647b",
+        "programmeName": "Calvin",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 20,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 18,
+        "programmeId": "31b7b0ca-829d-4931-9348-473c31a9f36a",
+        "programmeName": "Furman",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:39:54.072Z",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 19,
+        "programmeId": "0a757568-0fd0-4fcc-b838-59b26ff1e2c7",
+        "programmeName": "Penn State",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "DATA_GAP",
+        "reviewedAt": "2026-09-23T09:40:15.409Z",
+        "method": "ROW_BY_ROW",
+        "triageReason": "Positional opportunity is UNSCOREABLE: all 4 departing midfielders were unplaceable, rule R-b fired, and recruitability was computed from the market arm alone at coverage 0.25. R 0.222, rank 855. Financial is separately reduced to 0.588 by the open-ended budget band (see INPUT_GAP on budgetCeilingUnstated).",
+        "triagedAt": "2026-09-23T09:55:12.586Z",
+        "modelRank": 855
+      },
+      {
+        "reviewNo": 20,
+        "programmeId": "197dc9c6-32b6-40c8-92ae-998543631a60",
+        "programmeName": "Hobart & William Smith",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 25,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 21,
+        "programmeId": "19465d98-cdee-4a2f-bc6d-030cc93b0136",
+        "programmeName": "Aurora",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 22,
+        "programmeId": "db4289ce-d577-43f5-9ea6-d28136cd402f",
+        "programmeName": "Williams",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 8,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 23,
+        "programmeId": "684f223f-3d4c-4ee9-afd9-a44b36c02c1a",
+        "programmeName": "Hawaii Pacific",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 2,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 24,
+        "programmeId": "8b7d39f9-ae50-4eed-b7f0-d0713f1df8ee",
+        "programmeName": "UC Irvine",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 25,
+        "programmeId": "5808fba7-2035-4a69-b439-7eaf8d735615",
+        "programmeName": "Millsaps",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 26,
+        "programmeId": "001de5ba-835d-4fc3-9f2d-61a58273feab",
+        "programmeName": "DePauw",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 1,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 27,
+        "programmeId": "435c3d97-49d5-4283-8072-c4d0c023d2a2",
+        "programmeName": "Loyola Marymount",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "DATA_GAP",
+        "reviewedAt": "2026-09-23T09:41:38.329Z",
+        "method": "ROW_BY_ROW",
+        "triageReason": "Suppressed because neither behavioural signal could supply support, not because the programme is strong. The departing midfielders Thriv3 could place were squad players, and the rest could not be placed at all, so positional opportunity adds nothing above the floor. Under R-C an unknown and a measured zero contribute identically, so this is an absence of evidence rather than a judgement of no demand. Acquirable data. 3 departing, 2 placed as squad, 1 unplaceable; positional PARTIAL at 0.000, R 0.241, rank 817. Its recruiting footprint is favourable - local programme, athlete 199km away, market 0.620 - which is what makes the roster evidence the whole of the suppression.",
+        "triagedAt": "2026-09-23T09:55:12.586Z",
+        "modelRank": 817
+      },
+      {
+        "reviewNo": 28,
+        "programmeId": "19b315d9-b207-450f-b093-36785162cb66",
+        "programmeName": "Tufts",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 4,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 29,
+        "programmeId": "3a09782f-7f07-462f-91bb-a12fa87aee58",
+        "programmeName": "Kenyon",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 30,
+        "programmeId": "ba11b962-cb5b-4709-b0bc-deffdf4ea2c2",
+        "programmeName": "Old Dominion",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 31,
+        "programmeId": "9662887a-797a-4a54-84d3-b5cfc2e065b8",
+        "programmeName": "Southern Virginia",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 16,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 32,
+        "programmeId": "4315ac1d-11d6-4491-b638-637fafd59539",
+        "programmeName": "Rutgers",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "DATA_GAP",
+        "reviewedAt": "2026-09-23T09:39:01.605Z",
+        "method": "ROW_BY_ROW",
+        "triageReason": "Suppressed because neither behavioural signal could supply support, not because the programme is strong. The departing midfielders Thriv3 could place were squad players, and the rest could not be placed at all, so positional opportunity adds nothing above the floor. Under R-C an unknown and a measured zero contribute identically, so this is an absence of evidence rather than a judgement of no demand. Acquirable data. 3 departing, 2 placed as squad, 1 unplaceable; positional PARTIAL at 0.000, R 0.188, rank 856. The recruiting footprint is separately adverse and correctly read: 25 of 29 placed recruits came from within 300km and the athlete is 3,945km away.",
+        "triagedAt": "2026-09-23T09:55:12.586Z",
+        "modelRank": 856
+      },
+      {
+        "reviewNo": 33,
+        "programmeId": "7957f1a6-db68-435d-afdf-542a51a3ebca",
+        "programmeName": "The Master's University",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 34,
+        "programmeId": "527ef283-39c5-47ac-aeb1-ed54de0bee0e",
+        "programmeName": "Whitman",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 10,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 35,
+        "programmeId": "195974a7-94c1-4240-aba6-e8b27bf6f91d",
+        "programmeName": "Goucher",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 36,
+        "programmeId": "19fb4f5c-96c6-4be4-8365-1f59e5674218",
+        "programmeName": "Keiser University",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 37,
+        "programmeId": "1e34f555-4aef-42a9-8b36-539c16e2f3aa",
+        "programmeName": "Princeton",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:40:47.389Z",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 38,
+        "programmeId": "78006bf5-e489-4405-9e9b-8bf8a5d7bfce",
+        "programmeName": "Kansas City",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 39,
+        "programmeId": "0296fc51-8fe4-4088-bb74-537ddf4801b1",
+        "programmeName": "Elizabethtown",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 40,
+        "programmeId": "57b522c9-faa2-438f-80f3-a4d115f801c4",
+        "programmeName": "Fredonia State",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 7,
+        "openProductQuestion": true
+      },
+      {
+        "reviewNo": 41,
+        "programmeId": "4d083bc1-c7b8-4eb8-8850-af3e6ac03094",
+        "programmeName": "West Liberty",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 42,
+        "programmeId": "5cbcb293-d03e-4e94-8842-f3f685056e77",
+        "programmeName": "Emmanuel (MA)",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE",
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 6,
+        "openProductQuestion": true
+      }
+    ]
+  }
+}

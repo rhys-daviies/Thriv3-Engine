@@ -1,0 +1,321 @@
+{
+ "horizon": {
+  "mens-soccer": {
+   "2027": {
+    "before": {
+     "cells": 4636,
+     "scoreable": 3520,
+     "measuredPct": 6.4,
+     "partialPct": 93.6,
+     "rotationOnlyPct": 1.5,
+     "bothPct": 98.5,
+     "atMaxCompetitionPct": 2.6,
+     "p10": 0.3119,
+     "p50": 0.4885,
+     "p90": 0.6571,
+     "interdecileRange": 0.3452
+    },
+    "after": {
+     "cells": 4636,
+     "scoreable": 3520,
+     "measuredPct": 5.7,
+     "partialPct": 94.3,
+     "rotationOnlyPct": 2.5,
+     "bothPct": 97.5,
+     "atMaxCompetitionPct": 1.5,
+     "p10": 0.3093,
+     "p50": 0.4869,
+     "p90": 0.6511,
+     "interdecileRange": 0.3418
+    }
+   },
+   "2028": {
+    "before": {
+     "cells": 4636,
+     "scoreable": 3520,
+     "measuredPct": 9.2,
+     "partialPct": 90.8,
+     "rotationOnlyPct": 1.5,
+     "bothPct": 98.5,
+     "atMaxCompetitionPct": 10.8,
+     "p10": 0.3749,
+     "p50": 0.5719,
+     "p90": 0.7719,
+     "interdecileRange": 0.397
+    },
+    "after": {
+     "cells": 4636,
+     "scoreable": 3520,
+     "measuredPct": 0.0,
+     "partialPct": 100.0,
+     "rotationOnlyPct": 2.6,
+     "bothPct": 97.4,
+     "atMaxCompetitionPct": 9.7,
+     "p10": 0.3694,
+     "p50": 0.5673,
+     "p90": 0.7645,
+     "interdecileRange": 0.3951
+    }
+   },
+   "2029": {
+    "before": {
+     "cells": 4636,
+     "scoreable": 3520,
+     "measuredPct": 34.0,
+     "partialPct": 66.0,
+     "rotationOnlyPct": 1.5,
+     "bothPct": 98.5,
+     "atMaxCompetitionPct": 59.9,
+     "p10": 0.477,
+     "p50": 0.7519,
+     "p90": 0.8762,
+     "interdecileRange": 0.3992
+    },
+    "after": {
+     "cells": 4636,
+     "scoreable": 3520,
+     "measuredPct": 0.0,
+     "partialPct": 100.0,
+     "rotationOnlyPct": 54.1,
+     "bothPct": 45.9,
+     "atMaxCompetitionPct": 7.3,
+     "p10": 0.3598,
+     "p50": 0.5376,
+     "p90": 0.8059,
+     "interdecileRange": 0.4461
+    }
+   },
+   "2030": {
+    "before": {
+     "cells": 4636,
+     "scoreable": 3520,
+     "measuredPct": 69.4,
+     "partialPct": 30.6,
+     "rotationOnlyPct": 1.5,
+     "bothPct": 98.5,
+     "atMaxCompetitionPct": 98.5,
+     "p10": 0.6667,
+     "p50": 0.7749,
+     "p90": 0.9157,
+     "interdecileRange": 0.249
+    },
+    "after": {
+     "cells": 4636,
+     "scoreable": 3520,
+     "measuredPct": 0.0,
+     "partialPct": 100.0,
+     "rotationOnlyPct": 100.0,
+     "bothPct": 0.0,
+     "atMaxCompetitionPct": 0.0,
+     "p10": 0.1879,
+     "p50": 0.4374,
+     "p90": 0.7905,
+     "interdecileRange": 0.6026
+    }
+   }
+  },
+  "womens-soccer": {
+   "2027": {
+    "before": {
+     "cells": 4960,
+     "scoreable": 4716,
+     "measuredPct": 8.4,
+     "partialPct": 91.6,
+     "rotationOnlyPct": 1.5,
+     "bothPct": 98.5,
+     "atMaxCompetitionPct": 3.7,
+     "p10": 0.3124,
+     "p50": 0.4903,
+     "p90": 0.689,
+     "interdecileRange": 0.3766
+    },
+    "after": {
+     "cells": 4960,
+     "scoreable": 4716,
+     "measuredPct": 7.9,
+     "partialPct": 92.1,
+     "rotationOnlyPct": 2.4,
+     "bothPct": 97.6,
+     "atMaxCompetitionPct": 2.9,
+     "p10": 0.3116,
+     "p50": 0.4889,
+     "p90": 0.6822,
+     "interdecileRange": 0.3706
+    }
+   },
+   "2028": {
+    "before": {
+     "cells": 4960,
+     "scoreable": 4716,
+     "measuredPct": 10.8,
+     "partialPct": 89.2,
+     "rotationOnlyPct": 1.5,
+     "bothPct": 98.5,
+     "atMaxCompetitionPct": 11.8,
+     "p10": 0.3753,
+     "p50": 0.5725,
+     "p90": 0.7946,
+     "interdecileRange": 0.4193
+    },
+    "after": {
+     "cells": 4960,
+     "scoreable": 4716,
+     "measuredPct": 0.0,
+     "partialPct": 100.0,
+     "rotationOnlyPct": 2.4,
+     "bothPct": 97.6,
+     "atMaxCompetitionPct": 10.9,
+     "p10": 0.3745,
+     "p50": 0.5692,
+     "p90": 0.789,
+     "interdecileRange": 0.4145
+    }
+   },
+   "2029": {
+    "before": {
+     "cells": 4960,
+     "scoreable": 4716,
+     "measuredPct": 33.4,
+     "partialPct": 66.6,
+     "rotationOnlyPct": 1.5,
+     "bothPct": 98.5,
+     "atMaxCompetitionPct": 56.4,
+     "p10": 0.4693,
+     "p50": 0.7453,
+     "p90": 0.8745,
+     "interdecileRange": 0.4052
+    },
+    "after": {
+     "cells": 4960,
+     "scoreable": 4716,
+     "measuredPct": 0.0,
+     "partialPct": 100.0,
+     "rotationOnlyPct": 49.7,
+     "bothPct": 50.3,
+     "atMaxCompetitionPct": 8.2,
+     "p10": 0.3914,
+     "p50": 0.5903,
+     "p90": 0.7953,
+     "interdecileRange": 0.4039
+    }
+   },
+   "2030": {
+    "before": {
+     "cells": 4960,
+     "scoreable": 4716,
+     "measuredPct": 72.0,
+     "partialPct": 28.0,
+     "rotationOnlyPct": 1.5,
+     "bothPct": 98.5,
+     "atMaxCompetitionPct": 98.5,
+     "p10": 0.6621,
+     "p50": 0.8039,
+     "p90": 0.9055,
+     "interdecileRange": 0.2434
+    },
+    "after": {
+     "cells": 4960,
+     "scoreable": 4716,
+     "measuredPct": 0.0,
+     "partialPct": 100.0,
+     "rotationOnlyPct": 100.0,
+     "bothPct": 0.0,
+     "atMaxCompetitionPct": 0.0,
+     "p10": 0.1703,
+     "p50": 0.5145,
+     "p90": 0.7653,
+     "interdecileRange": 0.595
+    }
+   }
+  }
+ },
+ "matched": {
+  "mens-soccer": {
+   "before": {
+    "strata": 26,
+    "wins": 26,
+    "losses": 0,
+    "ties": 0,
+    "winRate": 100.0,
+    "medianDelta": 0.233
+   },
+   "after": {
+    "strata": 26,
+    "wins": 4,
+    "losses": 22,
+    "ties": 0,
+    "winRate": 15.4,
+    "medianDelta": -0.096
+   },
+   "predictedFromRenormalisation": -0.098
+  },
+  "womens-soccer": {
+   "before": {
+    "strata": 28,
+    "wins": 28,
+    "losses": 0,
+    "ties": 0,
+    "winRate": 100.0,
+    "medianDelta": 0.234
+   },
+   "after": {
+    "strata": 28,
+    "wins": 4,
+    "losses": 24,
+    "ties": 0,
+    "winRate": 14.3,
+    "medianDelta": -0.084
+   },
+   "predictedFromRenormalisation": -0.051
+  }
+ },
+ "note": "A7.37 before/after on identical data. \"before\" withholds exactly the inputs A7.37 added.",
+ "saintJosephsME_FORWARD": {
+  "before": {
+   "competition": 1.0,
+   "competitionGrade": "MEASURED",
+   "pathway": 0.9998,
+   "pathwayGrade": "MEASURED",
+   "coverage": 1.0
+  },
+  "after": {
+   "competition": null,
+   "competitionGrade": "UNSCOREABLE",
+   "competitionReason": "NO_CLASS_LABELS",
+   "pathway": 0.9995,
+   "pathwayGrade": "PARTIAL",
+   "coverage": 0.4,
+   "rotationOnly": true
+  },
+  "positionRows": 10,
+  "unreadable": 10
+ },
+ "athleteCases": {
+  "V3-B": {
+   "churn": 0
+  },
+  "V3-C": {
+   "churn": 0
+  },
+  "V3-D": {
+   "churn": 1
+  },
+  "W3-B": {
+   "churn": 0
+  },
+  "W3-C": {
+   "churn": 0
+  },
+  "W3-D": {
+   "churn": 0
+  },
+  "note": "top-100 churn, control lists, entry 2028; classifications unchanged in every case"
+ },
+ "parity": {
+  "v1SnapshotDriftIdenticalWithRepairStashed": true,
+  "v1DriftCause": "shared database: poolSize 1166 -> 1159",
+  "snapshotPiDifferences": 0,
+  "a728ShadowProgrammeVerdictsChanged": 0,
+  "a728ShadowPairsCompared": 5586
+ }
+}

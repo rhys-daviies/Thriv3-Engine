@@ -28,6 +28,8 @@ import { athleteProgrammesRouter } from './routes/athleteProgrammes.js';
 import { programmeCoachesRouter } from './routes/programmeCoaches.js';
 import { manualOutreachRouter } from './routes/manualOutreach.js';
 import { contactIntelligenceRouter } from './routes/contactIntelligence.js';
+import { matchmakingRouter } from './routes/matchmaking.js';
+import { observationsRouter } from './routes/observations.js';
 import { OUTREACH_ORIGIN } from '../shared/outreachOrigin.js';
 import { rosterGapsRouter } from './routes/rosterGaps.js';
 import { rosterSeasonTrustRouter } from './routes/rosterSeasonTrust.js';
@@ -237,17 +239,29 @@ function refuseManagedEntityWrite(req, res, next) {
   return next();
 }
 
-app.post('/api/entities/:table', refuseManagedEntityWrite, (req, res) => {
-  const entity = ENTITIES[req.params.table];
-  if (!entity) return res.status(404).json({ error: 'Unknown entity' });
-  res.json(entity.create(req.body));
-});
+/**
+ * An entity may refuse a write whose fields contradict each other - see
+ * `checkContribution` in db/entities/player.js. That is a bad request, not a
+ * server fault, and it must say which pair was wrong rather than 500 with a
+ * stack trace.
+ */
+function writing(run) {
+  return (req, res) => {
+    const entity = ENTITIES[req.params.table];
+    if (!entity) return res.status(404).json({ error: 'Unknown entity' });
+    try {
+      return res.json(run(entity, req));
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+  };
+}
 
-app.put('/api/entities/:table/:id', refuseManagedEntityWrite, (req, res) => {
-  const entity = ENTITIES[req.params.table];
-  if (!entity) return res.status(404).json({ error: 'Unknown entity' });
-  res.json(entity.update(req.params.id, req.body));
-});
+// Both guards apply: the managed-table refusal runs first (a refused write never reaches an entity),
+// then writing() turns an entity's contradictory-field refusal into a 400 rather than a 500.
+app.post('/api/entities/:table', refuseManagedEntityWrite, writing((entity, req) => entity.create(req.body)));
+
+app.put('/api/entities/:table/:id', refuseManagedEntityWrite, writing((entity, req) => entity.update(req.params.id, req.body)));
 
 // Players are archived, never hard-deleted — see blockPlayerHardDelete.
 app.delete('/api/entities/:table/:id', blockPlayerHardDelete, refuseManagedEntityWrite, (req, res) => {
@@ -609,6 +623,20 @@ app.use('/api', manualOutreachRouter);
 // screen. Read-only: there is no sibling that writes, and nothing here marks a
 // programme contacted.
 app.use('/api', contactIntelligenceRouter);
+
+// ---- Matchmaking V2 ----
+//
+// READ-ONLY and ADDITIVE. V1 still serves every recommendation the product
+// shows: `playerAnalysis.js` runs in the browser, writes
+// `players.recommendations`, and nothing here touches it. This route computes
+// the accepted V2 result and returns it, so the backend boundary can be proven
+// before A9.2 gives results durable versioned storage.
+//
+// Absent from ENTITIES for the reason campaigns gives: that registry is
+// unvalidated pass-through CRUD, and a matchmaking result is computed from a
+// frozen engine rather than described by a request.
+app.use('/api', matchmakingRouter);
+app.use('/api', observationsRouter);
 // ---- NCAA roster-gap review ----
 //
 // Purpose-built for the same reason as campaignsRouter: `roster_gap_reviews`

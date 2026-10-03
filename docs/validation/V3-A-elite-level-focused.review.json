@@ -1,0 +1,344 @@
+{
+  "formatVersion": "thriv3-v3-outreach-review/1",
+  "packId": "V3-A-elite-level-focused",
+  "meta": {
+    "packId": "V3-A-elite-level-focused",
+    "reviewer": "INDEPENDENT LLM EVALUATOR (ChatGPT), acting as a blind consultant. NOT the human consultant baseline.",
+    "reviewerKind": "LLM",
+    "humanBaseline": false,
+    "startedAt": null,
+    "completedAt": null,
+    "modelRevealed": false,
+    "viewADigest": "ae3c26580e46505a",
+    "athleteDigest": "006a6990b9b677fe",
+    "poolDigest": "86b911af2515ab10",
+    "sampleDigest": "c1132a2166920eba",
+    "athleteAnswers": {
+      "strongerProgrammes": "ABOUT RIGHT",
+      "tooManyBelow": "YES",
+      "changeFirst": "Increase the density of programmes around approximately 75-88 programme strength, retain a controlled number of 88-94 realistic reaches, and reduce the large tail of materially weaker programmes. For an athlete with competitive-level priority 5 and playing-opportunity priority 1, future positional opportunity should not overpower a major competitive-level gap."
+    }
+  },
+  "rows": [
+    {
+      "reviewNo": 1,
+      "programmeName": "Mount Union",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 2,
+      "programmeName": "Kansas City",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 3,
+      "programmeName": "St. Joseph's (NY)",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 4,
+      "programmeName": "Oglethorpe",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 5,
+      "programmeName": "VCU",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 6,
+      "programmeName": "Saint Olaf",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 7,
+      "programmeName": "Iona",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 8,
+      "programmeName": "Georgetown",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 9,
+      "programmeName": "Lincoln Trail",
+      "classification": "INSUFFICIENT_INFORMATION",
+      "first100": "UNSURE",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 10,
+      "programmeName": "Shawnee State",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 11,
+      "programmeName": "Boston College",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 12,
+      "programmeName": "Lower Columbia",
+      "classification": "INSUFFICIENT_INFORMATION",
+      "first100": "UNSURE",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 13,
+      "programmeName": "UAB",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 14,
+      "programmeName": "Lafayette",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 15,
+      "programmeName": "Penn State",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 16,
+      "programmeName": "Kean",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 17,
+      "programmeName": "Cal State Monterey Bay",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 18,
+      "programmeName": "Lynn",
+      "classification": "BORDERLINE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 19,
+      "programmeName": "Barton",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 20,
+      "programmeName": "DePauw",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 21,
+      "programmeName": "Rutgers",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 22,
+      "programmeName": "Hawaii Pacific",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 23,
+      "programmeName": "Colorado College",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 24,
+      "programmeName": "Baker",
+      "classification": "INSUFFICIENT_INFORMATION",
+      "first100": "UNSURE",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 25,
+      "programmeName": "LSU Alexandria",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 26,
+      "programmeName": "Flagler",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 27,
+      "programmeName": "Williams",
+      "classification": "BORDERLINE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 28,
+      "programmeName": "Luther",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 29,
+      "programmeName": "UC Irvine",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 30,
+      "programmeName": "Southwestern (TX)",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 31,
+      "programmeName": "Furman",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 32,
+      "programmeName": "Marquette",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 33,
+      "programmeName": "North Carolina",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 34,
+      "programmeName": "Colby",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 35,
+      "programmeName": "West Virginia",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 36,
+      "programmeName": "Green Bay",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 37,
+      "programmeName": "Loyola Marymount",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 38,
+      "programmeName": "Lenoir-Rhyne",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 39,
+      "programmeName": "Southern New Hampshire",
+      "classification": "BORDERLINE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 40,
+      "programmeName": "Case Western Reserve",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    }
+  ]
+}
