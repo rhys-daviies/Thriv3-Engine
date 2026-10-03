@@ -29,6 +29,7 @@ import { programmeCoachesRouter } from './routes/programmeCoaches.js';
 import { manualOutreachRouter } from './routes/manualOutreach.js';
 import { contactIntelligenceRouter } from './routes/contactIntelligence.js';
 import { matchmakingRouter } from './routes/matchmaking.js';
+import { observationsRouter } from './routes/observations.js';
 import { OUTREACH_ORIGIN } from '../shared/outreachOrigin.js';
 import { rosterGapsRouter } from './routes/rosterGaps.js';
 import { rosterSeasonTrustRouter } from './routes/rosterSeasonTrust.js';
@@ -605,6 +606,7 @@ app.use('/api', contactIntelligenceRouter);
 // unvalidated pass-through CRUD, and a matchmaking result is computed from a
 // frozen engine rather than described by a request.
 app.use('/api', matchmakingRouter);
+app.use('/api', observationsRouter);
 // ---- NCAA roster-gap review ----
 //
 // Purpose-built for the same reason as campaignsRouter: `roster_gap_reviews`
