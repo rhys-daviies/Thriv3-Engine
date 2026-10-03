@@ -49,6 +49,8 @@ const ARTIFACTS = override
   : [
     ['A8.0 baseline', path.join(root, 'docs/validation/A8.0-baseline.json')],
     ['A8.0B extension', path.join(root, 'docs/validation/A8.0B-extension.json')],
+    /** A8.3. The acceptance candidate answers to the same sixteen checks. */
+    ['A8.3 acceptance', path.join(root, 'docs/validation/A8.3-acceptance.json')],
   ];
 
 const LAYERS = ['recruitability', 'financial', 'opportunity'];

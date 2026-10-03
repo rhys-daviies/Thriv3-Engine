@@ -220,7 +220,9 @@ export function authoritySummary(rows, athlete) {
 
 function main() {
   const section = process.argv.slice(2).find((a) => a.startsWith('--section='))?.split('=')[1] ?? 'all';
-  const base = read('docs/validation/A8.0-baseline.json');
+  const file = process.argv.slice(2).find((a) => a.startsWith('--file='))?.split('=')[1]
+    ?? 'docs/validation/A8.0-baseline.json';
+  const base = read(file);
   const rows = byFixture(base);
   const show = (s) => section === 'all' || section === s;
 
