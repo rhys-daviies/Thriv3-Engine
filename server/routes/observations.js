@@ -9,6 +9,7 @@ import {
 } from '../lib/v2/recruitingObservations.js';
 import { KIND_ATTRIBUTES } from '../../shared/recruitingObservations.js';
 import { sendProvenance } from '../lib/v2/outreachProvenance.js';
+import { recordReply, classifyReply, replyChain } from '../lib/v2/replyIntake.js';
 
 /**
  * THE OBSERVATION API — A9.6 §N.
@@ -56,6 +57,16 @@ const STATUS_BY_CODE = Object.freeze({
 
   OBSERVATION_SUBJECT_REQUIRED: 400,
   PROGRAMME_REQUIRED: 400,
+
+  /* ---- A9.7 §H / §I: replies -------------------------------------------- */
+  /**
+   * 422, not 400. The request is well formed and names a real message; what it
+   * asks for is not allowed to be TRUE — there is no reply to classify, or the
+   * kind named is about the athlete rather than the coach.
+   */
+  NO_REPLY_RECORDED: 422,
+  NOT_A_REPLY_CLASSIFICATION: 422,
+  SEND_PROGRAMME_UNKNOWN: 422,
 });
 
 function handle(label, fn) {
@@ -194,6 +205,59 @@ observationsRouter.get('/programmes/intelligence', handle('observations:intellig
     },
   };
 }));
+
+/**
+ * Record that a reply arrived — A9.7 §H.
+ *
+ * NOTHING INGESTS REPLIES IN THIS BUILD. There is no IMAP reader, no Gmail
+ * watch and no inbound webhook, and `contactIntelligence.js` has said so since
+ * it was written. This is the operator asserting it, which is the only honest
+ * producer available, and it classifies nothing.
+ */
+observationsRouter.post('/sends/:sendId/reply', handle('observations:reply', (req) => ({
+  status: 201,
+  body: recordReply(db, {
+    sendId: req.params.sendId,
+    observedAt: req.body?.observedAt ?? null,
+    note: req.body?.note ?? null,
+  }),
+})));
+
+/**
+ * Record what a reply MEANT — A9.7 §I.
+ *
+ * The caller names a KIND and nothing else about the subject: the athlete, the
+ * programme, the coach and the selection are read from the message. There is
+ * no parameter with which to misfile a classification against the wrong
+ * programme.
+ */
+observationsRouter.post('/sends/:sendId/classification', handle('observations:classify', (req) => {
+  const b = req.body ?? {};
+  return {
+    status: 201,
+    body: classifyReply(db, {
+      sendId: req.params.sendId,
+      kind: b.kind,
+      attributes: b.attributes ?? null,
+      note: b.note ?? null,
+      classifierMethod: b.classifierMethod ?? undefined,
+      classifierVersion: b.classifierVersion ?? null,
+      confidence: b.confidence ?? null,
+      observedAt: b.observedAt ?? null,
+      /**
+       * Explicit, never defaulted true by a caller omitting it. The default
+       * REQUIRES a recorded reply; passing false is a caller stating that this
+       * came from a telephone call, which is the one honest exception.
+       */
+      requireReply: b.fromCall === true ? false : undefined,
+    }),
+  };
+}));
+
+/** reply -> send -> selection -> programme -> run, for one message. */
+observationsRouter.get('/sends/:sendId/reply-chain', handle('observations:reply-chain', (req) => ({
+  body: replyChain(db, req.params.sendId),
+})));
 
 /** The provenance chain behind one message, or the honest absence of one. */
 observationsRouter.get('/sends/:sendId/provenance', handle('observations:provenance', (req) => ({
