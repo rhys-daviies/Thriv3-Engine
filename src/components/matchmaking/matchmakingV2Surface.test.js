@@ -153,9 +153,19 @@ describe('Matchmaking V2 — results surface', () => {
     mount(createElement(MatchmakingPreferences, { player: PLAYER }));
     expect(find('[data-testid="major-preference"]').textContent)
       .toBe('Major preference: Exercise Science');
-    /** Read-only in A9.3: no removal affordance that would do nothing. */
+    /**
+     * Still no inline editor on this chip — A9.4 adds the ROUTE to where these
+     * are properly asked, not a second place to answer them. The chip itself
+     * carries no control that could half-apply a change.
+     */
     expect(find('[data-testid="major-preference"] button')).toBeNull();
-    expect(text()).toContain('Change them in Edit Profile');
+
+    /** §H: one route out, carrying the return so a save comes back here. */
+    const edit = [...container.querySelectorAll('a')].find((a) => a.textContent.includes('Edit inputs'));
+    expect(edit.getAttribute('href')).toBe('/player/player-1/edit?return=matching');
+
+    /** §M stated in the open: saving does not re-rank. */
+    expect(text()).toContain('does not re-rank on its own');
   });
 
   it('S11. no absent-major wording can render, from any of the three states', () => {

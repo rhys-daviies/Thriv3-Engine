@@ -218,7 +218,8 @@ describe('Matchmaking V2 — persisted-first flow', () => {
 
     /** A route to where the question is actually answered. */
     const cta = blocked.querySelector('a');
-    expect(cta.getAttribute('href')).toBe('/player/player-1/edit');
+    /** §H: and it carries the return, so the save comes back to this screen. */
+    expect(cta.getAttribute('href')).toBe('/player/player-1/edit?return=matching');
   });
 
   it('F9. a 409 on REFRESH does not destroy the run already on screen', async () => {

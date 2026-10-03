@@ -8,6 +8,7 @@ import {
 const {
   runView, programmeView, layerView, scopeProgrammes, scoreOutOf100, stalenessView,
   majorPreference, bandPresentation, statusPresentation, SCOPE, FORBIDDEN_MAJOR_PHRASES,
+  RUN_INPUT_FIELDS, changedSinceRun,
 } = view;
 
 describe('V2 view model', () => {
@@ -233,8 +234,81 @@ describe('V2 view model', () => {
     expect(run.engineFreeze).toBeUndefined();
     expect(run.corpusDigest).toBeUndefined();
     expect(run.resultSchemaVersion).toBeUndefined();
-    /** And nothing person-level rides along either — §24. */
     expect(run.inputSnapshot).toBeUndefined();
+
+    /**
+     * A9.4 NARROWED THIS RATHER THAN RELAXING IT.
+     *
+     * A9.3 carried no part of the snapshot, so "no snapshot" was the whole
+     * assertion. §O needs six named preference fields to mark what changed
+     * since a ranking, so the check now names the fields that must STILL
+     * never reach a surface — which bites on a field being added, where
+     * `toBeUndefined()` on the container would not.
+     */
+    const run2 = runView(persistedRun({
+      inputSnapshot: {
+        intended_major: 'exercise science',
+        competitive_level_priority: 4,
+        gpa: 3.9,
+        sat_score: 1450,
+        act_score: 33,
+        state: 'CA',
+        nationality: 'USA',
+        origin: 'USA',
+        football_ability: 9,
+      },
+    }));
+    expect(Object.keys(run2.inputs).sort()).toEqual([...RUN_INPUT_FIELDS].sort());
+    for (const excluded of ['gpa', 'sat_score', 'act_score', 'state', 'nationality', 'origin', 'football_ability']) {
+      expect(run2.inputs, excluded).not.toHaveProperty(excluded);
+    }
+    const serialised2 = JSON.stringify(run2);
+    for (const value of ['3.9', '1450', '"CA"', '"USA"']) {
+      expect(serialised2, value).not.toContain(value);
+    }
+  });
+
+  it('V18. `inputs` says what the run was computed from, and what has moved since', () => {
+    const run = runView(persistedRun({
+      inputSnapshot: {
+        intended_major: 'exercise science',
+        competitive_level_priority: 4,
+        playing_opportunity_priority: 5,
+        academic_strength_priority: null,
+        contribution_state: 'STATED',
+        max_annual_contribution_usd: 25000,
+      },
+    }));
+    expect(run.inputs.intended_major).toBe('exercise science');
+    expect(run.inputs.academic_strength_priority).toBeNull();
+
+    const unchanged = changedSinceRun({
+      intended_major: 'exercise science',
+      competitive_level_priority: 4,
+      playing_opportunity_priority: 5,
+      academic_strength_priority: null,
+      contribution_state: 'STATED',
+      max_annual_contribution_usd: 25000,
+    }, run.inputs);
+    expect([...unchanged]).toEqual([]);
+
+    /** Answering a previously unanswered priority is a change. */
+    const moved = changedSinceRun({
+      intended_major: 'exercise science',
+      competitive_level_priority: 4,
+      playing_opportunity_priority: 5,
+      academic_strength_priority: 5,
+      contribution_state: 'STATED',
+      max_annual_contribution_usd: 25000,
+    }, run.inputs);
+    expect([...moved]).toEqual(['academic_strength_priority']);
+
+    /** Compared RAW, so a case change counts — exactly as `inputDigest` does. */
+    expect([...changedSinceRun({ intended_major: 'Exercise Science' }, run.inputs)])
+      .toContain('intended_major');
+
+    /** A run with no snapshot marks nothing, rather than marking everything. */
+    expect([...changedSinceRun({ intended_major: 'anything' }, null)]).toEqual([]);
   });
 
   it('V17. counts come from the run record, not from recounting the array', () => {
