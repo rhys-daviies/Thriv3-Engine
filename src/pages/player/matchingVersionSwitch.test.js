@@ -152,10 +152,16 @@ describe('Matching engine switch', () => {
     expect(toV2.getAttribute('href')).toContain('matching=v2');
   });
 
-  it('T7b. the V2 screen keeps a route to Specific Schools, which A9.3 does not rebuild', async () => {
+  it('T7b. the V2 screen keeps a route to the V1 relationship workflow', async () => {
+    /**
+     * A9.5 moved SEARCH onto the persisted run, so this link is no longer
+     * about finding a school. What is still only on the V1 tab is the
+     * relationship work around a requested one — flag, note, contact stance,
+     * manual outreach — and the route to it stays.
+     */
     await mountAt('/player/player-1/matching');
     const toV1 = [...container.querySelectorAll('a')]
-      .find((a) => a.textContent.includes('Specific Schools'));
+      .find((a) => a.textContent.includes('Requested schools'));
     expect(toV1.getAttribute('href')).toContain('matching=v1');
   });
 
