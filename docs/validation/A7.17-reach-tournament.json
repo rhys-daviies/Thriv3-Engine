@@ -1,0 +1,1475 @@
+{
+ "note": "A7.17 reach tournament. Sandbox, on top of Candidate G. No production scorer modified. HEADLINE: the preregistered conditions did NOT discriminate - 9 of 10 candidates pass, including two deliberately bad controls. The reach bands AMBITIOUS and EXTREME are empty for every elite profile, because a rating-9 athlete sits at the 96th percentile and the maximum possible reach is 4.0 percentile points.",
+ "candidates": {
+  "G": {
+   "A": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 81,
+     "REALISTIC": 19,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 109,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.33,
+     "maxStrengthDelta": 11.73,
+     "medianR": 0.6201,
+     "medianF": 1,
+     "medianO": 0.7732
+    },
+    "reachBandASpan": 0.3095
+   },
+   "B": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 94,
+     "REALISTIC": 6,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 449,
+     "REALISTIC": 161,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.11,
+     "nearOrAbove": 0.16,
+     "maxStrengthDelta": 2.51,
+     "medianR": 0.6517,
+     "medianF": 1,
+     "medianO": 0.7069
+    },
+    "reachBandASpan": 0.3095
+   },
+   "F": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 95,
+     "REALISTIC": 5,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 420,
+     "REALISTIC": 649,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.47,
+     "nearOrAbove": 0.11,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6868,
+     "medianF": 0.5159,
+     "medianO": 0.6636
+    },
+    "reachBandASpan": 0.3095
+   },
+   "D": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 26,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 44,
+     "REALISTIC": 102,
+     "AMBITIOUS": 163,
+     "EXTREME": 528
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 54,
+     "AMBITIOUS": 69,
+     "EXTREME": 661
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.71,
+     "maxStrengthDelta": 2.39,
+     "medianR": 0.571,
+     "medianF": 1,
+     "medianO": 0.7187
+    },
+    "reachBandASpan": 0.4444
+   },
+   "PF": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 99,
+     "REALISTIC": 1,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 412,
+     "REALISTIC": 736,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.77,
+     "nearOrAbove": 0.01,
+     "maxStrengthDelta": 0.02,
+     "medianR": 0.7846,
+     "medianF": 1,
+     "medianO": 0.7319
+    },
+    "reachBandASpan": 0.3095
+   }
+  },
+  "R-A": {
+   "A": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 26,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 86,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.4,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6153,
+     "medianF": 1,
+     "medianO": 0.7788
+    },
+    "reachBandASpan": 0.1739
+   },
+   "B": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 86,
+     "REALISTIC": 14,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 450,
+     "REALISTIC": 120,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.09,
+     "nearOrAbove": 0.24,
+     "maxStrengthDelta": 12.13,
+     "medianR": 0.6482,
+     "medianF": 1,
+     "medianO": 0.709
+    },
+    "reachBandASpan": 0.1739
+   },
+   "F": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 95,
+     "REALISTIC": 5,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 423,
+     "REALISTIC": 613,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.47,
+     "nearOrAbove": 0.11,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6868,
+     "medianF": 0.5159,
+     "medianO": 0.6636
+    },
+    "reachBandASpan": 0.1739
+   },
+   "D": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 69,
+     "REALISTIC": 31,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 45,
+     "REALISTIC": 96,
+     "AMBITIOUS": 163,
+     "EXTREME": 528
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 54,
+     "AMBITIOUS": 69,
+     "EXTREME": 661
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.75,
+     "maxStrengthDelta": 2.69,
+     "medianR": 0.571,
+     "medianF": 1,
+     "medianO": 0.7313
+    },
+    "reachBandASpan": 0.2715
+   },
+   "PF": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 99,
+     "REALISTIC": 1,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 413,
+     "REALISTIC": 623,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.77,
+     "nearOrAbove": 0.01,
+     "maxStrengthDelta": 0.02,
+     "medianR": 0.7846,
+     "medianF": 1,
+     "medianO": 0.7319
+    },
+    "reachBandASpan": 0.1739
+   }
+  },
+  "R-B": {
+   "A": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 77,
+     "REALISTIC": 23,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 96,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.37,
+     "maxStrengthDelta": 12.13,
+     "medianR": 0.6171,
+     "medianF": 1,
+     "medianO": 0.7789
+    },
+    "reachBandASpan": 0.2321
+   },
+   "B": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 90,
+     "REALISTIC": 10,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 450,
+     "REALISTIC": 140,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.1,
+     "nearOrAbove": 0.2,
+     "maxStrengthDelta": 11.73,
+     "medianR": 0.6514,
+     "medianF": 1,
+     "medianO": 0.707
+    },
+    "reachBandASpan": 0.2321
+   },
+   "F": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 95,
+     "REALISTIC": 5,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 423,
+     "REALISTIC": 633,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.47,
+     "nearOrAbove": 0.11,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6868,
+     "medianF": 0.5159,
+     "medianO": 0.6636
+    },
+    "reachBandASpan": 0.2321
+   },
+   "D": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 72,
+     "REALISTIC": 28,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 44,
+     "REALISTIC": 100,
+     "AMBITIOUS": 163,
+     "EXTREME": 528
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 54,
+     "AMBITIOUS": 69,
+     "EXTREME": 661
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.72,
+     "maxStrengthDelta": 2.66,
+     "medianR": 0.5753,
+     "medianF": 1,
+     "medianO": 0.7198
+    },
+    "reachBandASpan": 0.3333
+   },
+   "PF": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 99,
+     "REALISTIC": 1,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 412,
+     "REALISTIC": 665,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.77,
+     "nearOrAbove": 0.01,
+     "maxStrengthDelta": 0.02,
+     "medianR": 0.7846,
+     "medianF": 1,
+     "medianO": 0.7319
+    },
+    "reachBandASpan": 0.2321
+   }
+  },
+  "R-C": {
+   "A": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 70,
+     "REALISTIC": 30,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 83,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.44,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6069,
+     "medianF": 1,
+     "medianO": 0.7801
+    },
+    "reachBandASpan": 0.1425
+   },
+   "B": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 86,
+     "REALISTIC": 14,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 450,
+     "REALISTIC": 113,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.09,
+     "nearOrAbove": 0.24,
+     "maxStrengthDelta": 12.13,
+     "medianR": 0.6482,
+     "medianF": 1,
+     "medianO": 0.709
+    },
+    "reachBandASpan": 0.1425
+   },
+   "F": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 95,
+     "REALISTIC": 5,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 423,
+     "REALISTIC": 598,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.47,
+     "nearOrAbove": 0.11,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6868,
+     "medianF": 0.5159,
+     "medianO": 0.6636
+    },
+    "reachBandASpan": 0.1425
+   },
+   "D": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 67,
+     "REALISTIC": 33,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 49,
+     "REALISTIC": 93,
+     "AMBITIOUS": 163,
+     "EXTREME": 528
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 54,
+     "AMBITIOUS": 69,
+     "EXTREME": 661
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.76,
+     "maxStrengthDelta": 2.69,
+     "medianR": 0.5709,
+     "medianF": 1,
+     "medianO": 0.7325
+    },
+    "reachBandASpan": 0.2265
+   },
+   "PF": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 99,
+     "REALISTIC": 1,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 417,
+     "REALISTIC": 588,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.77,
+     "nearOrAbove": 0.01,
+     "maxStrengthDelta": 0.02,
+     "medianR": 0.7846,
+     "medianF": 1,
+     "medianO": 0.7319
+    },
+    "reachBandASpan": 0.1425
+   }
+  },
+  "R-D": {
+   "A": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 81,
+     "REALISTIC": 19,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 105,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.33,
+     "maxStrengthDelta": 11.73,
+     "medianR": 0.6108,
+     "medianF": 1,
+     "medianO": 0.7732
+    },
+    "reachBandASpan": 0.236
+   },
+   "B": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 94,
+     "REALISTIC": 6,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 450,
+     "REALISTIC": 159,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.12,
+     "nearOrAbove": 0.15,
+     "maxStrengthDelta": 2.51,
+     "medianR": 0.6532,
+     "medianF": 1,
+     "medianO": 0.7069
+    },
+    "reachBandASpan": 0.236
+   },
+   "F": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 95,
+     "REALISTIC": 5,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 422,
+     "REALISTIC": 661,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.49,
+     "nearOrAbove": 0.1,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6886,
+     "medianF": 0.5159,
+     "medianO": 0.6636
+    },
+    "reachBandASpan": 0.236
+   },
+   "D": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 26,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 43,
+     "REALISTIC": 102,
+     "AMBITIOUS": 163,
+     "EXTREME": 528
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 54,
+     "AMBITIOUS": 69,
+     "EXTREME": 661
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.71,
+     "maxStrengthDelta": 2.39,
+     "medianR": 0.5588,
+     "medianF": 1,
+     "medianO": 0.7187
+    },
+    "reachBandASpan": 0.3738
+   },
+   "PF": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 100,
+     "REALISTIC": 0,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 410,
+     "REALISTIC": 728,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.78,
+     "nearOrAbove": 0.0,
+     "maxStrengthDelta": -5.09,
+     "medianR": 0.7844,
+     "medianF": 1,
+     "medianO": 0.7338
+    },
+    "reachBandASpan": 0.236
+   }
+  },
+  "R-E": {
+   "A": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 80,
+     "REALISTIC": 20,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 103,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.34,
+     "maxStrengthDelta": 12.13,
+     "medianR": 0.6201,
+     "medianF": 1,
+     "medianO": 0.7725
+    },
+    "reachBandASpan": 0.3043
+   },
+   "B": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 91,
+     "REALISTIC": 9,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 449,
+     "REALISTIC": 155,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.1,
+     "nearOrAbove": 0.19,
+     "maxStrengthDelta": 9.66,
+     "medianR": 0.6514,
+     "medianF": 1,
+     "medianO": 0.7069
+    },
+    "reachBandASpan": 0.3043
+   },
+   "F": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 95,
+     "REALISTIC": 5,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 423,
+     "REALISTIC": 649,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.47,
+     "nearOrAbove": 0.11,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6868,
+     "medianF": 0.5159,
+     "medianO": 0.6636
+    },
+    "reachBandASpan": 0.3043
+   },
+   "D": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 26,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 44,
+     "REALISTIC": 102,
+     "AMBITIOUS": 164,
+     "EXTREME": 528
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 54,
+     "AMBITIOUS": 69,
+     "EXTREME": 661
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.71,
+     "maxStrengthDelta": 2.66,
+     "medianR": 0.5772,
+     "medianF": 1,
+     "medianO": 0.7198
+    },
+    "reachBandASpan": 0.4483
+   },
+   "PF": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 99,
+     "REALISTIC": 1,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 412,
+     "REALISTIC": 704,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.77,
+     "nearOrAbove": 0.01,
+     "maxStrengthDelta": 0.02,
+     "medianR": 0.7846,
+     "medianF": 1,
+     "medianO": 0.7319
+    },
+    "reachBandASpan": 0.3043
+   }
+  },
+  "R-F": {
+   "A": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 65,
+     "REALISTIC": 35,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 71,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.46,
+     "maxStrengthDelta": 16.42,
+     "medianR": 0.6169,
+     "medianF": 1,
+     "medianO": 0.7826
+    },
+    "reachBandASpan": 0.0783
+   },
+   "B": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 79,
+     "REALISTIC": 21,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 102,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.08,
+     "nearOrAbove": 0.3,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6408,
+     "medianF": 1,
+     "medianO": 0.709
+    },
+    "reachBandASpan": 0.0783
+   },
+   "F": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 95,
+     "REALISTIC": 5,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 425,
+     "REALISTIC": 569,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.47,
+     "nearOrAbove": 0.11,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6868,
+     "medianF": 0.5159,
+     "medianO": 0.6636
+    },
+    "reachBandASpan": 0.0783
+   },
+   "D": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 62,
+     "REALISTIC": 38,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 58,
+     "REALISTIC": 82,
+     "AMBITIOUS": 163,
+     "EXTREME": 528
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 54,
+     "AMBITIOUS": 69,
+     "EXTREME": 661
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.78,
+     "maxStrengthDelta": 2.69,
+     "medianR": 0.5831,
+     "medianF": 1,
+     "medianO": 0.735
+    },
+    "reachBandASpan": 0.1999
+   },
+   "PF": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 99,
+     "REALISTIC": 1,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 425,
+     "REALISTIC": 462,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.77,
+     "nearOrAbove": 0.01,
+     "maxStrengthDelta": 0.02,
+     "medianR": 0.7846,
+     "medianF": 1,
+     "medianO": 0.7319
+    },
+    "reachBandASpan": 0.0783
+   }
+  },
+  "CTRL-BAD-R1": {
+   "A": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 64,
+     "REALISTIC": 36,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 62,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.47,
+     "maxStrengthDelta": 16.42,
+     "medianR": 0.6193,
+     "medianF": 1,
+     "medianO": 0.7834
+    },
+    "reachBandASpan": 0.0
+   },
+   "B": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 26,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 90,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.07,
+     "nearOrAbove": 0.34,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6461,
+     "medianF": 1,
+     "medianO": 0.7115
+    },
+    "reachBandASpan": 0.0
+   },
+   "F": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 95,
+     "REALISTIC": 5,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 425,
+     "REALISTIC": 536,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.47,
+     "nearOrAbove": 0.11,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6868,
+     "medianF": 0.5159,
+     "medianO": 0.6636
+    },
+    "reachBandASpan": 0.0
+   },
+   "D": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 46,
+     "REALISTIC": 36,
+     "AMBITIOUS": 18,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 79,
+     "REALISTIC": 76,
+     "AMBITIOUS": 158,
+     "EXTREME": 528
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 54,
+     "AMBITIOUS": 69,
+     "EXTREME": 661
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.87,
+     "maxStrengthDelta": 6.05,
+     "medianR": 0.6135,
+     "medianF": 1,
+     "medianO": 0.7457
+    },
+    "reachBandASpan": 0.0
+   },
+   "PF": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 99,
+     "REALISTIC": 1,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 430,
+     "REALISTIC": 422,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.77,
+     "nearOrAbove": 0.01,
+     "maxStrengthDelta": 0.02,
+     "medianR": 0.7846,
+     "medianF": 1,
+     "medianO": 0.7319
+    },
+    "reachBandASpan": 0.0
+   }
+  },
+  "CTRL-BAD-R2": {
+   "A": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 76,
+     "REALISTIC": 24,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 91,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.38,
+     "maxStrengthDelta": 12.13,
+     "medianR": 0.614,
+     "medianF": 1,
+     "medianO": 0.7788
+    },
+    "reachBandASpan": 0.3095
+   },
+   "B": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 85,
+     "REALISTIC": 15,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 124,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.06,
+     "nearOrAbove": 0.26,
+     "maxStrengthDelta": 11.73,
+     "medianR": 0.639,
+     "medianF": 1,
+     "medianO": 0.707
+    },
+    "reachBandASpan": 0.3095
+   },
+   "F": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 93,
+     "REALISTIC": 7,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 431,
+     "REALISTIC": 356,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.35,
+     "nearOrAbove": 0.15,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6656,
+     "medianF": 0.4809,
+     "medianO": 0.6709
+    },
+    "reachBandASpan": 0.3095
+   },
+   "D": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 71,
+     "REALISTIC": 29,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 45,
+     "REALISTIC": 98,
+     "AMBITIOUS": 163,
+     "EXTREME": 528
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 54,
+     "AMBITIOUS": 69,
+     "EXTREME": 661
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.74,
+     "maxStrengthDelta": 2.66,
+     "medianR": 0.5709,
+     "medianF": 1,
+     "medianO": 0.7254
+    },
+    "reachBandASpan": 0.4444
+   },
+   "PF": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 96,
+     "REALISTIC": 4,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 444,
+     "REALISTIC": 245,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.26,
+     "nearOrAbove": 0.12,
+     "maxStrengthDelta": 0.63,
+     "medianR": 0.6752,
+     "medianF": 1,
+     "medianO": 0.6761
+    },
+    "reachBandASpan": 0.3095
+   }
+  },
+  "CTRL-BAD-R3": {
+   "A": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 81,
+     "REALISTIC": 19,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 451,
+     "REALISTIC": 109,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.33,
+     "maxStrengthDelta": 11.73,
+     "medianR": 0.6201,
+     "medianF": 1,
+     "medianO": 0.7732
+    },
+    "reachBandASpan": 0.3095
+   },
+   "B": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 94,
+     "REALISTIC": 6,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 449,
+     "REALISTIC": 161,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.11,
+     "nearOrAbove": 0.16,
+     "maxStrengthDelta": 2.51,
+     "medianR": 0.6517,
+     "medianF": 1,
+     "medianO": 0.7069
+    },
+    "reachBandASpan": 0.3095
+   },
+   "F": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 95,
+     "REALISTIC": 5,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 420,
+     "REALISTIC": 649,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.47,
+     "nearOrAbove": 0.11,
+     "maxStrengthDelta": 16.01,
+     "medianR": 0.6868,
+     "medianF": 0.5159,
+     "medianO": 0.6636
+    },
+    "reachBandASpan": 0.3095
+   },
+   "D": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 26,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 44,
+     "REALISTIC": 102,
+     "AMBITIOUS": 163,
+     "EXTREME": 528
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 74,
+     "REALISTIC": 54,
+     "AMBITIOUS": 69,
+     "EXTREME": 661
+    },
+    "top100": {
+     "substantiallyBelow": 0.0,
+     "nearOrAbove": 0.71,
+     "maxStrengthDelta": 2.39,
+     "medianR": 0.571,
+     "medianF": 1,
+     "medianO": 0.7187
+    },
+    "reachBandASpan": 0.4444
+   },
+   "PF": {
+    "top100ByReachBand": {
+     "AT_OR_BELOW": 99,
+     "REALISTIC": 1,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "medianRankByBand": {
+     "AT_OR_BELOW": 412,
+     "REALISTIC": 736,
+     "AMBITIOUS": null,
+     "EXTREME": null
+    },
+    "universeByBand": {
+     "AT_OR_BELOW": 815,
+     "REALISTIC": 43,
+     "AMBITIOUS": 0,
+     "EXTREME": 0
+    },
+    "top100": {
+     "substantiallyBelow": 0.77,
+     "nearOrAbove": 0.01,
+     "maxStrengthDelta": 0.02,
+     "medianR": 0.7846,
+     "medianF": 1,
+     "medianO": 0.7319
+    },
+    "reachBandASpan": 0.3095
+   }
+  }
+ }
+}

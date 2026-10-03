@@ -215,6 +215,123 @@ export function corpusChangeToken(db) {
   return `${db.pragma('data_version', { simple: true })}:${local}`;
 }
 
+/* -------------------------------------------------------------------------- */
+/* The corpus revision token — A9.7B                                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The three tables V2's corpus identity is computed from, re-derived in A9.7B
+ * from `buildPoolContext` and `corpusDigests` rather than from documentation.
+ * The triggers that maintain `corpus_revision` cover exactly these.
+ */
+export const CORPUS_TABLES = Object.freeze([
+  'colleges', 'roster_players', 'recruiting_arrivals',
+]);
+
+/**
+ * WHETHER THE MACHINERY IS PRESENT, asked once per connection.
+ *
+ * A database opened by code that has `schema.sql` applied always has it. A
+ * database that somehow does NOT - an older snapshot opened read-only, a file
+ * a script built by hand - must not be served a constant token, because a
+ * constant token never invalidates and that is the one failure mode this whole
+ * phase exists to prevent. So the absence is detected and the connection falls
+ * back to the broad `corpusChangeToken` for its whole life: slower, and
+ * correct.
+ *
+ * Cached per connection rather than per call, so the cost is one query at
+ * startup instead of one on every staleness check.
+ */
+let machinery = new WeakMap();
+
+function hasRevisionMachinery(db) {
+  const known = machinery.get(db);
+  if (known !== undefined) return known;
+  let present = false;
+  try {
+    const table = db.prepare(
+      "SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'table' AND name = 'corpus_revision'",
+    ).pluck().get();
+    const triggers = db.prepare(
+      "SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'trigger' AND name LIKE 'trg_corpus_rev_%'",
+    ).pluck().get();
+    const row = table
+      ? db.prepare('SELECT revision FROM corpus_revision WHERE id = 1').pluck().get()
+      : undefined;
+    /**
+     * ALL THREE, and the row check is not pedantry: a table with its row
+     * deleted answers `undefined` for ever, which formats into a stable token
+     * and would be indistinguishable from "nothing has changed".
+     */
+    present = Boolean(table) && triggers === CORPUS_TABLES.length * 3 && row !== undefined
+      && row !== null;
+  } catch {
+    present = false;
+  }
+  machinery.set(db, present);
+  return present;
+}
+
+/**
+ * COULD THE V2 CORPUS HAVE CHANGED? — A9.7B's replacement for
+ * `corpusChangeToken` as the cache gate.
+ *
+ * ===========================================================================
+ * IT IS A CHANGE DETECTOR AND NEVER AN IDENTITY. `corpusDigests` remains the
+ * only thing that says what the corpus IS. This says only that it may have
+ * moved, cheaply enough to ask on every request.
+ * ===========================================================================
+ *
+ * TWO COMPONENTS, AND EACH CLOSES A HOLE THE OTHER CANNOT:
+ *
+ *   schema_version   moves on DDL, from ANY connection, and on nothing else.
+ *                    Measured: an ALTER TABLE on another connection moves it;
+ *                    inserts on either connection do not. This is what catches
+ *                    a migration rewriting one of the three tables in place -
+ *                    which `total_changes()` has never caught, because DDL
+ *                    changes no rows.
+ *
+ *   revision         moves on INSERT, UPDATE or DELETE to any of the three
+ *                    corpus tables, from any connection, process, script or
+ *                    hand-typed statement, because a trigger maintains it
+ *                    inside the writer's own transaction. A rolled-back write
+ *                    rolls the increment back with it.
+ *
+ * WHY NOT `data_version`, which the old token used. It moves when another
+ * connection commits ANYTHING - so a worker process writing a tracking event
+ * would invalidate the server's cache, which is the defect this phase is
+ * fixing, merely relocated to a second process. `schema_version` is the
+ * precise instrument for the thing `data_version` was there to catch.
+ *
+ * WHAT IS STILL NOT CAUGHT: DDL executed on THIS connection that rewrites a
+ * corpus table in place, between two reads, with no restart. `schema_version`
+ * does move for it, so in fact this is caught too - but a process that both
+ * migrates and serves without restarting is outside what any of these caches
+ * promise, and A9.4 recorded the same bound for `poolContextFor`.
+ */
+export function corpusRevisionToken(db) {
+  if (!hasRevisionMachinery(db)) return `fallback:${corpusChangeToken(db)}`;
+  const revision = db.prepare('SELECT revision FROM corpus_revision WHERE id = 1').pluck().get();
+  /**
+   * Belt and braces at the one moment it is cheap: if the row vanished after
+   * the startup check, fall back rather than returning a stable token.
+   */
+  if (revision === undefined || revision === null) {
+    machinery.set(db, false);
+    return `fallback:${corpusChangeToken(db)}`;
+  }
+  return `${db.pragma('schema_version', { simple: true })}:${revision}`;
+}
+
+/**
+ * Tests only: forget the per-connection machinery probe.
+ *
+ * A WeakMap cannot be emptied, so it is REPLACED. Needed because a test that
+ * adds or removes the triggers on an open connection has changed the answer to
+ * a question this module asks once and remembers.
+ */
+export function resetCorpusRevisionProbe() { machinery = new WeakMap(); }
+
 /** Raised when a maintenance script would write a corpus other trees share. */
 export class CanonicalWriteRefused extends Error {
   constructor(script, identity) {

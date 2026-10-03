@@ -47,10 +47,18 @@ const parse = (row) => (row ? { ...row, payload: safeParse(row.payload) } : null
  * old single-row model could not offer.
  */
 
+/**
+ * A9.7. The four checks that make a provenance link trustworthy, reused rather
+ * than restated. Engine-free by construction — see the note at the top of
+ * `outreachProvenance.js` and `sendPathEngineIsolation.test.js`.
+ */
+import { assertSelectionMatchesSend } from './v2/outreachProvenance.js';
+
 const insertSend = db.prepare(`
   INSERT INTO outreach_send (
     id, outreach_id, sequence, drafted_at, sent_at,
-    athlete_id, coach_id, college_name, sport, programme_campaign_id, origin, policy_version,
+    athlete_id, coach_id, college_name, sport, programme_campaign_id,
+    matchmaking_selection_id, origin, policy_version,
     programme_message_id, connected_mailbox_id, sending_identity, provider,
     state, accepted_source,
     structure, structure_source, body_source, template_variant,
@@ -59,7 +67,8 @@ const insertSend = db.prepare(`
     subject, body_hash, body, wire_body_sha256, payload, created_at
   ) VALUES (
     @id, @outreach_id, @sequence, @drafted_at, @sent_at,
-    @athlete_id, @coach_id, @college_name, @sport, @programme_campaign_id, @origin, @policy_version,
+    @athlete_id, @coach_id, @college_name, @sport, @programme_campaign_id,
+    @matchmaking_selection_id, @origin, @policy_version,
     @programme_message_id, @connected_mailbox_id, @sending_identity, @provider,
     @state, @accepted_source,
     @structure, @structure_source, @body_source, @template_variant,
@@ -159,6 +168,22 @@ export function nextSequence(outreachId) {
 export function recordDraft({
   outreachId, athleteId, coachId, collegeName = null, sport = null,
   programmeCampaignId = null, onDate = undefined,
+  /**
+   * WHICH MATCHMAKING SELECTION CAUSED THIS MESSAGE — A9.7.
+   *
+   * NULL FOR EVERY V1 AND MANUAL DRAFT, which is every send on file: all 41
+   * predate matchmaking entirely. A null here is the truthful PRE_PROVENANCE
+   * record and is never backfilled.
+   *
+   * VALIDATED, NOT TRUSTED. `/api/outreach/send` spreads its request body into
+   * its caller, so anything nameable there is client-supplied by construction
+   * — the same reason `origin` lives in a second argument. This one does not
+   * need to hide, because it cannot be asserted into being true: the four
+   * checks below refuse a selection belonging to another athlete, naming
+   * another programme, or whose coach the evidence places elsewhere. A caller
+   * supplying somebody else's selection gets a refusal, not a false record.
+   */
+  matchmakingSelectionId = null,
   evidence, body = null, subject = null,
   bodySource = null, templateVariant = null, renderedKinds = null,
   /**
@@ -238,6 +263,19 @@ export function recordDraft({
   const snapshot = buildSendSnapshot({
     evidence, body, subject, bodySource, templateVariant, renderedKinds,
   });
+  /**
+   * BEFORE THE WRITE, so a refusal leaves no message behind. Atomic with the
+   * send by construction: the column is part of the INSERT below rather than a
+   * second UPDATE afterwards, so there is no window in which a message exists
+   * without the selection that caused it.
+   */
+  if (matchmakingSelectionId) {
+    assertSelectionMatchesSend(db, {
+      selectionId: matchmakingSelectionId,
+      athleteId, coachId, collegeName, sport,
+    });
+  }
+
   const open = pendingFor.get(outreachId);
   const row = {
     id: open?.id ?? randomUUID(),
@@ -250,6 +288,7 @@ export function recordDraft({
     college_name: collegeName,
     sport,
     programme_campaign_id: verifiedCampaign,
+    matchmaking_selection_id: matchmakingSelectionId,
     /**
      * CAMPAIGN ATTRIBUTION WINS, and it wins over the CALLER'S OWN CONTEXT.
      *
@@ -312,6 +351,15 @@ export function recordDraft({
         -- campaign replaces the pending message, and the row must not keep the
         -- previous campaign's attribution while carrying the new one's text.
         programme_campaign_id = @programme_campaign_id,
+        -- A9.7, and it moves with the body for exactly the reason above. A
+        -- DRAFT has been sent to nobody, so replacing it replaces its cause
+        -- too; a row keeping March's selection while carrying September's
+        -- words would be the one lie this chain exists to prevent. Once a
+        -- message is ACCEPTED this clause is unreachable - the WHERE below is
+        -- state = 'DRAFT' - and attachSelectionToSend refuses to re-point a
+        -- sent message at a different selection.
+        -- (No backticks in here either: this SQL is a JS template literal.)
+        matchmaking_selection_id = @matchmaking_selection_id,
         -- D4.5, and the same reasoning: an open draft being claimed for
         -- provider execution takes that execution's attribution. COALESCE
         -- because the legacy path passes null for all four and must not blank

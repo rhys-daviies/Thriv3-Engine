@@ -220,8 +220,17 @@ describe('PROVIDER_RECONCILED', () => {
    * live 2xx must never be recorded as it.
    */
   it('has exactly one producer, and it is not PROVIDER_RECONCILED', () => {
+    /**
+     * `--exclude-dir=data` is load-bearing, not tidiness (kept from the V2 branch).
+     * `server` contains `server/data`: the working database and forty-odd backups
+     * of it, 4.7GB, which this walked in full on every run — over two minutes, and
+     * worse, racing. Another suite opening the database creates and removes a
+     * `-shm` file mid-walk, grep reports it missing and exits 2, and the test
+     * fails for a reason that has nothing to do with the enum.
+     */
     const producersOf = (value) => execFileSync('grep', [
-      '-rl', `ACCEPTED_SOURCE.${value}`, 'server', 'src', 'shared',
+      '-rl', '--exclude-dir=data', '--exclude-dir=node_modules',
+      `ACCEPTED_SOURCE.${value}`, 'server', 'src', 'shared',
     ], { cwd: ROOT, encoding: 'utf8' })
       .trim().split('\n').filter(Boolean).filter((f) => !f.endsWith('.test.js'));
 

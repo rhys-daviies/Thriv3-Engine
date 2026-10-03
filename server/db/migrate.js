@@ -46,6 +46,44 @@ const PLAYER_COLUMNS = [
   ['recruiting_class_year', 'INTEGER'],
 
   /**
+   * A7.9.2. The maximum the family can contribute in a year, and which of the
+   * three answers they gave. Both NULL on every existing row, which is the
+   * honest state: nobody has been asked yet, so Financial falls back to
+   * `budget_range` exactly as before.
+   *
+   * Deliberately NOT backfilled from a band. A bounded band states an
+   * interval, not the maximum, and the open `$40k+` band states no ceiling at
+   * all - converting either into a family's stated maximum would invent the
+   * number the whole field exists to stop inventing.
+   */
+  ['max_annual_contribution_usd', 'INTEGER'],
+  ['contribution_state', 'TEXT'],
+
+  /**
+   * A7.12.1. The three things only the athlete can tell us: how much they
+   * want the level, how much they want a route into the team, and how much
+   * they want the institution. 1-5, and NULL on every existing row.
+   *
+   * NULL IS NOT 3. An athlete nobody asked ranks exactly as they did before
+   * these columns existed, because Opportunity leaves an undeclared
+   * preference out of its denominator rather than scoring it at a midpoint.
+   * Defaulting these to 3 would give every athlete in the database an opinion
+   * none of them expressed, and it would be indistinguishable afterwards from
+   * the ones who really chose it.
+   *
+   * NOT BACKFILLED FROM ANYTHING. Not from football_ability, not from the
+   * criterion_ranking, not from GPA - see MAY_NOT_INFER_FROM in
+   * shared/matching/v2/athletePreferences.js, which a test asserts against.
+   *
+   * The CHECK is the same rule the entity validates, restated where SQLite
+   * can enforce it: a write that bypassed the entity still cannot leave a 0
+   * or a 7 in a column the scorer reads as a 1-5 answer.
+   */
+  ['competitive_level_priority', 'INTEGER CHECK (competitive_level_priority IS NULL OR (competitive_level_priority >= 1 AND competitive_level_priority <= 5 AND competitive_level_priority = CAST(competitive_level_priority AS INTEGER)))'],
+  ['playing_opportunity_priority', 'INTEGER CHECK (playing_opportunity_priority IS NULL OR (playing_opportunity_priority >= 1 AND playing_opportunity_priority <= 5 AND playing_opportunity_priority = CAST(playing_opportunity_priority AS INTEGER)))'],
+  ['academic_strength_priority', 'INTEGER CHECK (academic_strength_priority IS NULL OR (academic_strength_priority >= 1 AND academic_strength_priority <= 5 AND academic_strength_priority = CAST(academic_strength_priority AS INTEGER)))'],
+
+  /**
    * The athlete's saved template, set aside rather than deleted.
    *
    * Clearing `email_template` is how an athlete is moved onto the structured
@@ -183,6 +221,26 @@ const ROSTER_PLAYER_COLUMNS = [
   // with the value so every consumer can say where it came from.
   ['projected_minutes', 'INTEGER'],
   ['projected_minutes_season', 'TEXT'],
+  /**
+   * Appearances carried forward beside the minutes, for the same reason and
+   * under the same rule.
+   *
+   * A large minority of programmes publish games played and games started but
+   * NOT minutes - MIT is the case that found this, with games on 35 of 35 rows
+   * in 2025 and minutes on 5 - and a starter is more directly evidenced by
+   * having started matches than by a minutes threshold standing in for it.
+   * Carried forward only from the SAME programme, exactly as minutes are: a
+   * transfer's prior appearances predict a starting place at a new programme
+   * no better than their prior minutes do.
+   */
+  ['projected_games_started', 'INTEGER'],
+  ['projected_games_played', 'INTEGER'],
+  /**
+   * Its own source season, not the minutes one. A row may carry appearances
+   * and no minutes, and labelling it with `projected_minutes_season` would
+   * say a minutes projection exists where none does.
+   */
+  ['projected_games_season', 'TEXT'],
   // Where this player was the season before, if we can identify them
   // unambiguously. Explains an absent figure instead of leaving a bare dash:
   // a transfer's prior minutes are deliberately NOT carried forward (they
@@ -318,6 +376,37 @@ const OUTREACH_COLUMNS = [
  * ON DELETE SET NULL: send history is evidence and outlives the campaign that
  * produced it.
  */
+/**
+ * A9.7 — WHICH MATCHMAKING SELECTION PUT THIS PROGRAMME IN THIS CAMPAIGN.
+ *
+ * ---------------------------------------------------------------------------
+ * PROGRAMME-LEVEL, NOT CAMPAIGN-LEVEL, AND §F IS EXPLICIT ABOUT WHY.
+ *
+ * It is tempting to hang one `matchmaking_run_id` off `campaigns` and call the
+ * question answered. It would be a lie the moment a consultant adds a #101+
+ * school found by Specific Search a week later: that programme came out of a
+ * DIFFERENT run, and a campaign-level pointer would attribute it to the first
+ * one. Nothing afterwards could detect the substitution, because the row would
+ * look exactly like the ninety-nine beside it.
+ *
+ * So provenance lives per programme, and the run is reached THROUGH the
+ * selection rather than copied beside it — one immutable chain,
+ * `programme_campaigns -> matchmaking_selections -> matchmaking_runs`, with no
+ * second account of the run id to fall out of step.
+ * ---------------------------------------------------------------------------
+ *
+ * NULL FOR EVERY V1 CAMPAIGN, and not backfilled. A campaign frozen from
+ * `players.recommendations` has no matchmaking run behind it; naming one would
+ * invent the history A9.6 spent a phase recording honestly.
+ *
+ * NO ON DELETE, so deleting a selection a campaign was built on is REFUSED —
+ * matching `outreach_send.matchmaking_selection_id` and every other reference
+ * in this provenance chain.
+ */
+const PROGRAMME_CAMPAIGN_COLUMNS = [
+  ['matchmaking_selection_id', 'TEXT REFERENCES matchmaking_selections(id)'],
+];
+
 const OUTREACH_SEND_COLUMNS = [
   ['programme_campaign_id', 'TEXT REFERENCES programme_campaigns(id) ON DELETE SET NULL'],
 
@@ -551,6 +640,44 @@ const OUTREACH_SEND_COLUMNS = [
    * coach, and a constraint here would refuse the second.
    */
   ['wire_body_sha256', 'TEXT'],
+
+  /* ---- A9.6: which matchmaking selection caused this message ------------- */
+
+  /**
+   * THE SELECTION THAT CAUSED THIS MESSAGE — A9.6.
+   *
+   * Resolves, through `matchmaking_selections`, to the run, the programme, and
+   * the rank / band / status that run gave it at the moment a consultant chose
+   * it. That is the chain A9.5 said was missing, and this column is the link
+   * that closes it.
+   *
+   * ---------------------------------------------------------------------------
+   * ON THE MESSAGE AND NOT ON THE RELATIONSHIP, for the reason this schema has
+   * already written down once.
+   *
+   * `outreach` is UNIQUE (athlete_id, coach_id): ONE ROW PER PAIR, created
+   * once and reused for ever. The note on `outreach.programme_campaign_id`
+   * states the consequence plainly — that column is "first created under" and
+   * therefore "NOT the campaign a message belongs to", which lives here, per
+   * message. A selection is the same kind of fact. An athlete written to in
+   * March out of one run and in September out of another has ONE relationship
+   * and TWO causes, and a column on the relationship could record only the
+   * first while appearing to describe both.
+   * ---------------------------------------------------------------------------
+   *
+   * NO ON DELETE CLAUSE, so deleting a selection that a message was sent from
+   * is REFUSED — matching `coach_id` and `connected_mailbox_id` on this table,
+   * and matching the RESTRICT `matchmaking_selections` itself takes on the run.
+   * The provenance chain is only worth having if no link in it can vanish.
+   *
+   * NULL IS TRUTHFUL AND IS NEVER BACKFILLED. Every one of the 41 sends on
+   * file predates matchmaking entirely, and 0 of the 96 relationships carry a
+   * programme campaign. Those are V1 / PRE_PROVENANCE rows, and inventing a
+   * selection for them would manufacture exactly the history this table exists
+   * to record honestly — the same rule `createOutreach` already states for
+   * `programme_campaign_id`.
+   */
+  ['matchmaking_selection_id', 'TEXT REFERENCES matchmaking_selections(id)'],
 ];
 
 /**
@@ -1240,8 +1367,22 @@ export function migrate(db) {
   // indexes are created after the column they cover — schema.sql runs first
   // and cannot index a column this function is about to add.
   addMissingColumns(db, 'outreach_send', OUTREACH_SEND_COLUMNS);
+  addMissingColumns(db, 'programme_campaigns', PROGRAMME_CAMPAIGN_COLUMNS);
+  /** "Which programmes in this campaign came out of matchmaking" — partial. */
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_programme_campaign_matchmaking_selection
+             ON programme_campaigns(matchmaking_selection_id)
+             WHERE matchmaking_selection_id IS NOT NULL`);
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_programme_campaign ON outreach(programme_campaign_id)');
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_send_programme_campaign ON outreach_send(programme_campaign_id)');
+  /**
+   * A9.6 — "what came of the programmes chosen out of this run", which is the
+   * attribution read the whole phase exists to make answerable. Partial, so
+   * the 41 pre-provenance sends are outside it entirely rather than occupying
+   * an index of V2 provenance with NULLs.
+   */
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_outreach_send_matchmaking_selection
+             ON outreach_send(matchmaking_selection_id)
+             WHERE matchmaking_selection_id IS NOT NULL`);
   addMissingColumns(db, 'outreach_evidence', OUTREACH_EVIDENCE_COLUMNS);
   // WHO FLAGGED IT, AND WHO LAST WROTE THE NOTE. Added here rather than in
   // schema.sql because the table already exists in the field.

@@ -51,8 +51,8 @@ beforeAll(() => {
   // compute for itself, because it never loads these seasons.
   roster({ season: '2023', player_name: 'Kiwi One', country: 'New Zealand', nationality: 'International' });
   // Two defenders whose spot opens for the 2027 intake.
-  roster({ player_name: 'Leaver One', estimated_graduation_year: 2027, projected_minutes: 900 });
-  roster({ player_name: 'Leaver Two', estimated_graduation_year: 2027, projected_minutes: 100 });
+  roster({ player_name: 'Leaver One', estimated_graduation_year: 2027, eligibility_end_year: 2026, class_year_label: 'Gr.', projected_minutes: 900 });
+  roster({ player_name: 'Leaver Two', estimated_graduation_year: 2027, eligibility_end_year: 2026, class_year_label: 'Gr.', projected_minutes: 100 });
   for (let i = 0; i < 18; i += 1) roster({ player_name: `Squad ${i}`, position: 'MIDFIELD' });
 });
 

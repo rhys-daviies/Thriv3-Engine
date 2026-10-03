@@ -304,8 +304,23 @@ describeReports('outreachQA', () => {
      * ADMITTED it rather than the oldest it ever saw, compresses past three
      * countries, and gives countries their definite article — "the United
      * Kingdom", not "United Kingdom".
+     *
+     * Re-pinned at A5.4, for the division-aware eligibility rule. A Division I
+     * or II senior listed in 2026 may play 2027 under the age-based five-year
+     * model adopted for 2026-27, so their place does NOT open for a 2027
+     * arrival and the departure cohort at those programmes is now graduate
+     * students and fifth years alone. That moves which programmes this sample
+     * reaches and what their emails say.
+     *
+     * The claims themselves were checked rather than trusted: every player
+     * this report now names as listed to graduate in 2027 — Jan Schroeder,
+     * Junior Saint Juste, Jaxon Hinds, Daniel Navarro — carries a graduate or
+     * fifth-year label with eligibility ending in 2026, so each is genuinely
+     * gone before the athlete arrives. Telling a Division I coach that his
+     * seniors are graduating, when the new rule lets them stay, is the claim
+     * this repair exists to stop making.
      */
-    expect(sha(result.out)).toBe('b764de7381c41e1c');
+    expect(sha(result.out)).toBe('7ee1cce366366e13');
   });
 });
 

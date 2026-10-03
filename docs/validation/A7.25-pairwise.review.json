@@ -1,0 +1,151 @@
+{
+  "phase": "A7.25 pairwise blind disagreement review",
+  "sealedOpened": false,
+  "selectionRule": "Mechanical, per A7.25-design.md section 6: every programme whose position differs by 20 or more between two lists, or which appears in one list's first 25 and not another's. 29 qualified for V3-C and 27 for V3-E. No programme was selected by name or by whether its placement looked right.",
+  "V3-C": {
+    "athlete": "Forward, equiv strength 62.1, international, $18,000 ceiling, level 2 / playing 5 / academic 3, no declared major.",
+    "playingPathway": [
+      {
+        "programme": "P-038 Madonna University",
+        "placements": "A absent · B absent · C #4",
+        "verdict": "C",
+        "why": "15 forwards with 8 departing before entry and 3 of them starters, at strength 60.7 against the athlete's 62.1, $17,755 under the ceiling, and a squad 65% international with 19 of 30 recent arrivals from abroad. It satisfies level, money, visa-realistic recruiting and playing simultaneously. Two of the three lists do not contain it at all, which is a harder failure than ranking it badly."
+      },
+      {
+        "programme": "P-020 Drury",
+        "placements": "A absent · B #24 · C absent",
+        "verdict": "A and C",
+        "why": "9 forwards, ONE departing, six eligible to remain — the most crowded forward room in either pack — and $20,831 against an $18,000 ceiling. For an athlete who rated playing 5 of 5 this should not appear at all."
+      },
+      {
+        "programme": "P-039 Eastern Illinois",
+        "placements": "A #20 · B #18 · C absent",
+        "verdict": "C",
+        "why": "10 forwards and not one departing starter. Cheap ($12,786) and at a reasonable level, but there is nowhere to play, which is the one thing this athlete asked for."
+      }
+    ],
+    "competitiveLevel": [
+      {
+        "programme": "P-007 Beloit",
+        "placements": "A #7 · B #12 · C absent",
+        "verdict": "C",
+        "why": "Strength 34.0 against the athlete's 62.1 — 793rd nationally, 27% win rate across both seasons, and over budget at $21,526. A stated level priority of 2 lowers the premium on reaching upward; on the locked scale it is not a request for a losing programme 28 points below the athlete."
+      },
+      {
+        "programme": "P-003 Canisius",
+        "placements": "A #21 · B #19 · C absent",
+        "verdict": "A and B",
+        "why": "THE ONE PLACE C IS CLEARLY WRONG. Strength 63.9 is slightly ABOVE the athlete's 62.1, at $17,940 inside the ceiling, D1, with 8 of 42 recent arrivals international and 5 forwards of whom 2 depart. A modest, affordable reach is exactly what a level priority of 2 permits — it de-emphasises level, it does not forbid a programme one point above it. Dropping it entirely is the cost of whatever produced List C."
+      }
+    ],
+    "financial": [
+      {
+        "programme": "P-018 Carroll (MT)",
+        "placements": "A absent · B #15 · C #2",
+        "verdict": "B",
+        "why": "The forward room is genuinely strong (9 forwards, 6 departing, 4 of them starters) and the international share is real at 46% of the squad and 71% of minutes — so it belongs on the list. But $23,960 is 33% over a hard ceiling, and C ranks it SECOND, above Christian Brothers at $9,854 and North Georgia at $9,823, both of which are also higher on level and on international recruiting. B's mid-list placement is the correct reading of a good programme the family probably cannot pay for."
+      },
+      {
+        "programme": "P-016 Chicago State",
+        "placements": "A #24 · B absent · C absent",
+        "verdict": "A, but far too low",
+        "why": "ONE forward on the entire roster, $12,335 net, strength 56.5. That is the largest playing opening in either pack, comfortably affordable, for an athlete whose first priority is playing. A 15% win rate is a fair reason to hesitate; it is not a reason to rank it 24th and it is certainly not a reason to drop it. All three lists get this wrong and two get it maximally wrong."
+      },
+      {
+        "programme": "P-010 Staten Island",
+        "placements": "A #13 · B absent · C absent",
+        "verdict": "B and C",
+        "why": "$5,579 is the cheapest price on the page and it is the only thing recommending it: strength 45.9, 21% win rate, and roster evidence marked INSUFFICIENT. A list that ranks this 13th is ranking on price."
+      },
+      {
+        "programme": "P-006 Life (GA)",
+        "placements": "A #18 · B #16 · C absent",
+        "verdict": "C",
+        "why": "$29,791 against $18,000 — 66% over, the largest overshoot in the pack."
+      }
+    ],
+    "academic": [
+      {
+        "programme": "P-031 Williams",
+        "placements": "A #15 · B #21 · C absent",
+        "verdict": "C",
+        "why": "Academic rating 9.6 for an athlete who rated academics 3 of 5, at an 8% admit rate against a 3.3 GPA with no SAT, from a programme that has taken ONE international player in thirty arrivals. Every axis that matters here says no."
+      },
+      {
+        "programme": "P-040 Caltech",
+        "placements": "A #23 · B absent · C absent",
+        "verdict": "B and C",
+        "why": "3% admit rate, zero international players in the squad and zero in 33 arrivals, strength 43.2. There is no recruiting path and no admissions path."
+      }
+    ],
+    "majorFit": "NOT TESTABLE on this athlete — V3-C declares no intended major, so majorFit is NOT_APPLICABLE for every programme in all three lists and cannot differ between them. Recorded rather than fabricated.",
+    "summary": "On playing pathway and on level, List C is right about nine of the ten disagreements and is the only list that surfaces the at-level, internationally-recruiting programmes with emptying forward rooms. On money it is the worst of the three, and on Canisius it is simply wrong. List A is right about affordability and about keeping a modest D1 reach, and wrong about almost everything the athlete actually asked for."
+  },
+  "V3-E": {
+    "athlete": "Defender, equiv strength 54.6, Austin TX, GPA 3.4 / SAT 1150, $13,000 ceiling, intended major ENGINEERING, level 3 / playing 3 / academic 5.",
+    "financialVsAcademic": [
+      {
+        "conflict": "P-039 Calvin ($22,992, rating 7.3, SAT 1233, 71% admit, Engineering) against P-018 UT Southern ($12,798, rating 2.7, 87% admit, NO Engineering)",
+        "placements": "Calvin A #9 · B #7 · C #6   |   UT Southern A #19 · B absent · C absent",
+        "verdict": "The academic programme is worth the money here. Calvin is $9,992 a year over the ceiling and should still outrank UT Southern, because it is admissible, it teaches the declared degree, and it is the kind of institution the athlete asked for. B and C are right and A is wrong.",
+        "principle": "Academic quality justifies a financially harder programme when the athlete would plausibly be ADMITTED and the programme offers the DECLARED MAJOR."
+      },
+      {
+        "conflict": "P-020 Carleton ($25,407, rating 9.4, 20% admit, NO Engineering) against the same UT Southern",
+        "placements": "Carleton A absent · B #10 · C #11",
+        "verdict": "The academic programme is NOT worth the money here, and A is right to omit it. Carleton is $12,407 over the ceiling — nearly a second full ceiling — for a college that does not teach Engineering and admits one applicant in five against a 1150 SAT. The rating is higher than Calvin's and the recommendation is far worse.",
+        "principle": "A higher academic RATING does not carry the trade. Carleton outranks Calvin on the number and loses on both conditions that matter."
+      },
+      {
+        "conflict": "P-009 Berea ($6,106, rating 7.2, SAT 1249, Engineering, strength 37.4) against P-023 Purdue Northwest ($6,079, rating 2.9, Engineering, strength 51.9)",
+        "placements": "Berea A absent · B #20 · C #23   |   Purdue Northwest A #6 · B absent · C absent",
+        "verdict": "NO LIST GETS THIS RIGHT, and it is the sharpest case in the pack. The two cheapest serious options differ by $27 a year. Berea is four and a half academic rating points stronger and teaches the major; Purdue Northwest is 14.5 strength points better at football. For an athlete who rated level 3 and academics 5, Berea should clearly outrank Purdue Northwest — and instead A carries Purdue Northwest at #6 with no Berea, while B and C carry Berea at #20 and #23 with no Purdue Northwest. The one comparison where money is NOT the constraint is the one comparison none of the lists makes."
+      },
+      {
+        "conflict": "P-026 Bowdoin ($14,398, rating 9.6, 7% admit, NO Engineering, 11 defenders none departing) against P-004 South Carolina Aiken ($11,641, rating 3.5, 79% admit, Engineering)",
+        "placements": "Bowdoin A absent · B #11 · C #12   |   SC Aiken A #23 · B absent · C absent",
+        "verdict": "Neither placement is defensible, and the case matters because it shows the financial framing is the wrong one. Bowdoin costs only $2,757 more; if this were a money question it would be an easy yes. It fails on a 7% admit rate, on having no Engineering, and on a defensive unit with nobody leaving. FOR THIS ATHLETE THE BINDING CONSTRAINT IS ADMISSIBILITY AND THE MAJOR, NOT PRICE."
+      }
+    ],
+    "majorFit": [
+      {
+        "programme": "P-008 Illinois Tech",
+        "placements": "A absent · B #22 · C absent",
+        "verdict": "B, and still far too low",
+        "why": "An engineering institute — rating 7.2, SAT 1311, 55% admit rate, $18,425 — with 8 of 11 defenders departing before entry. It matches the declared major, the stated academic preference and a realistic admission, and it appears in one list out of three, 22nd. C drops it entirely while keeping Carleton at #11, which offers no Engineering and admits 20%. That is the clearest major-fit error in either pack."
+      },
+      {
+        "programme": "P-031 Emory vs P-010 Ohio Northern",
+        "placements": "Emory A absent · B #9 · C #10   |   Ohio Northern A absent · B #25 · C absent",
+        "verdict": "Ohio Northern should sit above Emory",
+        "why": "Emory carries a 9.4 rating, an 11% admit rate and NO Engineering. Ohio Northern carries 7.4, a 74% admit rate and Engineering. For an athlete whose academic ask is a named degree, sixteen places the wrong way round."
+      },
+      {
+        "programme": "P-030 Amherst",
+        "placements": "A absent · B #16 · C #25",
+        "verdict": "A",
+        "why": "Strength 54.6 is an exact match for the athlete's level — the best level fit in the pack — and it still should not be there: 9% admit against a 1150 SAT, no Engineering, $23,367. A correct signal on one axis cannot survive failure on the two the athlete named."
+      }
+    ],
+    "competitiveLevelAndPathway": [
+      {
+        "programme": "P-006 UT Tyler",
+        "placements": "A #7 · B #24 · C #13",
+        "verdict": "B",
+        "why": "Correct on level (54.2 against 54.6), correct on cost ($13,323, essentially at the ceiling) and correct on the major — and 12 defenders with ZERO departing and seven eligible to remain. A at #7 is reading three signals and ignoring the fourth."
+      },
+      {
+        "programme": "P-017 Swarthmore",
+        "placements": "A absent · B #19 · C absent",
+        "verdict": "A and C",
+        "why": "Zero defenders recorded on the roster. Whether that is a data gap or a genuinely empty unit, it does not support a top-twenty placement, and the 7.5% admit rate settles it independently."
+      }
+    ],
+    "summary": "Across 27 qualifying disagreements the pattern is consistent: List A is right about money and wrong about academic fit; Lists B and C are right about the mid-selectivity academic band (Calvin, Hanover, Messiah, Dordt, Berea) and wrong about everything above it. The programmes that would serve this athlete best — Berea, Illinois Tech, Calvin, Hanover, Ohio Northern — are scattered across the three lists at #20, #22, #6-9, #8-12 and #25, and no list holds more than three of them."
+  },
+  "financialTradeOffAnswer": {
+    "question": "For an academically focused athlete, when should academic quality justify ranking a financially harder programme above a cheaper alternative?",
+    "answer": "When the athlete would plausibly be admitted AND the programme offers the declared major. Both conditions, not either. Calvin at $9,992 over the ceiling is worth it on both counts; Carleton at $12,407 over fails both despite a higher rating; Bowdoin at only $2,757 over fails both and the small price difference does not rescue it.",
+    "consequence": "The evidence does NOT support treating this as a price question. The three lists differ enormously on affordability — 20, 24 and 24 of 25 over the ceiling — and that difference is not what makes the bad recommendations bad. What makes them bad is that no list estimates whether the athlete can get in, and no list treats the declared major as the academic requirement it is. Raising academic authority makes both omissions worse, because it promotes precisely the programmes where they bite."
+  }
+}

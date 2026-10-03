@@ -1,0 +1,613 @@
+{
+ "phase": "A7.39",
+ "season": "2026",
+ "parserDefectRows": 0,
+ "parserDefectNote": "Rows carrying a label that readClassYear could not recognise. A7.39 measured ZERO, so no parser mapping was added - there was nothing for one to recover.",
+ "families": [
+  {
+   "rawValue": null,
+   "classification": "F_SOURCE_DATA_DEFECT",
+   "men": 138,
+   "women": 141,
+   "divisions": [
+    "NAIA",
+    "NCAA D1",
+    "NCAA D2",
+    "NCAA D3"
+   ],
+   "programmesAffected": 37,
+   "exampleProgrammes": [
+    "Clemson",
+    "Northwestern",
+    "Old Dominion"
+   ]
+  },
+  {
+   "rawValue": "Rs.",
+   "classification": "D_GENUINELY_UNKNOWN",
+   "men": 47,
+   "women": 5,
+   "divisions": [
+    "NAIA",
+    "NCAA D2",
+    "NCAA D3"
+   ],
+   "programmesAffected": 16,
+   "exampleProgrammes": [
+    "Davis & Elkins",
+    "Shawnee State",
+    "West Virginia Wesleyan"
+   ]
+  },
+  {
+   "rawValue": "Second Year",
+   "classification": "G_NEEDS_EXTERNAL_VERIFICATION",
+   "men": 0,
+   "women": 9,
+   "divisions": [
+    "USCAA"
+   ],
+   "programmesAffected": 1,
+   "exampleProgrammes": [
+    "Pennsylvania State University-Penn State Schuylkill"
+   ]
+  },
+  {
+   "rawValue": "Third Year",
+   "classification": "G_NEEDS_EXTERNAL_VERIFICATION",
+   "men": 0,
+   "women": 4,
+   "divisions": [
+    "USCAA"
+   ],
+   "programmesAffected": 1,
+   "exampleProgrammes": [
+    "Pennsylvania State University-Penn State Schuylkill"
+   ]
+  },
+  {
+   "rawValue": "First Year",
+   "classification": "G_NEEDS_EXTERNAL_VERIFICATION",
+   "men": 0,
+   "women": 3,
+   "divisions": [
+    "USCAA"
+   ],
+   "programmesAffected": 1,
+   "exampleProgrammes": [
+    "Pennsylvania State University-Penn State Schuylkill"
+   ]
+  },
+  {
+   "rawValue": "Fourth Year",
+   "classification": "G_NEEDS_EXTERNAL_VERIFICATION",
+   "men": 0,
+   "women": 3,
+   "divisions": [
+    "USCAA"
+   ],
+   "programmesAffected": 1,
+   "exampleProgrammes": [
+    "Pennsylvania State University-Penn State Schuylkill"
+   ]
+  },
+  {
+   "rawValue": "RS",
+   "classification": "D_GENUINELY_UNKNOWN",
+   "men": 1,
+   "women": 0,
+   "divisions": [
+    "NAIA"
+   ],
+   "programmesAffected": 1,
+   "exampleProgrammes": [
+    "Mount Mercy"
+   ]
+  }
+ ],
+ "unlabelledProgrammes": [
+  {
+   "sport": "mens-soccer",
+   "programme": "Northwestern",
+   "division": "NCAA D1",
+   "unlabelled": 31,
+   "rows": 31,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 29,
+   "rowsInOtherSeasons": 114,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://nusports.com/sports/mens-soccer/roster/season/2026?view=table"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Utah State",
+   "division": "NCAA D1",
+   "unlabelled": 30,
+   "rows": 30,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 23,
+   "rowsInOtherSeasons": 122,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://utahstateaggies.com/sports/womens-soccer/roster/2026?view=table"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Clemson",
+   "division": "NCAA D1",
+   "unlabelled": 29,
+   "rows": 29,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 123,
+   "rowsInOtherSeasons": 123,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://clemsontigers.com/sports/mens-soccer/roster/season/2026"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Paul Quinn College",
+   "division": "NAIA",
+   "unlabelled": 29,
+   "rows": 29,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 1,
+   "rowsInOtherSeasons": 22,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://paulquinnathletics.com/sports/wsoc/2026-27/roster?view=table"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Clemson",
+   "division": "NCAA D1",
+   "unlabelled": 28,
+   "rows": 28,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 107,
+   "rowsInOtherSeasons": 107,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://clemsontigers.com/sports/womens-soccer/roster/season/2026"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "George Mason",
+   "division": "NCAA D1",
+   "unlabelled": 26,
+   "rows": 26,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 19,
+   "rowsInOtherSeasons": 115,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://gomason.com/sports/womens-soccer/roster/2026?view=table"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Paul Quinn College",
+   "division": "NAIA",
+   "unlabelled": 22,
+   "rows": 22,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 0,
+   "rowsInOtherSeasons": 23,
+   "diagnosis": "NEVER_LABELLED",
+   "sourceRosterUrl": "https://paulquinnathletics.com/sports/msoc/2026-27/roster?view=table"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Dominican (IL)",
+   "division": "NCAA D3",
+   "unlabelled": 7,
+   "rows": 7,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 148,
+   "rowsInOtherSeasons": 150,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://dustars.com/sports/mens-soccer/roster/2026"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Stevens Tech",
+   "division": "NCAA D3",
+   "unlabelled": 6,
+   "rows": 6,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 128,
+   "rowsInOtherSeasons": 130,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://stevensducks.com/sports/mens-soccer/roster/2026"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Stevens Institute of Technology",
+   "division": "NCAA D3",
+   "unlabelled": 6,
+   "rows": 6,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 118,
+   "rowsInOtherSeasons": 118,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://stevensducks.com/sports/womens-soccer/roster/2026"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Hope",
+   "division": "NCAA D3",
+   "unlabelled": 5,
+   "rows": 5,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 121,
+   "rowsInOtherSeasons": 121,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://athletics.hope.edu/sports/mens-soccer/roster/2026"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Montclair State",
+   "division": "NCAA D3",
+   "unlabelled": 5,
+   "rows": 5,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 138,
+   "rowsInOtherSeasons": 138,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://montclairathletics.com/sports/mens-soccer/roster/2026"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Swarthmore",
+   "division": "NCAA D3",
+   "unlabelled": 5,
+   "rows": 5,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 113,
+   "rowsInOtherSeasons": 113,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://swarthmoreathletics.com/sports/mens-soccer/roster/2026"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Hope College",
+   "division": "NCAA D3",
+   "unlabelled": 5,
+   "rows": 5,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 118,
+   "rowsInOtherSeasons": 118,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://athletics.hope.edu/sports/womens-soccer/roster/2026"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Wyoming",
+   "division": "NCAA D1",
+   "unlabelled": 5,
+   "rows": 5,
+   "entirelyUnlabelled": true,
+   "labelledRowsInOtherSeasons": 23,
+   "rowsInOtherSeasons": 55,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://gowyo.com/sports/womens-soccer/roster/2026?view=table"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "American International",
+   "division": "NCAA D2",
+   "unlabelled": 4,
+   "rows": 53,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 152,
+   "rowsInOtherSeasons": 200,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://aicyellowjackets.com/sports/mens-soccer/roster/2026"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Elmira",
+   "division": "NCAA D3",
+   "unlabelled": 4,
+   "rows": 39,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 38,
+   "rowsInOtherSeasons": 157,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://athletics.elmira.edu/sports/mens-soccer/roster/2026"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Seattle",
+   "division": "NCAA D1",
+   "unlabelled": 4,
+   "rows": 29,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 123,
+   "rowsInOtherSeasons": 123,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://goseattleu.com/sports/mens-soccer/roster/season/2026"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Westcliff University",
+   "division": "NAIA",
+   "unlabelled": 4,
+   "rows": 32,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 34,
+   "rowsInOtherSeasons": 35,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://westcliffathletics.com/sports/msoc/2026-27/roster?view=table"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Cincinnati",
+   "division": "NCAA D1",
+   "unlabelled": 3,
+   "rows": 29,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 127,
+   "rowsInOtherSeasons": 127,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://gobearcats.com/sports/womens-soccer/roster/season/2026"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Pacific Union College",
+   "division": "NAIA",
+   "unlabelled": 2,
+   "rows": 9,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 21,
+   "rowsInOtherSeasons": 23,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://pioneersathletics.com/sports/msoc/2026-27/roster?view=table"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Albertus Magnus",
+   "division": "NCAA D3",
+   "unlabelled": 1,
+   "rows": 34,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 124,
+   "rowsInOtherSeasons": 124,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://albertusfalcons.com/sports/msoc/2026-27/roster"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Avila",
+   "division": "NAIA",
+   "unlabelled": 1,
+   "rows": 28,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 27,
+   "rowsInOtherSeasons": 29,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://avilaathletics.com/sports/msoc/2026-27/roster"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Baker",
+   "division": "NAIA",
+   "unlabelled": 1,
+   "rows": 51,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 59,
+   "rowsInOtherSeasons": 60,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://bakerwildcats.com/sports/msoc/2026-27/roster"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Bethel (TN)",
+   "division": "NAIA",
+   "unlabelled": 1,
+   "rows": 33,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 33,
+   "rowsInOtherSeasons": 33,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://bethelathletics.com/sports/msoc/2026-27/roster"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Florida College",
+   "division": "NAIA",
+   "unlabelled": 1,
+   "rows": 28,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 25,
+   "rowsInOtherSeasons": 25,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://wearefc.com/sports/msoc/2026-27/roster?view=table"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Lakeland",
+   "division": "NCAA D3",
+   "unlabelled": 1,
+   "rows": 51,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 162,
+   "rowsInOtherSeasons": 162,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://lakelandmuskies.com/sports/mens-soccer/roster/2026"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Mount Mercy",
+   "division": "NAIA",
+   "unlabelled": 1,
+   "rows": 74,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 65,
+   "rowsInOtherSeasons": 65,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://mountmercymustangs.com/sports/msoc/2026-27/roster?view=table"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Old Dominion",
+   "division": "NCAA D1",
+   "unlabelled": 1,
+   "rows": 29,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 100,
+   "rowsInOtherSeasons": 103,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://odusports.com/sports/mens-soccer/roster/season/2026?view=table"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "Sterling",
+   "division": "NAIA",
+   "unlabelled": 1,
+   "rows": 34,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 25,
+   "rowsInOtherSeasons": 25,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://scwarriors.com/sports/msoc/2026-27/roster?view=table"
+  },
+  {
+   "sport": "mens-soccer",
+   "programme": "UCF",
+   "division": "NCAA D1",
+   "unlabelled": 1,
+   "rows": 29,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 114,
+   "rowsInOtherSeasons": 115,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://ucfknights.com/sports/mens-soccer/roster/season/2026"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Elmira College",
+   "division": "NCAA D3",
+   "unlabelled": 1,
+   "rows": 25,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 28,
+   "rowsInOtherSeasons": 113,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://athletics.elmira.edu/sports/womens-soccer/roster/2026"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Jefferson",
+   "division": "NCAA D2",
+   "unlabelled": 1,
+   "rows": 32,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 150,
+   "rowsInOtherSeasons": 150,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://jeffersonrams.com/sports/womens-soccer/roster/2026"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Montana State Billings",
+   "division": "NCAA D2",
+   "unlabelled": 1,
+   "rows": 27,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 27,
+   "rowsInOtherSeasons": 115,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://msubsports.com/sports/womens-soccer/roster/2026"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Muskingum University",
+   "division": "NCAA D3",
+   "unlabelled": 1,
+   "rows": 25,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 101,
+   "rowsInOtherSeasons": 101,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://www.fightingmuskies.com/sports/wsoc/2026-27/roster?view=table"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Penn State",
+   "division": "NCAA D1",
+   "unlabelled": 1,
+   "rows": 25,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 96,
+   "rowsInOtherSeasons": 124,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://gopsusports.com/sports/womens-soccer/roster/season/2026?view=table"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "San Jose State",
+   "division": "NCAA D1",
+   "unlabelled": 1,
+   "rows": 29,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 118,
+   "rowsInOtherSeasons": 118,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://sjsuspartans.com/sports/womens-soccer/roster/season/2026"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Seattle",
+   "division": "NCAA D1",
+   "unlabelled": 1,
+   "rows": 30,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 130,
+   "rowsInOtherSeasons": 130,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://goseattleu.com/sports/womens-soccer/roster/season/2026"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Union Commonwealth University",
+   "division": "NAIA",
+   "unlabelled": 1,
+   "rows": 27,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 22,
+   "rowsInOtherSeasons": 24,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://gounionbulldogs.com/sports/wsoc/2026-27/roster?view=table"
+  },
+  {
+   "sport": "womens-soccer",
+   "programme": "Wellesley College",
+   "division": "NCAA D3",
+   "unlabelled": 1,
+   "rows": 29,
+   "entirelyUnlabelled": false,
+   "labelledRowsInOtherSeasons": 30,
+   "rowsInOtherSeasons": 118,
+   "diagnosis": "ACQUISITION_REGRESSION",
+   "sourceRosterUrl": "https://wellesleyblue.com/sports/womens-soccer/roster/2026"
+  }
+ ],
+ "requiresResearch": [
+  {
+   "rawValueFamily": [
+    "Jr.-R",
+    "So.-R",
+    "Fr.-R",
+    "Sr.-R",
+    "Fr-R"
+   ],
+   "classification": "G_NEEDS_EXTERNAL_VERIFICATION",
+   "currentReading": "the class is read correctly; the -R suffix is NOT treated as a redshirt",
+   "rowsThisSeason": 17,
+   "rowsAllSeasons": 44,
+   "programmes": [
+    "Hawaii Hilo",
+    "Nebraska at Kearney",
+    "San Francisco State"
+   ],
+   "why": "At other programmes the same suffix slot carries -TR and -1L/-2L/-3L, so -R is plausibly Redshirt. hiloathletics.com publishes NO legend, key or expanded form, and a plausible reading is not a source.",
+   "whyLeftUnchanged": "Treating the whole label as unreadable would discard the class year that IS unambiguous, and asserting a redshirt would hand the athlete a year of eligibility on an inference. Both are worse than a recorded open question.",
+   "recommendedAction": "obtain an expansion from the programme or from a page that prints one, then revisit"
+  }
+ ]
+}

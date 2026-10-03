@@ -4,6 +4,8 @@ import { describeAttributes } from '@shared/sportProfiles';
 import PublishCard from '@/components/PublishCard';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 import { classYearOf } from '@shared/athlete.js';
+import { contributionSummary } from '@/lib/contributionIntake';
+import { preferenceSummary, preferencesComplete } from '@/lib/preferenceIntake';
 
 function present(value) {
   return value !== null && value !== undefined && value !== '';
@@ -51,6 +53,9 @@ export default function ProfileTab() {
   const { player } = usePlayerWorkspace();
   const attributeGroups = describeAttributes(player.sport, player.sport_attributes);
   const chapters = player.video_chapters || [];
+  const contribution = contributionSummary(player);
+  const preferences = preferenceSummary(player);
+  const preferencesAnswered = preferencesComplete(player);
 
   return (
     <div className="space-y-4">
@@ -61,9 +66,18 @@ export default function ProfileTab() {
           <p className="text-xs text-muted-foreground">Divisions</p>
           <p className="font-semibold mt-1">{(player.preferred_divisions || []).join(', ') || 'Any'}</p>
         </Card>
+        {/*
+          The family's own answer, not the old band. A band never stated a
+          maximum, so one is never shown as one — "$40k+/yr" in particular
+          reads as "Needs confirmation" with the band underneath as context.
+        */}
         <Card className="p-4 text-center">
-          <p className="text-xs text-muted-foreground">Budget</p>
-          <p className="font-semibold mt-1">{player.budget_range || '—'}</p>
+          <p className="text-xs text-muted-foreground">{contribution.label}</p>
+          <p className={`font-semibold mt-1 ${contribution.needsAttention ? 'text-amber-700' : ''}`}>
+            {contribution.value}
+            {contribution.needsAttention && <span className="sr-only"> — action needed</span>}
+          </p>
+          {contribution.note && <p className="text-[11px] text-muted-foreground mt-1">{contribution.note}</p>}
         </Card>
       </div>
 
@@ -88,6 +102,35 @@ export default function ProfileTab() {
           <Row label="NCAA Eligibility ID" value={player.ncaa_eligibility_id} />
           <Row label="Intended major" value={player.intended_major} />
         </Block>
+
+        {/*
+          A Block, not a Row set inside another: these three are the only
+          things on this screen the ATHLETE stated, and they are rendered
+          unconditionally - including when all three are unanswered, which is
+          the state that needs to be visible. `Block` hides itself when every
+          value is empty, and "Not answered" is exactly what must not be
+          hidden, so this one is written out.
+        */}
+        <Card className="p-5">
+          <h3 className="font-heading text-sm font-semibold mb-2">What the athlete wants</h3>
+          <dl>
+            {preferences.map((p) => (
+              <div key={p.field} className="flex items-baseline justify-between gap-4 py-2 border-b border-border/60 last:border-0">
+                <dt className="text-xs text-muted-foreground shrink-0">{p.label}</dt>
+                <dd className={`text-sm text-right ${p.answered ? 'font-medium' : 'italic text-muted-foreground'}`}>
+                  {p.text}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          {!preferencesAnswered && (
+            <p className="text-[11px] text-muted-foreground mt-2">
+              An unanswered preference is not scored as a middle answer — matching is built from
+              measured evidence until the athlete says what they want. Answer all three in
+              Edit Player to have their preferences reflected.
+            </p>
+          )}
+        </Card>
 
         <Block title="Contact">
           <Row label="Athlete" value={player.email} href={player.email ? `mailto:${player.email}` : null} />

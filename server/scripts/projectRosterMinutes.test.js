@@ -34,6 +34,8 @@ function seed() {
       id TEXT PRIMARY KEY, college_name TEXT, sport TEXT, season TEXT,
       player_name TEXT, minutes_played INTEGER,
       projected_minutes INTEGER, projected_minutes_season TEXT,
+      games_played INTEGER, games_started INTEGER,
+      projected_games_started INTEGER, projected_games_played INTEGER, projected_games_season TEXT,
       prior_programme TEXT, estimated_graduation_year INTEGER
     );
   `);

@@ -37,6 +37,7 @@ import {
   INTERNATIONAL_FLOOR,
   NO_ATHLETIC_AID_CONFERENCES,
   budgetCeiling,
+  familyBudgetCeiling,
   UNDECLARED_BUDGET,
   NEUTRAL_PRIOR,
 } from './constants.js';
@@ -302,13 +303,18 @@ function satLabel(delta) {
  * nothing at all before 2026-08-25.
  */
 export function affordability({
-  budgetRange, netPrice, control, tuitionIn, tuitionOut, athleteState, schoolState,
+  budgetRange, contributionState = null, maxAnnualContributionUsd = null,
+  netPrice, control, tuitionIn, tuitionOut, athleteState, schoolState,
   division, sport, conference, athleteLevel, programLevel,
 }) {
-  // Via budgetCeiling, not the map directly: an athlete recorded under the
-  // pre-2026-08-25 bands would otherwise read as having stated no budget, and
-  // affordability would silently drop to its neutral prior rather than erroring.
-  const ceiling = budgetCeiling(budgetRange);
+  /**
+   * Via familyBudgetCeiling, not the map directly. Two reasons, one old and
+   * one new: an athlete recorded under the pre-2026-08-25 bands would
+   * otherwise read as having stated no budget, and since A7.9.5 an athlete
+   * who stated an exact maximum has no band at all. Both resolve to the same
+   * kind of ceiling, and the formula below is untouched either way.
+   */
+  const ceiling = familyBudgetCeiling({ budgetRange, contributionState, maxAnnualContributionUsd });
   if (ceiling === undefined) {
     // Said differently for the deliberate answer than for a blank field: one
     // is a decision the family made and the card should not nag about it, the
@@ -329,15 +335,25 @@ export function affordability({
     netPriceIsAverage: true,
     expectedAwardFraction: round2(award.fraction),
     awardBasis: award.basis,
+    // Whether the zero above is a RULE or an ABSENCE. A surface quoting an
+    // award must read this first: `expectedAwardFraction: 0` is produced both
+    // by NCAA D3, where it is a fact, and by a division we hold no rule for,
+    // where it is only a conservative assumption.
+    awardKnown: award.known !== false,
     ...resident.detail,
   };
   if (award.caveat) detail.caveat = award.caveat;
+
+  // An unknown aid rule cannot be described with the award vocabulary — the
+  // weakest of those labels is "no athletic aid", which is the very claim
+  // this branch exists to avoid making.
+  const awardLabelFor = (fraction) => (award.known === false ? 'athletic aid unknown' : awardLabel(fraction));
 
   if (price === null) {
     // Without a price the award rules alone still say something useful, and
     // for a full-scholarship request they say most of it.
     if (ceiling === 0) {
-      return { score: clamp01(AFFORDABILITY_FLOOR + (1 - AFFORDABILITY_FLOOR) * award.fraction), confidence: 'partial', label: awardLabel(award.fraction), detail };
+      return { score: clamp01(AFFORDABILITY_FLOOR + (1 - AFFORDABILITY_FLOOR) * award.fraction), confidence: 'partial', label: awardLabelFor(award.fraction), detail };
     }
     return assumed({ reason: 'school has no net price', ...detail });
   }
@@ -345,8 +361,13 @@ export function affordability({
   const estimatedCost = Math.max(0, price * (1 - award.fraction));
   detail.estimatedCost = Math.round(estimatedCost);
 
+  // An estimate built on an aid rule we do not hold is not a measurement.
+  // The SCORE is unchanged — an unknown rule assumes no award, exactly as
+  // before — but the card must not badge that estimate as measured.
+  const priced = award.known === false ? 'partial' : 'measured';
+
   if (ceiling === Infinity) {
-    return { score: 1, confidence: 'measured', label: 'within budget', detail: { ...detail, budgetCeiling: null } };
+    return { score: 1, confidence: priced, label: 'within budget', detail: { ...detail, budgetCeiling: null } };
   }
 
   const gap = Math.max(0, estimatedCost - ceiling);
@@ -360,7 +381,7 @@ export function affordability({
 
   return {
     score,
-    confidence: 'measured',
+    confidence: priced,
     label: gap === 0 ? 'within budget' : gap <= scale * 0.5 ? 'needs a solid offer' : 'needs a big offer',
     detail,
   };
@@ -375,14 +396,35 @@ export function affordability({
  * than as advice.
  */
 export function expectedAward({ division, sport, conference, athleteLevel, programLevel }) {
-  const mean = athleticAidFraction({ division, sport, conference });
-  const max = maxAthleticAidFraction({ division, sport, conference });
+  const policy = athleticAidPolicy({ division, sport, conference });
+  const { mean, max } = policy;
 
-  if (max === 0) {
+  // No rule on file. The arithmetic is unchanged — assuming no award is the
+  // conservative reading and keeps an unconfigured programme priced at its
+  // net price — but NOTHING IS CLAIMED ABOUT SCHOLARSHIPS. `known: false`
+  // is what a surface checks before quoting an award at all.
+  if (policy.status === AID_POLICY.UNKNOWN) {
     return {
       fraction: 0,
+      known: false,
+      basis: 'athletic aid unknown',
+      caveat: `No athletic-scholarship rule is on file for ${division || 'this environment'}, so none is assumed here. Any athletic award would reduce the figure shown rather than add to it.`,
+    };
+  }
+
+  if (max === 0) {
+    // The rule is quoted by name. It used to be built from `division`
+    // regardless, so an Ivy League programme — zeroed by its CONFERENCE —
+    // was explained as "NCAA D1 offers no athletic scholarships", which is
+    // false of the other 554 D1 programmes in the pool.
+    const sentence = policy.status === AID_POLICY.CONFERENCE_RULE
+      ? `The ${policy.rule} does not permit athletic scholarships`
+      : `${policy.rule || 'This division'} offers no athletic scholarships`;
+    return {
+      fraction: 0,
+      known: true,
       basis: 'no athletic aid',
-      caveat: `${division || 'This division'} offers no athletic scholarships; any award here would be need-based or academic, which the net price already reflects.`,
+      caveat: `${sentence}; any award here would be need-based or academic, which the net price already reflects.`,
     };
   }
 
@@ -392,11 +434,12 @@ export function expectedAward({ division, sport, conference, athleteLevel, progr
 
   const a = num(athleteLevel);
   const p = num(programLevel);
-  if (a === null || p === null) return { fraction: mean, basis: 'squad average', caveat: EQUIVALENCY };
+  if (a === null || p === null) return { fraction: mean, known: true, basis: 'squad average', caveat: EQUIVALENCY };
 
   const standout = clamp01((a - p) / STANDOUT_DELTA);
   return {
     fraction: mean + (max - mean) * standout,
+    known: true,
     basis: standout >= 0.6 ? 'priority signing' : standout >= 0.25 ? 'above squad average' : 'squad average',
     caveat: EQUIVALENCY,
   };
@@ -439,16 +482,83 @@ export function residency({ netPrice, control, tuitionIn, tuitionOut, athleteSta
     : { price: price + gap, detail: { residency: 'out-of-state', inState: false, outOfStatePremium: Math.round(gap) } };
 }
 
-/** What a priority signing could command, 0..1. */
-export function maxAthleticAidFraction({ division, sport, conference }) {
-  if (conference && NO_ATHLETIC_AID_CONFERENCES.has(conference)) return 0;
-  return MAX_ATHLETIC_AID_FRACTION[division]?.[sport] ?? 0;
+/**
+ * Why a programme's athletic aid is what it is — and, crucially, whether we
+ * know at all.
+ *
+ * A ZERO AND AN ABSENCE ARE DIFFERENT FACTS AND USED TO READ THE SAME.
+ * The lookup was `MAX_ATHLETIC_AID_FRACTION[division]?.[sport] ?? 0`, so a
+ * division missing from the table came back as a confident zero and
+ * `expectedAward` printed "<division> offers no athletic scholarships" —
+ * a rule we do not hold, asserted to a family. USCAA is the live case: 21
+ * programmes, none of them in either table, every one of them told the
+ * reader that athletic money does not exist there.
+ *
+ * Four statuses, and the separation is the whole point:
+ *
+ *   CONFERENCE_RULE  a known zero set by the conference — the Ivy League
+ *   DIVISION_RULE    a known zero set by the division — NCAA D3
+ *   EQUIVALENCY      a configured, non-zero pool split across the squad
+ *   UNKNOWN          no rule on file. Say nothing about scholarships here.
+ *
+ * `mean` and `max` are null under UNKNOWN rather than zero, so a caller that
+ * forgets to check the status gets a visible NaN or null rather than a
+ * plausible-looking figure. An absence must not be able to impersonate a
+ * measurement — the same rule `rosterOpportunity` follows for an unscraped
+ * roster and `academicFit` for an athlete with no test score.
+ *
+ * NO USCAA CONSTANT IS INVENTED HERE. The association's members set their own
+ * aid and nothing in this repository records it; UNKNOWN is the true answer
+ * and a plausible number would be worse than none.
+ */
+export const AID_POLICY = Object.freeze({
+  CONFERENCE_RULE: 'CONFERENCE_RULE',
+  DIVISION_RULE: 'DIVISION_RULE',
+  EQUIVALENCY: 'EQUIVALENCY',
+  UNKNOWN: 'UNKNOWN',
+});
+
+/**
+ * @returns {{ status:string, mean:(number|null), max:(number|null), rule:(string|null) }}
+ *   `rule` names whatever imposes a known zero — the conference or the
+ *   division — so the sentence quoting it cannot attribute it to the wrong one.
+ */
+export function athleticAidPolicy({ division, sport, conference }) {
+  // Checked before the division tables, not after: an Ivy League programme is
+  // NCAA D1 and D1 does have an equivalency pool. The conference rule is the
+  // narrower fact and the narrower fact wins.
+  if (conference && NO_ATHLETIC_AID_CONFERENCES.has(conference)) {
+    return { status: AID_POLICY.CONFERENCE_RULE, mean: 0, max: 0, rule: conference };
+  }
+
+  const mean = ATHLETIC_AID_FRACTION[division]?.[sport];
+  const max = MAX_ATHLETIC_AID_FRACTION[division]?.[sport];
+  // Either table missing the combination means we hold no rule. Both are
+  // required: a half-configured division is a configuration defect, and
+  // guessing the other half is how an invented constant gets in.
+  if (mean === undefined || max === undefined) {
+    return { status: AID_POLICY.UNKNOWN, mean: null, max: null, rule: null };
+  }
+
+  if (max === 0) return { status: AID_POLICY.DIVISION_RULE, mean: 0, max: 0, rule: division };
+  return { status: AID_POLICY.EQUIVALENCY, mean, max, rule: null };
 }
 
-/** Mean athletic aid available per rostered player, 0..1. */
+/**
+ * What a priority signing could command, 0..1 — or null where no rule is held.
+ *
+ * Null, never zero, for an unconfigured division. See athleticAidPolicy.
+ */
+export function maxAthleticAidFraction({ division, sport, conference }) {
+  return athleticAidPolicy({ division, sport, conference }).max;
+}
+
+/**
+ * Mean athletic aid available per rostered player, 0..1 — or null where no
+ * rule is held.
+ */
 export function athleticAidFraction({ division, sport, conference }) {
-  if (conference && NO_ATHLETIC_AID_CONFERENCES.has(conference)) return 0;
-  return ATHLETIC_AID_FRACTION[division]?.[sport] ?? 0;
+  return athleticAidPolicy({ division, sport, conference }).mean;
 }
 
 // ---------------------------------------------------------------------------

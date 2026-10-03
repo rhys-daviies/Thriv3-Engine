@@ -12,7 +12,7 @@ import EditPlayer from '@/pages/EditPlayer';
 import Players from '@/pages/Players';
 import PlayerWorkspace, { TabFallback } from '@/pages/player/PlayerWorkspace';
 import ProfileTab from '@/pages/player/ProfileTab';
-import MatchingTab from '@/pages/player/MatchingTab';
+import MatchingTabSwitch from '@/pages/player/MatchingTabSwitch';
 import EngagementTab from '@/pages/player/EngagementTab';
 import CampaignTab from './pages/player/CampaignTab.jsx';
 import PhilosophyTab from '@/pages/player/PhilosophyTab';
@@ -73,7 +73,7 @@ export default function App() {
             <Route path="/player/:id" element={<PlayerWorkspace />}>
               <Route index element={<TabFallback />} />
               <Route path="profile" element={<ProfileTab />} />
-              <Route path="matching" element={<MatchingTab />} />
+              <Route path="matching" element={<MatchingTabSwitch />} />
               <Route path="engagement" element={<EngagementTab />} />
               <Route path="campaign" element={<CampaignTab />} />
               <Route path="philosophy" element={<PhilosophyTab />} />

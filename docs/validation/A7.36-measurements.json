@@ -1,0 +1,1229 @@
+{
+ "entryYear": 2028,
+ "season": "2026",
+ "universes": {
+  "mens-soccer": {
+   "cells": 4664,
+   "scoreable": 3520,
+   "grades": {
+    "PARTIAL": 3197,
+    "MEASURED": 323,
+    "UNSCOREABLE": 1144
+   },
+   "percentiles": {
+    "p10": 0.3749,
+    "p25": 0.4703,
+    "p50": 0.5719,
+    "p75": 0.6739,
+    "p90": 0.7719
+   },
+   "perfectCompetitionCells": 379,
+   "perfectAndNothingDeparting": 64,
+   "singleHalfCells": 52,
+   "correlationsWithPathway": {
+    "returning": -0.5689,
+    "returningStarters": -0.2038,
+    "departing": 0.1867,
+    "positionRows": -0.1553,
+    "programmeRows": -0.2611,
+    "strengthPct": -0.2254,
+    "returningUnknown": -0.5015,
+    "pressure": -0.8026
+   },
+   "correlationStrengthAllVsFullyReadable": {
+    "all": -0.2254,
+    "fullyReadable": -0.2226
+   },
+   "withinPosition": {
+    "GOALKEEPER": {
+     "n": 880,
+     "vsReturning": -0.8247,
+     "vsDepartures": 0.258,
+     "vsStrength": -0.3722
+    },
+    "DEFENSE": {
+     "n": 880,
+     "vsReturning": -0.7511,
+     "vsDepartures": 0.0776,
+     "vsStrength": -0.167
+    },
+    "MIDFIELD": {
+     "n": 880,
+     "vsReturning": -0.7631,
+     "vsDepartures": 0.1219,
+     "vsStrength": -0.2114
+    },
+    "FORWARD": {
+     "n": 880,
+     "vsReturning": -0.8104,
+     "vsDepartures": 0.0767,
+     "vsStrength": -0.1815
+    }
+   },
+   "decileProfile": [
+    {
+     "decile": 1,
+     "pathway": 0.3148,
+     "positionRows": 9.0,
+     "returning": 5.0,
+     "departing": 1.0,
+     "strengthPct": 0.7142
+    },
+    {
+     "decile": 2,
+     "pathway": 0.4148,
+     "positionRows": 6.0,
+     "returning": 3.0,
+     "departing": 1.0,
+     "strengthPct": 0.6562
+    },
+    {
+     "decile": 3,
+     "pathway": 0.4702,
+     "positionRows": 9.0,
+     "returning": 4.0,
+     "departing": 2.0,
+     "strengthPct": 0.5774
+    },
+    {
+     "decile": 4,
+     "pathway": 0.5196,
+     "positionRows": 9.0,
+     "returning": 4.0,
+     "departing": 2.0,
+     "strengthPct": 0.6485
+    },
+    {
+     "decile": 5,
+     "pathway": 0.5562,
+     "positionRows": 9.0,
+     "returning": 3.0,
+     "departing": 3.0,
+     "strengthPct": 0.6057
+    },
+    {
+     "decile": 6,
+     "pathway": 0.5868,
+     "positionRows": 9.0,
+     "returning": 3.0,
+     "departing": 3.0,
+     "strengthPct": 0.5269
+    },
+    {
+     "decile": 7,
+     "pathway": 0.6297,
+     "positionRows": 8.0,
+     "returning": 2.0,
+     "departing": 3.0,
+     "strengthPct": 0.5332
+    },
+    {
+     "decile": 8,
+     "pathway": 0.6739,
+     "positionRows": 8.0,
+     "returning": 2.0,
+     "departing": 3.0,
+     "strengthPct": 0.5865
+    },
+    {
+     "decile": 9,
+     "pathway": 0.7419,
+     "positionRows": 7.0,
+     "returning": 1.0,
+     "departing": 3.0,
+     "strengthPct": 0.4425
+    },
+    {
+     "decile": 10,
+     "pathway": 0.8211,
+     "positionRows": 5.0,
+     "returning": 0.0,
+     "departing": 2.0,
+     "strengthPct": 0.3725
+    }
+   ]
+  },
+  "womens-soccer": {
+   "cells": 4960,
+   "scoreable": 4716,
+   "grades": {
+    "MEASURED": 510,
+    "PARTIAL": 4206,
+    "UNSCOREABLE": 244
+   },
+   "percentiles": {
+    "p10": 0.3753,
+    "p25": 0.4606,
+    "p50": 0.5725,
+    "p75": 0.6915,
+    "p90": 0.7946
+   },
+   "perfectCompetitionCells": 555,
+   "perfectAndNothingDeparting": 74,
+   "singleHalfCells": 72,
+   "correlationsWithPathway": {
+    "returning": -0.5852,
+    "returningStarters": -0.3756,
+    "departing": 0.2567,
+    "positionRows": -0.159,
+    "programmeRows": -0.3377,
+    "strengthPct": -0.4721,
+    "returningUnknown": -0.4104,
+    "pressure": -0.8233
+   },
+   "correlationStrengthAllVsFullyReadable": {
+    "all": -0.4721,
+    "fullyReadable": -0.4564
+   },
+   "withinPosition": {
+    "GOALKEEPER": {
+     "n": 1179,
+     "vsReturning": -0.837,
+     "vsDepartures": 0.2707,
+     "vsStrength": -0.5063
+    },
+    "DEFENSE": {
+     "n": 1179,
+     "vsReturning": -0.7726,
+     "vsDepartures": 0.2424,
+     "vsStrength": -0.4424
+    },
+    "MIDFIELD": {
+     "n": 1179,
+     "vsReturning": -0.7988,
+     "vsDepartures": 0.1711,
+     "vsStrength": -0.4727
+    },
+    "FORWARD": {
+     "n": 1179,
+     "vsReturning": -0.8325,
+     "vsDepartures": 0.2062,
+     "vsStrength": -0.5294
+    }
+   },
+   "decileProfile": [
+    {
+     "decile": 1,
+     "pathway": 0.3273,
+     "positionRows": 7.0,
+     "returning": 4.0,
+     "departing": 1.0,
+     "strengthPct": 0.7393
+    },
+    {
+     "decile": 2,
+     "pathway": 0.4109,
+     "positionRows": 8.0,
+     "returning": 4.0,
+     "departing": 1.0,
+     "strengthPct": 0.7247
+    },
+    {
+     "decile": 3,
+     "pathway": 0.4606,
+     "positionRows": 8.0,
+     "returning": 4.0,
+     "departing": 1.0,
+     "strengthPct": 0.6857
+    },
+    {
+     "decile": 4,
+     "pathway": 0.5079,
+     "positionRows": 8.0,
+     "returning": 4.0,
+     "departing": 2.0,
+     "strengthPct": 0.6488
+    },
+    {
+     "decile": 5,
+     "pathway": 0.5508,
+     "positionRows": 7.0,
+     "returning": 3.0,
+     "departing": 2.0,
+     "strengthPct": 0.5077
+    },
+    {
+     "decile": 6,
+     "pathway": 0.5954,
+     "positionRows": 8.0,
+     "returning": 3.0,
+     "departing": 3.0,
+     "strengthPct": 0.4724
+    },
+    {
+     "decile": 7,
+     "pathway": 0.6382,
+     "positionRows": 8.0,
+     "returning": 3.0,
+     "departing": 3.0,
+     "strengthPct": 0.3873
+    },
+    {
+     "decile": 8,
+     "pathway": 0.6915,
+     "positionRows": 7.0,
+     "returning": 2.0,
+     "departing": 3.0,
+     "strengthPct": 0.4124
+    },
+    {
+     "decile": 9,
+     "pathway": 0.755,
+     "positionRows": 6.0,
+     "returning": 1.0,
+     "departing": 2.0,
+     "strengthPct": 0.2806
+    },
+    {
+     "decile": 10,
+     "pathway": 0.8366,
+     "positionRows": 5.0,
+     "returning": 0.0,
+     "departing": 2.0,
+     "strengthPct": 0.236
+    }
+   ]
+  }
+ },
+ "cases": {
+  "V3-B-elite-balanced": {
+   "sport": "mens-soccer",
+   "position": "MIDFIELD",
+   "entryYear": 2028,
+   "controlTop100MedianStrength": 74.39,
+   "pathwayVsPositionalSignalRho": 0.101,
+   "positionalEvidence": {
+    "DETECTED": 638,
+    "UNKNOWN": 59,
+    "NONE_DETECTED": 161
+   },
+   "top100Classification": {
+    "GENUINE_OPPORTUNITY": 69,
+    "THIN_ROSTER_EFFECT": 22,
+    "UNCLEAR": 9
+   },
+   "materiallyHelped": 37,
+   "materiallyHelpedClassification": {
+    "GENUINE_OPPORTUNITY": 26,
+    "THIN_ROSTER_EFFECT": 9,
+    "UNCLEAR": 2
+   },
+   "largestBeneficiaries": [
+    {
+     "gain": 54,
+     "rank": 92,
+     "programme": "FIU",
+     "pathway": 0.8286,
+     "positionRows": 7,
+     "positionUnreadable": 0,
+     "returning": 3,
+     "strength": 82.47,
+     "positional": "UNKNOWN",
+     "class": "UNCLEAR"
+    },
+    {
+     "gain": 43,
+     "rank": 17,
+     "programme": "California Baptist",
+     "pathway": 0.8455,
+     "positionRows": 7,
+     "positionUnreadable": 0,
+     "returning": 3,
+     "strength": 78.49,
+     "positional": "DETECTED",
+     "class": "GENUINE_OPPORTUNITY"
+    },
+    {
+     "gain": 42,
+     "rank": 75,
+     "programme": "Fairfield",
+     "pathway": 0.8369,
+     "positionRows": 8,
+     "positionUnreadable": 0,
+     "returning": 2,
+     "strength": 71.65,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 36,
+     "rank": 88,
+     "programme": "Loyola Chicago",
+     "pathway": 0.6584,
+     "positionRows": 9,
+     "positionUnreadable": 0,
+     "returning": 4,
+     "strength": 74.34,
+     "positional": "DETECTED",
+     "class": "GENUINE_OPPORTUNITY"
+    },
+    {
+     "gain": 35,
+     "rank": 86,
+     "programme": "Keiser University",
+     "pathway": 0.7552,
+     "positionRows": 15,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 66,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 33,
+     "rank": 95,
+     "programme": "ETSU",
+     "pathway": 0.582,
+     "positionRows": 15,
+     "positionUnreadable": 0,
+     "returning": 8,
+     "strength": 70.45,
+     "positional": "DETECTED",
+     "class": "GENUINE_OPPORTUNITY"
+    },
+    {
+     "gain": 32,
+     "rank": 80,
+     "programme": "CSUN",
+     "pathway": 0.6165,
+     "positionRows": 10,
+     "positionUnreadable": 0,
+     "returning": 4,
+     "strength": 70.07,
+     "positional": "DETECTED",
+     "class": "GENUINE_OPPORTUNITY"
+    },
+    {
+     "gain": 27,
+     "rank": 31,
+     "programme": "UC Riverside",
+     "pathway": 0.7646,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 1,
+     "strength": 68.08,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    }
+   ],
+   "probes": {
+    "noCompetition": {
+     "top100Churn": 10,
+     "top100MedianStrength": 74.52,
+     "deltaStrength": 0.13,
+     "medianPathway": 0.4786
+    },
+    "noRotation": {
+     "top100Churn": 6,
+     "top100MedianStrength": 74.39,
+     "deltaStrength": 0.0,
+     "medianPathway": 0.6522
+    },
+    "unknownWeight1.0": {
+     "top100Churn": 2,
+     "top100MedianStrength": 74.52,
+     "deltaStrength": 0.13,
+     "medianPathway": 0.5201
+    },
+    "halfAt1.5": {
+     "top100Churn": 0,
+     "top100MedianStrength": 74.39,
+     "deltaStrength": 0.0,
+     "medianPathway": 0.6773
+    },
+    "pathwayNeutral": {
+     "top100Churn": 10,
+     "top100MedianStrength": 75.385,
+     "deltaStrength": 1.0,
+     "medianPathway": 0.6
+    }
+   }
+  },
+  "V3-C-strong-playing-focused": {
+   "sport": "mens-soccer",
+   "position": "FORWARD",
+   "entryYear": 2028,
+   "controlTop100MedianStrength": 56.525,
+   "pathwayVsPositionalSignalRho": 0.0293,
+   "positionalEvidence": {
+    "DETECTED": 475,
+    "NONE_DETECTED": 311,
+    "UNKNOWN": 84
+   },
+   "top100Classification": {
+    "THIN_ROSTER_EFFECT": 65,
+    "MISSING_DATA_EFFECT": 3,
+    "GENUINE_OPPORTUNITY": 23,
+    "UNCLEAR": 9
+   },
+   "materiallyHelped": 44,
+   "materiallyHelpedClassification": {
+    "THIN_ROSTER_EFFECT": 35,
+    "MISSING_DATA_EFFECT": 3,
+    "GENUINE_OPPORTUNITY": 3,
+    "UNCLEAR": 3
+   },
+   "largestBeneficiaries": [
+    {
+     "gain": 99,
+     "rank": 86,
+     "programme": "Trevecca Nazarene",
+     "pathway": 0.8939,
+     "positionRows": 3,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 51.15,
+     "positional": "NONE_DETECTED",
+     "class": "MISSING_DATA_EFFECT"
+    },
+    {
+     "gain": 88,
+     "rank": 73,
+     "programme": "University of Mobile",
+     "pathway": 0.7519,
+     "positionRows": 8,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 57.14,
+     "positional": "UNKNOWN",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 86,
+     "rank": 66,
+     "programme": "Beloit",
+     "pathway": 0.9223,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 33.96,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 74,
+     "rank": 95,
+     "programme": "Dordt",
+     "pathway": 0.7519,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 52.26,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 71,
+     "rank": 51,
+     "programme": "Ottawa",
+     "pathway": 0.7519,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 56.91,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 59,
+     "rank": 11,
+     "programme": "Mid-America Christian University",
+     "pathway": 0.7519,
+     "positionRows": 8,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 58.11,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 59,
+     "rank": 57,
+     "programme": "Chicago State",
+     "pathway": 0.7642,
+     "positionRows": 1,
+     "positionUnreadable": 0,
+     "returning": 1,
+     "strength": 56.49,
+     "positional": "NONE_DETECTED",
+     "class": "MISSING_DATA_EFFECT"
+    },
+    {
+     "gain": 58,
+     "rank": 98,
+     "programme": "Thomas University",
+     "pathway": 0.5673,
+     "positionRows": 14,
+     "positionUnreadable": 0,
+     "returning": 2,
+     "strength": 48.84,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    }
+   ],
+   "probes": {
+    "noCompetition": {
+     "top100Churn": 19,
+     "top100MedianStrength": 56.525,
+     "deltaStrength": 0.0,
+     "medianPathway": 0.4483
+    },
+    "noRotation": {
+     "top100Churn": 9,
+     "top100MedianStrength": 56.505,
+     "deltaStrength": -0.02,
+     "medianPathway": 0.6164
+    },
+    "unknownWeight1.0": {
+     "top100Churn": 5,
+     "top100MedianStrength": 56.525,
+     "deltaStrength": 0.0,
+     "medianPathway": 0.4985
+    },
+    "halfAt1.5": {
+     "top100Churn": 4,
+     "top100MedianStrength": 56.84,
+     "deltaStrength": 0.32,
+     "medianPathway": 0.664
+    },
+    "pathwayNeutral": {
+     "top100Churn": 18,
+     "top100MedianStrength": 56.84,
+     "deltaStrength": 0.32,
+     "medianPathway": 0.5748
+    }
+   }
+  },
+  "V3-D-developmental-balanced": {
+   "sport": "mens-soccer",
+   "position": "MIDFIELD",
+   "entryYear": 2028,
+   "controlTop100MedianStrength": 35.185,
+   "pathwayVsPositionalSignalRho": 0.101,
+   "positionalEvidence": {
+    "DETECTED": 638,
+    "UNKNOWN": 59,
+    "NONE_DETECTED": 161
+   },
+   "top100Classification": {
+    "THIN_ROSTER_EFFECT": 54,
+    "GENUINE_OPPORTUNITY": 34,
+    "UNCLEAR": 10,
+    "MISSING_DATA_EFFECT": 2
+   },
+   "materiallyHelped": 20,
+   "materiallyHelpedClassification": {
+    "THIN_ROSTER_EFFECT": 15,
+    "GENUINE_OPPORTUNITY": 4,
+    "MISSING_DATA_EFFECT": 1
+   },
+   "largestBeneficiaries": [
+    {
+     "gain": 29,
+     "rank": 69,
+     "programme": "Howard Payne",
+     "pathway": 0.9046,
+     "positionRows": 4,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 29.8,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 24,
+     "rank": 39,
+     "programme": "Gallaudet",
+     "pathway": 0.8737,
+     "positionRows": 5,
+     "positionUnreadable": 0,
+     "returning": 2,
+     "strength": 27.9,
+     "positional": "DETECTED",
+     "class": "GENUINE_OPPORTUNITY"
+    },
+    {
+     "gain": 22,
+     "rank": 58,
+     "programme": "Keuka",
+     "pathway": 0.8286,
+     "positionRows": 11,
+     "positionUnreadable": 0,
+     "returning": 3,
+     "strength": 27.2,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 19,
+     "rank": 74,
+     "programme": "Worcester State",
+     "pathway": 0.8211,
+     "positionRows": 5,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 37.16,
+     "positional": "NONE_DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 17,
+     "rank": 21,
+     "programme": "Lasell",
+     "pathway": 0.8211,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 34.27,
+     "positional": "UNKNOWN",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 16,
+     "rank": 34,
+     "programme": "Lewis & Clark",
+     "pathway": 0.8428,
+     "positionRows": 7,
+     "positionUnreadable": 0,
+     "returning": 1,
+     "strength": 25,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 16,
+     "rank": 52,
+     "programme": "McMurry",
+     "pathway": 0.7402,
+     "positionRows": 8,
+     "positionUnreadable": 0,
+     "returning": 2,
+     "strength": 32.89,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 16,
+     "rank": 55,
+     "programme": "Wilkes",
+     "pathway": 0.701,
+     "positionRows": 12,
+     "positionUnreadable": 0,
+     "returning": 5,
+     "strength": 31.99,
+     "positional": "DETECTED",
+     "class": "GENUINE_OPPORTUNITY"
+    }
+   ],
+   "probes": {
+    "noCompetition": {
+     "top100Churn": 2,
+     "top100MedianStrength": 35.32,
+     "deltaStrength": 0.13,
+     "medianPathway": 0.4786
+    },
+    "noRotation": {
+     "top100Churn": 1,
+     "top100MedianStrength": 35.185,
+     "deltaStrength": 0.0,
+     "medianPathway": 0.6522
+    },
+    "unknownWeight1.0": {
+     "top100Churn": 0,
+     "top100MedianStrength": 35.185,
+     "deltaStrength": 0.0,
+     "medianPathway": 0.5201
+    },
+    "halfAt1.5": {
+     "top100Churn": 0,
+     "top100MedianStrength": 35.185,
+     "deltaStrength": 0.0,
+     "medianPathway": 0.6773
+    },
+    "pathwayNeutral": {
+     "top100Churn": 3,
+     "top100MedianStrength": 35.185,
+     "deltaStrength": 0.0,
+     "medianPathway": 0.6
+    }
+   }
+  },
+  "W3-B-elite-balanced": {
+   "sport": "womens-soccer",
+   "position": "MIDFIELD",
+   "entryYear": 2028,
+   "controlTop100MedianStrength": 75.545,
+   "pathwayVsPositionalSignalRho": 0.2054,
+   "positionalEvidence": {
+    "DETECTED": 828,
+    "UNKNOWN": 56,
+    "NONE_DETECTED": 257
+   },
+   "top100Classification": {
+    "THIN_ROSTER_EFFECT": 27,
+    "GENUINE_OPPORTUNITY": 65,
+    "UNCLEAR": 8
+   },
+   "materiallyHelped": 35,
+   "materiallyHelpedClassification": {
+    "THIN_ROSTER_EFFECT": 13,
+    "GENUINE_OPPORTUNITY": 20,
+    "UNCLEAR": 2
+   },
+   "largestBeneficiaries": [
+    {
+     "gain": 70,
+     "rank": 24,
+     "programme": "Oklahoma State",
+     "pathway": 0.8875,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 80.36,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 70,
+     "rank": 45,
+     "programme": "Columbus State",
+     "pathway": 0.8776,
+     "positionRows": 4,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 71.31,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 50,
+     "rank": 98,
+     "programme": "San Francisco",
+     "pathway": 0.6179,
+     "positionRows": 8,
+     "positionUnreadable": 0,
+     "returning": 3,
+     "strength": 69.19,
+     "positional": "DETECTED",
+     "class": "GENUINE_OPPORTUNITY"
+    },
+    {
+     "gain": 39,
+     "rank": 67,
+     "programme": "Miami (OH)",
+     "pathway": 0.8263,
+     "positionRows": 4,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 74.49,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 38,
+     "rank": 22,
+     "programme": "California Baptist",
+     "pathway": 0.6671,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 1,
+     "strength": 74.64,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 34,
+     "rank": 36,
+     "programme": "Ole Miss",
+     "pathway": 0.6167,
+     "positionRows": 8,
+     "positionUnreadable": 0,
+     "returning": 3,
+     "strength": 74.48,
+     "positional": "DETECTED",
+     "class": "GENUINE_OPPORTUNITY"
+    },
+    {
+     "gain": 33,
+     "rank": 84,
+     "programme": "South Alabama",
+     "pathway": 0.6041,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 4,
+     "strength": 79.5,
+     "positional": "UNKNOWN",
+     "class": "UNCLEAR"
+    },
+    {
+     "gain": 33,
+     "rank": 96,
+     "programme": "Indiana",
+     "pathway": 0.6472,
+     "positionRows": 8,
+     "positionUnreadable": 0,
+     "returning": 2,
+     "strength": 78.83,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    }
+   ],
+   "probes": {
+    "noCompetition": {
+     "top100Churn": 11,
+     "top100MedianStrength": 74.98,
+     "deltaStrength": -0.56,
+     "medianPathway": 0.5923
+    },
+    "noRotation": {
+     "top100Churn": 7,
+     "top100MedianStrength": 75.545,
+     "deltaStrength": 0.0,
+     "medianPathway": 0.6122
+    },
+    "unknownWeight1.0": {
+     "top100Churn": 1,
+     "top100MedianStrength": 75.565,
+     "deltaStrength": 0.02,
+     "medianPathway": 0.5154
+    },
+    "halfAt1.5": {
+     "top100Churn": 1,
+     "top100MedianStrength": 75.565,
+     "deltaStrength": 0.02,
+     "medianPathway": 0.6821
+    },
+    "pathwayNeutral": {
+     "top100Churn": 12,
+     "top100MedianStrength": 75.89,
+     "deltaStrength": 0.34,
+     "medianPathway": 0.5952
+    }
+   }
+  },
+  "W3-C-strong-playing-focused": {
+   "sport": "womens-soccer",
+   "position": "FORWARD",
+   "entryYear": 2028,
+   "controlTop100MedianStrength": 57.83,
+   "pathwayVsPositionalSignalRho": 0.0953,
+   "positionalEvidence": {
+    "DETECTED": 702,
+    "UNKNOWN": 84,
+    "NONE_DETECTED": 359
+   },
+   "top100Classification": {
+    "THIN_ROSTER_EFFECT": 63,
+    "GENUINE_OPPORTUNITY": 27,
+    "UNCLEAR": 8,
+    "MISSING_DATA_EFFECT": 2
+   },
+   "materiallyHelped": 45,
+   "materiallyHelpedClassification": {
+    "GENUINE_OPPORTUNITY": 9,
+    "THIN_ROSTER_EFFECT": 34,
+    "MISSING_DATA_EFFECT": 2
+   },
+   "largestBeneficiaries": [
+    {
+     "gain": 160,
+     "rank": 60,
+     "programme": "Bethel University (TN)",
+     "pathway": 0.7132,
+     "positionRows": 8,
+     "positionUnreadable": 0,
+     "returning": 1,
+     "strength": 46.15,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 154,
+     "rank": 75,
+     "programme": "Cumberland University",
+     "pathway": 0.8223,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 57.99,
+     "positional": "NONE_DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 146,
+     "rank": 72,
+     "programme": "Thomas University",
+     "pathway": 0.8223,
+     "positionRows": 10,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 50.31,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 137,
+     "rank": 94,
+     "programme": "Warner University",
+     "pathway": 0.8223,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 41.36,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 127,
+     "rank": 85,
+     "programme": "Grinnell College",
+     "pathway": 0.884,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 43.37,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 125,
+     "rank": 63,
+     "programme": "Minnesota Crookston",
+     "pathway": 0.8909,
+     "positionRows": 3,
+     "positionUnreadable": 0,
+     "returning": 1,
+     "strength": 41.08,
+     "positional": "DETECTED",
+     "class": "MISSING_DATA_EFFECT"
+    },
+    {
+     "gain": 91,
+     "rank": 34,
+     "programme": "Judson University",
+     "pathway": 0.8223,
+     "positionRows": 5,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 46.03,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 86,
+     "rank": 99,
+     "programme": "Saint Xavier University",
+     "pathway": 0.8223,
+     "positionRows": 3,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 50.93,
+     "positional": "DETECTED",
+     "class": "MISSING_DATA_EFFECT"
+    }
+   ],
+   "probes": {
+    "noCompetition": {
+     "top100Churn": 21,
+     "top100MedianStrength": 59.655,
+     "deltaStrength": 1.83,
+     "medianPathway": 0.5558
+    },
+    "noRotation": {
+     "top100Churn": 11,
+     "top100MedianStrength": 57.2,
+     "deltaStrength": -0.63,
+     "medianPathway": 0.6164
+    },
+    "unknownWeight1.0": {
+     "top100Churn": 9,
+     "top100MedianStrength": 57.39,
+     "deltaStrength": -0.44,
+     "medianPathway": 0.5133
+    },
+    "halfAt1.5": {
+     "top100Churn": 5,
+     "top100MedianStrength": 58.77,
+     "deltaStrength": 0.94,
+     "medianPathway": 0.6723
+    },
+    "pathwayNeutral": {
+     "top100Churn": 24,
+     "top100MedianStrength": 60.875,
+     "deltaStrength": 3.05,
+     "medianPathway": 0.5823
+    }
+   }
+  },
+  "W3-D-developmental-balanced": {
+   "sport": "womens-soccer",
+   "position": "MIDFIELD",
+   "entryYear": 2028,
+   "controlTop100MedianStrength": 36.93,
+   "pathwayVsPositionalSignalRho": 0.2054,
+   "positionalEvidence": {
+    "DETECTED": 828,
+    "UNKNOWN": 56,
+    "NONE_DETECTED": 257
+   },
+   "top100Classification": {
+    "THIN_ROSTER_EFFECT": 72,
+    "GENUINE_OPPORTUNITY": 23,
+    "MISSING_DATA_EFFECT": 2,
+    "UNCLEAR": 3
+   },
+   "materiallyHelped": 35,
+   "materiallyHelpedClassification": {
+    "THIN_ROSTER_EFFECT": 30,
+    "MISSING_DATA_EFFECT": 1,
+    "GENUINE_OPPORTUNITY": 3,
+    "UNCLEAR": 1
+   },
+   "largestBeneficiaries": [
+    {
+     "gain": 64,
+     "rank": 87,
+     "programme": "Cedar Crest College",
+     "pathway": 0.9143,
+     "positionRows": 4,
+     "positionUnreadable": 0,
+     "returning": 1,
+     "strength": 37.57,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 59,
+     "rank": 100,
+     "programme": "Averett University",
+     "pathway": 1,
+     "positionRows": 4,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 33.98,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 57,
+     "rank": 34,
+     "programme": "Dean",
+     "pathway": 0.894,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 1,
+     "strength": 38,
+     "positional": "UNKNOWN",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 55,
+     "rank": 47,
+     "programme": "Cairn University",
+     "pathway": 0.8244,
+     "positionRows": 7,
+     "positionUnreadable": 0,
+     "returning": 2,
+     "strength": 36.92,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 53,
+     "rank": 57,
+     "programme": "Centenary University",
+     "pathway": 0.9938,
+     "positionRows": 7,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 34.09,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 46,
+     "rank": 92,
+     "programme": "Nichols College",
+     "pathway": 0.85,
+     "positionRows": 7,
+     "positionUnreadable": 0,
+     "returning": 2,
+     "strength": 30.15,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 45,
+     "rank": 62,
+     "programme": "Saint Mary-of-the-Woods College",
+     "pathway": 0.7729,
+     "positionRows": 4,
+     "positionUnreadable": 0,
+     "returning": 1,
+     "strength": 37.88,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    },
+    {
+     "gain": 43,
+     "rank": 73,
+     "programme": "University of Wisconsin-Stevens Point",
+     "pathway": 0.9931,
+     "positionRows": 6,
+     "positionUnreadable": 0,
+     "returning": 0,
+     "strength": 40.57,
+     "positional": "DETECTED",
+     "class": "THIN_ROSTER_EFFECT"
+    }
+   ],
+   "probes": {
+    "noCompetition": {
+     "top100Churn": 13,
+     "top100MedianStrength": 36.95,
+     "deltaStrength": 0.02,
+     "medianPathway": 0.5923
+    },
+    "noRotation": {
+     "top100Churn": 9,
+     "top100MedianStrength": 36.79,
+     "deltaStrength": -0.14,
+     "medianPathway": 0.6122
+    },
+    "unknownWeight1.0": {
+     "top100Churn": 2,
+     "top100MedianStrength": 36.87,
+     "deltaStrength": -0.06,
+     "medianPathway": 0.5154
+    },
+    "halfAt1.5": {
+     "top100Churn": 3,
+     "top100MedianStrength": 36.93,
+     "deltaStrength": 0.0,
+     "medianPathway": 0.6821
+    },
+    "pathwayNeutral": {
+     "top100Churn": 13,
+     "top100MedianStrength": 37.04,
+     "deltaStrength": 0.11,
+     "medianPathway": 0.5952
+    }
+   }
+  }
+ },
+ "horizonCollapse": {
+  "mens-soccer": {
+   "2027": "2.6%",
+   "2028": "10.9%",
+   "2029": "60.8%",
+   "2030": "100.0%"
+  },
+  "womens-soccer": {
+   "2027": "3.9%",
+   "2028": "12.0%",
+   "2029": "57.3%",
+   "2030": "100.0%"
+  },
+  "measure": "share of scoreable programme-position cells at competition == 1.000"
+ }
+}

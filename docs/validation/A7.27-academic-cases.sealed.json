@@ -1,0 +1,155 @@
+{
+ "note": "SEALED. Opening this file ends the blind review.",
+ "cases": [
+  {
+   "code": "K-06",
+   "caseId": "c01",
+   "cell": "strong academics / selective programme",
+   "base": "V3-E-academic-priority",
+   "profileId": "B-strong",
+   "programme": "Washington & Lee",
+   "rank": 2,
+   "shape": "BOTH_SAT_AND_ADMIT"
+  },
+  {
+   "code": "K-15",
+   "caseId": "c02",
+   "cell": "moderate academics / selective programme",
+   "base": "V3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "Washington & Lee",
+   "rank": 2,
+   "shape": "BOTH_SAT_AND_ADMIT"
+  },
+  {
+   "code": "K-08",
+   "caseId": "c03",
+   "cell": "weak academics / selective programme",
+   "base": "V3-E-academic-priority",
+   "profileId": "E-weak",
+   "programme": "Washington & Lee",
+   "rank": 2,
+   "shape": "BOTH_SAT_AND_ADMIT"
+  },
+  {
+   "code": "K-14",
+   "caseId": "c04",
+   "cell": "weak academics / less-selective programme",
+   "base": "V3-E-academic-priority",
+   "profileId": "E-weak",
+   "programme": "St. Cloud State",
+   "rank": 4,
+   "shape": "BOTH_SAT_AND_ADMIT"
+  },
+  {
+   "code": "K-04",
+   "caseId": "c05",
+   "cell": "major match + difficult academics",
+   "base": "V3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "Trinity (TX)",
+   "rank": 1,
+   "shape": "BOTH_SAT_AND_ADMIT"
+  },
+  {
+   "code": "K-05",
+   "caseId": "c06",
+   "cell": "no major match + difficult academics",
+   "base": "V3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "University of Chicago",
+   "rank": 8,
+   "shape": "BOTH_SAT_AND_ADMIT"
+  },
+  {
+   "code": "K-10",
+   "caseId": "c07",
+   "cell": "major match + plausible academics",
+   "base": "V3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "St. Cloud State",
+   "rank": 4,
+   "shape": "BOTH_SAT_AND_ADMIT"
+  },
+  {
+   "code": "K-01",
+   "caseId": "c08",
+   "cell": "expensive + academically plausible",
+   "base": "V3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "Mount Union",
+   "rank": 13,
+   "shape": "BOTH_SAT_AND_ADMIT"
+  },
+  {
+   "code": "K-13",
+   "caseId": "c09",
+   "cell": "expensive + academically difficult",
+   "base": "V3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "Washington (MO)",
+   "rank": 5,
+   "shape": "BOTH_SAT_AND_ADMIT"
+  },
+  {
+   "code": "K-07",
+   "caseId": "c10",
+   "cell": "elite athlete, weak academics / most selective",
+   "base": "V3-A-elite-level-focused",
+   "profileId": "E-weak",
+   "programme": "Princeton",
+   "rank": 1,
+   "shape": "BOTH_SAT_AND_ADMIT"
+  },
+  {
+   "code": "K-11",
+   "caseId": "c11",
+   "cell": "open-admission programme, large SAT gap",
+   "base": "V3-A-elite-level-focused",
+   "profileId": "E-weak",
+   "programme": "UNC Asheville",
+   "rank": 12,
+   "shape": "BOTH_SAT_AND_ADMIT"
+  },
+  {
+   "code": "K-09",
+   "caseId": "c12",
+   "cell": "very selective, athlete at/above its average",
+   "base": "V3-A-elite-level-focused",
+   "profileId": "A-very-strong",
+   "programme": "Davidson",
+   "rank": 8,
+   "shape": "BOTH_SAT_AND_ADMIT"
+  },
+  {
+   "code": "K-03",
+   "caseId": "c13",
+   "cell": "admit rate only, no programme SAT",
+   "base": "V3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "Texas A&M University-Texarkana",
+   "rank": 12,
+   "shape": "ATHLETE_SAT_ADMIT_ONLY"
+  },
+  {
+   "code": "K-02",
+   "caseId": "c14",
+   "cell": "no programme admissions evidence at all",
+   "base": "V3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "Bob Jones",
+   "rank": 16,
+   "shape": "ATHLETE_SAT_NO_PROGRAMME_EVIDENCE"
+  },
+  {
+   "code": "K-12",
+   "caseId": "c15",
+   "cell": "athlete has no test score, programme SAT known",
+   "base": "V3-C-strong-playing-focused",
+   "profileId": "native",
+   "programme": "Amherst",
+   "rank": 9,
+   "shape": "PROGRAMME_SAT_NO_ATHLETE_SCORE"
+  }
+ ]
+}

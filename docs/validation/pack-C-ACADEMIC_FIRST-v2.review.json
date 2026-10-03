@@ -1,0 +1,999 @@
+{
+  "formatVersion": "thriv3-v2-validation-pack/1",
+  "packId": "C-ACADEMIC_FIRST",
+  "provenance": {
+    "generatedAt": "2026-09-23T08:12:31.940Z",
+    "v2Commit": "227b54f69371b59f4b98ce47bcd4aea583e0512c",
+    "explanationCommit": "227b54f69371b59f4b98ce47bcd4aea583e0512c",
+    "v1FreezeCommit": "480a915645425c3286a19c2da10e3a1d60b3a3ec",
+    "calibrationId": "ability-scale-2026-09-19",
+    "positionalNormsDigest": "4b2d7902f5f299a7",
+    "playingNormsDigest": "5edc2b0c8f64e9e3",
+    "weights": {
+      "recruitability": 0.5,
+      "financial": 0.2,
+      "opportunity": 0.3
+    },
+    "gates": {
+      "recruitability": {
+        "floor": 0.05,
+        "threshold": 0.25
+      },
+      "financial": {
+        "floor": 0.3,
+        "threshold": 0.5
+      }
+    },
+    "weightingArchitecture": "global",
+    "topN": 100,
+    "rosterSeason": "2026",
+    "fixtureId": "C-developmental-high-budget-strong-academics",
+    "fixtureValidationOnly": false,
+    "profileId": "ACADEMIC_FIRST",
+    "effectiveProfile": "ACADEMIC_FIRST",
+    "preferenceProfile": "MIXED",
+    "fixtureDigest": "c51321255a614529",
+    "poolDigest": "86b911af2515ab10"
+  },
+  "review": {
+    "meta": {
+      "packId": "C-ACADEMIC_FIRST",
+      "v2Commit": "227b54f69371b59f4b98ce47bcd4aea583e0512c",
+      "explanationCommit": "227b54f69371b59f4b98ce47bcd4aea583e0512c",
+      "calibrationId": "ability-scale-2026-09-19",
+      "fixtureDigest": "c51321255a614529",
+      "poolDigest": "86b911af2515ab10",
+      "reviewer": "rhys.davies@cardaxia.ai (View A, blind, conducted conversationally)",
+      "startedAt": "2026-09-23T08:45:17.308124+00:00",
+      "completedAt": "2026-09-23T08:45:17.308124+00:00",
+      "modelRevealed": true,
+      "questionAnswers": {
+        "Q1": {
+          "answer": "NO",
+          "basis": "No elite-on-both programme reaches the top 100 (0 of 67; best rank 439). The top-25 minimum recruitability is 0.26."
+        },
+        "Q2": {
+          "answer": "YES",
+          "basis": "Four ranked omissions - New York University 178, Worcester Polytechnic 266, Brandeis 284, Wheaton (MA) 367 - plus Bryn Athyn as LIMITED_DATA. All are high-academic."
+        },
+        "Q3": {
+          "answer": "OPEN",
+          "basis": "Kendall tau-b 0.0474. The two orderings are near-independent, but the reviewer ordered on one dimension. Unresolved until the level-first control runs."
+        },
+        "Q4": {
+          "answer": "NOT_TESTED",
+          "basis": "Financial viability is 1.00 on 41 of 43 rows."
+        },
+        "Q5": {
+          "answer": "NOT_TESTED",
+          "basis": "Fixture A required."
+        },
+        "Q6": {
+          "answer": "NOT_TESTED",
+          "basis": "Fixture A required."
+        },
+        "Q7": {
+          "answer": "NOT_APPLICABLE",
+          "basis": "Developmental athlete."
+        },
+        "Q8": {
+          "answer": "YES",
+          "basis": "Top-25 maximum programme strength 38.8; nothing above 40 appears in the top 25."
+        },
+        "Q9": {
+          "answer": "NOT_APPLICABLE",
+          "basis": "Fixture G."
+        },
+        "Q10": {
+          "answer": "NOT_APPLICABLE",
+          "basis": "Different fixture."
+        },
+        "Q11": {
+          "answer": "YES",
+          "basis": "Absence was read as absence on four of five limited-data rows; readAsPoor is 0."
+        },
+        "Q12": {
+          "answer": "NOT_ASSESSED",
+          "basis": "No explanation review captured."
+        },
+        "Q13": {
+          "answer": "NOT_ASSESSED",
+          "basis": "No explanation review captured."
+        },
+        "Q14": {
+          "answer": "NO",
+          "basis": "Academic strength was the A7.6 scope gap and entered the architecture at A7.7.5. Nothing weighed in this review is absent from the model."
+        }
+      },
+      "redFlagVerdicts": {
+        "UNRECRUITABLE_IN_TOP_25": {
+          "verdict": "MIS_SPECIFIED",
+          "blocking": false,
+          "finding": "The flag fires on count - 5 WOULD_NOT_PURSUE inside the top 25 - but its stated evidence path is \"tagged athlete below level\", and the athlete is above the level of all five. The count and the cause do not describe the same thing.",
+          "action": "Added to the validation-tooling backlog for later repair. Not repaired in this phase, and no ranking behaviour altered."
+        },
+        "DEVELOPMENTAL_ELITE_REACH": {
+          "verdict": "REFUTED",
+          "blocking": false,
+          "finding": "No top-25 row carries recruitability below the 0.25 gate threshold. The minimum in the top 25 is 0.26."
+        },
+        "MISSING_STRONG_TARGETS": {
+          "verdict": "DEFERRED_WATCH",
+          "blocking": false,
+          "finding": "Two PURSUE_STRONGLY rows fall outside the top 100 (New York University, Brandeis), below the proposed trigger of three. The softer clause - any programme the operator would contact first - may be met.",
+          "action": "Held as WATCH rather than CONFIRMED. Fixture C's human review was almost entirely explained by academic rating, so the level-first control (A-FULLY_DECLARED_LEVEL-v2) must run before this is treated as a systematic model problem."
+        },
+        "LIMITED_DATA_READ_AS_POOR": {
+          "verdict": "REFUTED",
+          "blocking": false,
+          "finding": "Zero of five limited-data rows were classified on the missing data itself."
+        },
+        "ORDERING_DISAGREEMENT": {
+          "verdict": "CONFIRMED_WATCH",
+          "blocking": false,
+          "finding": "Pairwise ordering agreement 0.5293, Kendall tau-b 0.0474, below the proposed 0.6. Expected given the single-axis divergence."
+        },
+        "EXPLANATION_MISREPRESENTS": {
+          "verdict": "NOT_ASSESSED",
+          "blocking": false,
+          "finding": "No explanation review was captured during the blind pass; explanationReview is empty on all 43 rows."
+        },
+        "BUDGET_IGNORED": {
+          "verdict": "NOT_APPLICABLE",
+          "blocking": false,
+          "finding": "Financial viability is 1.00 on 41 of 43 rows. This fixture does not test budget."
+        },
+        "AMBITION_INERT": {
+          "verdict": "NOT_APPLICABLE",
+          "blocking": false,
+          "finding": "Requires the fixture A level-first / playing-first pair."
+        }
+      },
+      "overall": {
+        "wouldSendThisList": null,
+        "changeFirst": ""
+      },
+      "reviewMethod": {
+        "rowByRow": 24,
+        "ruleApplied": 19,
+        "rule": "academic rating < 6 -> WOULD_NOT_PURSUE; > 8 -> likely PURSUE depending on programme strength",
+        "caveat": "19 of 43 rows were classified by a stated threshold rule rather than individually. Agreement figures for those rows compare two rules, not a model against a human judgement, and should be read separately from the 24 row-by-row calls.",
+        "headerRewritten": "The pack header was restated in plain English before review, after the reviewer found the numeric 3/3/5 preference values insufficient to judge consistently. No pack content changed; the underlying file is unmodified."
+      },
+      "amendments": {
+        "at": "2026-09-23T08:51:51.323261+00:00",
+        "count": 3,
+        "basis": "internal-consistency review of View A, conducted before the model reveal",
+        "strengthCaveatClarified": "The reviewer's \"depending on programme strength\" caveat referred to programmes elite on BOTH axes - Duke-like, academic >=8 and strength >=55 - which would be athletically unrealistic for a 3/10 athlete. It was not a tiebreaker among realistic options. No such programme appears anywhere in this 43-row sample, so the caveat had no instance to act on and the absence of a strength effect is explained rather than inconsistent."
+      },
+      "triage": {
+        "at": "2026-09-23T09:26:54.515Z",
+        "phase": "A7.7.7 Fixture C View B reveal + disagreement triage",
+        "decidedBy": "rhys.davies@cardaxia.ai",
+        "reviewedRows": 43,
+        "agreements": 31,
+        "disagreements": 12,
+        "modelBugCandidates": 0,
+        "modelScopeGapCandidates": 0,
+        "summary": "Every disagreement lies on one axis: the reviewer ranked on academic rating, Thriv3 weights recruitability at 0.50. Where the two coincide - a strong institution the athlete can actually reach - they agree emphatically, with four of the reviewer's twelve pursues inside Thriv3's top eight. No disagreement is a MODEL_BUG or a MODEL_SCOPE_GAP: academic strength entered the architecture at A7.7.5 and is scored.",
+        "modelChangeJustified": false,
+        "modelChangeReasoning": "Nothing found is a bug, a misread of evidence, or a safety failure. The one systematic divergence is a magnitude question - how much a stated academic preference should weigh against reachability - measured against a review that responded to one preference dimension out of three, with 19 of 43 rows classified by a stated threshold rule. Tuning to it would fit the model to the instrument."
+      },
+      "fixtureStatus": {
+        "complete": true,
+        "limits": [
+          "The 43-row sample contains no programme elite on both academics and strength, so the reviewer's \"depending on programme strength\" caveat had no instance to act on. Tested separately by the 67-programme elite guard.",
+          "19 of 43 rows were classified by a stated threshold rule rather than individually. Agreement on those rows compares two rules.",
+          "The review responded to one preference dimension of three; competitive level and playing opportunity showed no visible effect across 34, 12 and 35 matched pairs."
+        ],
+        "next": "A-FULLY_DECLARED_LEVEL-v2, as the control that inverts the preference profile (level 5 / playing 1 / academic 3) on a rating-9 athlete."
+      }
+    },
+    "rows": [
+      {
+        "reviewNo": 1,
+        "programmeId": "38e850e3-b5fd-4d8b-8ac7-65527e36ebf9",
+        "programmeName": "Penn State Scranton",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "stated as a boundary between low priority and would-not-pursue; recorded as the more generous of the two; amended after consistency review: unrated academics with no roster and no recruiting history, matching the call made on the identically-evidenced Bryant & Stratton",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW",
+        "priorClassification": "LOW_PRIORITY",
+        "amendedAt": "2026-09-23T08:51:51.323261+00:00"
+      },
+      {
+        "reviewNo": 2,
+        "programmeId": "ceed1855-c27a-44b8-821c-b6cd640e1723",
+        "programmeName": "Keuka",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW",
+        "triageReason": "Academic rating 5.1, below the reviewer's stated threshold. Thriv3 ranked it on reachability and a midfield opening.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
+      },
+      {
+        "reviewNo": 3,
+        "programmeId": "29f7642f-1254-4995-8d37-ff790ef8ba4b",
+        "programmeName": "Hood",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "amended after consistency review: academic 5.2 falls under the reviewer's stated <6 threshold, which was articulated after this row was first judged",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW",
+        "priorClassification": "LOW_PRIORITY",
+        "amendedAt": "2026-09-23T08:51:51.323261+00:00",
+        "triageReason": "Academic rating 5.2, below the reviewer's stated threshold. Thriv3 ranked it on reachability and a three-starter opening. Amended to WOULD_NOT_PURSUE during the reviewer's own consistency pass.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
+      },
+      {
+        "reviewNo": 4,
+        "programmeId": "4c5dc3ac-7e23-4d11-8370-67b49e452792",
+        "programmeName": "Chaminade",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 5,
+        "programmeId": "3a2bbb30-22b9-4c6a-b9e9-8d3f3c4c4ee6",
+        "programmeName": "Bryant & Stratton College (Albany)",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 6,
+        "programmeId": "e2aaf1fc-3059-4e51-bca1-da5457331c50",
+        "programmeName": "Moravian",
+        "classification": "LOW_PRIORITY",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 7,
+        "programmeId": "5c7d8b41-008c-46d4-8c6e-6d4e38969114",
+        "programmeName": "Earlham",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 8,
+        "programmeId": "6da5b12d-65ad-4c43-9673-41354a886486",
+        "programmeName": "St. Norbert",
+        "classification": "LOW_PRIORITY",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 9,
+        "programmeId": "a3bba2b6-8048-4677-b852-a82fbeafa2e9",
+        "programmeName": "Coe",
+        "classification": "LOW_PRIORITY",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 10,
+        "programmeId": "861fcc66-1a0f-48e7-bf2d-64f14b411901",
+        "programmeName": "Saint Mary's (MN)",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 11,
+        "programmeId": "ae5a37d8-e819-4a46-a150-1ae581e5b54e",
+        "programmeName": "University of New England",
+        "classification": "LOW_PRIORITY",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW",
+        "triageReason": "Academic rating 6.4, the reviewer's middle band. Thriv3 ranked it on reachability and a local recruiting footprint 160km from the athlete.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
+      },
+      {
+        "reviewNo": 12,
+        "programmeId": "5cbcb293-d03e-4e94-8842-f3f685056e77",
+        "programmeName": "Emmanuel (MA)",
+        "classification": "LOW_PRIORITY",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 13,
+        "programmeId": "da104b8d-c4e9-4650-ac0e-228eb0d98c8f",
+        "programmeName": "Worcester Polytechnic",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW",
+        "triageReason": "About 26 percentile points above the athlete's assessed range. Neither ordering is objectively better at that reach.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
+      },
+      {
+        "reviewNo": 14,
+        "programmeId": "b8392a0a-22ac-4445-b142-d71910932dc9",
+        "programmeName": "Centre",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 15,
+        "programmeId": "db1e2750-f3a1-43ec-add6-ac3f8622a6be",
+        "programmeName": "Bryn Athyn",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "DATA_GAP",
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW",
+        "triageReason": "Thriv3 is not judging the programme negatively. It holds no roster and no recruiting history for it, so neither behavioural signal is scoreable, the evidence floor refuses, and the programme leaves the ranked list as LIMITED_DATA rather than being scored on athletic plausibility alone. This is missing data that could in principle be acquired.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
+      },
+      {
+        "reviewNo": 16,
+        "programmeId": "74ab7bd7-5445-4094-afa1-8604471c4dea",
+        "programmeName": "Wisconsin-Stout",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE",
+        "triageReason": "Academic rating 4.3, below the reviewer's stated threshold. Thriv3 ranked it on reachability.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
+      },
+      {
+        "reviewNo": 17,
+        "programmeId": "6be647e5-454e-4afe-85cc-eb807172fa4f",
+        "programmeName": "Oberlin",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 18,
+        "programmeId": "6a3e4cd3-f9bb-4007-be6f-3f4728c8d084",
+        "programmeName": "Southern Maine",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 19,
+        "programmeId": "50e85e43-46dc-4e24-9b8a-37bac156126b",
+        "programmeName": "Westminster (MO)",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 20,
+        "programmeId": "0551317b-4e6c-4064-963e-7b041bafe7c0",
+        "programmeName": "North Central (IL)",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 21,
+        "programmeId": "a40edb86-f320-48b3-b493-051f6356d786",
+        "programmeName": "Rochester Institute of Technology",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 22,
+        "programmeId": "7042bb3b-b5f0-4bbb-95f4-9da47ad89ae6",
+        "programmeName": "Bridgeport",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 23,
+        "programmeId": "467167d4-af58-4611-be5c-5fe2ff5e192d",
+        "programmeName": "Averett",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 24,
+        "programmeId": "24dba7ad-7861-4ce8-a4f5-451c3910ce9d",
+        "programmeName": "Western New England",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 25,
+        "programmeId": "7ba9da74-f748-4940-8fa0-69f85b9bd452",
+        "programmeName": "Wheaton (MA)",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW",
+        "triageReason": "About 40 percentile points above the athlete's assessed range. Neither ordering is objectively better at that reach.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
+      },
+      {
+        "reviewNo": 26,
+        "programmeId": "404cdd2f-90d6-4703-90ab-d39782e268ba",
+        "programmeName": "Trinity (CT)",
+        "classification": "PURSUE_STRONGLY",
+        "reasonTags": [],
+        "notes": "stated as \"high priority\"",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 27,
+        "programmeId": "ae7f5d89-412c-46c0-a75c-02d8b26ea44f",
+        "programmeName": "Gallaudet",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE",
+        "triageReason": "Academic rating 4.4, below the reviewer's stated threshold. Thriv3 ranked it on reachability.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
+      },
+      {
+        "reviewNo": 28,
+        "programmeId": "8b4f01a1-24e9-4399-9ca7-998d0f39678d",
+        "programmeName": "Brandeis",
+        "classification": "PURSUE_STRONGLY",
+        "reasonTags": [],
+        "notes": "amended after consistency review: ties Trinity (CT) on academics and dominates it on programme strength, record, postseason and proximity, so it cannot rank below it",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW",
+        "priorClassification": "PURSUE",
+        "amendedAt": "2026-09-23T08:51:51.323261+00:00",
+        "triageReason": "About 27 percentile points above the athlete's assessed range. Neither ordering is objectively better at that reach.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
+      },
+      {
+        "reviewNo": 29,
+        "programmeId": "903de32e-02ef-48be-83c1-aff7a55714ea",
+        "programmeName": "Nichols",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 30,
+        "programmeId": "ebb14b9b-3369-4e15-bfd8-47c4ed8c37b7",
+        "programmeName": "Albright",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 31,
+        "programmeId": "edacb5e0-a580-423c-bd81-eec51220b77e",
+        "programmeName": "Indiana University Northwest",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 32,
+        "programmeId": "6f93d226-6b7f-4135-9217-b2f0d6c7a879",
+        "programmeName": "Colby-Sawyer",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 33,
+        "programmeId": "d76f36c7-1e6a-4fcd-8332-a131be07e816",
+        "programmeName": "Elmhurst",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 34,
+        "programmeId": "3b75a6cc-66ab-4c4d-a16e-8345cd36f39d",
+        "programmeName": "Keystone",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 35,
+        "programmeId": "48484c3d-8ba8-41b6-9693-27b514b26346",
+        "programmeName": "East Texas Baptist",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 36,
+        "programmeId": "dd22279e-a52c-40cc-97e2-3d832182e8d8",
+        "programmeName": "New York University",
+        "classification": "PURSUE_STRONGLY",
+        "reasonTags": [],
+        "notes": "stated as \"high priority\"",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW",
+        "triageReason": "The closest genuine product-boundary case in the sample. Roughly 14 percentile points above the athlete's assessed range; the reviewer would still consider outreach on the strength of the athlete's explicit 5/5 academic preference, while Thriv3 judged the athletic reach material enough to demote it to rank 178 through a 50% recruitability gate loss. Not evidence of MODEL_BUG: no evidence is misread and no arithmetic is wrong. It is an open product question about how aggressive Pursuit should be toward a highly desirable but athletically ambitious target.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
+      },
+      {
+        "reviewNo": 37,
+        "programmeId": "ed25b74d-2e07-4068-a066-934af1e51fe0",
+        "programmeName": "Lewis & Clark",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 38,
+        "programmeId": "918baa0d-b714-4b0f-8a16-853eb193b9b9",
+        "programmeName": "Salisbury",
+        "classification": "LOW_PRIORITY",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 39,
+        "programmeId": "5808fba7-2035-4a69-b439-7eaf8d735615",
+        "programmeName": "Millsaps",
+        "classification": "LOW_PRIORITY",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW",
+        "triageReason": "Academic rating 6.3 sits in the reviewer's middle band. Both sides read the same evidence and weighted it differently; Thriv3 ranked it on reachability and a three-starter opening.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
+      },
+      {
+        "reviewNo": 40,
+        "programmeId": "8dc0c337-afc5-4fb1-afd9-df8cdb2dcf6d",
+        "programmeName": "Hiram",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": "HUMAN_JUDGEMENT",
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE",
+        "triageReason": "Academic rating 5.9, below the reviewer's stated threshold. Highest recruitability in Thriv3's top ten.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
+      },
+      {
+        "reviewNo": 41,
+        "programmeId": "8058b2c9-b329-40e7-8d07-ee1f3b15582f",
+        "programmeName": "Kalamazoo",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 42,
+        "programmeId": "29cc94cb-890e-495d-9c57-7a27662f8271",
+        "programmeName": "Baker",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 43,
+        "programmeId": "812d2769-5a13-496c-9359-be5ade82c004",
+        "programmeName": "Heidelberg",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "applied by the reviewer's stated threshold rule, not row by row: academic rating below 6 is an immediate would-not-pursue for this athlete",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
+        "method": "RULE"
+      }
+    ]
+  }
+}

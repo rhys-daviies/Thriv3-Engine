@@ -1,0 +1,170 @@
+{
+ "note": "SEALED until independent answers are frozen.",
+ "shadow": {
+  "U-01": {
+   "evidence": "MEASURED",
+   "outcome": "ACADEMIC_REVIEW",
+   "gap": -283,
+   "acceptanceRate": 0.0769,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "283 points below the enrolled average at a selective institution",
+    "test policy not on file"
+   ]
+  },
+  "U-02": {
+   "evidence": "MEASURED",
+   "outcome": "ACADEMIC_REVIEW",
+   "gap": -284,
+   "acceptanceRate": 0.054,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "284 points below the enrolled average at a selective institution",
+    "test policy not on file"
+   ]
+  },
+  "U-03": {
+   "evidence": "MEASURED",
+   "outcome": "ACADEMIC_REVIEW",
+   "gap": -285,
+   "acceptanceRate": 0.0876,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "285 points below the enrolled average at a selective institution",
+    "test policy not on file"
+   ]
+  },
+  "U-04": {
+   "evidence": "MEASURED",
+   "outcome": "PRE_READ_RECOMMENDED",
+   "gap": -434,
+   "acceptanceRate": 0.0709,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "434 points below the enrolled average at an institution accepting 7%",
+    "test policy not on file"
+   ]
+  },
+  "U-05": {
+   "evidence": "MEASURED",
+   "outcome": "ACADEMIC_REVIEW",
+   "gap": -270,
+   "acceptanceRate": 0.1065,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "270 points below the enrolled average at a selective institution",
+    "test policy not on file"
+   ]
+  },
+  "U-06": {
+   "evidence": "MEASURED",
+   "outcome": "ACADEMIC_REVIEW",
+   "gap": -299,
+   "acceptanceRate": 0.1934,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "299 points below the enrolled average at a selective institution",
+    "test policy not on file"
+   ]
+  },
+  "U-07": {
+   "evidence": "MEASURED",
+   "outcome": "PRE_READ_RECOMMENDED",
+   "gap": -408,
+   "acceptanceRate": 0.1388,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "408 points below the enrolled average at an institution accepting 14%",
+    "test policy not on file"
+   ]
+  },
+  "U-08": {
+   "evidence": "MEASURED",
+   "outcome": "ACADEMIC_REVIEW",
+   "gap": -296,
+   "acceptanceRate": 0.2943,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "296 points below the enrolled average at a selective institution",
+    "test policy not on file"
+   ]
+  },
+  "U-09": {
+   "evidence": "MEASURED",
+   "outcome": "ACADEMIC_REVIEW",
+   "gap": -315,
+   "acceptanceRate": 0.2925,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "315 points below the enrolled average at a selective institution",
+    "test policy not on file"
+   ]
+  },
+  "U-10": {
+   "evidence": "MEASURED",
+   "outcome": "PRE_READ_RECOMMENDED",
+   "gap": -460,
+   "acceptanceRate": 0.2893,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "460 points below the enrolled average at an institution accepting 29%",
+    "test policy not on file"
+   ]
+  },
+  "U-11": {
+   "evidence": "MEASURED",
+   "outcome": "ACADEMIC_REVIEW",
+   "gap": -319,
+   "acceptanceRate": 0.4011,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "319 points below the enrolled average at a selective institution",
+    "test policy not on file"
+   ]
+  },
+  "U-12": {
+   "evidence": "MEASURED",
+   "outcome": "PRE_READ_RECOMMENDED",
+   "gap": -407,
+   "acceptanceRate": 0.3424,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "407 points below the enrolled average at an institution accepting 34%",
+    "test policy not on file"
+   ]
+  },
+  "U-13": {
+   "evidence": "MEASURED",
+   "outcome": "NO_MATERIAL_CONCERN",
+   "gap": 300,
+   "acceptanceRate": 0.7093,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "acceptance rate 71% - the institution is not selecting on this margin",
+    "test policy not on file"
+   ]
+  },
+  "U-14": {
+   "evidence": "MEASURED",
+   "outcome": "NO_MATERIAL_CONCERN",
+   "gap": -797,
+   "acceptanceRate": 0.9036,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "acceptance rate 90% - the institution is not selecting on this margin",
+    "test policy not on file"
+   ]
+  },
+  "U-15": {
+   "evidence": "MEASURED",
+   "outcome": "ACADEMIC_REVIEW",
+   "gap": -53,
+   "acceptanceRate": 0.0365,
+   "testPolicy": "UNKNOWN",
+   "reasons": [
+    "53 points below the enrolled average at a selective institution",
+    "test policy not on file"
+   ]
+  }
+ }
+}

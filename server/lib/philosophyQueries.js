@@ -36,7 +36,7 @@ const SEASON_LIST = SEASONS.map(() => '?').join(',');
 // source was — see shared/evidence/freshness.js. Selected here rather than in a
 // second query so the philosophy reports and the email evidence describe the
 // same rows, stamps included.
-const ROSTER_COLUMNS = `college_name, sport, season, player_name, position, minutes_played,
+const ROSTER_COLUMNS = `college_name, sport, season, division, player_name, position, minutes_played,
   games_played, games_started, class_year_label, nationality, country, hometown,
   estimated_graduation_year, eligibility_end_year, projected_minutes, prior_programme,
   updated_date, source_roster_url`;

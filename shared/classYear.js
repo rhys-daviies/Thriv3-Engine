@@ -1,3 +1,28 @@
+import {
+  SEASONS_REMAINING_AFTER, ADVANCE_ONE_CLASS, ELIGIBILITY_MODEL,
+} from './eligibility.js';
+
+/**
+ * THE TABLES BELOW ARE NO LONGER DECLARED HERE. They are the NCAA age-based
+ * five-year model, and they live in shared/eligibility.js beside every other
+ * model and the provenance for all of them, because a division-blind copy is
+ * what made this file quietly wrong for the 15,748 Division III and NAIA rows
+ * that are NOT on that model.
+ *
+ * WHAT THIS FILE STILL DEFAULTS TO, AND WHY. `readClassYear` answers with the
+ * five-year numbers when no division is supplied, because the two stored
+ * columns it feeds — estimated_graduation_year and eligibility_end_year — are
+ * written once at import time for every division and are consumed by the
+ * report and lifecycle layers, which have their own baselines. Changing that
+ * default would rewrite 130,703 rows and move those baselines, which is a
+ * separate piece of work.
+ *
+ * MATCHING NO LONGER READS EITHER COLUMN for a departure decision. It asks
+ * shared/eligibility.js for the rule that governs the row's own division. So
+ * the default here is a storage contract, not a claim about a programme, and
+ * anything making an eligibility DECISION must go through eligibility.js.
+ */
+
 /**
  * Reads a roster's class-year label, and — just as importantly — refuses to
  * read one that isn't there.
@@ -48,13 +73,10 @@
  * redshirt senior are already IN their final season, while a senior still has
  * one to come.
  */
-const YEARS_TO_GRADUATE = {
-  FRESHMAN: 5,
-  SOPHOMORE: 4,
-  JUNIOR: 3,
-  SENIOR: 2,
-  GRADUATE: 1,
-};
+const YEARS_TO_GRADUATE = Object.fromEntries(
+  Object.entries(SEASONS_REMAINING_AFTER[ELIGIBILITY_MODEL.NCAA_AGE_BASED_5Y])
+    .map(([klass, remaining]) => [klass, remaining + 1]),
+);
 
 /**
  * The LAST SEASON this player can play — the other half of the same fact.
@@ -69,13 +91,7 @@ const YEARS_TO_GRADUATE = {
  * graduation year tells us when a player finishes without saying which class
  * they are in, so the graduation year is known and the last season is not.
  */
-const YEARS_TO_ELIGIBILITY_END = {
-  FRESHMAN: 4,
-  SOPHOMORE: 3,
-  JUNIOR: 2,
-  SENIOR: 1,
-  GRADUATE: 0,
-};
+const YEARS_TO_ELIGIBILITY_END = SEASONS_REMAINING_AFTER[ELIGIBILITY_MODEL.NCAA_AGE_BASED_5Y];
 
 /**
  * Where a redshirt lands: one class up.
@@ -86,13 +102,7 @@ const YEARS_TO_ELIGIBILITY_END = {
  * putting a redshirt junior on a junior's remaining eligibility when they have
  * a senior's.
  */
-const ADVANCE_ONE_CLASS = {
-  FRESHMAN: 'SOPHOMORE',
-  SOPHOMORE: 'JUNIOR',
-  JUNIOR: 'SENIOR',
-  SENIOR: 'GRADUATE',
-  GRADUATE: 'GRADUATE',
-};
+
 
 // Longest first, because these are tested in order: "first-year" must be
 // tried before "first", "sophomore" before "so", "graduate" before "gr".

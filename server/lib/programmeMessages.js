@@ -193,6 +193,7 @@ const WITH_CONTEXT = db.prepare(`
          a.programme_campaign_id, a.coach_id AS attempt_coach_id, a.state AS attempt_state,
          a.step AS attempt_step,
          pc.campaign_id, pc.college_name, pc.sport, pc.state AS programme_state,
+         pc.matchmaking_selection_id,
          c.athlete_id, c.state AS campaign_state
   FROM programme_messages m
   JOIN programme_contact_attempts a ON a.id = m.programme_contact_attempt_id
@@ -212,6 +213,15 @@ export function programmeMessageWithContext(id) {
       athleteId: row.athlete_id,
       collegeName: row.college_name,
       sport: row.sport,
+      /**
+       * WHAT PUT THIS PROGRAMME IN THIS CAMPAIGN — A9.7.
+       *
+       * Null for every V1 campaign, which is every campaign frozen from
+       * `players.recommendations`. Carried here so the execution claim can
+       * stamp it onto the send it is about to create without a second query,
+       * and WITHOUT the send path having to know what a matchmaking run is.
+       */
+      matchmakingSelectionId: row.matchmaking_selection_id ?? null,
       campaignState: row.campaign_state,
       programmeState: row.programme_state,
       attemptState: row.attempt_state,

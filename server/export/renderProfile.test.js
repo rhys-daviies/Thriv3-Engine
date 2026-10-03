@@ -234,3 +234,74 @@ describe('the required-field list', () => {
     expect(checkRequiredCore({}).sort()).toEqual([...REQUIRED_CORE_LABELS].sort());
   });
 });
+
+/* -------------------------------------------------------------------------- */
+/* A7.34 — the NCAA Eligibility ID is neither claimed nor published            */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The page is published to coaches and anyone holding the link sees it. It
+ * used to carry a badge reading "NCAA ID verified" whenever the free-text
+ * `ncaa_eligibility_id` field was non-empty — no format check, no checksum, no
+ * NCAA lookup, no certification check. Presence was being rendered as
+ * verification, to the people making the recruiting decision.
+ *
+ * These tests pin both halves of the fix: no verification claim, and the
+ * identifier itself is not published.
+ */
+describe('NCAA eligibility ID on the public profile', () => {
+  const FORBIDDEN = [
+    /NCAA ID verified/i, /NCAA[- ]verified/i, /eligibility verified/i,
+    /eligibility confirmed/i, /NCAA registered/i, /NCAA certified/i,
+  ];
+
+  /** Every shape the field can take, including the one that earned the badge. */
+  const CLAIM_IDS = [
+    ['blank', ''],
+    ['null', null],
+    ['undefined', undefined],
+    ['arbitrary text', 'not-an-id'],
+    ['a single character', 'x'],
+    ['a plausible ten-digit ID', '2110042886'],
+  ];
+
+  /**
+   * The same list minus the single character, because "the page does not
+   * contain the letter x" is unsatisfiable for any HTML document and would
+   * fail for a reason that has nothing to do with this fix. The single
+   * character still runs against the verification-claim assertion above,
+   * which is where it is the interesting case: one keystroke used to be
+   * enough to earn the badge.
+   */
+  const PUBLISH_IDS = CLAIM_IDS.filter(([label]) => label !== 'a single character');
+
+  it.each(CLAIM_IDS)('makes no verification claim when the ID is %s', (_label, value) => {
+    const html = renderProfile({ ...COMPLETE, ncaa_eligibility_id: value },
+      { endpoint: 'https://collector.example/api/track' });
+    for (const pattern of FORBIDDEN) expect(html, String(pattern)).not.toMatch(pattern);
+  });
+
+  it.each(PUBLISH_IDS)('does not publish the raw identifier when it is %s', (_label, value) => {
+    const html = renderProfile({ ...COMPLETE, ncaa_eligibility_id: value },
+      { endpoint: 'https://collector.example/api/track' });
+    expect(html).not.toMatch(/NCAA Eligibility ID/i);
+    if (value) expect(html).not.toContain(String(value));
+  });
+
+  it('still publishes the academic record it is entitled to publish', () => {
+    // The fix removes ONE row, not the card. A regression that silently
+    // dropped the academics block would pass the assertions above.
+    const html = renderProfile({ ...COMPLETE, gpa: 3.6, sat_score: 1280, ncaa_eligibility_id: '2110042886' },
+      { endpoint: 'https://collector.example/api/track' });
+    expect(html).toMatch(/Academic record/);
+    expect(html).toContain('3.6');
+    expect(html).toContain('1280');
+  });
+
+  it('does not mutate the athlete it was handed', () => {
+    // The stored value is untouched: this phase changes publication, not data.
+    const athlete = { ...COMPLETE, ncaa_eligibility_id: '2110042886' };
+    renderProfile(athlete, { endpoint: 'https://collector.example/api/track' });
+    expect(athlete.ncaa_eligibility_id).toBe('2110042886');
+  });
+});

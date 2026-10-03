@@ -1,0 +1,360 @@
+{
+  "formatVersion": "thriv3-v3-outreach-review/1",
+  "packId": "V3-B-elite-balanced",
+  "meta": {
+    "packId": "V3-B-elite-balanced",
+    "reviewer": "INDEPENDENT LLM EVALUATOR (ChatGPT), acting as a blind consultant. NOT the human consultant baseline.",
+    "reviewerKind": "LLM",
+    "humanBaseline": false,
+    "startedAt": null,
+    "completedAt": null,
+    "modelRevealed": false,
+    "viewADigest": "dc83ca6bbe3be69f",
+    "athleteDigest": "14877a2eb6061ecf",
+    "poolDigest": "86b911af2515ab10",
+    "sampleDigest": "96f6d726084f782a",
+    "athleteAnswers": {
+      "strongerProgrammes": "ABOUT RIGHT",
+      "tooManyBelow": "YES",
+      "changeFirst": "Concentrate substantially more of the outreach universe around approximately 70-88 programme strength. Allow programmes below that range into the first wave when genuinely strong playing-opportunity/recruiting evidence justifies it, and retain a smaller group of realistic reaches. Balanced 3/3/3 preferences should widen the target range compared with V3-A, but should not make programmes 30-45 strength points below an 83.6-equivalent athlete normal first-wave targets."
+    }
+  },
+  "rows": [
+    {
+      "reviewNo": 1,
+      "programmeName": "Hawaii Pacific",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 2,
+      "programmeName": "Christian Brothers",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 3,
+      "programmeName": "UC Merced",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 4,
+      "programmeName": "Colgate",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 5,
+      "programmeName": "Baker",
+      "classification": "INSUFFICIENT_INFORMATION",
+      "first100": "UNSURE",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 6,
+      "programmeName": "Salisbury",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 7,
+      "programmeName": "Rutgers",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 8,
+      "programmeName": "Wisconsin-Platteville",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 9,
+      "programmeName": "Loyola Marymount",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 10,
+      "programmeName": "West Chester",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 11,
+      "programmeName": "Centre",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 12,
+      "programmeName": "Kansas City",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 13,
+      "programmeName": "Westminster (UT)",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 14,
+      "programmeName": "Chaminade",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 15,
+      "programmeName": "Point (GA)",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 16,
+      "programmeName": "Bethel (MN)",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 17,
+      "programmeName": "Luther",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 18,
+      "programmeName": "Virginia",
+      "classification": "BORDERLINE",
+      "first100": "UNSURE",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 19,
+      "programmeName": "Penn State",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 20,
+      "programmeName": "Lincoln Trail",
+      "classification": "INSUFFICIENT_INFORMATION",
+      "first100": "UNSURE",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 21,
+      "programmeName": "Scranton",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 22,
+      "programmeName": "The Master's University",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 23,
+      "programmeName": "Our Lady of the Lake University",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 24,
+      "programmeName": "Carthage",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 25,
+      "programmeName": "Colorado School of Mines",
+      "classification": "BORDERLINE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 26,
+      "programmeName": "Southern Virginia",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 27,
+      "programmeName": "Waynesburg",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 28,
+      "programmeName": "Lower Columbia",
+      "classification": "INSUFFICIENT_INFORMATION",
+      "first100": "UNSURE",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 29,
+      "programmeName": "Case Western Reserve",
+      "classification": "BORDERLINE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 30,
+      "programmeName": "Williams",
+      "classification": "BORDERLINE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 31,
+      "programmeName": "Southwestern (TX)",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 32,
+      "programmeName": "West Virginia",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 33,
+      "programmeName": "Ferrum",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 34,
+      "programmeName": "North Carolina",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 35,
+      "programmeName": "DePauw",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 36,
+      "programmeName": "Georgetown",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 37,
+      "programmeName": "Augsburg",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 38,
+      "programmeName": "Fredonia State",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 39,
+      "programmeName": "Gardner-Webb",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 40,
+      "programmeName": "Furman",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 41,
+      "programmeName": "Covenant",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 42,
+      "programmeName": "Whitman",
+      "classification": "BORDERLINE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -583,6 +583,15 @@ function boot(file) {
 }
 
 live('migrating the live database', () => {
+  /**
+   * These tests copy the WHOLE working database - 222MB today - and then walk
+   * it twice. At vitest's 5-second default that left about half a second of
+   * headroom, so they failed whenever the suite happened to be busy, and the
+   * margin shrinks every time the database grows. A timeout is not an
+   * assertion about behaviour; every row-level check below still runs in full.
+   */
+  vi.setConfig({ testTimeout: 60000 });
+
   it('adds both columns, backfills nothing, and moves not one existing value', async () => {
     fs.mkdirSync(path.dirname(COPY), { recursive: true });
     const source = new Database(LIVE_DB, { readonly: true });

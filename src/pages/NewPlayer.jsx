@@ -2,37 +2,9 @@ import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import PlayerFormSteps from '@/components/PlayerFormSteps';
 import { entities } from '@/api/client';
+import { sanitizePlayerData } from '@/lib/playerPayload';
 
-export function sanitizePlayerData(raw) {
-  const out = { ...raw };
-  out.gpa = out.gpa === '' || out.gpa === null || out.gpa === undefined ? undefined : parseFloat(out.gpa);
-  out.graduation_year = out.graduation_year === '' ? undefined : Number(out.graduation_year);
-  out.recruiting_class_year = out.recruiting_class_year === '' ? undefined : Number(out.recruiting_class_year);
-  out.sat_score = out.sat_score === '' ? undefined : Number(out.sat_score);
-  out.act_score = out.act_score === '' ? undefined : Number(out.act_score);
-  out.height_cm = out.height_cm === '' ? undefined : Number(out.height_cm);
-  out.weight_kg = out.weight_kg === '' ? undefined : Number(out.weight_kg);
-  // 'Not Important' is the slider's N/A sentinel. It has to reach the database
-  // as a real null, or "no minimum" would be stored as a string and read as a
-  // floor of NaN.
-  out.academic_minimum = out.academic_minimum === 'Not Important' || out.academic_minimum === '' || out.academic_minimum == null
-    ? null
-    : Number(out.academic_minimum);
-
-  for (const key of Object.keys(out)) {
-    if (out[key] === undefined || out[key] === '' || out[key] === null) delete out[key];
-  }
-
-  // A ranking reset to null must reach the server as an explicit empty array,
-  // not be dropped by the loop above — dropping it leaves the previous ranking
-  // in place, so "Reset to defaults" would appear to do nothing on save.
-  if (raw.criterion_ranking === null || raw.criterion_ranking === undefined) out.criterion_ranking = [];
-
-  // Same reason: clearing a minimum has to be sent, not dropped by the loop
-  // above, or "back to N/A" would silently keep the old floor.
-  if (out.academic_minimum === undefined) out.academic_minimum = null;
-  return out;
-}
+export { sanitizePlayerData } from '@/lib/playerPayload';
 
 export default function NewPlayer() {
   const navigate = useNavigate();
