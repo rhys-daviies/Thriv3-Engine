@@ -10,6 +10,7 @@ import {
 import { KIND_ATTRIBUTES } from '../../shared/recruitingObservations.js';
 import { sendProvenance } from '../lib/v2/outreachProvenance.js';
 import { recordReply, classifyReply, replyChain } from '../lib/v2/replyIntake.js';
+import { selectionsOverview } from '../lib/v2/selectionsOverview.js';
 
 /**
  * THE OBSERVATION API — A9.6 §N.
@@ -204,6 +205,18 @@ observationsRouter.get('/programmes/intelligence', handle('observations:intellig
       observations: programmeIntelligence(db, { collegeName, sport, since: since || null }),
     },
   };
+}));
+
+/**
+ * Everything this athlete has been selected for, and what came of it — §K.
+ *
+ * The operational verification surface for rollout, and deliberately not an
+ * analytics one: one row per selection with the run's own frozen numbers, what
+ * was sent, whether a reply was recorded, and the latest REVIEWED reading.
+ */
+observationsRouter.get('/players/:id/selections/overview', handle('observations:overview', (req) => {
+  const row = player(req);
+  return { body: selectionsOverview(row.id) };
 }));
 
 /**

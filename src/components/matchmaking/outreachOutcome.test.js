@@ -4,9 +4,11 @@ import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import OutreachOutcomePanel from './OutreachOutcomePanel';
+import SelectionsOverviewPanel from './SelectionsOverviewPanel';
 import {
   outcomeStateView, selectionView, observationView, confidenceNote,
   attributeSummary, kindLabel, NO_OBSERVATION, FORBIDDEN_ABSENCE_PHRASES,
+  selectionRowView, outreachProgress, OUTREACH_PROGRESS,
 } from '@/lib/outreachOutcomeView';
 
 /**
@@ -315,5 +317,113 @@ describe('A9.6 §Z. the labels themselves carry no engine vocabulary', () => {
     });
     expect(v.isCorrection).toBe(false);
     expect(v.correction).toBeNull();
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* §K. The selections surface                                         */
+/* ------------------------------------------------------------------ */
+
+describe('A9.7 §K. the selections overview', () => {
+  const ROW = {
+    selectionId: 'sel-1',
+    collegeName: 'Lindenwood',
+    sport: 'mens-soccer',
+    status: 'RANKED',
+    rank: 4,
+    band: 'Priority outreach',
+    source: 'TOP_100',
+    runId: 'run-a',
+    runComputedAt: '2026-09-01T10:00:00.000Z',
+    runWasStale: false,
+    selectedAt: '2026-09-01T10:05:00.000Z',
+    outreach: { messages: 0, accepted: 0, coaches: 0, lastSentAt: null },
+    reply: { replies: 0, lastReplyAt: null },
+    latest: { programmeInterest: null, recruitingNeed: null, athleteOutcome: null },
+  };
+
+  const stubOverview = (selections) => stubFetch((path) => {
+    if (path.includes('/selections/overview')) return json({ playerId: PLAYER.id, selections });
+    return null;
+  });
+
+  it('K9. a sent-but-unanswered pursuit says "awaiting a reply", never "no interest"', () => {
+    const v = selectionRowView({
+      ...ROW,
+      outreach: { messages: 1, accepted: 1, coaches: 1, lastSentAt: 'x' },
+    });
+    expect(v.progress).toBe(OUTREACH_PROGRESS.SENT);
+    for (const banned of FORBIDDEN_ABSENCE_PHRASES) {
+      expect(v.progress.toLowerCase()).not.toContain(banned);
+    }
+  });
+
+  it('K10. the four progress states are distinct and none is a judgement', () => {
+    const at = (outreach, reply) => outreachProgress({ outreach, reply });
+    expect(at({ messages: 0, accepted: 0 }, { replies: 0 })).toBe(OUTREACH_PROGRESS.NOT_CONTACTED);
+    expect(at({ messages: 1, accepted: 0 }, { replies: 0 })).toBe(OUTREACH_PROGRESS.DRAFTED);
+    expect(at({ messages: 1, accepted: 1 }, { replies: 0 })).toBe(OUTREACH_PROGRESS.SENT);
+    expect(at({ messages: 1, accepted: 1 }, { replies: 1 })).toBe(OUTREACH_PROGRESS.REPLIED);
+    const all = Object.values(OUTREACH_PROGRESS);
+    expect(new Set(all).size).toBe(4);
+    for (const label of all) {
+      for (const banned of FORBIDDEN_ABSENCE_PHRASES) {
+        expect(label.toLowerCase()).not.toContain(banned);
+      }
+    }
+  });
+
+  it('K11. the row shows the selection\'s frozen rank with its denominator', async () => {
+    stubOverview([ROW]);
+    mount(createElement(SelectionsOverviewPanel, { player: PLAYER, universeSize: 828 }));
+    await flush();
+    expect(find('[data-testid="selection-rank"]').textContent).toBe('#4 of 828');
+    expect(text()).toContain('Lindenwood');
+    expect(find('[data-testid="selection-progress"]').textContent)
+      .toBe(OUTREACH_PROGRESS.NOT_CONTACTED);
+  });
+
+  it('K12. an axis with nothing reviewed renders nothing at all', async () => {
+    stubOverview([ROW]);
+    mount(createElement(SelectionsOverviewPanel, { player: PLAYER }));
+    await flush();
+    expect(find('[data-testid="selection-latest"]')).toBeNull();
+    const body = text().toLowerCase();
+    for (const banned of FORBIDDEN_ABSENCE_PHRASES) expect(body).not.toContain(banned);
+  });
+
+  it('K13. a reviewed reading is shown as a label, in plain words', async () => {
+    stubOverview([{
+      ...ROW,
+      outreach: { messages: 1, accepted: 1, coaches: 1, lastSentAt: 'x' },
+      reply: { replies: 1, lastReplyAt: 'y' },
+      latest: {
+        programmeInterest: { kind: 'REQUESTED_FILM' },
+        recruitingNeed: null,
+        athleteOutcome: null,
+      },
+    }]);
+    mount(createElement(SelectionsOverviewPanel, { player: PLAYER }));
+    await flush();
+    expect(find('[data-testid="selection-latest"]').textContent).toContain('Asked for film');
+    expect(find('[data-testid="selection-progress"]').textContent).toBe(OUTREACH_PROGRESS.REPLIED);
+  });
+
+  it('K14. an athlete with no selections is told so, and nothing is implied', async () => {
+    stubOverview([]);
+    mount(createElement(SelectionsOverviewPanel, { player: PLAYER }));
+    await flush();
+    expect(find('[data-testid="selections-empty"]')).not.toBeNull();
+    expect(text()).toMatch(/nothing is sent by selecting/i);
+  });
+
+  it('K15. this surface asks the server to compute nothing', async () => {
+    stubOverview([ROW]);
+    mount(createElement(SelectionsOverviewPanel, { player: PLAYER }));
+    await flush();
+    for (const c of calls) {
+      expect(c.method).toBe('GET');
+      expect(c.path).not.toMatch(/\/matchmaking($|\?)/);
+    }
   });
 });

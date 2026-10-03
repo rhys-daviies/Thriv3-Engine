@@ -172,3 +172,78 @@ export function selectionView(selection, { universeSize = null } = {}) {
     runWasStale: Boolean(selection.runWasStale ?? selection.run_was_stale),
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* The selections overview — A9.7 §K                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * HOW FAR ONE PURSUIT HAS GOT, in words that claim only what is recorded.
+ *
+ * The hard case is `messages > 0, replies === 0`. "No reply" is a statement
+ * about THRIV3'S OBSERVATION, not about the coach: nothing in this build
+ * ingests replies, so a zero means nobody has written one down. "Awaiting a
+ * reply" says that honestly; "No interest" would be a finding nobody made.
+ */
+export const OUTREACH_PROGRESS = Object.freeze({
+  NOT_CONTACTED: 'Not contacted yet',
+  DRAFTED: 'Drafted, not sent',
+  SENT: 'Awaiting a reply',
+  REPLIED: 'Replied',
+});
+
+export function outreachProgress(row) {
+  const messages = row?.outreach?.messages ?? 0;
+  const accepted = row?.outreach?.accepted ?? 0;
+  const replies = row?.reply?.replies ?? 0;
+  if (replies > 0) return OUTREACH_PROGRESS.REPLIED;
+  if (accepted > 0) return OUTREACH_PROGRESS.SENT;
+  if (messages > 0) return OUTREACH_PROGRESS.DRAFTED;
+  return OUTREACH_PROGRESS.NOT_CONTACTED;
+}
+
+/** Which surface this programme was chosen from, in words. */
+const SOURCE_LABELS = Object.freeze({
+  TOP_100: 'From the ranked list',
+  SPECIFIC_SEARCH: 'Searched by name',
+  FULL_UNIVERSE: 'From the full universe',
+});
+
+export const sourceLabel = (source) => SOURCE_LABELS[source] ?? source;
+
+/**
+ * One row of the selections surface.
+ *
+ * `rankLabel` reuses `selectionView`, so the denominator rule holds here too:
+ * an unranked selection says so in words and is never shown as a zero.
+ */
+export function selectionRowView(row, { universeSize = null } = {}) {
+  if (!row) return null;
+  const standing = selectionView({
+    id: row.selectionId,
+    collegeName: row.collegeName,
+    sport: row.sport,
+    status: row.status,
+    rank: row.rank,
+    band: row.band,
+    source: row.source,
+    selectedAt: row.selectedAt,
+    runWasStale: row.runWasStale,
+  }, { universeSize });
+
+  return {
+    ...standing,
+    progress: outreachProgress(row),
+    sourceLabel: sourceLabel(row.source),
+    messages: row.outreach?.messages ?? 0,
+    coaches: row.outreach?.coaches ?? 0,
+    replies: row.reply?.replies ?? 0,
+    runComputedAt: row.runComputedAt ?? null,
+    programmeInterest: row.latest?.programmeInterest
+      ? kindLabel(row.latest.programmeInterest.kind) : null,
+    recruitingNeed: row.latest?.recruitingNeed
+      ? kindLabel(row.latest.recruitingNeed.kind) : null,
+    athleteOutcome: row.latest?.athleteOutcome
+      ? kindLabel(row.latest.athleteOutcome.kind) : null,
+  };
+}

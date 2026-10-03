@@ -9,6 +9,7 @@ import MatchmakingRunBar from './MatchmakingRunBar';
 import MatchmakingPreferences from './MatchmakingPreferences';
 import MatchmakingSpecificSearch from './MatchmakingSpecificSearch';
 import OutreachOutcomePanel from './OutreachOutcomePanel';
+import SelectionsOverviewPanel from './SelectionsOverviewPanel';
 
 /**
  * The family contribution is unanswered — §E.
@@ -266,6 +267,13 @@ export default function MatchmakingV2Panel({ player }) {
           }}
         />
       )}
+
+      {/*
+        §K. Everything already chosen for this athlete, with the run's own
+        frozen numbers. Below the search and the outcome panel because it is a
+        record rather than an action.
+      */}
+      <SelectionsOverviewPanel player={player} universeSize={run?.counts?.ranked ?? null} />
 
       {contributionBlocked ? (
         <ContributionBlocked playerId={player?.id} />

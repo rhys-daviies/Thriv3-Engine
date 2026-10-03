@@ -722,6 +722,31 @@ export const observations = {
     });
   },
 
+  /** Every selection for this athlete and what came of it — A9.7 §K. */
+  selectionsOverview(playerId) {
+    return request(`/api/players/${playerId}/selections/overview`);
+  },
+
+  /** Record that a reply arrived. Classifies nothing — A9.7 §H. */
+  recordReply(sendId, { observedAt = null, note = null } = {}) {
+    return request(`/api/sends/${sendId}/reply`, {
+      method: 'POST',
+      body: JSON.stringify({ observedAt, note }),
+    });
+  },
+
+  /**
+   * Record what a reply MEANT — A9.7 §I. The caller names a kind and nothing
+   * else about the subject: the programme and the selection come from the
+   * message, so a classification cannot be misfiled.
+   */
+  classifyReply(sendId, body) {
+    return request(`/api/sends/${sendId}/classification`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
   /** Confirm or reject one classification. There is no un-review. */
   review(observationId, state) {
     return request(`/api/observations/${observationId}/review`, {
