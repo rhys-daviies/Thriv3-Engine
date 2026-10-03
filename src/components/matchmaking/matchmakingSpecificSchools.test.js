@@ -80,12 +80,17 @@ const rel = (name, over = {}) => ({
  * ===========================================================================
  * THE SHAPE OF THE PRODUCTION CASE, WITHOUT THE PRODUCTION DATA.
  *
- * The live athlete this stands in for has 99 rows in `athlete_programmes`.
- * That count is the acceptance criterion, so the fixture carries 99 — not a
- * round 100, and not "a few": the ways a list silently loses a member are
- * off-by-one filters, a de-duplicating Map keyed on something non-unique, and
- * a view that drops what it cannot enrich. A short fixture catches none of
- * them.
+ * The production preservation baseline is 100 rows in `athlete_programmes`
+ * for the athlete this stands in for — 99 when this fixture was written, plus
+ * one added by the production Specific Search smoke test, which is that
+ * workflow working rather than drift.
+ *
+ * The fixture stays at 99 deliberately. What it has to reproduce is the SCALE,
+ * because the ways a list silently loses a member are off-by-one filters, a
+ * de-duplicating Map keyed on something non-unique, and a view that drops what
+ * it cannot enrich — none of which reproduce at three rows and none of which
+ * care whether the number is 99 or 100. Pinning the fixture to whatever
+ * production currently holds would make an unrelated add a failing test.
  *
  * FIVE OF THEM ARE IN THE RUN and ninety-four are not, which is the realistic
  * proportion: a consultant's list is mostly schools a family named, and a

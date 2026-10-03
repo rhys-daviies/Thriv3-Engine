@@ -29,10 +29,12 @@ import {
  *   3. nothing about a V2 run is required for a specific school to exist, so
  *      an athlete with no run keeps all ninety-nine.
  *
- * NINETY-NINE, NOT A HANDFUL. The production athlete this stands in for has
- * exactly that many, and the ways a list quietly loses a member — an
- * off-by-one, a Map keyed on something non-unique, a view that drops what it
- * cannot enrich — do not reproduce at three rows.
+ * NINETY-NINE, NOT A HANDFUL. The production preservation baseline is 100 (99
+ * when this was written, plus one from the production Specific Search smoke
+ * test). The fixture reproduces the SCALE, not the exact number: the ways a
+ * list quietly loses a member — an off-by-one, a Map keyed on something
+ * non-unique, a view that drops what it cannot enrich — do not reproduce at
+ * three rows, and do not care whether the number is 99 or 100.
  * ===========================================================================
  */
 

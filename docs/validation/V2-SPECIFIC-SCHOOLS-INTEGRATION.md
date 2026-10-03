@@ -7,6 +7,7 @@
 | freeze guard | **17/17** — 11 freeze + 6 import boundary, unchanged |
 | engine | **untouched.** `shared/matching/` is byte-identical to main |
 | schema | **no migration.** `schema.sql` and `migrate.js` are not modified |
+| production preservation baseline | **100** rows (read-only check, pre-merge) |
 | verdict | `V2_SPECIFIC_SCHOOLS_READY` |
 
 ---
@@ -45,12 +46,50 @@ database contains no Specific Schools and no V2 run at all:**
 | `outreach` / `outreach_send` | 96 / 41 |
 | `players` | 4 (3 carrying a V1 `recommendations` path) |
 
-The 99 records and the first production run live in the Render `/data` volume,
-which is not readable from here. **This is stated rather than worked around**:
-the preservation claim below does not rest on having counted them, it rests on
-the architecture — V2 reads the same rows V1 reads. The 99-record fixture
-proves the behaviour at that scale; the production count should still be
-confirmed against production before rollout (§10).
+The records and the first production run live in the Render `/data` volume,
+which is not readable from the development environment. **This was stated
+rather than worked around**: the preservation claim does not rest on having
+counted them, it rests on the architecture — V2 reads the same rows V1 reads.
+
+### The production count, closed (READ-ONLY)
+
+The gap above was closed by a **read-only** check against the production
+database before merge. For the preservation-baseline athlete:
+
+| | |
+|---|---|
+| `athlete_programmes` rows | **100** |
+| `request_state` populated | **100** |
+| `visibility` populated | **100** |
+| `contact_stance` populated | **100** |
+| `note` populated | **0** |
+
+**The authoritative pre-deployment preservation baseline is 100.**
+
+#### Why 100 and not 99
+
+The 99 recorded earlier in this document was the count observed in the UI
+*before* the production Specific Search smoke test. That test exercised the
+add path, which upserts one `athlete_programmes` row — so the extra record is
+the smoke test's own result and is a correct outcome of the workflow, not a
+duplicate and not drift. **It must not be reduced back to 99.** The `UNIQUE
+(athlete_id, college_name, sport)` constraint is what makes a repeated add
+idempotent, which is why the count moved by exactly one.
+
+Three things follow, and all three are the properties this phase was built on:
+
+- **Every row carries its operator state.** `request_state`, `visibility` and
+  `contact_stance` are populated on all 100 — nothing is half-written.
+- **`note` is 0 across the set, and that is the truth about it**, not a loss.
+  Notes are optional and none has been written for this athlete. A migration
+  would have made that number ambiguous; reading the same rows cannot.
+- **The fixture scale was right.** The 99-record fixture in the test suite
+  exercises the same order of magnitude as production, and the behaviours it
+  pins — nothing dropped for being outside the Top 100, LIMITED_DATA,
+  unsupported, or absent from the run — are exactly what a 100-row list needs.
+
+No production data was read beyond these counts, and no production data was
+written. The athlete is referred to here by role rather than by name.
 
 ## 2. V1 capability inventory (§B)
 
@@ -253,8 +292,9 @@ fixture and counts the same 99 rows.
 
 **Remaining, for rollout rather than review:**
 
-- The production count of 99 has **not** been confirmed against the production
-  database, because it is not readable from here. Confirm before rollout.
+- ~~The production count has not been confirmed.~~ **Closed before merge** —
+  read-only production check records **100** rows with `request_state`,
+  `visibility` and `contact_stance` populated on all of them. See §1.
 - The automated campaign pipeline has still never run in production (0
   campaigns, 0 operator_users, 0 connected mailboxes) — unchanged by A10.
 - Responsive and accessibility checks were run against a seeded 99-school
