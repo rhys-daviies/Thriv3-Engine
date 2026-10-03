@@ -376,6 +376,37 @@ const OUTREACH_COLUMNS = [
  * ON DELETE SET NULL: send history is evidence and outlives the campaign that
  * produced it.
  */
+/**
+ * A9.7 — WHICH MATCHMAKING SELECTION PUT THIS PROGRAMME IN THIS CAMPAIGN.
+ *
+ * ---------------------------------------------------------------------------
+ * PROGRAMME-LEVEL, NOT CAMPAIGN-LEVEL, AND §F IS EXPLICIT ABOUT WHY.
+ *
+ * It is tempting to hang one `matchmaking_run_id` off `campaigns` and call the
+ * question answered. It would be a lie the moment a consultant adds a #101+
+ * school found by Specific Search a week later: that programme came out of a
+ * DIFFERENT run, and a campaign-level pointer would attribute it to the first
+ * one. Nothing afterwards could detect the substitution, because the row would
+ * look exactly like the ninety-nine beside it.
+ *
+ * So provenance lives per programme, and the run is reached THROUGH the
+ * selection rather than copied beside it — one immutable chain,
+ * `programme_campaigns -> matchmaking_selections -> matchmaking_runs`, with no
+ * second account of the run id to fall out of step.
+ * ---------------------------------------------------------------------------
+ *
+ * NULL FOR EVERY V1 CAMPAIGN, and not backfilled. A campaign frozen from
+ * `players.recommendations` has no matchmaking run behind it; naming one would
+ * invent the history A9.6 spent a phase recording honestly.
+ *
+ * NO ON DELETE, so deleting a selection a campaign was built on is REFUSED —
+ * matching `outreach_send.matchmaking_selection_id` and every other reference
+ * in this provenance chain.
+ */
+const PROGRAMME_CAMPAIGN_COLUMNS = [
+  ['matchmaking_selection_id', 'TEXT REFERENCES matchmaking_selections(id)'],
+];
+
 const OUTREACH_SEND_COLUMNS = [
   ['programme_campaign_id', 'TEXT REFERENCES programme_campaigns(id) ON DELETE SET NULL'],
 
@@ -1336,6 +1367,11 @@ export function migrate(db) {
   // indexes are created after the column they cover — schema.sql runs first
   // and cannot index a column this function is about to add.
   addMissingColumns(db, 'outreach_send', OUTREACH_SEND_COLUMNS);
+  addMissingColumns(db, 'programme_campaigns', PROGRAMME_CAMPAIGN_COLUMNS);
+  /** "Which programmes in this campaign came out of matchmaking" — partial. */
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_programme_campaign_matchmaking_selection
+             ON programme_campaigns(matchmaking_selection_id)
+             WHERE matchmaking_selection_id IS NOT NULL`);
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_programme_campaign ON outreach(programme_campaign_id)');
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_send_programme_campaign ON outreach_send(programme_campaign_id)');
   /**

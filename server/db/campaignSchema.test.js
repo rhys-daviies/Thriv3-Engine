@@ -123,6 +123,16 @@ describe('the tables exist as designed', () => {
       'tier', 'tier_source', 'tier_set_at',
       'state', 'state_reason', 'state_changed_at',
       'created_at', 'updated_at',
+      /**
+       * A9.7. Which matchmaking selection put this programme in this campaign.
+       * Null for every V1 campaign - one frozen from `players.recommendations`
+       * has no matchmaking run behind it - and never backfilled.
+       *
+       * PROGRAMME-LEVEL on purpose: a campaign may legitimately mix the Top 100
+       * of one run with a #101+ school searched out of a later one, and a single
+       * run id on `campaigns` would attribute the second to the first.
+       */
+      'matchmaking_selection_id',
     ]);
   });
 

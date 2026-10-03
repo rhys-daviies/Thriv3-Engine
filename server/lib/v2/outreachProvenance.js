@@ -1,4 +1,25 @@
-import { serviceError } from './matchmakingService.js';
+/**
+ * ITS OWN FAILURE HELPER, AND NOT `matchmakingService`'s — A9.7.
+ *
+ * Four lines duplicated on purpose. `matchmakingService.js` imports the frozen
+ * engine at module scope — `pursuitRun`, `poolContext`, `validationUniverse`,
+ * `financialRules` — so importing `serviceError` from it would pull the whole
+ * matchmaking model into whatever imports THIS.
+ *
+ * And A9.7 is the phase that makes that matter: `attachSelectionToSend` is now
+ * called from `executionClaim.js` and `sendOutreach.js`, which are in turn
+ * imported by `confirmSends.js` and `draftOutreach.js` — standalone CLI tools
+ * that confirm mail an operator already sent by hand. Those have no business
+ * loading a scoring engine, and `importGraph.test.js` now asserts they do not.
+ *
+ * The shape is the repo's own: `outreachSend.js` carries an identical local
+ * `fail`, for the same reason, one directory up.
+ */
+function fail(code, message) {
+  const err = new Error(message);
+  err.code = code;
+  return err;
+}
 
 /**
  * WHAT CAUSED THIS MESSAGE — A9.6.
@@ -85,7 +106,7 @@ const SELECTION_BY_ID = `
  */
 export function attachSelectionToSend(db, { sendId, selectionId } = {}) {
   const send = db.prepare('SELECT * FROM outreach_send WHERE id = ?').get(sendId);
-  if (!send) throw serviceError('SEND_NOT_FOUND', `No outreach_send ${sendId}.`);
+  if (!send) throw fail('SEND_NOT_FOUND', `No outreach_send ${sendId}.`);
 
   /**
    * IMMUTABLE, AND IDEMPOTENT ON THE SAME ANSWER. Re-running an attach with
@@ -97,28 +118,28 @@ export function attachSelectionToSend(db, { sendId, selectionId } = {}) {
     if (send.matchmaking_selection_id === selectionId) {
       return { changed: false, sendId, selectionId };
     }
-    throw serviceError('SEND_PROVENANCE_IMMUTABLE',
+    throw fail('SEND_PROVENANCE_IMMUTABLE',
       'This message already records the selection that caused it. A message is '
       + 'not re-attributed to a different selection after the fact.');
   }
 
   const selection = db.prepare(SELECTION_BY_ID).get(selectionId);
-  if (!selection) throw serviceError('SELECTION_NOT_FOUND', `No matchmaking selection ${selectionId}.`);
+  if (!selection) throw fail('SELECTION_NOT_FOUND', `No matchmaking selection ${selectionId}.`);
 
   if (selection.player_id !== send.athlete_id) {
-    throw serviceError('SELECTION_ATHLETE_MISMATCH',
+    throw fail('SELECTION_ATHLETE_MISMATCH',
       'That selection belongs to a different athlete.');
   }
 
   if (!send.college_name || !send.sport) {
-    throw serviceError('SEND_PROGRAMME_UNKNOWN',
+    throw fail('SEND_PROGRAMME_UNKNOWN',
       'This message did not record which programme it was for, so a selection '
       + 'cannot be checked against it. Programme identity is frozen when the '
       + 'message is created, never adopted afterwards.');
   }
 
   if (send.college_name !== selection.college_name || send.sport !== selection.sport) {
-    throw serviceError('SELECTION_PROGRAMME_MISMATCH',
+    throw fail('SELECTION_PROGRAMME_MISMATCH',
       `That selection is for ${selection.college_name} (${selection.sport}), but the `
       + `message was written for ${send.college_name} (${send.sport}).`);
   }
@@ -137,9 +158,9 @@ export function attachSelectionToSend(db, { sendId, selectionId } = {}) {
    * the coach does next — which is the entire point of freezing it.
    */
   const coach = db.prepare('SELECT id, school, sport FROM coaches WHERE id = ?').get(send.coach_id);
-  if (!coach) throw serviceError('COACH_NOT_FOUND', `No coach ${send.coach_id}.`);
+  if (!coach) throw fail('COACH_NOT_FOUND', `No coach ${send.coach_id}.`);
   if (coach.school !== selection.college_name || coach.sport !== selection.sport) {
-    throw serviceError('COACH_PROGRAMME_MISMATCH',
+    throw fail('COACH_PROGRAMME_MISMATCH',
       `The evidence on file puts this coach at ${coach.school} (${coach.sport}), not at `
       + `${selection.college_name} (${selection.sport}).`);
   }
@@ -162,7 +183,7 @@ export function sendProvenance(db, sendId) {
     SELECT id, athlete_id, coach_id, college_name, sport, sent_at, state,
            matchmaking_selection_id
       FROM outreach_send WHERE id = ?`).get(sendId);
-  if (!send) throw serviceError('SEND_NOT_FOUND', `No outreach_send ${sendId}.`);
+  if (!send) throw fail('SEND_NOT_FOUND', `No outreach_send ${sendId}.`);
 
   const provenance = classifySend(send);
   if (provenance === PROVENANCE_CLASS.PRE_PROVENANCE) {
