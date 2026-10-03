@@ -261,11 +261,19 @@ error:
    counts and names match for every measured position.
 3. **The roster was queried at the entry year** instead of its own season,
    which asks for a roster nobody has published. Same symptom, same test.
+4. **The server could not boot at all**, and the whole suite passed anyway.
+   The route imported `TOP_N` from `matchmakingService`, which imported it
+   without re-exporting it; Node's ESM loader rejects that at instantiation.
+   **Vitest did not catch it** — it transforms through Vite, whose interop is
+   more forgiving than Node's, and several suites import that very router.
+   Caught only by starting the real server for the browser check.
+   `server/serverBoots.test.js` now starts the real entry point under the real
+   loader, and fails if the export is removed again.
 
 ## 9. Tests (§13) and mutations (§14)
 
-**New: 40.** `matchExplanationUi.test.js` (25), `programmeContext.test.js` (8),
-`runExplanations.test.js` (7). Two A10 assertions updated, both quoting what
+**New: 41.** `matchExplanationUi.test.js` (25), `programmeContext.test.js` (8),
+`runExplanations.test.js` (7), `serverBoots.test.js` (1). Two A10 assertions updated, both quoting what
 changed.
 
 Seven mutations, each caught:

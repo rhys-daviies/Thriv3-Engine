@@ -495,4 +495,10 @@ export function resultDigest(result) {
   return crypto.createHash('sha256').update(JSON.stringify(facts)).digest('hex');
 }
 
-export { RANKING_STATE };
+/**
+ * `TOP_N` RE-EXPORTED, because the route layer needs the bound and may not
+ * reach into `shared/matching/v2/` for it — the V2 import boundary allows
+ * `server/lib/v2/` and not `server/routes/`. One definition, reached through
+ * the doorway that is allowed to hold it.
+ */
+export { RANKING_STATE, TOP_N };
