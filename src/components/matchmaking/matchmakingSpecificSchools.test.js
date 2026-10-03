@@ -273,7 +273,15 @@ describe('A10 §I. the required information architecture', () => {
      * The sections are not siblings at one depth and must not be required to
      * be: what the brief fixes is the order a consultant reads them in.
      */
-    const order = ['run-bar', 'active-preferences', 'why-ranked', 'matchmaking-tabs']
+    /**
+     * UPDATED BY A11 §3. `why-ranked` moved BELOW the results: it is important
+     * explanatory material and it is secondary to the recommendations, and
+     * standing between the operator and the list meant scrolling past it every
+     * time. The four leading sections are otherwise unchanged, and the full
+     * A11 order — including that the explanation now follows the tabs — is
+     * asserted in matchExplanationUi.test.js.
+     */
+    const order = ['run-bar', 'active-preferences', 'matchmaking-tabs']
       .map((id) => find(`[data-testid="${id}"]`));
 
     expect(order.every(Boolean), 'all four sections render').toBe(true);
@@ -367,8 +375,25 @@ describe('A10 §M. the three tabs', () => {
      * answer from the one the operator was just shown.
      */
     const after = calls.slice(before);
-    const matchmakingCalls = after.filter((c) => c.path.includes('/matchmaking'));
-    expect(matchmakingCalls, JSON.stringify(after)).toEqual([]);
+
+    /**
+     * UPDATED BY A11 §11, AND THE PROPERTY IS UNCHANGED.
+     *
+     * What must never happen on a tab switch is a RECOMPUTATION — a new run,
+     * or a re-read of the run that could answer differently from the list
+     * already on screen. That is still asserted below.
+     *
+     * What A11 added is a bounded read of programme CONTEXT (ratings, cost,
+     * departures) for the twenty cards on the visible page. It computes no
+     * score and cannot change a rank; it is the one request that replaces the
+     * per-card N+1. Excluded by path rather than by loosening the assertion,
+     * so any OTHER matchmaking call still fails this test.
+     */
+    const recomputes = after.filter((c) => (
+      c.path.includes('/matchmaking') && !c.path.includes('/matchmaking/context')
+    ));
+    expect(recomputes, JSON.stringify(after)).toEqual([]);
+    expect(after.filter((c) => c.method !== 'GET'), 'no writes').toEqual([]);
   });
 });
 

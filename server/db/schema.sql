@@ -2869,6 +2869,29 @@ CREATE TABLE IF NOT EXISTS matchmaking_programme_results (
   opportunity_coverage REAL,
   opportunity_reason TEXT,
 
+  -- THE ENGINE'S OWN EXPLANATION OF THIS ROW, AS JSON -- A11.
+  --
+  -- WHY IT IS STORED RATHER THAN DERIVED. `explainProgramme` reads the BASIS
+  -- objects a scorer produced -- the geographic spread behind recruitability,
+  -- the cost behind financial, the openings behind opportunity. None of those
+  -- survive into the columns above, which hold the value, the grade, the
+  -- coverage and a refusal reason and nothing else. So an explanation cannot
+  -- be reconstructed from this row later; it can only be captured when the
+  -- run is computed, which is what this column is for.
+  --
+  -- AND WHY IT MUST BE. Recomputing an explanation afterwards would explain a
+  -- ranking produced against TODAY'S corpus, beside a rank produced against
+  -- the corpus of the run. The two are allowed to disagree, and the screen
+  -- would show both without saying so.
+  --
+  -- NULLABLE, because every run persisted before A11 has none, and a run
+  -- without an explanation is a true historical record rather than a defect.
+  -- The UI says so rather than inventing one.
+  --
+  -- NOT part of `resultDigest`, which hashes scoring facts only -- so adding
+  -- this changes no digest and no parity check.
+  explanation TEXT,
+
   PRIMARY KEY (run_id, college_name, sport)
 );
 

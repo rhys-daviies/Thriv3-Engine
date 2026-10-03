@@ -1,4 +1,5 @@
 import { refusalPhrase, layerLabel } from '@shared/matching/v2/explain/vocabulary.js';
+import { renderReason, CLIENT_UNSAFE } from '@shared/matching/v2/explain/render.js';
 
 /**
  * THE VIEW MODEL FOR ONE MATCHMAKING V2 RUN — A9.3 / §U.
@@ -233,6 +234,82 @@ export function layerView(key, layer) {
  * names for one layer.
  */
 export { layerLabel };
+
+/* ------------------------------------------------------------------ */
+/* Explanations — A11 §7, §8                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * THE ENGINE'S OWN SENTENCES, THROUGH THE ONE APPROVED DOORWAY.
+ *
+ * `render.js` turns a reason code and its evidence into English. It lives
+ * under `shared/matching/v2/`, which `src/` may not import except through
+ * this module — so the explanation surfaces import from here, exactly as they
+ * do for the layer labels above.
+ *
+ * NOTHING IS WRITTEN HERE. Every sentence is the engine's, built from the
+ * evidence the scorer recorded. A frontend paraphrase is how a refusal
+ * carefully worded in A8.2 turns back into the claim it was written to avoid.
+ */
+
+/**
+ * Codes the operator register may print and a client register may not.
+ *
+ * `render.js` names them itself and says why: a gate loss is an instruction to
+ * an operator and a bewilderment to a parent, and "no verified athletic-aid
+ * rule" sounds like a warning about the school rather than about our records.
+ * The audience today is the consultant, so these ARE rendered — but they are
+ * marked, so the family-facing register A7.6 deliberately did not build can be
+ * built by selecting rather than by remembering.
+ */
+export const OPERATOR_ONLY_CODES = Object.freeze(new Set(CLIENT_UNSAFE.codes));
+
+export const isOperatorOnly = (reason) => OPERATOR_ONLY_CODES.has(reason?.code);
+
+/**
+ * One reason as a sentence, or null when the renderer has no wording for it.
+ *
+ * A code with no sentence renders NOTHING rather than its own identifier:
+ * "POSITION_ARRIVALS_NOT_YET_KNOWN" on screen is worse than silence.
+ */
+export function reasonSentence(reason) {
+  try {
+    const text = renderReason(reason);
+    return typeof text === 'string' && text.trim() ? text : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Reasons in the polarity order a reader wants: strengths, then concerns, then gaps. */
+export const POLARITY_ORDER = Object.freeze(['strength', 'concern', 'unknown', 'context']);
+
+export function explanationView(explanation, { layer = null } = {}) {
+  if (!explanation) return null;
+  const all = layer
+    ? (explanation.layerReasons?.[layer] ?? [])
+    : (explanation.reasons ?? []);
+
+  const rows = all
+    /**
+     * `listLevel` reasons are about the whole shortlist, not this programme —
+     * "most of this pool is out of reach" is true and unreadable on all 100
+     * rows. The engine marks them so a surface can hoist them once; this one
+     * drops them from the per-programme view.
+     */
+    .filter((r) => !r.listLevel)
+    .map((r) => ({ ...r, sentence: reasonSentence(r), operatorOnly: isOperatorOnly(r) }))
+    .filter((r) => r.sentence);
+
+  rows.sort((a, b) => {
+    const pa = POLARITY_ORDER.indexOf(a.polarity);
+    const pb = POLARITY_ORDER.indexOf(b.polarity);
+    if (pa !== pb) return (pa === -1 ? 99 : pa) - (pb === -1 ? 99 : pb);
+    return (a.band ?? 99) - (b.band ?? 99) || (a.sub ?? 0) - (b.sub ?? 0);
+  });
+
+  return rows;
+}
 
 export const LAYER_KEYS = Object.freeze(['recruitability', 'financial', 'opportunity']);
 

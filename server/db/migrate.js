@@ -1509,6 +1509,18 @@ export function migrate(db) {
   db.exec(`CREATE INDEX IF NOT EXISTS idx_outbound_attempt_send
              ON outbound_send_attempt(outreach_send_id, attempted_at, id)`);
   addMissingColumns(db, 'recruiting_arrivals', RECRUITING_ARRIVAL_COLUMNS);
+
+  /**
+   * A11. The engine's own explanation of each persisted programme result.
+   *
+   * Additive and nullable: runs persisted before A11 keep none, which is the
+   * truth about them rather than a defect, and the UI says so instead of
+   * reconstructing one. Guarded because this table did not exist before A9.2.
+   */
+  if (db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'matchmaking_programme_results'").get().n) {
+    addMissingColumns(db, 'matchmaking_programme_results', [['explanation', 'TEXT']]);
+  }
+
   preserveMailboxIdentityAcrossOperators(db);
   retireProgrammeSeasonDivision(db);
   scopeInstitutionAliases(db);

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import MatchmakingResultCard from './MatchmakingResultCard';
@@ -65,6 +65,16 @@ export function pageWindow(current, total) {
  */
 export default function MatchmakingResults({
   run,
+  /** The workspace's relationships and contact history, for the status chips. */
+  relationships = null,
+  contactByProgramme = null,
+  contactKnown = false,
+  /** One bounded context read per visible page; see `useProgrammeContext`. */
+  contextByName = null,
+  explanations = null,
+  onExpand = null,
+  entryYear = null,
+  onPageProgrammes = null,
   /**
    * CONTROLLED SCOPE — A10 §M. When the page owns the tab control, the scope
    * comes down as a prop and this component renders no tablist of its own:
@@ -113,6 +123,24 @@ export default function MatchmakingResults({
   }
 
   const counts = run.counts;
+
+  /**
+   * THE PAGE'S NAMES, REPORTED ONCE PER PAGE — §11.
+   *
+   * The context read is per PAGE of twenty, not per card and not for the whole
+   * universe: a card asking for itself is the N+1, and asking for 1,205 to
+   * render 20 is the opposite waste. Reported through a ref-guarded effect so
+   * paging asks once and re-rendering asks not at all.
+   */
+  const pageNames = items.map((p) => p.name);
+  const lastAsked = useRef('');
+  useEffect(() => {
+    if (!onPageProgrammes) return;
+    const key = pageNames.join('\u001F');
+    if (key === lastAsked.current) return;
+    lastAsked.current = key;
+    onPageProgrammes(pageNames);
+  }, [pageNames.join('\u001F'), onPageProgrammes]);
 
   return (
     <div className="space-y-4">
@@ -163,7 +191,19 @@ export default function MatchmakingResults({
       ) : (
         <div className="space-y-3">
           {items.map((p) => (
-            <MatchmakingResultCard key={`${p.programmeId ?? p.name}-${p.name}`} programme={p} />
+            <MatchmakingResultCard
+              key={`${p.programmeId ?? p.name}-${p.name}`}
+              programme={p}
+              sport={run.sport}
+              entryYear={entryYear}
+              relationships={relationships}
+              contactByProgramme={contactByProgramme}
+              contactKnown={contactKnown}
+              context={contextByName?.get?.(p.name) ?? null}
+              explanation={explanations?.get?.(p.name)?.explanation ?? null}
+              explanationState={explanations?.get?.(p.name)?.state ?? null}
+              onExpand={onExpand}
+            />
           ))}
         </div>
       )}

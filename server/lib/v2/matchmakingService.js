@@ -26,7 +26,7 @@ import crypto from 'node:crypto';
 import { canonicalPosition } from '../../../shared/positions.js';
 import { normaliseAthlete } from '../../../shared/matching/pool.js';
 import {
-  buildValidationAthlete, RANKING_STATE, TOP_N, isScoreable,
+  buildValidationAthlete, RANKING_STATE, TOP_N, isScoreable, explainProgramme,
 } from '../../../shared/matching/v2/index.js';
 import { REQUIRED_INPUTS, NOT_COLLECTED } from '../../../shared/matching/v2/validation/athleteInput.js';
 import { familyContribution, contributionPairError } from '../../../shared/matching/v2/financialRules.js';
@@ -293,7 +293,50 @@ export const UNSUPPORTED_EXPLANATION = Object.freeze({
  * @param {object}  player  a stored `players` row
  * @returns the A9.0 product contract
  */
-export function computeMatchmakingV2(db, player, { season = SEASON, explanationFor = null } = {}) {
+/**
+ * THE ENGINE'S OWN EXPLANATION, FOR EVERY PROGRAMME IN A RUN — A11 §7, §8.
+ *
+ * ===========================================================================
+ * READS ONLY. CHANGES NOTHING.
+ *
+ * `explainProgramme` is documented, and tested, as recomputing nothing: every
+ * number it reports comes out of a basis object a scorer already produced.
+ * Turning it on therefore cannot move a score, a rank or a ranking state, and
+ * the regression that proves it is the whole-suite parity check.
+ *
+ * -- WHY THIS IS BUILT HERE AND NOT IN THE ROUTE ---------------------------
+ *
+ * The explanation's context is `{ rank, outOf, poolSize }`, and only this
+ * function knows them: `outOf` is the size of the ranked list, which is not
+ * known until the pipeline has run. A route-level closure would have to be
+ * handed the pipeline to compute them, which is the pipeline leaking.
+ *
+ * -- WHY IT IS OPT-IN ------------------------------------------------------
+ *
+ * The GET that previews a run does not need it and should not pay for it.
+ * The POST that PERSISTS a run does, because an explanation is only worth
+ * anything if it is the explanation of the run actually stored — recomputing
+ * one later against a moved corpus would explain a different ranking than the
+ * one on screen.
+ * ===========================================================================
+ */
+function explanationsFor(pipeline) {
+  const ranked = pipeline?.ranked ?? [];
+  const outOf = ranked.length;
+  const poolSize = outOf
+    + (pipeline?.limited?.length ?? 0)
+    + (pipeline?.ineligible?.length ?? 0)
+    + (pipeline?.suppressed?.length ?? 0);
+  return (entry) => explainProgramme(entry, {
+    rank: entry.rank ?? null,
+    outOf,
+    poolSize,
+  });
+}
+
+export function computeMatchmakingV2(db, player, {
+  season = SEASON, explanationFor = null, withExplanations = false,
+} = {}) {
   if (!player || !player.id) throw serviceError('PLAYER_REQUIRED', 'A stored player is required.');
 
   const sport = player.sport ?? null;
@@ -366,9 +409,12 @@ export function computeMatchmakingV2(db, player, { season = SEASON, explanationF
   const adaptStarted = Date.now();
   const universeOfProgramme = (division) => universeOf({ division, season: Number(season) });
 
+  /** An explicit `explanationFor` wins; `withExplanations` is the ordinary way in. */
+  const explain = explanationFor ?? (withExplanations ? explanationsFor(run.pipeline) : null);
+
   const programmes = [];
   for (const entry of run.pipeline.ranked) {
-    programmes.push(programmeView(entry, { rank: entry.rank, status: STATUS.RANKED, explanationFor }));
+    programmes.push(programmeView(entry, { rank: entry.rank, status: STATUS.RANKED, explanationFor: explain }));
   }
   for (const entry of [...run.pipeline.limited,
     ...(run.pipeline.ineligible ?? []), ...(run.pipeline.suppressed ?? [])]) {
@@ -376,7 +422,7 @@ export function computeMatchmakingV2(db, player, { season = SEASON, explanationF
     const view = programmeView(entry, {
       rank: null,
       status: unsupported ? STATUS.UNSUPPORTED_ASSOCIATION : STATUS.SUPPORTED_LIMITED_DATA,
-      explanationFor,
+      explanationFor: explain,
     });
     if (unsupported && !view.explanation) view.explanation = UNSUPPORTED_EXPLANATION;
     programmes.push(view);

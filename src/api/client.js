@@ -643,6 +643,24 @@ export const matchmaking = {
     return request(`/api/players/${playerId}/matchmaking`, { method: 'POST' });
   },
 
+  /**
+   * PROGRAMME CONTEXT FOR A BOUNDED SET — A11 §5, §6, §11.
+   *
+   * Ratings, cost and roster departures for the programmes on one page of
+   * cards, in ONE request. The run holds scores and nothing else, so without
+   * this a card wanting a net price would ask per programme and a hundred
+   * cards would ask a hundred times.
+   *
+   * Names are joined with the unit separator rather than a comma, because a
+   * programme name may legally contain a comma and may not contain U+001F.
+   */
+  programmeContext(playerId, { names, sport = null, withPlayers = false } = {}) {
+    const q = new URLSearchParams({ names: (names ?? []).join('\u001F') });
+    if (sport) q.set('sport', sport);
+    if (withPlayers) q.set('players', '1');
+    return request(`/api/players/${playerId}/matchmaking/context?${q}`);
+  },
+
   /** One historical run by id. Immutable, so it carries no staleness. */
   run(runId) {
     return request(`/api/matchmaking/runs/${runId}`);
