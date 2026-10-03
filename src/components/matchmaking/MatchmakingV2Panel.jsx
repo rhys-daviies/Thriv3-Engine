@@ -45,8 +45,17 @@ function ContributionBlocked({ playerId }) {
             an unanswered question as zero &mdash; a guess here would change which
             programmes look affordable.
           </p>
+          {/*
+            §H. `return=matching` completes the loop A9.3 left open: the
+            operator is sent from here to answer one question and comes back
+            HERE, where the button that produces a ranking is — rather than
+            landing on the Profile tab and having to find their way back.
+
+            The save still ranks nothing. Returning is navigation; generating
+            is a decision, and it stays the operator's.
+          */}
           <Button asChild size="sm">
-            <Link to={`/player/${playerId}/edit`}>Add the family contribution</Link>
+            <Link to={`/player/${playerId}/edit?return=matching`}>Add the family contribution</Link>
           </Button>
         </div>
       </div>
@@ -194,7 +203,7 @@ export default function MatchmakingV2Panel({ player }) {
         <Failure error={error} onRetry={refresh} />
       ) : null}
 
-      <MatchmakingPreferences player={player} />
+      <MatchmakingPreferences player={player} run={run} />
 
       {/*
         THE PREVIOUS RUN STAYS VISIBLE AND STAYS READABLE while a new one is

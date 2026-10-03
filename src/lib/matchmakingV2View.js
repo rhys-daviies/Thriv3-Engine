@@ -333,8 +333,79 @@ export function runView(payload, { staleness = null } = {}) {
     sport: payload.sport ?? null,
     counts: payload.counts ?? null,
     programmes,
+    /**
+     * The six preference fields this run was computed from — §O. Absent on a
+     * live POST body, which carries no `inputSnapshot`; the screen then simply
+     * marks nothing as changed, which is true: a run computed a moment ago was
+     * computed from what is on the profile now.
+     */
+    inputs: runInputs(payload.inputSnapshot),
     staleness: stalenessView(staleness ?? payload.staleness),
   };
+}
+
+/* ------------------------------------------------------------------ */
+/* The inputs this run was computed from — A9.4 §O                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * THE PREFERENCE FIELDS A RUN CARRIES FORWARD, AND ONLY THOSE.
+ *
+ * ===========================================================================
+ * A9.3 DROPPED THE WHOLE SNAPSHOT. THIS PUTS BACK SIX NAMED FIELDS, NOT THE
+ * SNAPSHOT.
+ *
+ * `inputSnapshot` holds all twenty matchmaking inputs, including `gpa`,
+ * `sat_score`, `act_score`, `state` and `nationality`. None of those is
+ * needed to answer the question §O asks — "is what I am looking at still
+ * what this ranking was built from?" — and carrying them to a screen that
+ * does not show them is how a payload becomes a place person-level data
+ * accumulates unnoticed.
+ *
+ * So the view model picks the SIX fields the preference summary actually
+ * renders. The privacy assertion in the view-model tests was not removed when
+ * this arrived; it was narrowed to name the fields that must still never
+ * appear, which is a sharper check than the one it replaced.
+ *
+ * Compared RAW, deliberately. `inputDigest` hashes raw values, so "exercise
+ * science" -> "Exercise Science" makes the run stale; a comparison here that
+ * normalised case would show no change beside a run the server correctly
+ * calls outdated, and the screen would be arguing with itself.
+ * ===========================================================================
+ */
+export const RUN_INPUT_FIELDS = Object.freeze([
+  'intended_major',
+  'competitive_level_priority',
+  'playing_opportunity_priority',
+  'academic_strength_priority',
+  'contribution_state',
+  'max_annual_contribution_usd',
+]);
+
+/** The six fields, off a persisted snapshot. Null when a run carries none. */
+export function runInputs(snapshot) {
+  if (!snapshot) return null;
+  const out = {};
+  for (const f of RUN_INPUT_FIELDS) out[f] = snapshot[f] ?? null;
+  return out;
+}
+
+/**
+ * Which of those six have moved since the run was computed.
+ *
+ * A Set of field names, so a surface marks the field that changed rather than
+ * printing a diff. Empty when nothing moved, and empty when the run carries no
+ * snapshot at all — an unknown is not a change, and marking every field on a
+ * run that simply predates this would be a screen inventing history.
+ */
+export function changedSinceRun(player, inputs) {
+  const changed = new Set();
+  if (!player || !inputs) return changed;
+  for (const f of RUN_INPUT_FIELDS) {
+    const now = player[f] ?? null;
+    if (now !== (inputs[f] ?? null)) changed.add(f);
+  }
+  return changed;
 }
 
 /** "3 October 2026 at 17:04" — a time an operator can repeat, in their locale. */

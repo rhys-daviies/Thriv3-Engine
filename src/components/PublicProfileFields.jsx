@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { getSportProfile } from '@shared/sportProfiles';
+import IntendedMajorField from '@/components/IntendedMajorField';
 
 function Field({ label, hint, children }) {
   return (
@@ -66,18 +67,15 @@ export default function PublicProfileFields({ data, set, sport }) {
             <Input value={data.ncaa_eligibility_id} onChange={(e) => set('ncaa_eligibility_id')(e.target.value)} placeholder="2110042886" />
           </Field>
           {/* Not only a profile line. This is the input ACADEMIC_FIT evidence
-              reads: it is matched against each school's own notable majors, so
-              an email can say "you offer a strong Business program" only where
-              that is true. Left blank — which both pilot athletes were — the
-              angle cannot fire at any programme, which is why the field says
-              so rather than sitting silently among the optional ones. */}
-          <Field label="Intended major">
-            <Input value={data.intended_major} onChange={(e) => set('intended_major')(e.target.value)} placeholder="Sport Science" />
-            <p className="mt-1 text-xs text-muted-foreground">
-              Used to find programmes that actually offer it — worth filling in even though
-              it is optional. Plain English is fine: “business”, “comp sci”, “exercise science”.
-            </p>
-          </Field>
+              reads AND the one academic preference Matchmaking V2 scores: it is
+              matched against each school's own notable majors, so an email can
+              say "you offer a strong Business program" only where that is true.
+
+              A9.4 moved it into its own component because a bare input could
+              not say the one thing that matters — whether Thriv3 can place what
+              was typed. An unplaceable major saves, displays, and silently
+              affects nothing. */}
+          <IntendedMajorField value={data.intended_major} onChange={set('intended_major')} />
         </div>
       </div>
 

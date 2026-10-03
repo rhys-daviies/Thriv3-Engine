@@ -1,13 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import PlayerFormSteps from '@/components/PlayerFormSteps';
 import { entities } from '@/api/client';
 import { sanitizePlayerData } from '@/pages/NewPlayer';
 
+/**
+ * Where a save returns to — A9.4 §H.
+ *
+ * An allow-list of ONE, not a free-text destination. `?return=` arrives in a
+ * URL, and a URL is something anyone can hand an operator; resolving it into
+ * `navigate()` would be an open redirect in a product that holds athlete
+ * records. Anything unrecognised falls back to the player page, which is where
+ * this has always gone.
+ */
+const RETURN_TO = Object.freeze({ matching: 'matching' });
+
 export default function EditPlayer() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [player, setPlayer] = useState(null);
+  const returnTab = RETURN_TO[searchParams.get('return')] ?? null;
 
   useEffect(() => {
     entities.Player.get(id).then((p) => {
@@ -39,7 +52,20 @@ export default function EditPlayer() {
     sanitized.recommendations = null;
     sanitized.status = 'New';
     await entities.Player.update(id, sanitized);
-    navigate(`/player/${id}`);
+    /**
+     * SAVING RETURNS. IT DOES NOT RANK — A9.4 §M.
+     *
+     * This navigates and nothing else. No matchmaking POST happens here, on
+     * any path: a run is a dated historical record of somebody asking, and
+     * creating one as a side effect of saving a profile would turn the history
+     * into a log of form submissions. The operator lands on Matchmaking with
+     * their previous run still showing, now marked outdated, and chooses.
+     *
+     * The V1 line above (`recommendations = null`) is untouched and still
+     * clears V1's pointer. It does not reach `matchmaking_runs`, which is why
+     * a V2 run survives the edit that makes it stale.
+     */
+    navigate(returnTab ? `/player/${id}/${returnTab}` : `/player/${id}`);
   }
 
   if (!player) return <div className="text-sm text-muted-foreground">Loading...</div>;
