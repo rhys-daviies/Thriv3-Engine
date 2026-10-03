@@ -29,7 +29,7 @@
 import crypto from 'node:crypto';
 import { FREEZE_ENGINE_HEAD } from '../../../shared/matching/v2/freeze.js';
 import { bandForRank, STATUS, SEASON, serviceError } from './matchmakingService.js';
-import { corpusDigests } from './corpusIdentity.js';
+import { cachedCorpusDigests } from './corpusIdentity.js';
 import { UNIVERSE } from './validationUniverse.js';
 
 /**
@@ -335,7 +335,14 @@ export function runStaleness(db, player, runRow, { season = SEASON } = {}) {
   if (inputDigest(snapshotNow) !== inputDigest(JSON.parse(runRow.input_snapshot))) {
     reasons.push(STALE_REASON.PLAYER_INPUT_CHANGED);
   }
-  if (corpusDigests(db, { season })[UNIVERSE.SUPPORTED].digest !== runRow.corpus_digest) {
+  /**
+   * CACHED, NOT CHEAPENED — A9.4. Still the full `corpusDigests` identity and
+   * still compared against the digest this run was computed under; the cache
+   * only skips RECOMPUTING it when nothing has been written since it last ran.
+   * A9.3 measured this single line at ~890ms on every current-run request,
+   * against 5.7ms to build the entire 1,205-programme payload beside it.
+   */
+  if (cachedCorpusDigests(db, { season })[UNIVERSE.SUPPORTED].digest !== runRow.corpus_digest) {
     reasons.push(STALE_REASON.CORPUS_CHANGED);
   }
   if (runRow.engine_freeze !== FREEZE_ENGINE_HEAD) {

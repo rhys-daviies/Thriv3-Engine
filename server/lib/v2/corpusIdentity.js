@@ -29,6 +29,7 @@
 import crypto from 'node:crypto';
 import { universeOf, UNIVERSE } from './validationUniverse.js';
 import { ROSTER_COLUMNS } from './poolContext.js';
+import { corpusChangeToken } from '../../db/corpusIdentity.js';
 
 export const GUARD_SEASON = '2026';
 
@@ -78,4 +79,107 @@ export function corpusDigests(db, { season = GUARD_SEASON } = {}) {
     };
   }
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// The change-token cache — A9.4
+// ---------------------------------------------------------------------------
+
+/**
+ * `corpusDigests` IS THE IDENTITY. THIS IS THE ONLY THING ALLOWED TO SKIP IT.
+ *
+ * ===========================================================================
+ * WHY: ASKING COST 150x MORE THAN ANSWERING.
+ *
+ * A9.3 shipped the persisted-first Matchmaking screen, which reads the current
+ * run and its staleness on every load. Measured against the live corpus:
+ *
+ *   currentRun  (find the row)                    0.050 ms
+ *   readRun     (1,205 rows -> 570KB payload)     5.705 ms
+ *   runStaleness                                890 ms
+ *     of which corpusDigests                   1,281 ms cold, ~890 ms warm
+ *   corpusChangeToken                             0.007 ms
+ *
+ * Serving the answer was 5.7 ms; deciding whether it was still fresh was 890
+ * ms, recomputed from scratch on every single request. `corpusDigests` reads
+ * every college, roster row and arrival for both sports, twice - once per
+ * universe - and hashes them.
+ *
+ * -- THE ARCHITECTURE IS A9.1'S, NOT A NEW ONE -----------------------------
+ *
+ * `poolContextFor` hit this exact wall and solved it with a two-level cache:
+ * SQLite's own change token gates the expensive identity. A9.4 lifts that
+ * gate to here so there is ONE implementation of it rather than a second,
+ * independently-invalidating copy inside `runStaleness` - and so the service
+ * and the staleness check share a recomputation when the token does move.
+ *
+ * -- WHY THE TOKEN IS SAFE, AND IN WHICH DIRECTION IT IS WRONG -------------
+ *
+ * `corpusChangeToken` is `data_version` (moves when ANOTHER connection
+ * commits) plus `total_changes()` (this connection's own rows, which
+ * data_version is documented not to cover). Together they see every ordinary
+ * write from anywhere.
+ *
+ * It is a CHANGE DETECTOR, never an identity, and it is deliberately
+ * over-sensitive: a 7B coach write moves it although no V2 cell changed. That
+ * is the right direction to be wrong in - it costs one recomputation, never a
+ * stale answer. The reverse, a relevant write the token misses, is the failure
+ * that would report a moved corpus as unchanged, and the only way to reach it
+ * is schema-level DDL, which does not increment `total_changes()`. A migration
+ * that rewrote these tables in place without a restart would defeat this, and
+ * it defeats `poolContextFor`'s cache identically; both are bounded by process
+ * lifetime.
+ *
+ * `total_changes()` resets when a connection is opened, which is exactly why
+ * the cache is keyed on the CONNECTION rather than only on the season. A new
+ * `Database` is a new WeakMap key with no entry, so a token from another
+ * connection can never be compared against this one's - and a process holding
+ * two databases, which every multi-corpus test does, cannot be served the
+ * other one's digest. That class of bug does not need anyone to remember a
+ * reset call.
+ *
+ * WHAT THIS DOES NOT CHANGE: the digest definition, the two-universe split,
+ * the season, or the fact that corpus identity is GLOBAL over both sports.
+ * A men's-soccer run is stale when women's roster data moves, exactly as
+ * before. This returns `corpusDigests`' own object and nothing else.
+ */
+let digestCache = new WeakMap();
+
+/** Recomputations and hits, for the benchmarks and the invalidation tests. */
+const stats = { recomputations: 0, hits: 0 };
+
+export function corpusDigestCacheStats() { return { ...stats }; }
+
+/**
+ * Forget everything. Tests only - the cache is correct without it, and a
+ * product path that needed it would be a product path with a stale answer.
+ */
+export function clearCorpusDigestCache() {
+  digestCache = new WeakMap();
+  stats.recomputations = 0;
+  stats.hits = 0;
+}
+
+/** `corpusDigests`, skipped when nothing has been written since it last ran. */
+export function cachedCorpusDigests(db, { season = GUARD_SEASON } = {}) {
+  const token = corpusChangeToken(db);
+  let bySeason = digestCache.get(db);
+  if (!bySeason) {
+    bySeason = new Map();
+    digestCache.set(db, bySeason);
+  }
+  const hit = bySeason.get(season);
+  if (hit && hit.changeToken === token) {
+    stats.hits += 1;
+    return hit.digests;
+  }
+  const digests = corpusDigests(db, { season });
+  /**
+   * Stamped only after the computation returns. An entry written first and
+   * filled afterwards would, on a throw, leave a token claiming a digest that
+   * was never taken - which reads exactly like a correct cache hit.
+   */
+  bySeason.set(season, { changeToken: token, digests });
+  stats.recomputations += 1;
+  return digests;
 }

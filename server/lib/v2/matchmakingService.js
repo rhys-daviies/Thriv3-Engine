@@ -34,7 +34,7 @@ import { FREEZE_ENGINE_HEAD } from '../../../shared/matching/v2/freeze.js';
 import { buildPoolContext } from './poolContext.js';
 import { runPursuit } from './pursuitRun.js';
 import { universeOf, UNIVERSE } from './validationUniverse.js';
-import { corpusDigests } from './corpusIdentity.js';
+import { cachedCorpusDigests } from './corpusIdentity.js';
 import { corpusChangeToken } from '../../db/corpusIdentity.js';
 
 export const MATCHER_VERSION = 'v2';
@@ -115,7 +115,11 @@ export const STATUS = Object.freeze({
  *                                        connection or another, moves it.
  *   level 2  corpusDigests      ~1,400ms the content identity, computed only
  *                                        when level 1 moved, and carried on
- *                                        the result for provenance.
+ *                                        the result for provenance. Since A9.4
+ *                                        it is reached through
+ *                                        `cachedCorpusDigests`, which applies
+ *                                        this same token gate once for every
+ *                                        caller rather than once per caller.
  *
  * The token is a CHANGE DETECTOR, not an identity: it moves on writes that
  * touch nothing V2 reads. That is the right direction to be wrong in - it
@@ -145,7 +149,13 @@ export function poolContextFor(db, sport, { season = SEASON } = {}) {
   }
 
   /** Level 1 moved (or there is no entry): find out whether it mattered. */
-  const digests = corpusDigests(db, { season });
+  /**
+   * A9.4: the same shared cache `runStaleness` reads. The level-2 computation
+   * described above is unchanged - this is still the authoritative identity -
+   * but when the token moved because of a 7B coach write, the service and the
+   * staleness check now pay for ONE recomputation between them rather than two.
+   */
+  const digests = cachedCorpusDigests(db, { season });
   const corpusDigest = digests[UNIVERSE.SUPPORTED].digest;
   if (hit && hit.corpusDigest === corpusDigest) {
     /**
