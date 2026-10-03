@@ -2732,3 +2732,155 @@ CREATE TABLE IF NOT EXISTS recruiting_arrivals_build (
   -- since I looked" answerable without comparing timestamps.
   generation INTEGER NOT NULL
 );
+
+-- ===========================================================================
+-- MATCHMAKING V2 RUNS — A9.2
+--
+-- An IMMUTABLE record of one V2 calculation. Nothing here is ever updated:
+-- re-running an athlete writes a new run, and a historical run keeps the ranks
+-- it had even after the player, the corpus or a future engine moves under it.
+-- That is the whole point. Outreach has to be attributable to the matchmaking
+-- state AT THE TIME, and a mutable pointer cannot answer "what did Thriv3
+-- think when we emailed this coach".
+--
+-- WHY THIS COEXISTS WITH players.recommendations RATHER THAN REPLACING IT.
+-- V1's answer is a JSON blob in server/uploads/ addressed by that single
+-- mutable column; re-analysing overwrites it and saving a profile nulls it.
+-- It is still the product's live path, campaigns still resolve it, and
+-- identifyModel() still classifies it. Nothing below reads or writes it.
+--
+-- The precedent for copying rather than pointing is programme_campaigns, for
+-- the same reason stated there: a campaign from last season must stay readable
+-- after the model has been retuned twice.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS matchmaking_runs (
+  id TEXT PRIMARY KEY,
+
+  -- OWNED BY THE ATHLETE, as campaigns and athlete_programmes are. The delete
+  -- path issues a bare DELETE with no cascade of its own, so it is declared
+  -- here rather than left to a caller that does not exist.
+  player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+
+  -- ---- version identity: the four questions a historical run must answer ---
+  -- WHICH MATCHER. Recorded, never inferred. identifyModel() exists because
+  -- V1 never wrote this down and has to be classified from the shape of its
+  -- own output; it stays as the fallback for those rows and is not consulted
+  -- for anything below.
+  matcher_version TEXT NOT NULL,
+  -- WHICH ENGINE. The adopted freeze SHA from docs/validation/V2-FREEZE.md.
+  engine_freeze TEXT NOT NULL,
+  -- WHICH EVIDENCE. The SUPPORTED-universe digest, which is what
+  -- server/lib/v2/corpusIdentity.js means by the corpus: the three tables V2
+  -- actually reads, split so that junior-college growth is not mistaken for a
+  -- scoring-relevant change.
+  corpus_digest TEXT NOT NULL,
+  -- WHEN.
+  computed_at TEXT NOT NULL,
+
+  -- Two schema versions, because they move independently. The result shape can
+  -- gain a field without the input contract changing, and a reader must be
+  -- able to tell which it is looking at.
+  result_schema_version INTEGER NOT NULL,
+  input_schema_version INTEGER NOT NULL,
+
+  -- SNAPSHOT of players.sport, as everywhere else: the athlete row is mutable
+  -- and a sport changed afterwards would re-interpret every programme row
+  -- underneath this run.
+  sport TEXT NOT NULL,
+
+  -- ---- the athlete, frozen -------------------------------------------------
+  -- The matchmaking-relevant inputs ONLY, as JSON. A historical run has to
+  -- stay interpretable after the athlete's rating, position, major,
+  -- contribution or preferences change, and the mutable players row cannot
+  -- do that. Deliberately NOT the whole player object: no contact details, no
+  -- guardian, no club coach, nothing a ranking did not read.
+  input_snapshot TEXT NOT NULL,
+
+  -- Counts, so a list of runs is readable without opening the programme rows.
+  pool_size INTEGER NOT NULL,
+  supported_universe_count INTEGER NOT NULL,
+  ranked_count INTEGER NOT NULL,
+  limited_data_count INTEGER NOT NULL,
+  unsupported_count INTEGER NOT NULL,
+
+  -- The contribution state this run was computed under. A run cannot exist
+  -- without a resolved one, so this is never NEEDS_CONFIRMATION.
+  contribution_state TEXT NOT NULL,
+
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_matchmaking_runs_player
+  ON matchmaking_runs (player_id, computed_at DESC);
+
+-- ===========================================================================
+-- One programme's result inside one run.
+--
+-- WHAT IS STORED AND WHAT IS DERIVED. Everything a later reader cannot
+-- recompute is a column: the rank, the Pursuit value, each layer's value,
+-- grade, coverage and refusal reason. Three things are deliberately absent
+-- because they are pure functions of what IS stored, and storing them would be
+-- a second copy that could disagree with the first:
+--
+--   ranking_band   bandForRank(rank), frozen; result_schema_version pins which
+--                  band map applied
+--   layer state    SCOREABLE exactly when the value is not null
+--   missingLayers  the layers whose value is null
+--
+-- Explanation prose is also absent. It is generated from the frozen
+-- explanation vocabulary over the state stored here, so persisting the
+-- sentences would freeze a rendering rather than a fact — and A8.2 is the
+-- worked example of why that matters: the engine's answer changed and every
+-- sentence had to change with it.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS matchmaking_programme_results (
+  run_id TEXT NOT NULL REFERENCES matchmaking_runs(id) ON DELETE CASCADE,
+
+  -- Programme identity SNAPSHOTTED, not referenced — the athlete_programmes
+  -- rule, for the same reason: a programme is retired by setting
+  -- colleges.active = 0 and renamed in place, and a REFERENCES here would turn
+  -- a registry correction into a refused write on frozen history.
+  college_name TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  college_id TEXT,              -- nullable: a name with no colleges row is still a programme
+  division TEXT,
+
+  status TEXT NOT NULL
+    CHECK (status IN ('RANKED', 'SUPPORTED_LIMITED_DATA', 'UNSUPPORTED_ASSOCIATION')),
+
+  -- NULL for anything not ranked. Never 0: a refusal has no number, and a zero
+  -- here would sort as "worst" to every consumer that forgot to check status.
+  rank INTEGER,
+  pursuit REAL,
+  pursuit_grade TEXT,
+
+  recruitability REAL,
+  recruitability_grade TEXT,
+  recruitability_coverage REAL,
+  recruitability_reason TEXT,
+
+  financial REAL,
+  financial_grade TEXT,
+  financial_coverage REAL,
+  financial_reason TEXT,
+
+  opportunity REAL,
+  opportunity_grade TEXT,
+  opportunity_coverage REAL,
+  opportunity_reason TEXT,
+
+  PRIMARY KEY (run_id, college_name, sport)
+);
+
+-- Rank order within a run: the Top 100 read, and the full ordering.
+CREATE INDEX IF NOT EXISTS idx_matchmaking_results_rank
+  ON matchmaking_programme_results (run_id, rank);
+
+-- NO SEPARATE INDEX ON college_id, and that was measured rather than assumed.
+-- The PRIMARY KEY above already indexes (run_id, college_name, sport), which
+-- IS the programme identity this repository uses everywhere else -
+-- athlete_programmes and programme_campaigns both key on name and sport, with
+-- college_id as a nullable convenience. A second index on (run_id, college_id)
+-- cost 109 KB per run, 21% of the whole table, to make a lookup 0.082ms
+-- instead of 0.034ms on a run of 1,205 programmes. A9.5's Specific Search
+-- resolves by name and sport like every other programme surface.
