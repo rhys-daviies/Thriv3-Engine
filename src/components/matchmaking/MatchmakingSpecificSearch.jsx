@@ -35,7 +35,34 @@ import MatchmakingProgrammeStanding from './MatchmakingProgrammeStanding';
 const MIN_QUERY = 2;
 const DEBOUNCE_MS = 250;
 
-export default function MatchmakingSpecificSearch({ player, run, onSelected }) {
+export default function MatchmakingSpecificSearch({
+  player, run, onSelected,
+  /**
+   * ADD THE SEARCHED PROGRAMME TO SPECIFIC SCHOOLS — A10 §H.
+   *
+   * ===========================================================================
+   * THIS IS V1's `add`, HANDED DOWN UNCHANGED. It is the same upsert against
+   * the same `athlete_programmes` row that the V1 Specific Search has always
+   * written, which is the whole reason a school added here appears in the V1
+   * tab too and a school added there appears here. There is no V2 copy of the
+   * consultant's list, so there is nothing for the two engines to disagree
+   * about.
+   *
+   * SEPARATE FROM "Record for outreach", AND DELIBERATELY SO. They are two
+   * different decisions and the brief is explicit that neither may imply the
+   * other: adding a school to the list says somebody asked for it, recording a
+   * selection says which ranking informed an outreach decision. Neither drafts
+   * nor sends anything.
+   * ===========================================================================
+   *
+   * Null when the caller has no list to add to, in which case the control is
+   * not rendered at all rather than rendered inert.
+   */
+  onAdd = null,
+  /** Is this programme already on the athlete's list? `(collegeName) => bool` */
+  isOnList = null,
+  addPending = null,
+}) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState(null);
   const [searching, setSearching] = useState(false);
@@ -51,6 +78,14 @@ export default function MatchmakingSpecificSearch({ player, run, onSelected }) {
   const [recordError, setRecordError] = useState(null);
 
   const latest = useRef(0);
+
+  /**
+   * Asked of the list the workspace already holds, not of the server. The
+   * upsert is idempotent anyway — `UNIQUE (athlete_id, college_name, sport)`
+   * makes a second add a no-op update of the same row — so this is about not
+   * offering an action that would do nothing, never about preventing damage.
+   */
+  const alreadyOnList = Boolean(chosen && isOnList && isOnList(chosen.name));
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -235,6 +270,39 @@ export default function MatchmakingSpecificSearch({ player, run, onSelected }) {
           )}
 
           {recordError && <p className="text-xs text-destructive" role="alert">{recordError}</p>}
+
+          {/*
+            ADDING IS OFFERED FOR A PROGRAMME THE RUN DOES NOT HOLD, TOO.
+
+            `standing.programme` being null means this athlete's evaluated pool
+            does not contain the school — which is one of the commonest reasons
+            a family asks about it by name. Refusing to add it then would make
+            the list unable to hold exactly the schools it exists for. The row
+            carries its truthful V2 state either way; it is never given a rank.
+          */}
+          {onAdd && chosen && (
+            alreadyOnList ? (
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5" data-testid="already-on-list">
+                <Check className="h-3.5 w-3.5" />
+                Already in this athlete&rsquo;s specific schools.
+              </p>
+            ) : (
+              <div className="flex items-center gap-2 flex-wrap">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onAdd(chosen)}
+                  disabled={addPending === chosen.id}
+                  data-testid="add-to-specific-schools"
+                >
+                  {addPending === chosen.id ? 'Adding…' : 'Add to Specific Schools'}
+                </Button>
+                <span className="text-[11px] text-muted-foreground">
+                  Adds it to this athlete&rsquo;s list. It does not draft or send anything.
+                </span>
+              </div>
+            )
+          )}
         </>
       )}
     </Card>

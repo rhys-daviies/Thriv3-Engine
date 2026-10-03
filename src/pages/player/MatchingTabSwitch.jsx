@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MatchingTab from './MatchingTab';
 import MatchmakingV2Panel from '@/components/matchmaking/MatchmakingV2Panel';
@@ -59,27 +58,28 @@ export default function MatchingTabSwitch() {
   return (
     <div className="space-y-4">
       {/*
-        SEARCH MOVED TO V2 IN A9.5. RELATIONSHIP MANAGEMENT HAS NOT.
+        THE LINK TO V1 IS GONE FROM HERE — A10 §H, §I.
 
-        This link said "Specific Schools (previous engine)" while V2 had no
-        search at all, and leaving that label now would be actively misleading:
-        V2 answers "where does Stanford rank" itself, out of the persisted run,
-        and sends nobody to V1 for it.
+        ===========================================================================
+        ITS REASON IS SPENT, AND ITS PLACE WAS WRONG.
 
-        What still lives only on the V1 tab is the RELATIONSHIP work around a
-        requested school — flag, note, contact stance, withdraw, and the manual
-        outreach dialog those drive. None of that is matchmaking, none of it is
-        rebuilt here, and removing the only route to it would be a regression
-        dressed up as scope discipline.
+        It said "Requested schools & outreach (previous engine)" because the
+        RELATIONSHIP work around a requested school — flag, note, contact
+        stance, withdraw, manual outreach — lived only on the V1 tab. A10 moved
+        all of it onto the V2 Specific Schools tab, against the same
+        `athlete_programmes` rows, so the link now offers a second route to
+        work that is already here. §H is explicit that a duplicate competing
+        entry point needs a demonstrated workflow reason, and there is none.
+
+        It also sat ABOVE "Generated", which §I does not allow: the four
+        primary sections start the page.
+
+        ROLLBACK IS UNAFFECTED. `?matching=v1` is the documented mechanism and
+        still works, per request and not sticky, exactly as A9.3 defined it —
+        removing a shortcut to it is not removing it. See
+        src/lib/matchmakingVersion.js and the V1 rollback suites.
+        ===========================================================================
       */}
-      <div className="flex items-center justify-end">
-        <Button size="sm" variant="outline" asChild>
-          <Link to={`?matching=${MATCHING_V1}`}>
-            <Search className="h-3.5 w-3.5 mr-1.5" />
-            Requested schools &amp; outreach (previous engine)
-          </Link>
-        </Button>
-      </div>
       <MatchmakingV2Panel player={player} />
     </div>
   );
