@@ -2,6 +2,9 @@ import express from 'express';
 import db from '../db/client.js';
 import { Player } from '../db/entities/player.js';
 import { computeMatchmakingV2 } from '../lib/v2/matchmakingService.js';
+import {
+  persistRun, currentRun, runById, readRun, runStaleness,
+} from '../lib/v2/matchmakingRuns.js';
 
 /**
  * THE V2 MATCHMAKING API — a doorway, in the shape athlete-programmes set.
@@ -48,6 +51,7 @@ export const matchmakingRouter = express.Router();
  */
 const STATUS_BY_CODE = Object.freeze({
   PLAYER_NOT_FOUND: 404,
+  RUN_NOT_FOUND: 404,
 
   CONTRIBUTION_UNRESOLVED: 409,
 
@@ -58,6 +62,7 @@ const STATUS_BY_CODE = Object.freeze({
   CONTRIBUTION_INVALID: 422,
   EMPTY_PROGRAMME_UNIVERSE: 422,
   PLAYER_REQUIRED: 400,
+  RESULT_REQUIRED: 400,
 });
 
 /** One handler for every route, so no endpoint invents its own 404. */
@@ -98,4 +103,55 @@ matchmakingRouter.get('/players/:id/matchmaking', handle('matchmaking', (req) =>
   const player = Player.get(req.params.id);
   if (!player || player.archived_at) throw notFound(req.params.id);
   return { body: computeMatchmakingV2(db, player) };
+}));
+
+/**
+ * Compute and PERSIST, as an immutable run.
+ *
+ * The write is an explicit act, which is why it is a POST and why the GET
+ * above stayed read-only: an operator asking to see the current answer must
+ * never silently create a historical record, or the history becomes a log of
+ * page views.
+ *
+ * NO DEDUPLICATION, and that is a decision rather than an omission. A POST is
+ * somebody asking for a recomputation; recording that they asked, and what
+ * came back, is the point of an immutable run. Collapsing two identical runs
+ * would lose the fact that the second was requested - and "identical" is not
+ * free to establish, since it means comparing 1,205 programme rows. The
+ * cheaper and truer answer is `staleness` on the GET below: it tells a caller
+ * whether anything has moved, so a UI can decline to ask rather than ask and
+ * be deduplicated.
+ */
+matchmakingRouter.post('/players/:id/matchmaking', handle('matchmaking:persist', (req) => {
+  const player = Player.get(req.params.id);
+  if (!player || player.archived_at) throw notFound(req.params.id);
+  const result = computeMatchmakingV2(db, player);
+  const runId = persistRun(db, player, result);
+  return { status: 201, body: { runId, ...result } };
+}));
+
+/**
+ * The persisted current run, with whether it still describes today.
+ *
+ * `staleness` is reported, never acted on. Nothing here recomputes: a stale
+ * run is still the truth about what Thriv3 said at the time, and deciding to
+ * refresh is an operator's call in A9.3, not a side effect of reading.
+ */
+matchmakingRouter.get('/players/:id/matchmaking/runs/current', handle('matchmaking:current', (req) => {
+  const player = Player.get(req.params.id);
+  if (!player || player.archived_at) throw notFound(req.params.id);
+  const row = currentRun(db, player.id);
+  if (!row) return { status: 404, body: { error: 'No matchmaking run has been persisted for this athlete.', code: 'RUN_NOT_FOUND' } };
+  return { body: { ...readRun(db, row), staleness: runStaleness(db, player, row) } };
+}));
+
+/** One run by id. Immutable, so it needs no freshness qualification. */
+matchmakingRouter.get('/matchmaking/runs/:runId', handle('matchmaking:run', (req) => {
+  const row = runById(db, req.params.runId);
+  if (!row) {
+    const err = new Error(`Unknown run: ${req.params.runId}`);
+    err.code = 'RUN_NOT_FOUND';
+    throw err;
+  }
+  return { body: readRun(db, row) };
 }));

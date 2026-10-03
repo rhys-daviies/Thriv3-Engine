@@ -228,3 +228,89 @@ describe('A9.1 API: the response contract', () => {
     }
   });
 });
+
+describe('A9.2 API: persistence', () => {
+  it('P1. POST computes and persists, returning the run identity', async () => {
+    const a = athlete();
+    const res = await fetch(`${baseUrl}/api/players/${a.id}/matchmaking`, { method: 'POST' });
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    expect(body.runId).toMatch(/^[0-9a-f-]{36}$/);
+    expect(body.matcherVersion).toBe('v2');
+    expect(body.programmes.length).toBe(body.counts.poolSize);
+  });
+
+  it('P2. GET never persists', async () => {
+    const a = athlete();
+    const before = db.prepare('SELECT COUNT(*) n FROM matchmaking_runs').get().n;
+    await fetch(`${baseUrl}/api/players/${a.id}/matchmaking`);
+    expect(db.prepare('SELECT COUNT(*) n FROM matchmaking_runs').get().n).toBe(before);
+  });
+
+  it('P3. POST is deliberately not deduplicated — asking twice records twice', async () => {
+    const a = athlete();
+    const one = await (await fetch(`${baseUrl}/api/players/${a.id}/matchmaking`, { method: 'POST' })).json();
+    const two = await (await fetch(`${baseUrl}/api/players/${a.id}/matchmaking`, { method: 'POST' })).json();
+    expect(two.runId).not.toBe(one.runId);
+  });
+
+  it('P4. POST refuses an unresolved contribution with the same 409', async () => {
+    const a = athlete({ contribution_state: 'NEEDS_CONFIRMATION', max_annual_contribution_usd: null });
+    const before = db.prepare('SELECT COUNT(*) n FROM matchmaking_runs').get().n;
+    const res = await fetch(`${baseUrl}/api/players/${a.id}/matchmaking`, { method: 'POST' });
+    expect(res.status).toBe(409);
+    expect((await res.json()).code).toBe('CONTRIBUTION_UNRESOLVED');
+    /** And records nothing: a refusal is not a run. */
+    expect(db.prepare('SELECT COUNT(*) n FROM matchmaking_runs').get().n).toBe(before);
+  });
+
+  it('P5. POST for an unknown athlete is a 404', async () => {
+    const res = await fetch(`${baseUrl}/api/players/no-such-athlete/matchmaking`, { method: 'POST' });
+    expect(res.status).toBe(404);
+    expect((await res.json()).code).toBe('PLAYER_NOT_FOUND');
+  });
+
+  it('P6. an unauthenticated POST never reaches the service', async () => {
+    const a = athlete();
+    const res = await fetch(`${guardedUrl}/api/players/${a.id}/matchmaking`, { method: 'POST' });
+    expect(res.status).toBe(401);
+  });
+});
+
+describe('A9.2 API: reading persisted runs', () => {
+  it('Q1. the current run carries its staleness, and is current when nothing moved', async () => {
+    const a = athlete();
+    await fetch(`${baseUrl}/api/players/${a.id}/matchmaking`, { method: 'POST' });
+    const res = await fetch(`${baseUrl}/api/players/${a.id}/matchmaking/runs/current`);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.staleness.current).toBe(true);
+    expect(body.inputSnapshot).toBeTruthy();
+    expect(body.programmes.length).toBe(body.counts.poolSize);
+  });
+
+  it('Q2. an athlete with no persisted run is a 404 naming that, not an empty result', async () => {
+    const a = athlete();
+    const res = await fetch(`${baseUrl}/api/players/${a.id}/matchmaking/runs/current`);
+    expect(res.status).toBe(404);
+    expect((await res.json()).code).toBe('RUN_NOT_FOUND');
+  });
+
+  it('Q3. a run is readable by id, and an unknown id is a 404', async () => {
+    const a = athlete();
+    const { runId } = await (await fetch(`${baseUrl}/api/players/${a.id}/matchmaking`, { method: 'POST' })).json();
+    const res = await fetch(`${baseUrl}/api/matchmaking/runs/${runId}`);
+    expect(res.status).toBe(200);
+    expect((await res.json()).runId).toBe(runId);
+    expect((await fetch(`${baseUrl}/api/matchmaking/runs/nope`)).status).toBe(404);
+  });
+
+  it('Q4. a persisted run exposes no person-level data', async () => {
+    const a = athlete();
+    await fetch(`${baseUrl}/api/players/${a.id}/matchmaking`, { method: 'POST' });
+    const text = JSON.stringify(await (await fetch(`${baseUrl}/api/players/${a.id}/matchmaking/runs/current`)).json());
+    for (const pii of ['guardian_email', 'club_coach_email', 'full_name', 'player_name', '@']) {
+      expect(text, pii).not.toContain(pii);
+    }
+  });
+});
