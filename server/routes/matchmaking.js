@@ -5,6 +5,9 @@ import { computeMatchmakingV2 } from '../lib/v2/matchmakingService.js';
 import {
   persistRun, currentRun, runById, readRun, runStaleness,
 } from '../lib/v2/matchmakingRuns.js';
+import {
+  lookupProgramme, resolveRun, topSelectionCandidates, recordSelection, selectionsFor,
+} from '../lib/v2/matchmakingSelection.js';
 
 /**
  * THE V2 MATCHMAKING API — a doorway, in the shape athlete-programmes set.
@@ -54,6 +57,18 @@ const STATUS_BY_CODE = Object.freeze({
   RUN_NOT_FOUND: 404,
 
   CONTRIBUTION_UNRESOLVED: 409,
+
+  /**
+   * A9.5. A run that is not this athlete's, and a programme that is not in the
+   * run, are both 422s rather than 404s: the thing asked for exists, and the
+   * COMBINATION is what is not allowed to be true. Distinct codes, because one
+   * is a routing mistake and the other is an operator searching for a school
+   * outside their athlete's evaluated universe.
+   */
+  RUN_PLAYER_MISMATCH: 422,
+  PROGRAMME_NOT_IN_RUN: 422,
+  PROGRAMME_REQUIRED: 400,
+  SELECTION_SOURCE_INVALID: 422,
 
   // Well-formed, and asking for something not allowed to be true.
   ATHLETE_SPORT_UNKNOWN: 422,
@@ -154,4 +169,68 @@ matchmakingRouter.get('/matchmaking/runs/:runId', handle('matchmaking:run', (req
     throw err;
   }
   return { body: readRun(db, row) };
+}));
+
+
+/**
+ * SPECIFIC SEARCH — where one programme sits in this athlete's universe.
+ *
+ * A thin read over the persisted run and nothing more. It computes no score,
+ * ranks no programme and never falls back to a live evaluation: if there is no
+ * run, it answers RUN_NOT_FOUND and the UI offers to generate one, because a
+ * rank is a position in a population and a single-programme score would be a
+ * number with no denominator.
+ *
+ * `programme: null` inside a 200 is a real answer - the registry holds this
+ * school but this athlete's pool does not - and is deliberately not a 404,
+ * which would be indistinguishable from "no run" to a caller.
+ */
+matchmakingRouter.get('/players/:id/matchmaking/programme', handle('matchmaking:programme', (req) => {
+  const player = Player.get(req.params.id);
+  if (!player || player.archived_at) throw notFound(req.params.id);
+  return {
+    body: lookupProgramme(db, player, {
+      collegeName: req.query.name,
+      sport: req.query.sport || null,
+      runId: req.query.runId || null,
+    }),
+  };
+}));
+
+/** The Top 100 of a run, as selection candidates. Ranked only, by construction. */
+matchmakingRouter.get('/players/:id/matchmaking/top', handle('matchmaking:top', (req) => {
+  const player = Player.get(req.params.id);
+  if (!player || player.archived_at) throw notFound(req.params.id);
+  const { row, staleness } = resolveRun(db, player, { runId: req.query.runId || null });
+  return {
+    body: {
+      runId: row.id, computedAt: row.computed_at, staleness,
+      programmes: topSelectionCandidates(db, row),
+    },
+  };
+}));
+
+/**
+ * Record that a programme was chosen for outreach out of a specific run.
+ *
+ * WRITES PROVENANCE ONLY. It creates no campaign, drafts no message and sends
+ * nothing - A9.5 §L is explicit that outreach is never launched automatically,
+ * and this endpoint is the record of a decision rather than the decision's
+ * execution.
+ */
+matchmakingRouter.post('/players/:id/matchmaking/selections', handle('matchmaking:select', (req) => {
+  const player = Player.get(req.params.id);
+  if (!player || player.archived_at) throw notFound(req.params.id);
+  const { collegeName, sport, runId, source } = req.body ?? {};
+  return {
+    status: 201,
+    body: recordSelection(db, player, { collegeName, sport, runId, source }),
+  };
+}));
+
+/** This athlete's selection history. Append-only, so this is the whole of it. */
+matchmakingRouter.get('/players/:id/matchmaking/selections', handle('matchmaking:selections', (req) => {
+  const player = Player.get(req.params.id);
+  if (!player || player.archived_at) throw notFound(req.params.id);
+  return { body: { selections: selectionsFor(db, player.id) } };
 }));

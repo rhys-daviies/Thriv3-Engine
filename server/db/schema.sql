@@ -2884,3 +2884,96 @@ CREATE INDEX IF NOT EXISTS idx_matchmaking_results_rank
 -- cost 109 KB per run, 21% of the whole table, to make a lookup 0.082ms
 -- instead of 0.034ms on a run of 1,205 programmes. A9.5's Specific Search
 -- resolves by name and sport like every other programme surface.
+
+-- ===========================================================================
+-- MATCHMAKING SELECTIONS — A9.5
+--
+-- One row per ACT of choosing a programme for outreach out of a specific
+-- matchmaking run. It answers the question A9.2 reserved this space for:
+--
+--     "What did Thriv3 believe when this programme was pursued?"
+--
+-- -- WHY A LEDGER AND NOT A COLUMN -----------------------------------------
+--
+-- The obvious design is `athlete_programmes.matchmaking_run_id`, and it is
+-- wrong for one reason: that table is an UPSERT keyed on
+-- (athlete_id, college_name, sport), so there is exactly one mutable row per
+-- programme. An operator who selected Lindenwood from Tuesday's run and
+-- selected it again from Friday's would have Tuesday's provenance overwritten
+-- - and the record of what they actually acted on in Tuesday's conversation
+-- would be gone. A9.5 §Q forbids precisely that relinking.
+--
+-- Append-only, in the same idiom as tracking_events and outreach_send_event.
+-- A second selection is a second row; nothing is ever updated.
+--
+-- -- WHY NOT ON programme_campaigns -----------------------------------------
+--
+-- Inspected first, and the answer is in createCampaign: it reads
+-- `players.recommendations`, the V1 analysis FILE, and freezes its own rank,
+-- match_score and breakdown. There is no V2-originated path into a campaign
+-- today, so a `matchmaking_run_id` column there would have no writer -
+-- speculative schema that reads as a promise the code does not keep. When
+-- campaign creation moves onto persisted runs, it carries the selection's
+-- run id from here, and that is the phase that adds the column.
+--
+-- -- WHAT IS SNAPSHOTTED, AND WHY ------------------------------------------
+--
+-- `status`, `rank` and `band` are copied from the run at selection time even
+-- though they are derivable from (run_id, college_name, sport). The run is
+-- immutable, so this is redundancy rather than drift - and it is what lets an
+-- analyst read this table alone without joining 1,205-row result sets, and
+-- what keeps the record legible if a future result schema changes shape.
+--
+-- `rank` and `band` are NULLABLE and that is the point: a SUPPORTED_LIMITED_DATA
+-- or UNSUPPORTED_ASSOCIATION programme has no rank, and A9.5 §M forbids
+-- inventing one to make downstream code accept it. A null here is the truth.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS matchmaking_selections (
+  id TEXT PRIMARY KEY,
+
+  -- The athlete whose run this was. Cascades with the player, like every
+  -- other athlete-owned record.
+  player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+
+  -- THE RUN THAT INFORMED THIS SELECTION. Immutable by construction, so this
+  -- reference can never come to describe something other than what was shown.
+  -- RESTRICT rather than CASCADE: a run with selections against it is a run
+  -- somebody acted on, and deleting it would silently destroy the provenance
+  -- this table exists to hold. A9.2 established that runs are never deleted.
+  matchmaking_run_id TEXT NOT NULL REFERENCES matchmaking_runs(id) ON DELETE RESTRICT,
+
+  -- Programme identity, in the spelling every other programme surface uses.
+  -- Verified against the run before this row is written - see
+  -- `recordSelection` in server/lib/v2/matchmakingSelection.js.
+  college_name TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  college_id TEXT,
+
+  -- What the run said about it, at the moment it was chosen.
+  status TEXT NOT NULL
+    CHECK (status IN ('RANKED', 'SUPPORTED_LIMITED_DATA', 'UNSUPPORTED_ASSOCIATION')),
+  rank INTEGER,
+  band TEXT,
+  pursuit REAL,
+
+  -- Which surface the operator chose from. Not a UI detail: "they searched for
+  -- this school by name" and "they took the top of the ranked list" are
+  -- different acts, and A9.6 will want to tell them apart when it asks which
+  -- selections led anywhere.
+  source TEXT NOT NULL CHECK (source IN ('TOP_100', 'SPECIFIC_SEARCH', 'FULL_UNIVERSE')),
+
+  -- Whether the run was already stale when it was acted on - §Q. Recorded
+  -- rather than forbidden: acting on a historical run is a legitimate choice,
+  -- and the fact that it was historical is part of what happened.
+  run_was_stale INTEGER NOT NULL DEFAULT 0 CHECK (run_was_stale IN (0, 1)),
+
+  selected_at TEXT NOT NULL
+);
+
+-- The athlete's selection history, newest first.
+CREATE INDEX IF NOT EXISTS idx_matchmaking_selections_player
+  ON matchmaking_selections (player_id, selected_at);
+
+-- "What was selected out of this run", which is the A9.6 attribution read.
+CREATE INDEX IF NOT EXISTS idx_matchmaking_selections_run
+  ON matchmaking_selections (matchmaking_run_id);
