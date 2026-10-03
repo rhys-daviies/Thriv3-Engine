@@ -181,7 +181,7 @@ describe('A9.7 §F. every target can name the run it came from', () => {
     const { campaign } = createCampaignFromRun(player.id);
     expect(campaign.source_analysis_ref).toBe(`matchmaking_run:${run.id}`);
     const inputs = JSON.parse(campaign.matching_inputs);
-    expect(inputs.model).toBe(MATCHING_MODEL_V2);
+    expect(inputs.model.id).toBe(MATCHING_MODEL_V2);
     expect(inputs.matchmakingRunId).toBe(run.id);
   });
 
@@ -265,7 +265,7 @@ describe('A9.7 §E / §W. V1 campaign creation is untouched', () => {
 
   it('W2. the two models are marked differently and are never comparable', () => {
     const { campaign } = createCampaignFromRun(player.id);
-    expect(JSON.parse(campaign.matching_inputs).model).toBe(MATCHING_MODEL_V2);
+    expect(JSON.parse(campaign.matching_inputs).model.id).toBe(MATCHING_MODEL_V2);
     expect(MATCHING_MODEL_V2).not.toBe(MATCHING_MODEL_SIX_CRITERION);
   });
 

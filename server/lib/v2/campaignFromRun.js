@@ -175,7 +175,22 @@ export function createCampaignFromRun(athleteId, {
     source_analysis_ref: `matchmaking_run:${run.id}`,
     snapshot_taken_at: at,
     matching_inputs: JSON.stringify({
-      model: MATCHING_MODEL_V2,
+      /**
+       * THE SAME SHAPE V1 WRITES, and that is not cosmetic — a reader that
+       * branches on `matching_inputs.model.id` must not get a bare string from
+       * one campaign and an object from another. V1 INFERS its model from the
+       * breakdown shape and says so in `identifiedBy`; this one is RECORDED,
+       * because the run that produced it is a row in the database rather than
+       * a blob whose provenance has to be guessed.
+       */
+      schema: 'campaign-matching-inputs/2',
+      model: {
+        id: MATCHING_MODEL_V2,
+        identifiedBy: 'PERSISTED_MATCHMAKING_RUN',
+        criteria: ['recruitability', 'financial', 'opportunity'],
+        note: 'Layered V2. Pursuit is a weighted composite of three layers and is '
+          + 'NOT comparable with a six-criterion match_score.',
+      },
       matchmakingRunId: run.id,
       runComputedAt: run.computed_at,
       matcherVersion: run.matcher_version ?? null,
