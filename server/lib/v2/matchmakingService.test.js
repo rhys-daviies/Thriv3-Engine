@@ -201,8 +201,17 @@ describe('A9.1 service: the pool-context cache', () => {
     clearContextCache();
     const before = poolContextFor(db, 'mens-soccer', { season: SEASON });
     /**
-     * The 7B case. `coaches` is not a V2 input, so the cheap change token
-     * moves and the content digest does not - and the 939ms context survives.
+     * The 7B case. `coaches` is not a V2 input, so the 939ms context survives.
+     *
+     * A9.1 WROTE `digestRecomputed: true` HERE, and it was accurate: the cheap
+     * token moved on any write, so the context was kept only after the
+     * authoritative digest had been recomputed and found identical. A9.7
+     * measured that confirmation costing ~890 ms on the live corpus, and
+     * A9.7B made the detector precise - so a coach write now moves nothing and
+     * the digest is not recomputed at all.
+     *
+     * What the test guards is unchanged: a write V2 cannot see must never cost
+     * a rebuild, and must never change the digest.
      */
     db.prepare("INSERT INTO coaches (id, created_at, full_name) VALUES (?, '2026-01-01T00:00:00.000Z', 'A9.1 cache probe')")
       .run(`coach-a91-${Date.now()}`);
@@ -210,7 +219,7 @@ describe('A9.1 service: the pool-context cache', () => {
     expect(after.ctx).toBe(before.ctx);
     expect(after.corpusDigest).toBe(before.corpusDigest);
     expect(after.built).toBe(false);
-    expect(after.digestRecomputed).toBe(true);
+    expect(after.digestRecomputed).toBe(false);
   });
 });
 

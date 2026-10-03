@@ -29,7 +29,7 @@
 import crypto from 'node:crypto';
 import { universeOf, UNIVERSE } from './validationUniverse.js';
 import { ROSTER_COLUMNS } from './poolContext.js';
-import { corpusChangeToken } from '../../db/corpusIdentity.js';
+import { corpusRevisionToken } from '../../db/corpusIdentity.js';
 
 export const GUARD_SEASON = '2026';
 
@@ -162,7 +162,7 @@ export function clearCorpusDigestCache() {
 
 /** `corpusDigests`, skipped when nothing has been written since it last ran. */
 export function cachedCorpusDigests(db, { season = GUARD_SEASON } = {}) {
-  const token = corpusChangeToken(db);
+  const token = corpusRevisionToken(db);
   let bySeason = digestCache.get(db);
   if (!bySeason) {
     bySeason = new Map();

@@ -3260,3 +3260,122 @@ BEGIN
     'recruiting_observations: a recorded observation is immutable. Review it, '
     || 'or write a SUPERSEDES/RETRACTS row.');
 END;
+
+/* ===========================================================================
+ * THE CORPUS REVISION — A9.7B.
+ *
+ * A cheap, PRECISE answer to one question: could the data V2's corpus identity
+ * is computed from have changed since we last verified it?
+ *
+ * ---------------------------------------------------------------------------
+ * WHY THIS EXISTS. A9.4 gated the authoritative digest behind
+ * `corpusChangeToken`, which is `data_version:total_changes()`.
+ * `total_changes()` counts EVERY write on the connection, so a tracking pixel
+ * invalidated a cache whose only job was to avoid re-hashing 350,000 rows.
+ * A9.7 measured the consequence on the live corpus:
+ *
+ *   GET .../matchmaking/runs/current                   9.6 ms
+ *   ... after ONE tracking_events INSERT             895.2 ms
+ *
+ * The digest was recomputed and came back IDENTICAL every time. The cost was
+ * real and the information gained was nil.
+ * ---------------------------------------------------------------------------
+ *
+ * WHY TRIGGERS AND NOT AN APPLICATION COUNTER. There is no single service
+ * through which corpus writes flow. A9.7B traced the writers and found them
+ * spread across roughly fifteen standalone scripts - `loadMatchingInputs`,
+ * `applyWomensProgrammes`, `buildRecruitingHistory`, `projectRosterMinutes`,
+ * `alignRosterSchoolNames` and more - plus `migrate.js` and the test seeder,
+ * each its own process. An increment placed in application code would have to
+ * be added to every one of them, and the next script anybody writes would
+ * silently not have it. That is a FALSE NEGATIVE generator, and a false
+ * negative here serves a stale corpus identity.
+ *
+ * A trigger cannot be forgotten. It fires for a script, a migration, a test,
+ * or somebody typing SQL into a shell.
+ *
+ * THREE TABLES, AND ONLY THESE THREE. Re-derived in A9.7B from
+ * `buildPoolContext` and `corpusDigests` rather than from documentation:
+ *
+ *   colleges             SELECT *            WHERE sport AND active = 1
+ *   roster_players       ROSTER_COLUMNS      WHERE sport AND season
+ *   recruiting_arrivals  five columns        WHERE sport
+ *
+ * (`buildPoolContext`'s `marketRows` joins the same three and nothing else.)
+ *
+ * `coaches`, `tracking_events`, `outreach*`, `campaigns*`, `matchmaking_*`,
+ * `recruiting_observations` and `players` are NOT here, because V2's corpus
+ * does not read them. Phase 7B writes coach data continuously and must not
+ * cost a rehash.
+ *
+ * DELIBERATELY TABLE-LEVEL, NOT COLUMN-LEVEL. The digest hashes a SUBSET of
+ * each table's columns, but `buildPoolContext`'s market join also reads
+ * `roster_players.id` and `recruiting_arrivals.roster_row_id`, which the digest
+ * does not hash. A column-scoped trigger would miss a write to those and
+ * rebuild nothing. Invalidating on any write to these tables is strictly safer
+ * and costs only an occasional confirmed-identical recomputation.
+ *
+ * ONE ROW, FOREVER. `CHECK (id = 1)` makes that a database guarantee rather
+ * than a convention - §H asks for bounded constant-size state, and a revision
+ * LOG would grow by one row per imported roster row.
+ * =========================================================================== */
+CREATE TABLE IF NOT EXISTS corpus_revision (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+
+  /**
+   * Monotonic, and meaningless as a number. It is NOT an identity and must
+   * never be compared across databases or stored as provenance: two unrelated
+   * databases reach revision 40 by unrelated routes. `corpusDigests` remains
+   * the only thing that says WHAT the corpus is; this only ever says THAT it
+   * may have moved.
+   *
+   * Incremented per ROW rather than per statement, because SQLite has no
+   * statement-level triggers. Measured cost on a 50,000-row import: 30 ms,
+   * which extrapolates to ~0.2 s on a full 286,002-row roster load.
+   */
+  revision INTEGER NOT NULL DEFAULT 0
+);
+
+INSERT OR IGNORE INTO corpus_revision (id, revision) VALUES (1, 0);
+
+/* colleges */
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_colleges_insert
+AFTER INSERT ON colleges BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_colleges_update
+AFTER UPDATE ON colleges BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_colleges_delete
+AFTER DELETE ON colleges BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+
+/* roster_players */
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_roster_insert
+AFTER INSERT ON roster_players BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_roster_update
+AFTER UPDATE ON roster_players BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_roster_delete
+AFTER DELETE ON roster_players BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+
+/* recruiting_arrivals */
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_arrivals_insert
+AFTER INSERT ON recruiting_arrivals BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_arrivals_update
+AFTER UPDATE ON recruiting_arrivals BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;
+CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_arrivals_delete
+AFTER DELETE ON recruiting_arrivals BEGIN
+  UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
+END;

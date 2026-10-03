@@ -1,10 +1,17 @@
 /**
  * =============================================================================
- * THE CORPUS DIGEST CACHE IS INVALIDATED BY ANY WRITE — A9.7 §P/§Q finding.
+ * THE CORPUS DIGEST CACHE AND UNRELATED WRITES — A9.7's finding, A9.7B's fix.
  *
- * This is a CHARACTERISATION TEST, not an approval. It pins a behaviour A9.7
- * measured and is recommending be fixed, so that the fix is visible when it
- * lands and so the behaviour cannot quietly get worse first.
+ * A9.7 wrote this as a CHARACTERISATION TEST: it pinned a defect so the repair
+ * would be visible when it landed. A9.7B landed it, and `P3` - which asserted
+ * that one unrelated write forced a full recomputation - now asserts the
+ * opposite. It is the only test in this repository that was deliberately
+ * written to be inverted later.
+ *
+ * The measurements below are kept VERBATIM. They are what was true at
+ * `04efbb4`, they are why the detector was replaced, and rewriting them to
+ * match today's numbers would erase the evidence for a decision rather than
+ * record it.
  *
  * ---------------------------------------------------------------------------
  * WHAT WAS MEASURED, on a 313 MB consistent copy of the live database:
@@ -26,16 +33,15 @@
  * not exercise was an INTERLEAVED WRITE, which in production is continuous
  * because coaches open profiles and `tracking_events` records it.
  *
- * It is a performance characteristic and not a correctness one: staleness is
- * still computed correctly every time. Recorded as a known limitation with a
- * recommended fix in the A9.7 report rather than repaired here, because
- * changing the corpus digest cache key is freeze-adjacent work and A9.7 is
- * explicitly not the phase for it.
+ * It was a performance characteristic and not a correctness one: staleness was
+ * computed correctly every time, which `P4` still asserts. A9.7 recorded it as
+ * a known limitation rather than repairing it, because changing the cache key
+ * is freeze-adjacent work; A9.7B is the bounded phase that did it.
  * ---------------------------------------------------------------------------
  */
 import { describe, it, expect, beforeAll } from 'vitest';
 import db from '../../db/client.js';
-import { corpusChangeToken } from '../../db/corpusIdentity.js';
+import { corpusChangeToken, corpusRevisionToken } from '../../db/corpusIdentity.js';
 import {
   cachedCorpusDigests, clearCorpusDigestCache, corpusDigestCacheStats,
 } from './corpusIdentity.js';
@@ -51,10 +57,10 @@ const write = () => db.prepare(
 ).run(new Date().toISOString());
 
 describe('A9.7. the corpus digest cache and unrelated writes', () => {
-  it('P1. the change token moves on a write to an unrelated table', () => {
-    const before = corpusChangeToken(db);
+  it('P1. the PRECISE token does not move on a write to an unrelated table', () => {
+    const before = corpusRevisionToken(db);
     write();
-    expect(corpusChangeToken(db)).not.toBe(before);
+    expect(corpusRevisionToken(db)).toBe(before);
   });
 
   it('P2. a repeated read with no write in between is a cache HIT', () => {
@@ -69,19 +75,35 @@ describe('A9.7. the corpus digest cache and unrelated writes', () => {
   });
 
   /**
-   * THE FINDING. One INSERT into `tracking_events` - a table the corpus digest
-   * does not read - forces a full recomputation.
+   * THE FIX — A9.7B. This test previously asserted TWO recomputations: one for
+   * the first read, one forced by a write to a table the corpus does not read.
+   * The detector is now `corpusRevisionToken`, which is maintained by triggers
+   * on `colleges`, `roster_players` and `recruiting_arrivals` alone, so the
+   * tracking write no longer invalidates anything.
+   *
+   * Measured end to end on the 313 MB corpus: 895.2 ms -> 9.2 ms.
    */
-  it('P3. ONE unrelated write forces a full recomputation', () => {
+  it('P3. ONE unrelated write no longer forces a recomputation', () => {
     clearCorpusDigestCache();
     const start = corpusDigestCacheStats();
-    cachedCorpusDigests(db);          // 1 recomputation
+    cachedCorpusDigests(db);          // the only recomputation
     write();
-    cachedCorpusDigests(db);          // 2nd recomputation, caused by the write
+    cachedCorpusDigests(db);          // hit: the corpus did not move
     cachedCorpusDigests(db);          // hit
     const stats = corpusDigestCacheStats();
-    expect(stats.recomputations - start.recomputations).toBe(2);
-    expect(stats.hits - start.hits).toBe(1);
+    expect(stats.recomputations - start.recomputations).toBe(1);
+    expect(stats.hits - start.hits).toBe(2);
+  });
+
+  /**
+   * AND THE DEFECT'S MECHANISM IS STILL TRUE OF THE OLD TOKEN, which is why
+   * the token had to be replaced rather than the cache re-tuned. Kept so that
+   * reverting the detector cannot quietly pass this suite.
+   */
+  it('P3b. the OLD broad token still moves on an unrelated write', () => {
+    const before = corpusChangeToken(db);
+    write();
+    expect(corpusChangeToken(db)).not.toBe(before);
   });
 
   /**

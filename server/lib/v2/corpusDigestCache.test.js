@@ -114,12 +114,21 @@ describe('C2. invalidation', () => {
     expect(corpusDigestCacheStats().hits).toBe(10);
   });
 
-  it('D2. an UNRELATED write re-verifies and finds the corpus unchanged', () => {
+  it('D2. an UNRELATED write does not even re-verify — A9.7B', () => {
     /**
-     * THE 7B CASE, which is the whole reason the token is not the identity.
-     * `coaches` is written continuously by Phase 7B and V2 reads none of it.
-     * The token moves, the digest is recomputed, and the answer must be that
-     * nothing V2 can see has changed.
+     * THE 7B CASE, and the one this test was written for: `coaches` is written
+     * continuously by Phase 7B and V2 reads none of it.
+     *
+     * A9.4 WROTE THIS EXPECTING A RE-VERIFICATION. The token moved on any
+     * write, so the honest assertion then was "recomputes, and finds nothing
+     * changed". A9.7 measured what that cost on the real corpus - 9.6 ms to
+     * 895 ms on `runs/current` after a single tracking pixel - and A9.7B
+     * replaced the detector with one maintained by triggers on the three
+     * tables the corpus actually reads.
+     *
+     * So the recomputation is now ZERO, and the guarantee the test exists for
+     * is unchanged and still asserted: a 7B coach write never moves what V2
+     * believes about the corpus.
      */
     const before = supported(cachedCorpusDigests(db));
     expect(corpusChanged()).toBe(false);
@@ -131,8 +140,8 @@ describe('C2. invalidation', () => {
 
     expect(recomputes()).toBe(was);          // not yet — nobody has asked
     expect(supported(cachedCorpusDigests(db))).toBe(before);
-    expect(recomputes()).toBe(was + 1);      // the token moved, so it re-verified
-    expect(corpusChanged()).toBe(false);     // and nothing V2 reads had moved
+    expect(recomputes()).toBe(was);          // and still not: the corpus cannot have moved
+    expect(corpusChanged()).toBe(false);     // nothing V2 reads had moved
 
     db.prepare("DELETE FROM coaches WHERE id = 'a94-coach-1'").run();
   });

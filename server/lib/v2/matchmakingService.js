@@ -35,7 +35,7 @@ import { buildPoolContext } from './poolContext.js';
 import { runPursuit } from './pursuitRun.js';
 import { universeOf, UNIVERSE } from './validationUniverse.js';
 import { cachedCorpusDigests } from './corpusIdentity.js';
-import { corpusChangeToken } from '../../db/corpusIdentity.js';
+import { corpusRevisionToken } from '../../db/corpusIdentity.js';
 
 export const MATCHER_VERSION = 'v2';
 
@@ -142,7 +142,7 @@ export function contextCacheState() {
  * @returns {{ ctx, colleges, corpusDigest, built: boolean, buildMs: number }}
  */
 export function poolContextFor(db, sport, { season = SEASON } = {}) {
-  const token = corpusChangeToken(db);
+  const token = corpusRevisionToken(db);
   const hit = contextCache.get(sport);
   if (hit && hit.changeToken === token) {
     return { ...hit, built: false, buildMs: 0, digestRecomputed: false };
