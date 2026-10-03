@@ -104,6 +104,60 @@ const SELECTION_BY_ID = `
  * a pre-provenance send; adopting the selection's spelling would make the
  * check in (4) compare the selection against itself and pass trivially.
  */
+/**
+ * THE FOUR CHECKS, AS A FUNCTION — A9.7.
+ *
+ * Extracted from `attachSelectionToSend` so the PRODUCTION write can run the
+ * same validation without becoming a second writer of the column.
+ *
+ * `recordDraft` now carries `matchmaking_selection_id` in its own INSERT (and
+ * in the draft-replacement UPDATE beside `programme_campaign_id`, which moves
+ * with the body for the reason stated there). That makes the provenance write
+ * ATOMIC with the send it describes: there is no window in which a message
+ * exists without the selection that caused it, and no partial state for §S's
+ * "send creation fails after selection" to leave behind.
+ *
+ * Had the production path called `attachSelectionToSend` as a second step, the
+ * two writers would also have disagreed about re-drafting: that function
+ * refuses to re-point a message at a different selection, which is right for a
+ * message that has been SENT and wrong for a draft being replaced in place.
+ * One validator, two callers, one writer each in its own domain.
+ */
+export function assertSelectionMatchesSend(db, {
+  selectionId, athleteId, coachId, collegeName, sport,
+} = {}) {
+  const selection = db.prepare(SELECTION_BY_ID).get(selectionId);
+  if (!selection) throw fail('SELECTION_NOT_FOUND', `No matchmaking selection ${selectionId}.`);
+
+  if (selection.player_id !== athleteId) {
+    throw fail('SELECTION_ATHLETE_MISMATCH',
+      'That selection belongs to a different athlete.');
+  }
+
+  if (!collegeName || !sport) {
+    throw fail('SEND_PROGRAMME_UNKNOWN',
+      'This message did not record which programme it was for, so a selection '
+      + 'cannot be checked against it. Programme identity is frozen when the '
+      + 'message is created, never adopted afterwards.');
+  }
+
+  if (collegeName !== selection.college_name || sport !== selection.sport) {
+    throw fail('SELECTION_PROGRAMME_MISMATCH',
+      `That selection is for ${selection.college_name} (${selection.sport}), but the `
+      + `message was written for ${collegeName} (${sport}).`);
+  }
+
+  const coach = db.prepare('SELECT id, school, sport FROM coaches WHERE id = ?').get(coachId);
+  if (!coach) throw fail('COACH_NOT_FOUND', `No coach ${coachId}.`);
+  if (coach.school !== selection.college_name || coach.sport !== selection.sport) {
+    throw fail('COACH_PROGRAMME_MISMATCH',
+      `The evidence on file puts this coach at ${coach.school} (${coach.sport}), not at `
+      + `${selection.college_name} (${selection.sport}).`);
+  }
+
+  return selection;
+}
+
 export function attachSelectionToSend(db, { sendId, selectionId } = {}) {
   const send = db.prepare('SELECT * FROM outreach_send WHERE id = ?').get(sendId);
   if (!send) throw fail('SEND_NOT_FOUND', `No outreach_send ${sendId}.`);
@@ -123,47 +177,20 @@ export function attachSelectionToSend(db, { sendId, selectionId } = {}) {
       + 'not re-attributed to a different selection after the fact.');
   }
 
-  const selection = db.prepare(SELECTION_BY_ID).get(selectionId);
-  if (!selection) throw fail('SELECTION_NOT_FOUND', `No matchmaking selection ${selectionId}.`);
-
-  if (selection.player_id !== send.athlete_id) {
-    throw fail('SELECTION_ATHLETE_MISMATCH',
-      'That selection belongs to a different athlete.');
-  }
-
-  if (!send.college_name || !send.sport) {
-    throw fail('SEND_PROGRAMME_UNKNOWN',
-      'This message did not record which programme it was for, so a selection '
-      + 'cannot be checked against it. Programme identity is frozen when the '
-      + 'message is created, never adopted afterwards.');
-  }
-
-  if (send.college_name !== selection.college_name || send.sport !== selection.sport) {
-    throw fail('SELECTION_PROGRAMME_MISMATCH',
-      `That selection is for ${selection.college_name} (${selection.sport}), but the `
-      + `message was written for ${send.college_name} (${send.sport}).`);
-  }
-
   /**
-   * THE COACH, ON TODAY'S EVIDENCE — and refused rather than ignored.
-   *
-   * This is the one check that reads a mutable row, and it is bounded to the
-   * moment of attachment on purpose: §L licenses exactly that, and the
-   * Trinity and Wheaton rows above are what it catches. A coach whose only
-   * recorded institution is a different one is not evidence that this message
-   * was for this programme, and recording the link anyway would put a
-   * confident FK on top of a contradiction.
-   *
-   * Nothing re-runs it later. Once written, the attribution stands whatever
-   * the coach does next — which is the entire point of freezing it.
+   * THE COACH CHECK INSIDE THIS READS A MUTABLE ROW, and is bounded to the
+   * moment of attachment on purpose: §L licenses exactly that, and the Trinity
+   * and Wheaton rows above are what it catches. Nothing re-runs it later —
+   * once written, the attribution stands whatever the coach does next, which
+   * is the entire point of freezing it.
    */
-  const coach = db.prepare('SELECT id, school, sport FROM coaches WHERE id = ?').get(send.coach_id);
-  if (!coach) throw fail('COACH_NOT_FOUND', `No coach ${send.coach_id}.`);
-  if (coach.school !== selection.college_name || coach.sport !== selection.sport) {
-    throw fail('COACH_PROGRAMME_MISMATCH',
-      `The evidence on file puts this coach at ${coach.school} (${coach.sport}), not at `
-      + `${selection.college_name} (${selection.sport}).`);
-  }
+  assertSelectionMatchesSend(db, {
+    selectionId,
+    athleteId: send.athlete_id,
+    coachId: send.coach_id,
+    collegeName: send.college_name,
+    sport: send.sport,
+  });
 
   db.prepare('UPDATE outreach_send SET matchmaking_selection_id = ? WHERE id = ?')
     .run(selectionId, sendId);

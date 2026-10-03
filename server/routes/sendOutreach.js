@@ -136,6 +136,21 @@ export async function sendOutreach({
   collegeName, division, matchId = null, send = false, evidence = null,
   evidenceSelection = null, evidenceStructure = null, bodySource = null,
   programmeCampaignId = null,
+  /**
+   * A9.7 — WHICH MATCHMAKING SELECTION CAUSED THIS APPROACH.
+   *
+   * In the FIRST parameter, unlike `origin` below, and the difference is
+   * deliberate. `origin` is a claim about WHO IS ACTING, which an actor must
+   * not be allowed to make about itself. This is a claim about an EXISTING
+   * ROW, and `recordDraft` refuses it unless the selection belongs to this
+   * athlete, names this programme, and has this coach on file there. A caller
+   * supplying somebody else's selection gets a refusal, not a false record —
+   * so it does not need to be unreachable, only checked.
+   *
+   * Null for every manual approach that did not come out of matchmaking,
+   * which is every one made so far.
+   */
+  matchmakingSelectionId = null,
 }, {
   /**
    * WHAT KIND OF ACTION THIS IS — A SECOND ARGUMENT, AND THAT IS THE POINT.
@@ -557,6 +572,9 @@ export async function sendOutreach({
         // Per message, and never read back off the relationship: see the
         // note in recordDraft.
         programmeCampaignId,
+        // A9.7. Validated inside recordDraft against this athlete, this
+        // programme and this coach before anything is written.
+        matchmakingSelectionId,
         /**
          * The context's origin, or `campaign` when this run is attributed
          * to one. Derived rather than asked for in the second case: a send
