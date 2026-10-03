@@ -2977,3 +2977,23 @@ CREATE INDEX IF NOT EXISTS idx_matchmaking_selections_player
 -- "What was selected out of this run", which is the A9.6 attribution read.
 CREATE INDEX IF NOT EXISTS idx_matchmaking_selections_run
   ON matchmaking_selections (matchmaking_run_id);
+
+/**
+ * A SELECTION IS IMMUTABLE, AND FROM A9.6 THE DATABASE SAYS SO.
+ *
+ * A9.5 wrote this table with no UPDATE path and called it immutable by
+ * construction. That was true of the code and unenforced by the schema, and
+ * A9.6 is the phase that makes outreach POINT at these rows: once a send
+ * resolves its rank, band and status through a selection, an UPDATE here would
+ * silently rewrite the recorded cause of a message that has already gone out.
+ *
+ * The same trigger `outreach_send_event`, `tracking_events` and
+ * `outbound_send_attempt` carry, for the same reason and in the same words.
+ * DELETE is left alone deliberately: nothing deletes a selection, and the
+ * REFERENCES above already refuse the delete that would matter.
+ */
+CREATE TRIGGER IF NOT EXISTS trg_matchmaking_selections_append_only
+BEFORE UPDATE ON matchmaking_selections
+BEGIN
+  SELECT RAISE(ABORT, 'matchmaking_selections is append-only');
+END;

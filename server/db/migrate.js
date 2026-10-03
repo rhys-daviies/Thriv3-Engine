@@ -609,6 +609,44 @@ const OUTREACH_SEND_COLUMNS = [
    * coach, and a constraint here would refuse the second.
    */
   ['wire_body_sha256', 'TEXT'],
+
+  /* ---- A9.6: which matchmaking selection caused this message ------------- */
+
+  /**
+   * THE SELECTION THAT CAUSED THIS MESSAGE — A9.6.
+   *
+   * Resolves, through `matchmaking_selections`, to the run, the programme, and
+   * the rank / band / status that run gave it at the moment a consultant chose
+   * it. That is the chain A9.5 said was missing, and this column is the link
+   * that closes it.
+   *
+   * ---------------------------------------------------------------------------
+   * ON THE MESSAGE AND NOT ON THE RELATIONSHIP, for the reason this schema has
+   * already written down once.
+   *
+   * `outreach` is UNIQUE (athlete_id, coach_id): ONE ROW PER PAIR, created
+   * once and reused for ever. The note on `outreach.programme_campaign_id`
+   * states the consequence plainly — that column is "first created under" and
+   * therefore "NOT the campaign a message belongs to", which lives here, per
+   * message. A selection is the same kind of fact. An athlete written to in
+   * March out of one run and in September out of another has ONE relationship
+   * and TWO causes, and a column on the relationship could record only the
+   * first while appearing to describe both.
+   * ---------------------------------------------------------------------------
+   *
+   * NO ON DELETE CLAUSE, so deleting a selection that a message was sent from
+   * is REFUSED — matching `coach_id` and `connected_mailbox_id` on this table,
+   * and matching the RESTRICT `matchmaking_selections` itself takes on the run.
+   * The provenance chain is only worth having if no link in it can vanish.
+   *
+   * NULL IS TRUTHFUL AND IS NEVER BACKFILLED. Every one of the 41 sends on
+   * file predates matchmaking entirely, and 0 of the 96 relationships carry a
+   * programme campaign. Those are V1 / PRE_PROVENANCE rows, and inventing a
+   * selection for them would manufacture exactly the history this table exists
+   * to record honestly — the same rule `createOutreach` already states for
+   * `programme_campaign_id`.
+   */
+  ['matchmaking_selection_id', 'TEXT REFERENCES matchmaking_selections(id)'],
 ];
 
 /**
@@ -1300,6 +1338,15 @@ export function migrate(db) {
   addMissingColumns(db, 'outreach_send', OUTREACH_SEND_COLUMNS);
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_programme_campaign ON outreach(programme_campaign_id)');
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_send_programme_campaign ON outreach_send(programme_campaign_id)');
+  /**
+   * A9.6 — "what came of the programmes chosen out of this run", which is the
+   * attribution read the whole phase exists to make answerable. Partial, so
+   * the 41 pre-provenance sends are outside it entirely rather than occupying
+   * an index of V2 provenance with NULLs.
+   */
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_outreach_send_matchmaking_selection
+             ON outreach_send(matchmaking_selection_id)
+             WHERE matchmaking_selection_id IS NOT NULL`);
   addMissingColumns(db, 'outreach_evidence', OUTREACH_EVIDENCE_COLUMNS);
   // WHO FLAGGED IT, AND WHO LAST WROTE THE NOTE. Added here rather than in
   // schema.sql because the table already exists in the field.
