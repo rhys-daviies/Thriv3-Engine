@@ -14,6 +14,7 @@ import {
   contactStateShort, engagementShort, draftAge,
 } from '@/lib/outreachLabels';
 import SpecificSchoolDetail from '@/components/SpecificSchoolDetail';
+import MatchmakingProgrammeStanding from '@/components/matchmaking/MatchmakingProgrammeStanding';
 import { useProgrammeEvidence } from '@/lib/useProgrammeEvidence';
 import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
 
@@ -231,6 +232,12 @@ function SpecificSchoolRow({
   contactKnown = false, onSetContactStance = null, onFlag = null,
   onSaveNote = null, onSetVisibility = null,
   pendingDrafts = [], draftError = null, onConfirmSent = null, onDiscardDraft = null,
+  /**
+   * WHERE THE PERSISTED V2 RUN PUTS THIS PROGRAMME — A10 §D. Null under V1,
+   * which has no run to read and whose rank is the array position in
+   * `recommendations`. Never computed here: see src/lib/matchmakingStandings.js.
+   */
+  standing = null,
 }) {
   const [open, setOpen] = useState(false);
 
@@ -359,20 +366,45 @@ function SpecificSchoolRow({
 
       {/* LEVEL 2 — context, history and the secondary decisions. */}
       {open && (
-        <SpecificSchoolDetail
-          programme={programme}
-          rank={rank}
-          contact={contact}
-          contactUnavailable={contactUnavailable}
-          contactKnown={contactKnown}
-          busy={busy}
-          onRemove={onRemove}
-          onSaveNote={onSaveNote}
-          onFlag={onFlag}
-          onSetVisibility={onSetVisibility}
-          onSetContactStance={onSetContactStance}
-          programmeEvidence={programmeEvidence}
-        />
+        <>
+          {/*
+            THE RUN'S OWN VERDICT ON THIS SCHOOL — A10 §D.
+
+            Above the V1 detail rather than inside it, because it answers the
+            first question a consultant opening a specific school asks: where
+            did the ranking actually put it. It is read off the run already on
+            screen and recomputes nothing. A programme the run does not hold
+            renders its own "not in this athlete's evaluated universe" state
+            here rather than being dropped from the list — §N.
+          */}
+          {standing && (
+            <div className="pt-3" data-testid="specific-school-standing">
+              <MatchmakingProgrammeStanding
+                standing={standing}
+                name={programme.college_name}
+                /*
+                  The run the panel holds has already been through
+                  `runView`, so its programmes must not be mapped again.
+                */
+                viewed
+              />
+            </div>
+          )}
+          <SpecificSchoolDetail
+            programme={programme}
+            rank={rank}
+            contact={contact}
+            contactUnavailable={contactUnavailable}
+            contactKnown={contactKnown}
+            busy={busy}
+            onRemove={onRemove}
+            onSaveNote={onSaveNote}
+            onFlag={onFlag}
+            onSetVisibility={onSetVisibility}
+            onSetContactStance={onSetContactStance}
+            programmeEvidence={programmeEvidence}
+          />
+        </>
       )}
     </li>
   );
@@ -415,6 +447,19 @@ export default function SpecificSchools({
   draftError = null,
   onConfirmSent = null,
   onDiscardDraft = null,
+  /**
+   * V2 ENRICHMENT, OPTIONAL — A10 §D.
+   *
+   * `(programme) => standing | null`. Absent under V1, which has no persisted
+   * run: the list then behaves exactly as it did, and the V1 suites that mount
+   * this component pass nothing and assert the same things they always have.
+   *
+   * ONE COMPONENT, NOT TWO. The alternative was a V2 copy of this file, and a
+   * second copy of a list whose rows carry the consultant's own decisions is
+   * how the two engines start disagreeing about what the consultant decided.
+   * The underlying record is already one row; the list over it stays one list.
+   */
+  standingFor = null,
 }) {
   /**
    * Rank by name, from the analysis already in memory. ARRAY ORDER IS THE
@@ -484,6 +529,7 @@ export default function SpecificSchools({
       key={p.id}
       programme={p}
       rank={rankOf(p.college_name)}
+      standing={standingFor ? standingFor(p) : null}
       busy={pending === (p.college_id || p.id)}
       onRemove={onRemove}
       onManualOutreach={onManualOutreach}

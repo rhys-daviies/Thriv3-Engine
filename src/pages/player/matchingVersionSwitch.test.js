@@ -152,17 +152,34 @@ describe('Matching engine switch', () => {
     expect(toV2.getAttribute('href')).toContain('matching=v2');
   });
 
-  it('T7b. the V2 screen keeps a route to the V1 relationship workflow', async () => {
+  it('T7b. the V2 screen no longer links to V1, because the work is now here', async () => {
     /**
-     * A9.5 moved SEARCH onto the persisted run, so this link is no longer
-     * about finding a school. What is still only on the V1 tab is the
+     * UPDATED BY A10, NOT DELETED — and the premise it was written on is
+     * quoted here because that is what changed.
+     *
+     * A9.3 kept a link labelled "Requested schools & outreach (previous
+     * engine)" for a stated reason: "What is still only on the V1 tab is the
      * relationship work around a requested one — flag, note, contact stance,
-     * manual outreach — and the route to it stays.
+     * manual outreach — and the route to it stays."
+     *
+     * A10 moved all of it onto the V2 Specific Schools tab, against the same
+     * `athlete_programmes` rows through the same API. The link became a second
+     * route to work that is already on the page, and it sat above "Generated",
+     * which the required information architecture does not allow.
+     *
+     * WHAT IT GUARDED IS STILL GUARDED. The property was never "a button
+     * exists" but "V1 is reachable", and `?matching=v1` is the documented
+     * rollback — per request, not sticky, unchanged. The case above this one
+     * mounts V1 through that parameter and the V1 rollback suites assert the
+     * resolution rules directly; this test does NOT mount a second time,
+     * because `MemoryRouter` reads `initialEntries` once (see T7's note).
      */
     await mountAt('/player/player-1/matching');
     const toV1 = [...container.querySelectorAll('a')]
       .find((a) => a.textContent.includes('Requested schools'));
-    expect(toV1.getAttribute('href')).toContain('matching=v1');
+    expect(toV1, 'the duplicate route is gone').toBeUndefined();
+    /** And this IS the V2 screen, not an empty one. */
+    expect(find('[data-testid="run-bar"]'), 'V2 is mounted').toBeTruthy();
   });
 
   it('T8. V2 never calls the V1 analysis path', async () => {

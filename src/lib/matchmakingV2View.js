@@ -222,6 +222,18 @@ export function layerView(key, layer) {
   };
 }
 
+/**
+ * THE FROZEN LAYER NAMES, RE-EXPORTED THROUGH THIS MODULE — A10 §L.
+ *
+ * `shared/matching/v2/explain/vocabulary.js` owns the spellings, and the V2
+ * import boundary (shared/matching/v2/importGraph.test.js) allows exactly one
+ * doorway from `src/` for this kind of frozen vocabulary: this file. A second
+ * component importing the vocabulary directly would widen that allowlist for
+ * no reason, and retyping "Coach recruitability" would give the product two
+ * names for one layer.
+ */
+export { layerLabel };
+
 export const LAYER_KEYS = Object.freeze(['recruitability', 'financial', 'opportunity']);
 
 /* ------------------------------------------------------------------ */
