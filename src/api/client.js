@@ -604,6 +604,50 @@ export const matchingSummary = {
     });
   },
 };
+
+/**
+ * MATCHMAKING V2 — the persisted-run API. A9.3 / §U.
+ *
+ * Three calls, matching server/routes/matchmaking.js exactly. Nothing here
+ * interprets a result; the shape of a run is the frontend adapter's business
+ * (src/lib/useMatchmakingV2.js) and the shape of a programme is the view
+ * model's (src/lib/matchmakingV2View.js).
+ *
+ * -- NO RUN IS NOT AN ERROR -------------------------------------------------
+ *
+ * `currentRun` answers `null` for RUN_NOT_FOUND rather than throwing, because
+ * an athlete who has never been matched is the ORDINARY first state of this
+ * screen and not a failure of anything. Everything else — a 404 for the
+ * player, a 409 for the contribution, a 500 — is rethrown with the server's
+ * own `code` intact, because each of those is a different sentence on screen
+ * and collapsing them into one would be the exact thing §P forbids.
+ *
+ * The distinction is the server's, not a guess: `handle()` sends
+ * `code: 'RUN_NOT_FOUND'` for the empty case and `code: 'PLAYER_NOT_FOUND'`
+ * for an unknown athlete, and both are 404s. Branching on the status alone
+ * would read a deleted player as "no matches yet" and offer to generate some.
+ */
+export const matchmaking = {
+  /** The latest persisted run plus its staleness, or null when there is none. */
+  async currentRun(playerId) {
+    try {
+      return await request(`/api/players/${playerId}/matchmaking/runs/current`);
+    } catch (err) {
+      if (err?.code === 'RUN_NOT_FOUND') return null;
+      throw err;
+    }
+  },
+
+  /** Compute and persist a NEW immutable run. Never mutates an existing one. */
+  generate(playerId) {
+    return request(`/api/players/${playerId}/matchmaking`, { method: 'POST' });
+  },
+
+  /** One historical run by id. Immutable, so it carries no staleness. */
+  run(runId) {
+    return request(`/api/matchmaking/runs/${runId}`);
+  },
+};
 /**
  * A blob AND the name the server gave it — 13J / §14.
  *

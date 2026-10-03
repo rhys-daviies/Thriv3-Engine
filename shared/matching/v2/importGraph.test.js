@@ -85,6 +85,30 @@ const MAY_IMPORT_V2 = [
   'src/lib/preferenceIntake.js',
   'src/lib/preferenceIntake.test.js',
   'src/lib/playerPayload.test.js',
+  /**
+   * A9.3, 2026-10-03. The Matchmaking V2 results screen reads the canonical
+   * REFUSAL PHRASES and LAYER LABELS from the model rather than keeping a
+   * frontend copy of them.
+   *
+   * Same rule as the two intake modules above, and the sharpest case of it in
+   * the product. A persisted run stores a refusal CODE; some sentence has to
+   * turn `MAJOR_NOT_IN_PARTIAL_EVIDENCE` into words a consultant reads out to
+   * a family. A8.2 established that `notable_majors` is PARTIAL POSITIVE
+   * evidence — 321 of 349 D1 women's programmes omit Mathematics — and wrote
+   * that phrase to say what the recorded list COVERS rather than what it
+   * omits, precisely so the screen cannot claim an institution does not offer
+   * a major it may well offer.
+   *
+   * A second copy of those sentences under src/ is how that claim comes back.
+   * The import is the thing that makes the phrase unforgeable, and
+   * matchmakingV2View.test.js asserts the rendered text IS the frozen string
+   * rather than merely resembling it.
+   *
+   * `explain/vocabulary.js` is presentation: strings and label maps. It is not
+   * in the freeze's ENGINE_FILES and it scores nothing.
+   */
+  'src/lib/matchmakingV2View.js',
+  'src/lib/matchmakingV2View.test.js',
   'server/scripts/v2Compare.js',
   'server/scripts/v2Financial.js',
   'server/scripts/v2Recruitability.js',
