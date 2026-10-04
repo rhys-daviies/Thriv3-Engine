@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 /**
- * WHO IS LEAVING, BY POSITION — A11 §6.
+ * WHO IS LEAVING, BY POSITION — A11 §6, recomposed for A11.2 §1C/§3/§4.
  *
  * ===========================================================================
  * A ZERO AND A SILENCE ARE DIFFERENT FACTS, AND THIS IS THE SURFACE WHERE
@@ -21,7 +21,17 @@ import { Button } from '@/components/ui/button';
  *                          so "when does eligibility end" has no answer
  *   INSUFFICIENT_EVIDENCE  rows exist but too few could be read
  *
- * The last three print "Not established", never 0.
+ * The last three print "Not established", never 0. A11.2 §3 allows an em dash
+ * where layout demands one; this keeps the words, because a dash in a row of
+ * numbers is read as a zero by exactly the person this protects.
+ *
+ * -- WHY IT IS ONE LINE NOW -------------------------------------------------
+ *
+ * A11 gave this a four-column grid of its own panel. On the real production
+ * card that put a block between the scores and the explanation, and the thing
+ * a consultant actually wants from it — "is anything opening at my position"
+ * — took a scroll to reach. A11.2 folds it into the snapshot row: the same
+ * states, the same refusals, one line.
  *
  * -- WHAT "GRADUATING" MEANS HERE -------------------------------------------
  *
@@ -40,6 +50,15 @@ import { Button } from '@/components/ui/button';
  * ===========================================================================
  */
 
+/** Short on the snapshot row — A11.2 §3 names these four exactly. */
+const POSITION_SHORT = Object.freeze({
+  GOALKEEPER: 'GK',
+  DEFENSE: 'DEF',
+  MIDFIELD: 'MID',
+  FORWARD: 'FWD',
+});
+
+/** Long, for the names disclosure, where there is room and no row to scan. */
 const POSITION_LABEL = Object.freeze({
   GOALKEEPER: 'Goalkeepers',
   DEFENSE: 'Defenders',
@@ -60,13 +79,13 @@ export const STATE_NOTE = Object.freeze({
 
 function Count({ cell }) {
   if (!cell || cell.state !== 'MEASURED') {
-    return <span className="text-muted-foreground">{NOT_ESTABLISHED}</span>;
+    return <span className="text-muted-foreground font-normal">{NOT_ESTABLISHED}</span>;
   }
   return (
     <span className="tabular-nums">
       {cell.openings}
       {cell.openings > 0 && (
-        <span className="text-muted-foreground">
+        <span className="text-muted-foreground font-normal">
           {' '}({cell.vacatedStarters} starting)
         </span>
       )}
@@ -85,27 +104,33 @@ export default function GraduatingPlayers({ context, entryYear }) {
     ORDER.map((p) => d[p]?.state).filter((s) => s && s !== 'MEASURED'),
   )];
 
+  /**
+   * A11.2 §4. No action unless there is something behind it. A disabled
+   * "View players" on a programme whose roster we cannot read invites a click
+   * that can never work, and reads as a product fault rather than a gap in
+   * the evidence — which the state note already states plainly.
+   */
   const anyNames = context.departingPlayers
     && ORDER.some((p) => (context.departingPlayers[p] ?? []).length > 0);
 
   return (
-    <div className="rounded-lg border border-border p-3 space-y-2" data-testid="graduating-players">
-      <div className="flex items-baseline justify-between gap-2 flex-wrap">
-        <p className="text-xs font-medium">
-          Places opening for {entryYear ?? 'the entry year'}
-        </p>
-        <p className="text-[11px] text-muted-foreground">by eligibility, not class label</p>
-      </div>
+    <div className="space-y-1" data-testid="graduating-players">
+      <p className="text-[11px] text-muted-foreground">
+        Projected departures
+        <span className="ml-1.5 opacity-70">by eligibility, not class label</span>
+      </p>
 
       {/*
-        A two-column grid at 375px and four across from `sm` up, so the counts
-        collapse gracefully rather than overflowing — §12.
+        One wrapping line of `GK 1 · DEF 2 · MID 0 · FWD 1` — §1C, §9. `gap-x`
+        plus `flex-wrap` rather than a grid, so a cell reading "Not
+        established" takes the width it needs and the row reflows instead of
+        forcing four equal columns at 375px.
       */}
-      <dl className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <dl className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-sm font-medium">
         {ORDER.map((pos) => (
-          <div key={pos} data-testid={`graduating-${pos}`}>
-            <dt className="text-[11px] text-muted-foreground">{POSITION_LABEL[pos]}</dt>
-            <dd className="text-sm font-medium"><Count cell={d[pos]} /></dd>
+          <div key={pos} className="flex items-baseline gap-1" data-testid={`graduating-${pos}`}>
+            <dt className="text-[11px] text-muted-foreground">{POSITION_SHORT[pos]}</dt>
+            <dd><Count cell={d[pos]} /></dd>
           </div>
         ))}
       </dl>
@@ -121,20 +146,24 @@ export default function GraduatingPlayers({ context, entryYear }) {
           <Button
             size="sm"
             variant="ghost"
+            className="h-6 px-1.5 text-[11px]"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
             data-testid="view-graduating-players"
           >
-            {open ? 'Hide graduating players' : 'View graduating players'}
+            {open ? 'Hide players' : 'View players'}
           </Button>
 
           {/*
-            NAMES LIVE ONE DISCLOSURE DOWN — §6. They are public roster
+            NAMES LIVE ONE DISCLOSURE DOWN — §6, §4. They are public roster
             information and they are the evidence behind the counts, but a
             collapsed card showing fourteen names is a card nobody reads.
           */}
           {open && (
             <div className="space-y-2 pt-1" data-testid="graduating-names">
+              <p className="text-[11px] text-muted-foreground">
+                Eligibility ends before {entryYear ?? 'the entry year'}
+              </p>
               {ORDER.map((pos) => {
                 const players = context.departingPlayers?.[pos] ?? [];
                 if (!players.length) return null;
@@ -143,7 +172,7 @@ export default function GraduatingPlayers({ context, entryYear }) {
                     <p className="text-[11px] text-muted-foreground">{POSITION_LABEL[pos]}</p>
                     <ul className="text-xs">
                       {players.map((p) => (
-                        <li key={`${pos}-${p.name}`} className="flex items-center gap-1.5">
+                        <li key={`${pos}-${p.name}`} className="flex items-center gap-1.5 flex-wrap">
                           <span>{p.name ?? 'Name not recorded'}</span>
                           {p.classYear && <span className="text-muted-foreground">{p.classYear}</span>}
                           {/*
