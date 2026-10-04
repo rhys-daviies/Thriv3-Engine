@@ -13,6 +13,8 @@ import MatchmakingTabs, { TAB } from './MatchmakingTabs';
 import MatchmakingSpecificSchools from './MatchmakingSpecificSchools';
 import SelectionsOverviewPanel from './SelectionsOverviewPanel';
 import { usePlayerWorkspace } from '@/pages/player/PlayerWorkspace';
+import { useProgrammeContext } from '@/lib/useProgrammeContext';
+import { useContactIntelligence, CONTACT_INTELLIGENCE } from '@/lib/useContactIntelligence';
 
 /**
  * The family contribution is unanswered — §E.
@@ -166,7 +168,21 @@ export default function MatchmakingV2Panel({ player }) {
    * in isolation. The Specific Schools tab itself reads the same context and
    * guards the same way.
    */
-  const { specific } = usePlayerWorkspace() ?? {};
+  const { specific, byCollegeName } = usePlayerWorkspace() ?? {};
+
+  /**
+   * THE SAME TWO CANONICAL SOURCES SPECIFIC SCHOOLS READS — §4, §10.
+   *
+   * One athlete-level request for the contact history, shared by every card on
+   * every page; a card asking for itself is the N+1 this avoids. The
+   * relationships come down the workspace context, already loaded.
+   */
+  const { byProgramme: contactByProgramme, status: contactStatus } = useContactIntelligence(player?.id);
+  const contactKnown = contactStatus === CONTACT_INTELLIGENCE.READY;
+
+  const {
+    contextByName, explanations, loadPage, loadExplanation,
+  } = useProgrammeContext(player?.id, run);
 
   /**
    * A contribution refusal replaces the screen only when there is nothing to
@@ -266,10 +282,7 @@ export default function MatchmakingV2Panel({ player }) {
       {/* 2. RANKING PREFERENCES + EDIT INPUTS */}
       <MatchmakingPreferences player={player} run={run} />
 
-      {/* 3. WHY SCHOOLS ARE RANKED THIS WAY */}
-      <MatchmakingWhyRanked />
-
-      {/* 4. THE THREE TABS */}
+      {/* 3. THE THREE TABS */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <MatchmakingTabs
           value={tab}
@@ -278,7 +291,7 @@ export default function MatchmakingV2Panel({ player }) {
         />
       </div>
 
-      {/* 5. THE SELECTED TAB'S CONTENT */}
+      {/* 4. THE SELECTED TAB'S CONTENT, INCLUDING ITS PAGINATION */}
       <div
         id={`matchmaking-panel-${tab}`}
         role="tabpanel"
@@ -300,6 +313,14 @@ export default function MatchmakingV2Panel({ player }) {
             <MatchmakingResults
               run={run}
               scope={tab === TAB.TOP_100 ? SCOPE.TOP_100 : SCOPE.FULL_UNIVERSE}
+              relationships={byCollegeName}
+              contactByProgramme={contactByProgramme}
+              contactKnown={contactKnown}
+              contextByName={contextByName}
+              explanations={explanations}
+              onExpand={loadExplanation}
+              onPageProgrammes={loadPage}
+              entryYear={player?.recruiting_class_year ?? null}
             />
           </div>
         )}
@@ -314,6 +335,17 @@ export default function MatchmakingV2Panel({ player }) {
         of reading it.
       */}
       <SelectionsOverviewPanel player={player} universeSize={run?.counts?.ranked ?? null} />
+
+      {/*
+        5. WHY SCHOOLS ARE RANKED THIS WAY — BELOW THE RESULTS, A11 §3.
+
+        It moved down from above the tabs. It is important explanatory
+        material and it is secondary to the recommendations themselves: a
+        consultant opening this page is here to read the list, and a general
+        explanation of the ranking architecture standing between them and it
+        was a paragraph to scroll past every single time.
+      */}
+      <MatchmakingWhyRanked />
     </div>
   );
 }
