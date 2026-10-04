@@ -428,6 +428,30 @@ describe('A11.2 §1, §3. the card hierarchy', () => {
     expect(snap.querySelector('[data-testid="graduating-DEFENSE"]').textContent).toContain('1');
     expect(snap.querySelector('[data-testid="graduating-MIDFIELD"]').textContent).toContain('2');
   });
+
+  it('H4. conference and net price are on the same row, not dropped', async () => {
+    stubFetch();
+    const card = await expand();
+    const snap = card.querySelector('[data-testid="programme-snapshot"]');
+    /**
+     * §1C names three things. These two shipped in A11, are factual, and are
+     * what a consultant reaches for next — deleting information to tidy a
+     * layout is not a presentation refinement, so the merge gate asserts they
+     * are still here rather than leaving it to a screenshot.
+     */
+    expect(snap.textContent).toContain('Conference');
+    expect(snap.textContent).toContain('Invented Athletic Conference');
+    expect(snap.textContent).toContain('Net price');
+    expect(snap.textContent).toContain('$28,400');
+  });
+
+  it('H5. an absent conference or net price is an em dash, never a zero', async () => {
+    stubFetch({ contexts: (n) => ctx(n, { conference: null, netPrice: null }) });
+    const card = await expand();
+    const snap = card.querySelector('[data-testid="programme-snapshot"]');
+    expect(snap.textContent, 'no invented $0').not.toContain('$0');
+    expect(snap.textContent).toContain('—');
+  });
 });
 
 describe('A11.2 §1D, §1E, §6. one summary open, one investigation closed', () => {
