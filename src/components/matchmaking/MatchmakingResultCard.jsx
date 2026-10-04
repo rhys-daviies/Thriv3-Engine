@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Disclosure } from '@/components/ui/Disclosure';
+import ProgrammeStatusChips from './ProgrammeStatusChips';
+import ProgrammeSnapshot from './ProgrammeSnapshot';
+import MatchmakingExplanation from './MatchmakingExplanation';
 import { cn } from '@/lib/utils';
 import {
   bandPresentation, statusPresentation, PRECISION_NOTE,
@@ -90,9 +93,36 @@ function LayerMeter({ layer }) {
  * decided; it chooses layout.
  * ===========================================================================
  */
-export default function MatchmakingResultCard({ programme }) {
+export default function MatchmakingResultCard({
+  programme,
+  /** Ratings, cost and roster departures, from the page's one bounded read. */
+  context = null,
+  /** The athlete's relationships and contact history, for the status chips. */
+  relationships = null,
+  contactByProgramme = null,
+  contactKnown = false,
+  sport = null,
+  entryYear = null,
+  /** Asked for only when the card is opened. See `onExpand`. */
+  explanation = null,
+  explanationState = null,
+  onExpand = null,
+}) {
+  const [open, setOpen] = useState(false);
   const band = bandPresentation(programme.band);
   const state = statusPresentation(programme.status);
+
+  const toggle = (next) => {
+    setOpen(next);
+    /**
+     * LAZY, AND A READ. The explanation is ~3 KB per programme and is only
+     * ever read for the card somebody opens, so it is fetched here rather
+     * than with the list. Expanding must never WRITE anything — no
+     * relationship row, no selection, no observation; see the
+     * no-side-effect tests.
+     */
+    if (next && onExpand) onExpand(programme);
+  };
 
   const header = (
     <div className="flex items-start justify-between gap-3">
@@ -127,6 +157,21 @@ export default function MatchmakingResultCard({ programme }) {
               {state.label}
             </Badge>
           )}
+          {/*
+            WHAT HAS ALREADY HAPPENED WITH THIS SCHOOL — §4, §10.
+
+            The same derivation Specific Schools uses, from the same two
+            canonical stores, so a programme that says "Sent" there says
+            "Sent" here. Renders nothing at all when there is nothing true
+            to say, which is most of a hundred-row list — §12.
+          */}
+          <ProgrammeStatusChips
+            collegeName={programme.name}
+            sport={sport}
+            relationships={relationships}
+            contactByProgramme={contactByProgramme}
+            contactKnown={contactKnown}
+          />
         </div>
       </div>
       {programme.ranked && (
@@ -151,7 +196,7 @@ export default function MatchmakingResultCard({ programme }) {
       )}
       data-testid={`programme-${programme.status}`}
     >
-      <Disclosure header={header}>
+      <Disclosure header={header} open={open} onOpenChange={toggle}>
         {/*
           WHY THRIV3 RANKED IT HERE — §I.
 
@@ -173,6 +218,28 @@ export default function MatchmakingResultCard({ programme }) {
 
         {programme.ranked && (
           <p className="text-[11px] text-muted-foreground italic">{PRECISION_NOTE}</p>
+        )}
+
+        {/*
+          SECOND: THE QUICK PROGRAMME SNAPSHOT — A11.2 §1C, §3.
+
+          Below the three layer readings and ABOVE the explanation, which is
+          the order §3 asks for and the order the first real production card
+          did not have. Programme strength, academic rating, who is leaving by
+          position, then conference and net price. Facts about the institution;
+          the layers above are what the ranking is made of, and the prose below
+          is why.
+        */}
+        <ProgrammeSnapshot context={context} entryYear={entryYear} />
+
+        {/* THIRD: the engine's own explanation of this ranking — §7, §8. */}
+        {open && explanationState !== 'loading' && (
+          <MatchmakingExplanation explanation={explanation} programme={programme} />
+        )}
+        {open && explanationState === 'loading' && (
+          <p className="text-xs text-muted-foreground" data-testid="explanation-loading">
+            Loading the explanation for this ranking…
+          </p>
         )}
       </Disclosure>
     </Card>

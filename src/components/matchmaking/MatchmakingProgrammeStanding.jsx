@@ -18,7 +18,30 @@ import { bandPresentation, statusPresentation, programmeView } from '@/lib/match
  * words the Matchmaking list uses, from the same vocabulary.
  * ===========================================================================
  */
-export default function MatchmakingProgrammeStanding({ standing, name }) {
+export default function MatchmakingProgrammeStanding({
+  standing, name,
+  /**
+   * IS `standing.programme` ALREADY A VIEW? — A10 §D.
+   *
+   * ===========================================================================
+   * TWO CALLERS, TWO SHAPES, AND APPLYING THE VIEW TWICE IS SILENTLY WRONG.
+   *
+   * Specific Search passes the RAW payload of `GET …/matchmaking/programme`,
+   * so this maps it. The Specific Schools tab reads programmes out of the run
+   * the panel already holds — and `useMatchmakingV2` stores `runView(payload)`,
+   * whose programmes have been mapped already.
+   *
+   * `programmeView` is not idempotent and must not pretend to be: it converts
+   * `pursuit` to a 0–100 score, so running it twice renders a pursuit of 90 as
+   * "9000", and it reshapes each layer, so a second pass finds no
+   * `state === 'SCOREABLE'` and reports three measured layers as "Not
+   * established". Both are wrong, both are plausible-looking, and neither
+   * throws. Measured in the browser against a seeded run; the test below
+   * pins the numbers so it cannot come back.
+   * ===========================================================================
+   */
+  viewed = false,
+}) {
   if (!standing) return null;
 
   /** The registry has this school; this athlete's evaluated pool does not. */
@@ -34,7 +57,7 @@ export default function MatchmakingProgrammeStanding({ standing, name }) {
     );
   }
 
-  const p = programmeView(standing.programme);
+  const p = viewed ? standing.programme : programmeView(standing.programme);
   const band = bandPresentation(p.band);
   const state = statusPresentation(p.status);
 

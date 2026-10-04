@@ -1,7 +1,8 @@
 import express from 'express';
 import db from '../db/client.js';
 import { Player } from '../db/entities/player.js';
-import { computeMatchmakingV2 } from '../lib/v2/matchmakingService.js';
+import { computeMatchmakingV2, TOP_N } from '../lib/v2/matchmakingService.js';
+import { programmeContext } from '../lib/v2/programmeContext.js';
 import {
   persistRun, currentRun, runById, readRun, runStaleness,
 } from '../lib/v2/matchmakingRuns.js';
@@ -140,7 +141,11 @@ matchmakingRouter.get('/players/:id/matchmaking', handle('matchmaking', (req) =>
 matchmakingRouter.post('/players/:id/matchmaking', handle('matchmaking:persist', (req) => {
   const player = Player.get(req.params.id);
   if (!player || player.archived_at) throw notFound(req.params.id);
-  const result = computeMatchmakingV2(db, player);
+  /**
+   * A11. Explanations are captured WITH the run. The GET above still does not
+   * ask for them: previewing a ranking should not pay for prose nobody stores.
+   */
+  const result = computeMatchmakingV2(db, player, { withExplanations: true });
   const runId = persistRun(db, player, result);
   return { status: 201, body: { runId, ...result } };
 }));
@@ -193,6 +198,52 @@ matchmakingRouter.get('/players/:id/matchmaking/programme', handle('matchmaking:
       collegeName: req.query.name,
       sport: req.query.sport || null,
       runId: req.query.runId || null,
+    }),
+  };
+}));
+
+/**
+ * PROGRAMME CONTEXT FOR A BOUNDED SET OF PROGRAMMES — A11 §5, §6, §11.
+ *
+ * ===========================================================================
+ * ONE REQUEST FOR A PAGE OF CARDS, NOT ONE PER CARD.
+ *
+ * The run holds scores; `colleges` and `roster_players` hold the cost, the
+ * ratings and the roster. A card that wants both would otherwise make a
+ * request per programme, and a hundred cards would make a hundred — the N+1
+ * this endpoint exists to prevent.
+ *
+ * A READ, AND ONLY A READ. It creates no relationship row, records no
+ * selection, writes no observation and computes no score. Expanding a card
+ * must never be a write; see the no-side-effect tests.
+ *
+ * BOUNDED BY CONSTRUCTION. At most TOP_N names are honoured, because the
+ * largest honest caller is one page of the Top 100. A longer list is a caller
+ * bug, and truncating it quietly would hide that, so it is refused.
+ * ===========================================================================
+ */
+matchmakingRouter.get('/players/:id/matchmaking/context', handle('matchmaking:context', (req) => {
+  const player = Player.get(req.params.id);
+  if (!player || player.archived_at) throw notFound(req.params.id);
+
+  const raw = String(req.query.names ?? '').split('\u001F').map((n) => n.trim()).filter(Boolean);
+  const names = [...new Set(raw)];
+  if (names.length === 0) return { body: { programmes: [] } };
+  if (names.length > TOP_N) {
+    const err = new Error(`At most ${TOP_N} programmes may be asked for at once; received ${names.length}.`);
+    err.code = 'TOO_MANY_PROGRAMMES';
+    err.status = 400;
+    throw err;
+  }
+
+  return {
+    body: programmeContext(db, {
+      sport: req.query.sport || player.sport,
+      names,
+      position: player.position ?? null,
+      /** The athlete's own entry class — see programmeContext's own note. */
+      entryYear: player.recruiting_class_year,
+      withNames: req.query.players === '1',
     }),
   };
 }));

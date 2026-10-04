@@ -28,7 +28,7 @@
  */
 import crypto from 'node:crypto';
 import { FREEZE_ENGINE_HEAD } from '../../../shared/matching/v2/freeze.js';
-import { bandForRank, STATUS, SEASON, serviceError } from './matchmakingService.js';
+import { bandForRank, STATUS, SEASON, TOP_N, serviceError } from './matchmakingService.js';
 import { cachedCorpusDigests } from './corpusIdentity.js';
 import { UNIVERSE } from './validationUniverse.js';
 
@@ -101,6 +101,78 @@ export function inputDigest(snapshot) {
  * indistinguishable from a real one with a small universe, which is the worst
  * possible failure for a historical record.
  */
+/**
+ * WHAT OF AN EXPLANATION IS WORTH STORING — A11.
+ *
+ * ===========================================================================
+ * TWO THINGS COME OUT, AND BOTH FOR A REASON.
+ *
+ * `layerReasons` is DROPPED because it is not a second fact: it is the same
+ * reason objects as `reasons`, grouped by the `layer` each one already
+ * carries. Storing both duplicated 2.5 KB per programme row — 3 MB per run —
+ * to save a `groupBy` at read time. `hydrate` regroups it.
+ *
+ * `gateEffects` and `evidenceQuality` are DROPPED because `render.js` marks
+ * them CLIENT_UNSAFE: they are model-internal, and no surface this phase
+ * builds may render them. Storing what nothing may display is cost without
+ * a reader.
+ *
+ * Measured: 6,581 bytes per row before, and what remains is the part a screen
+ * can actually say out loud.
+ * ===========================================================================
+ */
+export function storableExplanation(explanation) {
+  if (!explanation) return null;
+  const {
+    layerReasons, gateEffects, evidenceQuality, ...keep
+  } = explanation;
+  return keep;
+}
+
+/** The inverse: `layerReasons` regrouped from the reasons' own `layer`. */
+function withLayerReasons(explanation) {
+  if (!explanation) return null;
+  if (explanation.layerReasons) return explanation;
+  const layerReasons = { recruitability: [], financial: [], opportunity: [] };
+  for (const r of explanation.reasons ?? []) {
+    if (layerReasons[r.layer]) layerReasons[r.layer].push(r);
+  }
+  return { ...explanation, layerReasons };
+}
+
+/**
+ * WHICH PROGRAMMES GET A PERSISTED EXPLANATION — A11.1 §3.
+ *
+ * ===========================================================================
+ * THE TOP 100, AND NOTHING ELSE.
+ *
+ * A11 persisted one for all 1,205 programmes in a run, which measured 3.6 MB
+ * PER RUN. Runs are immutable and never deleted, so that is unbounded growth
+ * on a persistent disk to carry prose for programmes nobody expands.
+ *
+ * The bound is the Top 100 because that is the set this product asks an
+ * operator to act on, and it is the set the explanation was designed to
+ * justify. Everything else keeps its full scoring row — the universe is
+ * persisted exactly as before — and simply carries no prose.
+ *
+ * WHAT THIS DOES NOT TOUCH, and the tests say so: `resultDigest`, the
+ * ranking, layer values, evidence grades, full-universe persistence, Specific
+ * Search standing, selection provenance. An explanation has never been an
+ * input to any of them, which is why it can be bounded without consequence.
+ *
+ * NON-RANKED STATES GET NOTHING, DELIBERATELY. A SUPPORTED_LIMITED_DATA or
+ * UNSUPPORTED_ASSOCIATION programme has no ranking to explain, and generating
+ * prose for one "for UI completeness" would be manufacturing an explanation
+ * of a rank that does not exist.
+ * ===========================================================================
+ */
+export function explanationToStore(programme) {
+  if (!programme?.explanation) return null;
+  if (programme.status !== STATUS.RANKED) return null;
+  if (!Number.isFinite(programme.rank) || programme.rank > TOP_N) return null;
+  return JSON.stringify(storableExplanation(programme.explanation));
+}
+
 export function persistRun(db, player, result, { runId = crypto.randomUUID(), now = new Date().toISOString() } = {}) {
   if (!result || result.matcherVersion !== 'v2') {
     throw serviceError('RESULT_REQUIRED', 'A computed V2 result is required.');
@@ -126,13 +198,15 @@ export function persistRun(db, player, result, { runId = crypto.randomUUID(), no
       pursuit, pursuit_grade,
       recruitability, recruitability_grade, recruitability_coverage, recruitability_reason,
       financial, financial_grade, financial_coverage, financial_reason,
-      opportunity, opportunity_grade, opportunity_coverage, opportunity_reason
+      opportunity, opportunity_grade, opportunity_coverage, opportunity_reason,
+      explanation
     ) VALUES (
       @run_id, @college_name, @sport, @college_id, @division, @status, @rank,
       @pursuit, @pursuit_grade,
       @recruitability, @recruitability_grade, @recruitability_coverage, @recruitability_reason,
       @financial, @financial_grade, @financial_coverage, @financial_reason,
-      @opportunity, @opportunity_grade, @opportunity_coverage, @opportunity_reason
+      @opportunity, @opportunity_grade, @opportunity_coverage, @opportunity_reason,
+      @explanation
     )`);
 
   const write = db.transaction(() => {
@@ -178,6 +252,12 @@ export function persistRun(db, player, result, { runId = crypto.randomUUID(), no
         opportunity_grade: p.opportunity.grade ?? null,
         opportunity_coverage: p.opportunity.coverage ?? null,
         opportunity_reason: p.opportunity.reason ?? null,
+        /**
+         * A11. Captured WITH the run, because it explains THIS ranking. A run
+         * computed before A11 stores null, and that is a true record of a run
+         * whose explanation was never captured — not a row to backfill.
+         */
+        explanation: explanationToStore(p),
       });
     }
   });
@@ -212,7 +292,7 @@ export function runById(db, runId) {
 }
 
 /** The derived half, rebuilt from what was stored. */
-function hydrate(row, { resultSchemaVersion }) {
+function hydrate(row, { resultSchemaVersion, skipExplanation = false }) {
   const layer = (value, grade, coverage, reason) => (value === null || value === undefined
     ? { state: 'UNSCOREABLE', reason: reason ?? null, ...(coverage === null ? {} : { coverage }) }
     : {
@@ -228,6 +308,20 @@ function hydrate(row, { resultSchemaVersion }) {
     financial: layer(row.financial, row.financial_grade, row.financial_coverage, row.financial_reason),
     opportunity: layer(row.opportunity, row.opportunity_grade, row.opportunity_coverage, row.opportunity_reason),
   };
+  /**
+   * Parsed back to the object the explainer produced. A row written before
+   * A11 has none; `explanation: null` is how the UI knows to say so rather
+   * than render an empty one.
+   */
+  if (row.explanation && !skipExplanation) {
+    try {
+      out.explanation = withLayerReasons(JSON.parse(row.explanation));
+    } catch {
+      /* A stored explanation that will not parse is not an explanation. Say
+         nothing rather than render a fragment of one. */
+      out.explanation = null;
+    }
+  }
   if (row.status === STATUS.RANKED) {
     out.rank = row.rank;
     /** Derived, and only trusted for a schema version whose band map we know. */
@@ -277,7 +371,17 @@ export function readRun(db, runRow) {
       limitedData: runRow.limited_data_count,
       unsupported: runRow.unsupported_count,
     },
-    programmes: rows.map((r) => hydrate(r, { resultSchemaVersion: runRow.result_schema_version })),
+    /**
+     * EXPLANATIONS ARE NOT IN THE LIST PAYLOAD — A11 §11.
+     *
+     * One is ~2.8 KB and a run holds 1,205 of them. Including them would take
+     * `runs/current` from ~500 KB to several megabytes on a request every
+     * surface makes on mount, to carry prose that is only ever read for the
+     * one card somebody expands. `programmeResult` serves that one.
+     */
+    programmes: rows.map((r) => hydrate(r, {
+      resultSchemaVersion: runRow.result_schema_version, skipExplanation: true,
+    })),
   };
 }
 

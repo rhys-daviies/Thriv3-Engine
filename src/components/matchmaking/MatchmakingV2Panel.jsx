@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, AlertCircle, Search } from 'lucide-react';
+import { Sparkles, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useMatchmakingV2, MM2, MM2_BUSY, MM2_ERROR } from '@/lib/useMatchmakingV2';
+import { SCOPE } from '@/lib/matchmakingV2View';
 import MatchmakingResults from './MatchmakingResults';
 import MatchmakingRunBar from './MatchmakingRunBar';
 import MatchmakingPreferences from './MatchmakingPreferences';
-import MatchmakingSpecificSearch from './MatchmakingSpecificSearch';
-import OutreachOutcomePanel from './OutreachOutcomePanel';
+import MatchmakingWhyRanked from './MatchmakingWhyRanked';
+import MatchmakingTabs, { TAB } from './MatchmakingTabs';
+import MatchmakingSpecificSchools from './MatchmakingSpecificSchools';
 import SelectionsOverviewPanel from './SelectionsOverviewPanel';
+import { usePlayerWorkspace } from '@/pages/player/PlayerWorkspace';
+import { useProgrammeContext } from '@/lib/useProgrammeContext';
+import { useContactIntelligence, CONTACT_INTELLIGENCE } from '@/lib/useContactIntelligence';
 
 /**
  * The family contribution is unanswered — §E.
@@ -144,15 +149,40 @@ export default function MatchmakingV2Panel({ player }) {
   const {
     run, status, busy, error, generate, refresh, reload,
   } = useMatchmakingV2(player?.id);
-  const [searching, setSearching] = useState(false);
   /**
-   * THE LAST PROGRAMME CHOSEN FOR OUTREACH IN THIS SESSION — A9.6 §U.
+   * WHICH OF THE THREE VIEWS IS OPEN — A10 §M.
    *
-   * Held here rather than fetched, because the point of the surface is to
-   * verify the path that was just walked: search, choose, observe. It is not a
-   * selections browser, and A9.7 is where a persistent one belongs.
+   * A tab, not a route: switching views reads the run already in memory and
+   * makes no request, so there is nothing to restore on a reload and nothing
+   * to put in the URL. Top 100 first because that is the list an operator
+   * opens this page to read.
    */
-  const [recorded, setRecorded] = useState(null);
+  const [tab, setTab] = useState(TAB.TOP_100);
+
+  /**
+   * THE CONSULTANT'S LIST, FOR THE TAB COUNT ONLY.
+   *
+   * `?? {}` because this panel is mounted directly by its own suites, outside
+   * the workspace Outlet, where `useOutletContext()` is null. The count is an
+   * ornament on a tab; it must not be the reason a surface cannot be rendered
+   * in isolation. The Specific Schools tab itself reads the same context and
+   * guards the same way.
+   */
+  const { specific, byCollegeName } = usePlayerWorkspace() ?? {};
+
+  /**
+   * THE SAME TWO CANONICAL SOURCES SPECIFIC SCHOOLS READS — §4, §10.
+   *
+   * One athlete-level request for the contact history, shared by every card on
+   * every page; a card asking for itself is the N+1 this avoids. The
+   * relationships come down the workspace context, already loaded.
+   */
+  const { byProgramme: contactByProgramme, status: contactStatus } = useContactIntelligence(player?.id);
+  const contactKnown = contactStatus === CONTACT_INTELLIGENCE.READY;
+
+  const {
+    contextByName, explanations, loadPage, loadExplanation,
+  } = useProgrammeContext(player?.id, run);
 
   /**
    * A contribution refusal replaces the screen only when there is nothing to
@@ -218,82 +248,104 @@ export default function MatchmakingV2Panel({ player }) {
 
   return (
     <div className="space-y-4">
+      {/*
+        ================================================================
+        THE REQUIRED ORDER — A10 §I. GENERATED → PREFERENCES → WHY → TABS.
+
+        Four sections, in that sequence, with nothing interposed. The order is
+        the consultant's reading order: when was this produced, what was it
+        produced from, what does the order mean, and then the list itself.
+
+        NOTHING GOES BETWEEN THEM. Three things used to: a floating Specific
+        Search button, the outcome panel for whatever was last recorded, and
+        the selections overview — which, with nothing selected, put the
+        sentence "No programme has been selected for outreach yet" between the
+        run and the ranking an operator had come to read. Each has a place
+        below; none of them has a place in the middle of this.
+        ================================================================
+      */}
+
+      {/* 1. GENERATED + REFRESH MATCHES */}
       <MatchmakingRunBar run={run} onRefresh={refresh} busy={busy === MM2_BUSY.REFRESHING} />
 
-      <div className="flex items-center justify-end">
-        <Button
-          size="sm"
-          variant={searching ? 'default' : 'outline'}
-          onClick={() => setSearching((v) => !v)}
-          aria-expanded={searching}
-        >
-          <Search className="h-3.5 w-3.5 mr-1.5" />
-          Specific Search
-        </Button>
-      </div>
-
       {/*
-        §C. The search reads the run that is ON SCREEN — `run` is handed to it
-        rather than letting the server pick the current one, so a standing can
-        never come from a newer run than the list the operator is reading.
+        A refusal or a failure is reported here, directly under the control
+        that would have caused it, rather than replacing the results below.
+        The existing matches remain a true record of what Thriv3 said.
       */}
-      {searching && (
-        <MatchmakingSpecificSearch
-          player={player}
-          run={run}
-          onSelected={(out) => setRecorded(out)}
-        />
-      )}
-
-      {/*
-        §U. What came of it. The rank and band are the ones the SELECTION
-        froze, handed straight through - this panel never re-reads today's run,
-        so a programme chosen out of an older run is reported as that run saw
-        it.
-      */}
-      {recorded && (
-        <OutreachOutcomePanel
-          player={player}
-          universeSize={run?.counts?.ranked ?? null}
-          selection={{
-            id: recorded.id,
-            collegeName: recorded.programme?.name,
-            sport: run?.sport,
-            status: recorded.programme?.status,
-            rank: recorded.programme?.rank ?? null,
-            band: recorded.programme?.band ?? null,
-            source: 'SPECIFIC_SEARCH',
-            runWasStale: recorded.runWasStale,
-          }}
-        />
-      )}
-
-      {/*
-        §K. Everything already chosen for this athlete, with the run's own
-        frozen numbers. Below the search and the outcome panel because it is a
-        record rather than an action.
-      */}
-      <SelectionsOverviewPanel player={player} universeSize={run?.counts?.ranked ?? null} />
-
       {contributionBlocked ? (
         <ContributionBlocked playerId={player?.id} />
       ) : error ? (
         <Failure error={error} onRetry={refresh} />
       ) : null}
 
+      {/* 2. RANKING PREFERENCES + EDIT INPUTS */}
       <MatchmakingPreferences player={player} run={run} />
 
-      {/*
-        THE PREVIOUS RUN STAYS VISIBLE AND STAYS READABLE while a new one is
-        computed — §P. Dimmed and marked `aria-busy`, not unmounted: these are
-        still the results of record until the server returns a new run.
-      */}
-      <div
-        aria-busy={busy === MM2_BUSY.REFRESHING}
-        className={busy === MM2_BUSY.REFRESHING ? 'opacity-60 transition-opacity' : undefined}
-      >
-        <MatchmakingResults run={run} />
+      {/* 3. THE THREE TABS */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <MatchmakingTabs
+          value={tab}
+          onChange={setTab}
+          counts={{ [TAB.SPECIFIC_SCHOOLS]: specific?.length }}
+        />
       </div>
+
+      {/* 4. THE SELECTED TAB'S CONTENT, INCLUDING ITS PAGINATION */}
+      <div
+        id={`matchmaking-panel-${tab}`}
+        role="tabpanel"
+        aria-labelledby={`matchmaking-tab-${tab}`}
+      >
+        {tab === TAB.SPECIFIC_SCHOOLS ? (
+          <MatchmakingSpecificSchools run={run} />
+        ) : (
+          /*
+            THE PREVIOUS RUN STAYS VISIBLE AND STAYS READABLE while a new one
+            is computed — §P. Dimmed and marked `aria-busy`, not unmounted:
+            these are still the results of record until the server returns a
+            new run.
+          */
+          <div
+            aria-busy={busy === MM2_BUSY.REFRESHING}
+            className={busy === MM2_BUSY.REFRESHING ? 'opacity-60 transition-opacity' : undefined}
+          >
+            <MatchmakingResults
+              run={run}
+              scope={tab === TAB.TOP_100 ? SCOPE.TOP_100 : SCOPE.FULL_UNIVERSE}
+              relationships={byCollegeName}
+              contactByProgramme={contactByProgramme}
+              contactKnown={contactKnown}
+              contextByName={contextByName}
+              explanations={explanations}
+              onExpand={loadExplanation}
+              onPageProgrammes={loadPage}
+              entryYear={player?.recruiting_class_year ?? null}
+            />
+          </div>
+        )}
+      </div>
+
+      {/*
+        WHAT HAS BEEN CHOSEN FOR OUTREACH, BELOW THE LIST IT WAS CHOSEN FROM.
+
+        A record rather than an action, and — importantly — no longer between
+        the run and the ranking. Its empty state is a reasonable thing to meet
+        after reading the list; it was not a reasonable thing to meet instead
+        of reading it.
+      */}
+      <SelectionsOverviewPanel player={player} universeSize={run?.counts?.ranked ?? null} />
+
+      {/*
+        5. WHY SCHOOLS ARE RANKED THIS WAY — BELOW THE RESULTS, A11 §3.
+
+        It moved down from above the tabs. It is important explanatory
+        material and it is secondary to the recommendations themselves: a
+        consultant opening this page is here to read the list, and a general
+        explanation of the ranking architecture standing between them and it
+        was a paragraph to scroll past every single time.
+      */}
+      <MatchmakingWhyRanked />
     </div>
   );
 }

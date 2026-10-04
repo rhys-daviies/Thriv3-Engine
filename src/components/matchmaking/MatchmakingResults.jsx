@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import MatchmakingResultCard from './MatchmakingResultCard';
@@ -63,8 +63,33 @@ export function pageWindow(current, total) {
  * nothing to learn.
  * ===========================================================================
  */
-export default function MatchmakingResults({ run }) {
-  const [scope, setScope] = useState(SCOPE.TOP_100);
+export default function MatchmakingResults({
+  run,
+  /** The workspace's relationships and contact history, for the status chips. */
+  relationships = null,
+  contactByProgramme = null,
+  contactKnown = false,
+  /** One bounded context read per visible page; see `useProgrammeContext`. */
+  contextByName = null,
+  explanations = null,
+  onExpand = null,
+  entryYear = null,
+  onPageProgrammes = null,
+  /**
+   * CONTROLLED SCOPE — A10 §M. When the page owns the tab control, the scope
+   * comes down as a prop and this component renders no tablist of its own:
+   * the required information architecture has ONE tab strip, above the
+   * content, with Specific Schools as its third tab.
+   *
+   * Left uncontrolled the component is exactly what it was — its own two-tab
+   * strip over the same two scopes — which is what the A9.3 suites mount.
+   */
+  scope: controlledScope = null,
+}) {
+  const [ownScope, setOwnScope] = useState(SCOPE.TOP_100);
+  const controlled = controlledScope !== null;
+  const scope = controlled ? controlledScope : ownScope;
+  const setScope = setOwnScope;
   const [page, setPage] = useState(1);
 
   const programmes = useMemo(
@@ -83,28 +108,67 @@ export default function MatchmakingResults({ run }) {
 
   const changeScope = (next) => { setScope(next); setPage(1); };
 
+  /**
+   * A SCOPE CHANGED FROM ABOVE ALSO RETURNS TO PAGE 1.
+   *
+   * Adjusted during render rather than in an effect, for the same reason the
+   * clamp above is not an effect: an effect would paint one frame of page 40
+   * before correcting it. This is the React-documented form of deriving state
+   * from a prop change, and it runs before anything is committed.
+   */
+  const [lastScope, setLastScope] = useState(scope);
+  if (lastScope !== scope) {
+    setLastScope(scope);
+    setPage(1);
+  }
+
   const counts = run.counts;
+
+  /**
+   * THE PAGE'S NAMES, REPORTED ONCE PER PAGE — §11.
+   *
+   * The context read is per PAGE of twenty, not per card and not for the whole
+   * universe: a card asking for itself is the N+1, and asking for 1,205 to
+   * render 20 is the opposite waste. Reported through a ref-guarded effect so
+   * paging asks once and re-rendering asks not at all.
+   */
+  const pageNames = items.map((p) => p.name);
+  const lastAsked = useRef('');
+  useEffect(() => {
+    if (!onPageProgrammes) return;
+    const key = pageNames.join('\u001F');
+    if (key === lastAsked.current) return;
+    lastAsked.current = key;
+    onPageProgrammes(pageNames);
+  }, [pageNames.join('\u001F'), onPageProgrammes]);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div role="tablist" aria-label="Result scope" className="inline-flex rounded-lg border border-border p-0.5">
-          {[SCOPE.TOP_100, SCOPE.FULL_UNIVERSE].map((key) => (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={scope === key}
-              onClick={() => changeScope(key)}
-              className={cn(
-                'px-3 h-8 rounded-md text-xs font-medium transition-colors',
-                scope === key ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted',
-              )}
-            >
-              {SCOPE_LABEL[key]}
-            </button>
-          ))}
-        </div>
+        {/*
+          NOT RENDERED AT ALL WHEN CONTROLLED, rather than hidden with a class:
+          a hidden tablist is still in the accessibility tree, so a screen
+          reader would meet two tab strips for one set of views.
+        */}
+        {!controlled && (
+          <div role="tablist" aria-label="Result scope" className="inline-flex rounded-lg border border-border p-0.5">
+            {[SCOPE.TOP_100, SCOPE.FULL_UNIVERSE].map((key) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={scope === key}
+                onClick={() => changeScope(key)}
+                className={cn(
+                  'px-3 h-8 rounded-md text-xs font-medium transition-colors',
+                  scope === key ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted',
+                )}
+              >
+                {SCOPE_LABEL[key]}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/*
           WHAT THE RUN CONTAINS, said once at the top rather than discovered by
@@ -127,7 +191,19 @@ export default function MatchmakingResults({ run }) {
       ) : (
         <div className="space-y-3">
           {items.map((p) => (
-            <MatchmakingResultCard key={`${p.programmeId ?? p.name}-${p.name}`} programme={p} />
+            <MatchmakingResultCard
+              key={`${p.programmeId ?? p.name}-${p.name}`}
+              programme={p}
+              sport={run.sport}
+              entryYear={entryYear}
+              relationships={relationships}
+              contactByProgramme={contactByProgramme}
+              contactKnown={contactKnown}
+              context={contextByName?.get?.(p.name) ?? null}
+              explanation={explanations?.get?.(p.name)?.explanation ?? null}
+              explanationState={explanations?.get?.(p.name)?.state ?? null}
+              onExpand={onExpand}
+            />
           ))}
         </div>
       )}
