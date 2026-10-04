@@ -13,8 +13,11 @@ import path from 'node:path';
 import { parseCsvToObjects } from '../lib/csv.js';
 import { College } from '../db/entities/college.js';
 import { GraduatingSenior } from '../db/entities/graduatingSenior.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
+import db from '../db/client.js';
 
 const apply = process.argv.includes('--apply');
+if (apply) assertLegacyWriteAllowed(db, { script: 'placeBucketB.js' });
 const DIR = '/Users/rhysdavies/Documents/Thriv3/2025 Coaches Emails';
 const MEN = ['d1_mens', 'd2_mens', 'd3_mens', 'naia_mens'];
 const WOM = ['d1_womens', 'd2_womens', 'd3_womens', 'naia_womens'];

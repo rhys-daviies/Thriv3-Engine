@@ -1,0 +1,153 @@
+{
+  "phase": "7B.3 batch F — authoritative revalidation evidence (redacted)",
+  "built_at": "2026-09-28T03:17:45.105Z",
+  "redaction": "names -> [withheld]; existing-coach emails -> coach-<id>@redacted.invalid; insert emails -> [withheld]@domain; URLs/domains kept (institutional).",
+  "programmes_processed": 5,
+  "op_totals": {
+    "ADD_EVIDENCE": 10,
+    "CORRECT_EMAIL": 0,
+    "MARK_STALE": 0,
+    "INSERT_CURRENT": 0,
+    "HOLD": 3
+  },
+  "blocked_programmes": 0,
+  "needs_domain_repair": 0,
+  "programmes": [
+    {
+      "unitid": 139205,
+      "sport": "mens-soccer",
+      "institution": "Brewton-Parker College",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Director of Soccer / Head Men's and Women's Soccer Coach",
+          "source": "https://bpcuathletics.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach current; email [withheld]@bpc.edu literally published on official 2026 staff page (shared men's/women's soccer head coach).",
+          "coach": "coach-78b5c0df-badf-4202-b6d7-25ffd3638574@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://bpcuathletics.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach current; email [withheld]@bpc.edu literally published on official 2026 staff page.",
+          "coach": "coach-b877a656-1e04-4761-b0ea-01c6bd74f8b8@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://bpcuathletics.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach current; email [withheld]@bpc.edu literally published on official 2026 staff page.",
+          "coach": "coach-fb1cfc53-e8d8-4322-9179-39e1ed1a7e36@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 207856,
+      "sport": "mens-soccer",
+      "institution": "Southwestern Christian University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://scueagles.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach current; email published on official 2026 staff page as [withheld]@swcu.edu (same address as stored, case only).",
+          "coach": "coach-e8e3677b-bd49-469a-8340-c70b2da0e45c@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://scueagles.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach current; personal email published on official 2026 staff page as [withheld]@gmail.com (same address as stored, case only).",
+          "coach": "coach-cbbd3743-9bed-48d9-9717-d9336f14677d@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 151333,
+      "sport": "womens-soccer",
+      "institution": "Indiana University Kokomo",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://iukcougars.com/sports/wsoc/coaches",
+          "reason": "Stored coach current (6th season head coach); email [withheld]@iu.edu literally published on official 2026 staff page.",
+          "coach": "coach-6ae9ca24-bb8e-4017-b190-102b8fe621b8@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Goalkeeper Coach",
+          "source": "https://iukcougars.com/sports/wsoc/coaches",
+          "reason": "Stored coach current (goalkeeper coach, 2nd season); email [withheld]@iu.edu literally published on official 2026 staff page.",
+          "coach": "coach-0975447a-c049-433f-842d-3c78f561f956@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 140252,
+      "sport": "womens-soccer",
+      "institution": "Life University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://liferunningeagles.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach current; email [withheld]@life.edu literally published on official 2026 staff page (email local-part uses prior surname Goddard; same person).",
+          "coach": "coach-4fa8d9a0-c1a9-4c28-b09a-b3c7147f98b3@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "CURRENT_EMAIL_UNPUBLISHED: listed as current Assistant Coach on official 2026 staff page, but no personal email is published there. Stored email [withheld]@life.edu was pattern-inferred and does not appear on any fetched official page; cannot promote.",
+          "coach": "coach-d5cce6c4-793e-4bad-828a-a9427d905852@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "CURRENT_EMAIL_UNPUBLISHED: listed as current Goalkeeper Coach on official 2026 staff page, but no personal email is published there. Stored email [withheld]@life.edu was pattern-inferred and does not appear on any fetched official page; cannot promote.",
+          "coach": "coach-635e440a-197d-4096-91ba-4c11bad8f0b1@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "CURRENT_EMAIL_UNPUBLISHED: listed as current Assistant Coach on official 2026 staff page, but no personal email is published there. Stored email [withheld]@life.edu was pattern-inferred and does not appear on any fetched official page; cannot promote.",
+          "coach": "coach-78142606-5a15-4eaa-b34e-f903a185729c@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 168786,
+      "sport": "mens-soccer",
+      "institution": "Aquinas College",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://aqsaints.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach current; email [withheld]@aquinas.edu literally published on official 2026 staff page.",
+          "coach": "coach-2c9a74b9-7154-4932-816b-32027fb1d00f@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach / Reserve Head Coach",
+          "source": "https://aqsaints.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach current; email [withheld]@aquinas.edu literally published on official 2026 staff page.",
+          "coach": "coach-fa47aa99-3408-4d53-a70b-7f27b1afda91@redacted.invalid"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,469 @@
+{
+ "milestone": "PHASE 8B.1 — UNIVERSE CLOSURE + ROSTER SOURCE RECOVERY (shared dev)",
+ "created_at": "2026-10-01",
+ "db": "server/data/recruitmatch.sqlite (shared dev; production untouched)",
+ "checkpoint": {
+  "pushed": "38d36ac",
+  "branch": "feature/coach-corroboration-7b",
+  "local_equals_remote": true,
+  "behind_main": 0
+ },
+ "universes": {
+  "before_8b1": {
+   "NJCAA": {
+    "logical": 489,
+    "men": 318,
+    "women": 171,
+    "verified_memberships": 336,
+    "unverified_memberships": 153,
+    "trusted_host": "124/334",
+    "roster_sources": {
+     "NOT_PROBED": 114,
+     "CURRENT_ROSTER_FOUND": 162,
+     "NO_ROSTER_FOUND": 208,
+     "BLOCKED": 4,
+     "PRIOR_ROSTER_ONLY": 1
+    },
+    "queued_extras_active": 127
+   },
+   "USCAA": {
+    "logical": 46,
+    "men": 24,
+    "women": 22,
+    "verified_memberships": 37,
+    "unverified_memberships": 9,
+    "trusted_host": "9/29",
+    "roster_sources": {
+     "NOT_PROBED": 4,
+     "NO_ROSTER_FOUND": 30,
+     "CURRENT_ROSTER_FOUND": 11,
+     "BLOCKED": 1
+    },
+    "queued_extras_active": 5
+   }
+  },
+  "after_8b1": {
+   "NJCAA": {
+    "logical": 410,
+    "men": 239,
+    "women": 171,
+    "verified_memberships": 336,
+    "unverified_memberships": 74,
+    "trusted_host": "132/264",
+    "with_source_location": 0,
+    "roster_sources": {
+     "NOT_SEARCHED": 41,
+     "CURRENT_ROSTER_FOUND": 191,
+     "NOT_FOUND": 120,
+     "BLOCKED": 34,
+     "ROSTER_PAGE_UNPARSED": 7,
+     "SOURCE_UNAVAILABLE": 8,
+     "ROSTER_SEASON_UNKNOWN": 7,
+     "PROGRAMME_CURRENT_NO_ROSTER": 2
+    },
+    "roster_sources_before_8b1": {
+     "NOT_PROBED": 44,
+     "CURRENT_ROSTER_FOUND": 162,
+     "NOT_FOUND": 127,
+     "NO_ROSTER_FOUND": 72,
+     "BLOCKED": 4,
+     "PRIOR_ROSTER_ONLY": 1
+    },
+    "rows_inactive": 56
+   },
+   "USCAA": {
+    "logical": 46,
+    "men": 24,
+    "women": 22,
+    "verified_memberships": 38,
+    "unverified_memberships": 8,
+    "trusted_host": "9/29",
+    "with_source_location": 0,
+    "roster_sources": {
+     "CURRENT_ROSTER_FOUND": 13,
+     "BLOCKED": 13,
+     "NOT_FOUND": 13,
+     "NOT_SEARCHED": 2,
+     "SOURCE_UNAVAILABLE": 2,
+     "PROGRAMME_CURRENT_NO_ROSTER": 1,
+     "ROSTER_PAGE_UNPARSED": 1,
+     "PRIOR_ROSTER_ONLY": 1
+    },
+    "roster_sources_before_8b1": {
+     "NOT_PROBED": 4,
+     "NOT_FOUND": 26,
+     "CURRENT_ROSTER_FOUND": 11,
+     "NO_ROSTER_FOUND": 4,
+     "BLOCKED": 1
+    },
+    "rows_inactive": 0
+   },
+   "CCCAA": {
+    "logical": 19,
+    "men": 19,
+    "women": 0,
+    "verified_memberships": 18,
+    "unverified_memberships": 1,
+    "trusted_host": "3/19",
+    "with_source_location": 0,
+    "roster_sources": {
+     "NOT_PROBED": 19
+    },
+    "roster_sources_before_8b1": {
+     "NOT_PROBED": 19
+    },
+    "rows_inactive": 3
+   },
+   "NWAC": {
+    "logical": 4,
+    "men": 4,
+    "women": 0,
+    "verified_memberships": 4,
+    "unverified_memberships": 0,
+    "trusted_host": "1/4",
+    "with_source_location": 0,
+    "roster_sources": {
+     "NOT_PROBED": 4
+    },
+    "roster_sources_before_8b1": {
+     "NOT_PROBED": 4
+    },
+    "rows_inactive": 2
+   }
+  }
+ },
+ "queued_adjudications": {
+  "NJCAA|WRONG_INSTITUTION": 2,
+  "NJCAA|SOURCE_UNAVAILABLE": 31,
+  "NJCAA|CURRENT_CCCAA": 18,
+  "NJCAA|NO_SUCH_PROGRAMME": 49,
+  "NJCAA|CURRENT_NWAC": 4,
+  "NJCAA|WRONG_ASSOCIATION": 6,
+  "NJCAA|UNRESOLVED": 16,
+  "NJCAA|DISCONTINUED": 1,
+  "NJCAA|HISTORICAL_ONLY": 1,
+  "USCAA|UNRESOLVED": 2,
+  "USCAA|CURRENT_USCAA": 1,
+  "USCAA|SOURCE_UNAVAILABLE": 2
+ },
+ "membership_verification": {
+  "NJCAA|AMBIGUOUS": 16,
+  "NJCAA|SOURCE_UNAVAILABLE": 57,
+  "NJCAA|CONTRADICTED": 79,
+  "USCAA|AMBIGUOUS": 1,
+  "USCAA|SOURCE_UNAVAILABLE": 7,
+  "NJCAA|VERIFIED_HISTORICAL": 1,
+  "USCAA|VERIFIED_CURRENT": 1
+ },
+ "source_recovery": {
+  "before": {
+   "NJCAA": {
+    "NOT_PROBED": 44,
+    "CURRENT_ROSTER_FOUND": 162,
+    "NOT_FOUND": 127,
+    "NO_ROSTER_FOUND": 72,
+    "BLOCKED": 4,
+    "PRIOR_ROSTER_ONLY": 1
+   },
+   "USCAA": {
+    "NOT_PROBED": 4,
+    "NOT_FOUND": 26,
+    "CURRENT_ROSTER_FOUND": 11,
+    "NO_ROSTER_FOUND": 4,
+    "BLOCKED": 1
+   },
+   "CCCAA": {
+    "NOT_PROBED": 19
+   },
+   "NWAC": {
+    "NOT_PROBED": 4
+   }
+  },
+  "after": {
+   "NJCAA": {
+    "NOT_SEARCHED": 41,
+    "CURRENT_ROSTER_FOUND": 191,
+    "NOT_FOUND": 120,
+    "BLOCKED": 34,
+    "ROSTER_PAGE_UNPARSED": 7,
+    "SOURCE_UNAVAILABLE": 8,
+    "ROSTER_SEASON_UNKNOWN": 7,
+    "PROGRAMME_CURRENT_NO_ROSTER": 2
+   },
+   "USCAA": {
+    "CURRENT_ROSTER_FOUND": 13,
+    "BLOCKED": 13,
+    "NOT_FOUND": 13,
+    "NOT_SEARCHED": 2,
+    "SOURCE_UNAVAILABLE": 2,
+    "PROGRAMME_CURRENT_NO_ROSTER": 1,
+    "ROSTER_PAGE_UNPARSED": 1,
+    "PRIOR_ROSTER_ONLY": 1
+   },
+   "CCCAA": {
+    "NOT_PROBED": 19
+   },
+   "NWAC": {
+    "NOT_PROBED": 4
+   }
+  },
+  "institution_domain_holds": {
+   "NO_STANDALONE_ATHLETICS_SITE_FOUND": 18,
+   "SEPARATE_ATHLETICS_HOST": 7,
+   "BLOCKED": 2,
+   "SEPARATE_ATHLETICS_HOST (already trusted)": 12,
+   "NOT_PROBED (programme already had a current roster source, or no current programme)": 1
+  }
+ },
+ "source_location_model": {
+  "table": "athletics_source_locations",
+  "decision": "athletics_domains cannot represent institution.edu/athletics safely (host-level ownership would make the whole institution host proof); an additive host + path-scope table with CHECKs (no root prefix for institution paths), resolver sourceOwnedBy (segment-boundary prefix match, sport scope), validator H12, URL-level adapter ownership",
+  "rows": 0
+ },
+ "adapter_coverage": {
+  "version": "p8b1-gatherers-3",
+  "staged_by_platform": {
+   "PRESTO": 151,
+   "SIDEARM": 48
+  },
+  "presto_card_theme": "declared list view + card cross-check (presto-cards-listview-1)"
+ },
+ "parser_refusals": {},
+ "player_identity_audit": {
+  "roster_rows": 281153,
+  "prior_programme_cross_links": 4431,
+  "corroborated_by_hometown_city": 3010,
+  "contradicted_by_hometown_city": 1139,
+  "not_comparable": 282,
+  "same_name_same_season_on_multiple_programmes": 4308,
+  "same_name_twice_in_one_programme_season": 8,
+  "name_format_variants_in_one_programme_season": 33
+ },
+ "staging_quality": {
+  "pages_attempted": 199,
+  "pages_staged": 199,
+  "pages_refused": 0,
+  "pages_blocked": 0,
+  "pages_blocked_detail": {},
+  "parser_refusals": {
+   "PARSER_STRUCTURE_UNKNOWN": 0,
+   "PARSER_RETURNED_ZERO_RECORDS": 0
+  },
+  "wrong_season": 46,
+  "wrong_sport": 0,
+  "wrong_entity": 0,
+  "source_ownership_failure": 0,
+  "staff_in_roster": 0,
+  "count_collapse": 0,
+  "players_parsed": 4907,
+  "observations_staged": 4933,
+  "observations_player_seasons": 4907,
+  "not_observed_current_season": 26,
+  "identity_ambiguous": 2,
+  "duplicate_on_page": 2,
+  "name_format_variant_held": 0,
+  "transfer_candidates": 268,
+  "same_name_other_programme_same_season": 150,
+  "missing_fields": {
+   "position": 428,
+   "class_year": 130,
+   "hometown": 208
+  },
+  "by_classification": {
+   "CONTRADICTION": 46,
+   "IDENTITY_AMBIGUOUS": 2,
+   "NEW_RECORD": 4853,
+   "SOURCE_UNTRUSTED": 6
+  },
+  "review_required": 150,
+  "review_required_rate_pct": 3.1,
+  "page_refusal_rate_pct": 0
+ },
+ "promotion_readiness": {
+  "AUTO_SAFE": 4703,
+  "REVIEW_REQUIRED": 150,
+  "HELD": 34,
+  "CONTRADICTION": 46,
+  "rates": {
+   "AUTO_SAFE": 95.3,
+   "REVIEW_REQUIRED": 3,
+   "HELD": 0.7,
+   "CONTRADICTION": 0.9
+  },
+  "why": {
+   "REVIEW_REQUIRED": {
+    "INSERT_ROSTER_ROW requires an APPROVED review": 150
+   },
+   "HELD": {
+    "NOT_OBSERVED_CURRENT_SEASON (informational, never written)": 26,
+    "IDENTITY_AMBIGUOUS: name appears more than once on this roster": 2,
+    "SOURCE_UNTRUSTED: not a player (staff/manager row or no name)": 6
+   },
+   "CONTRADICTION": {
+    "page is the 2027 roster, claimed as 2026 — an old roster is never the current one": 46
+   }
+  }
+ },
+ "structural_fixture": {
+  "fixture_hash": "39f1e556ac57b06fcce7079aced4820a87619be0990bb49a19b3e63b7299f075",
+  "simulation_pass": true,
+  "live_pass": true,
+  "gates": {
+   "naia_freeze_exact": true,
+   "ncaa_truthful_unchanged": true,
+   "naia_eligible_unchanged": true,
+   "ncaa_eligible_unchanged": true,
+   "no_coach_eligibility_change": true,
+   "no_coach_row_change": true,
+   "no_roster_or_record_mutation": true,
+   "frozen_seasons_unchanged": true,
+   "identity_invariant": true,
+   "integrity_counters_zero": true,
+   "ncaa_naia_universe_unchanged": true,
+   "college_changes_only_in_fixture": true,
+   "only_njcaa_uscaa_rows_changed": true,
+   "every_fixture_row_changed": true,
+   "domain_changes_only_in_fixture": true,
+   "no_prior_trusted_domain_changed": true,
+   "location_changes_only_in_fixture": true,
+   "membership_periods_preserved": true
+  },
+  "tier_correction": {
+   "fixture_hash": "bcb0a854ff8286b66444244175b3b80f805347d5a6d043c01aadf941970d63ba",
+   "actions": 6,
+   "simulation_pass": true,
+   "live_pass": true
+  }
+ },
+ "naia_freeze": {
+  "exact": true,
+  "universe_hash": "0f8bc0695d4ea21616e43d6a42680fd0843acacc31df54660abfd26a81eaa39a",
+  "covered_hash": "a4d8584bb1e203155331e4a9e163c36c262fda300a200c1e2fbf4287228f04c0",
+  "membership_hash": "41e6db873629398a8adec1ee764af686c3697be5617123f89166e70c8a27e0bc",
+  "logical": 381,
+  "covered": 370,
+  "eligible": 798,
+  "strict_path": 798
+ },
+ "ncaa_membership_hash": {
+  "truthful_pre": "f8cfef4a58d052bd07fa6f7e8dd4601c78108276b91f8906a0e34f1d5bd2ce74",
+  "truthful_post": "f8cfef4a58d052bd07fa6f7e8dd4601c78108276b91f8906a0e34f1d5bd2ce74",
+  "legacy_pre": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+  "legacy_post": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+  "unchanged": true
+ },
+ "membership_delta": {
+  "NCAA D1": {
+   "eligible": "1327 -> 1327",
+   "universe_logical": "562 -> 562",
+   "hash_changed": false
+  },
+  "NCAA D2": {
+   "eligible": "810 -> 810",
+   "universe_logical": "461 -> 461",
+   "hash_changed": false
+  },
+  "NCAA D3": {
+   "eligible": "1222 -> 1222",
+   "universe_logical": "735 -> 735",
+   "hash_changed": false
+  },
+  "NAIA": {
+   "eligible": "798 -> 798",
+   "universe_logical": "381 -> 381",
+   "hash_changed": false
+  },
+  "NJCAA": {
+   "eligible": "0 -> 0",
+   "universe_logical": "489 -> 410",
+   "hash_changed": false
+  },
+  "USCAA": {
+   "eligible": "0 -> 0",
+   "universe_logical": "46 -> 46",
+   "hash_changed": false
+  },
+  "NCCAA": {
+   "eligible": "0 -> 0",
+   "universe_logical": "2 -> 2",
+   "hash_changed": false
+  }
+ },
+ "coach_eligibility": {
+  "pre": 4157,
+  "post": 4157,
+  "ids_identical": true
+ },
+ "integrity": {
+  "source_domain_conflicts": 0,
+  "wrong_institution_eligible": 0,
+  "wrong_sport_eligible": 0,
+  "stale_eligible": 0,
+  "inferred_eligible": 0,
+  "duplicate_identity": 0,
+  "canonical_round_trip": 0
+ },
+ "identity_invariant": {
+  "status": "PASS",
+  "hard": 0,
+  "documented": 7
+ },
+ "db_integrity_check": "ok",
+ "fingerprints": {
+  "domain_fp": "cefc064e03d0ee17c51d4b171535173b7542b367a73c11bf05dee89b3c7792b9",
+  "coach_fp": "f17cdff6ecfb1bac2df560566031af825a1dea8e9c450741655a87488f2f7cd4",
+  "college_fp": "81eb02269763dcdcf380088622259a40584ea69b548fbe2c146c45e0c6d08dc9",
+  "entity_fp": "3f7d19b7161dce3aa3df76ec1d8ad782af8afe45c58ae9fd99d13d70684268fc",
+  "membership_period_fp": "91fd2fe2a42aaef7ca73d0907c6c85a6381961a1a3c7b791ed5a9c2fa5efd765",
+  "row_link_fp": "b992c334bb140b8300b3b962f53e5be5ff06c6132bb6e731cdc0c046f1d8537d",
+  "source_location_fp": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "roster_fp": "7776fb5f4e2a232e29994e3f36545c4537b5ce1d603e49bbca299f2456ad759c",
+  "canonical_all_tables": "7ce8c8a63bd37f76228053efb99e3eeb30c771528c7e1696f408053bf9713626"
+ },
+ "tests": {
+  "checkpoint": {
+   "ref": "38d36ac + pre-8B.1 DB (isolated worktree; gitignored data linked)",
+   "total": 8819,
+   "failed": 40
+  },
+  "final": {
+   "total": 8889,
+   "passed": 8848,
+   "failed": 41
+  },
+  "new_vs_checkpoint": [
+   {
+    "id": "server/lib/campaignAttribution.test.js :: migrating the live database adds both columns, backfills nothing, and moves not one existing value",
+    "verdict": "LOAD TIMEOUT (5 s) — the suite ran 448 s vs 182 s normally (heavy load, low disk); passes 35/35 in isolation, the test itself takes 1.7 s; no assertion failed"
+   }
+  ],
+  "identical_to_checkpoint": "every other failure is in the 38d36ac + pre-8B.1 checkpoint set (the generalisation file failure differs only by path)",
+  "new_phase8b1_tests": [
+   "server/lib/refresh/adapters/rosterStructure.test.js (28)",
+   "server/lib/refresh/adapters/sourceDiscovery.test.js (10)",
+   "server/lib/refresh/playerIdentity.test.js (13)",
+   "server/lib/refresh/sourceLocations.test.js (12)",
+   "server/scripts/phase8b1.scripts.test.js (7)"
+  ]
+ },
+ "disk": {
+  "start_of_phase_gib": 7.8,
+  "before_full_suite_mb": 4347,
+  "after_full_suite_mb": 3069,
+  "low_point": "~460 MB free at 21:13 (a stopped readiness-simulation copy + WAL left in temp; removed); the watchdog fired",
+  "cleanup_done": [
+   "scratch migration probe copy (215 MB)",
+   "stopped promo-simulation temp copy (234 MB)"
+  ],
+  "disposable_candidates_not_deleted": {
+   "OS temp thriv3-*": "1.47 GB",
+   "OS temp recon-*": "581 MB",
+   "OS temp rm7e-* (leaked reconcile copy)": "209 MB",
+   "OS temp l8b4-*": "198 MB",
+   "node_modules/.tmp (test build/uploads)": "2.4 GB",
+   "scratchpad/ckpt8a worktree": "~273 MB"
+  },
+  "backups_kept": "all pre-phase DB backups incl. recruitmatch.pre8b1.sqlite"
+ },
+ "privacy": "No player or coach names/addresses in committed artefacts (institutional hosts, UNITIDs, entity ids, counts). Staged observations (raw player names) exist only in the shared-dev staging tables; raw fixtures, crawl JSON, captures and unredacted diff reports are untracked (server/data/generated/)."
+}

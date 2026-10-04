@@ -1,0 +1,228 @@
+{
+  "phase": "7D structural identity anomaly ledger (whole DB, institutional)",
+  "duplicate_unitid_sport_keys": 20,
+  "duplicate_within_division": 14,
+  "duplicate_cross_division": 6,
+  "duplicate_keys": [
+    {
+      "key": "151111|mens-soccer",
+      "rows": [
+        "IU Indy [NCAA D1]",
+        "Indiana University Columbus [NAIA]"
+      ]
+    },
+    {
+      "key": "498562|mens-soccer",
+      "rows": [
+        "Commonwealth University-Bloomsburg [NCAA D2]",
+        "Commonwealth University-Lock Haven [NCAA D2]"
+      ]
+    },
+    {
+      "key": "205443|mens-soccer",
+      "rows": [
+        "Shawnee State [NCAA D2]",
+        "Shawnee State University [NAIA]"
+      ]
+    },
+    {
+      "key": "140951|mens-soccer",
+      "rows": [
+        "SCAD [NCAA D3]",
+        "Savannah College of Art and Design [NAIA]"
+      ]
+    },
+    {
+      "key": "218821|mens-soccer",
+      "rows": [
+        "Spartanburg Methodist [NJCAA]",
+        "Spartanburg Methodist College [NAIA]"
+      ]
+    },
+    {
+      "key": "149842|mens-soccer",
+      "rows": [
+        "Harper [NJCAA]",
+        "William Rainey Harper [NJCAA, inactive]"
+      ]
+    },
+    {
+      "key": "150172|mens-soccer",
+      "rows": [
+        "Calumet College [NAIA]",
+        "Calumet College of St. Joseph [NAIA]"
+      ]
+    },
+    {
+      "key": "179308|mens-soccer",
+      "rows": [
+        "St. Louis Community-Florissant Valley [NJCAA]",
+        "St. Louis Community-Forest Park [NJCAA]",
+        "St. Louis Community-Meramec [NJCAA]"
+      ]
+    },
+    {
+      "key": "151111|womens-soccer",
+      "rows": [
+        "IU Indy [NCAA D1]",
+        "Indiana University Columbus [NAIA]"
+      ]
+    },
+    {
+      "key": "498562|womens-soccer",
+      "rows": [
+        "Commonwealth University-Bloomsburg [NCAA D2]",
+        "Commonwealth University-Lock Haven [NCAA D2]",
+        "Commonwealth University-Mansfield [NCAA D2]"
+      ]
+    },
+    {
+      "key": "176053|womens-soccer",
+      "rows": [
+        "Mississippi Christian [NCAA D2]",
+        "Mississippi College [NCAA D2]"
+      ]
+    },
+    {
+      "key": "121345|womens-soccer",
+      "rows": [
+        "Pomona College [NCAA D3]",
+        "Pomona-Pitzer [NCAA D3]"
+      ]
+    },
+    {
+      "key": "498571|womens-soccer",
+      "rows": [
+        "PennWest Edinboro [NCAA D2]",
+        "PennWest Clarion [NCAA D2]",
+        "PennWest California [NCAA D2]"
+      ]
+    },
+    {
+      "key": "110413|womens-soccer",
+      "rows": [
+        "California Lutheran University [NCAA D3]",
+        "Cal Lutheran [NCAA D3]"
+      ]
+    },
+    {
+      "key": "112260|womens-soccer",
+      "rows": [
+        "Claremont McKenna College [NCAA D3]",
+        "Claremont-Mudd-Scripps [NCAA D3]"
+      ]
+    },
+    {
+      "key": "195544|womens-soccer",
+      "rows": [
+        "St. Joseph's University (Long Island) [NCAA D3]",
+        "St. Joseph's University (Brooklyn) [NCAA D3]"
+      ]
+    },
+    {
+      "key": "231165|womens-soccer",
+      "rows": [
+        "Vermont State University-Johnson [NCAA D3]",
+        "Vermont State University-Castleton [NCAA D3]",
+        "Vermont State University-Lyndon [NCAA D3]"
+      ]
+    },
+    {
+      "key": "110714|womens-soccer",
+      "rows": [
+        "University of California-Santa Cruz [NCAA D3]",
+        "UC Santa Cruz [NCAA D3]"
+      ]
+    },
+    {
+      "key": "205443|womens-soccer",
+      "rows": [
+        "Shawnee State University [NAIA]",
+        "Shawnee State [NCAA D2]"
+      ]
+    },
+    {
+      "key": "184694|womens-soccer",
+      "rows": [
+        "Fairleigh Dickinson University-Florham [NCAA D3]",
+        "FDU-Florham [NCAA D3]"
+      ]
+    }
+  ],
+  "null_unitid_rows": 13,
+  "null_unitid_active": 11,
+  "null_unitid_by_division": {
+    "NCAA D2": 3,
+    "NAIA": 6,
+    "NJCAA": 2,
+    "NCAA D3": 1,
+    "USCAA": 1
+  },
+  "shared_federal_unitid_distinct_entities": [
+    "151111 IU Indy (NCAA D1) + IU Columbus (NAIA, branch)",
+    "498562 Commonwealth: Bloomsburg / Lock Haven / Mansfield",
+    "498571 PennWest: California / Clarion / Edinboro",
+    "231165 Vermont State: Castleton / Johnson / Lyndon",
+    "195544 St. Joseph's NY: Long Island / Brooklyn",
+    "178721 Park University + Park University Gilbert (branch, null colleges.unitid)",
+    "145619 Benedictine (NCAA D3) + Benedictine Mesa (NAIA branch, null colleges.unitid)"
+  ],
+  "branch_campus_cases": [
+    "IU Columbus M/W (parent 151111)",
+    "Park University Gilbert M/W (parent 178721)",
+    "Benedictine University Mesa M/W (parent 145619)"
+  ],
+  "non_title_iv_or_foreign": [
+    "Stanton University W (NAIA, non-Title-IV)",
+    "Christendom College W (USCAA, non-Title-IV)",
+    "Simon Fraser M/W (NCAA D2, Canadian)"
+  ],
+  "wrong_federal_unitid": [
+    "Saint Francis (IL) M: 148575 (Peoria nursing college) -> 148584 (USF Joliet) [REPAIRED]",
+    "East Central (OK) NJCAA M: carries 207041 (ECU Oklahoma); true school unresolved [documented]",
+    "Penn State Brandywine W: NULL, own UNITID 214731 [entity records it; colleges backfill queued]",
+    "gofightingsaints.com + alias \"saint francis il\" -> 148575 [REPAIRED to 148584]"
+  ],
+  "name_drift_unitids_same_division_whole_db": 338,
+  "split_identity_candidates_heuristic": "6 (all false positives: distinct schools with similar names; the real SF-IL split was caught by coach-domain mismatch)",
+  "active_inactive_duplicates": 1,
+  "inactive_rows": 10,
+  "coach_domain_unitid_mismatches": [
+    "Anderson (SC) / mens-soccer / 217633->150066",
+    "Westminster (UT) / mens-soccer / 230807->179946",
+    "Indiana University Northwest / mens-soccer / 151360->151388",
+    "Judson University / mens-soccer / 146339->220473",
+    "Maine / womens-soccer / 161253->161457",
+    "Anderson (SC) / womens-soccer / 217633->150066",
+    "Columbia College (MO) / womens-soccer / 177065->217934",
+    "University of Saint Francis (IN) / womens-soccer / 152336->148575"
+  ],
+  "part_c": {
+    "question": "Can the current canonical ids distinguish these entities without corrupting federal UNITID semantics?",
+    "answer": "PARTLY. colleges.id (UNIQUE name+sport) already distinguishes programme ROWS, but the reconciler, athletics_domains, institution_aliases and every coverage/division measure key on UNITID, so entities sharing or lacking a UNITID collapse.",
+    "concrete_failures": {
+      "F1_silent_campus_rename": "33 coaches canonicalised onto a different campus row (14 eligible), e.g. Lock Haven -> Bloomsburg, PennWest California -> Clarion, NAIA Shawnee State -> NCAA D2 row",
+      "F2_branch_into_parent": "15 branch coaches resolved into the parent programme, 5 across divisions (Benedictine Mesa NAIA -> Benedictine NCAA D3; Penn State Brandywine D3 -> Penn State D1)",
+      "F3_coverage_key_collapse": "42 active programmes share 19 (unitid,sport) coverage keys",
+      "F4_ambiguous_eligible": "32 eligible coaches sit on an ambiguous key",
+      "F5_null_unitid": "11 active null-UNITID programmes: reachable only via coach_seasons identity (2 Simon Fraser coaches), never via domain or strict corroboration",
+      "F6_measurement_contamination": "the frozen NCAA gate hash (6d2df77f) divisions coaches by (unitid,sport) last-row-wins: IU Indy and SCAD keys read as NAIA, two NAIA-filed Shawnee coaches and the two Simon Fraser (NCAA D2) coaches are mis-divisioned. Truthful programme-row division hash added alongside.",
+      "F7_outreach_misroute": "runtime reconciled outreach keys on canonical_school, which the duplicate-UNITID name map rewrites across campuses/divisions (5 NAIA coaches routed to NCAA D2 / NJCAA rows)"
+    },
+    "representable_by_current_model_with_data_repair": [
+      "Calumet duplicate row",
+      "SF-IL wrong UNITID",
+      "Spartanburg stale NJCAA row",
+      "same-programme duplicates (CMS, Pomona-Pitzer, MC/MCU, Cal Lutheran, UCSC, FDU-Florham)",
+      "75 cosmetic name-drift unitids"
+    ],
+    "requires_additive_model": [
+      "IU Columbus M/W (shares 151111 with NCAA D1 IU Indy)",
+      "Park Gilbert M/W, Benedictine Mesa M/W (no own UNITID; parent has its own athletics)",
+      "Stanton W, Christendom W (non-Title-IV)",
+      "Simon Fraser M/W (foreign)",
+      "Commonwealth x3, PennWest x3, Vermont State x3, St. Joseph’s NY x2 (campuses sharing one UNITID)"
+    ],
+    "decision": "Additive model REQUIRED and implemented: athletics_entities table + colleges.athletics_entity_id + athletics_domains.athletics_entity_id; colleges.unitid, colleges.id and all college_id references preserved."
+  }
+}

@@ -581,6 +581,13 @@ export const operatorEvidence = {
  * registry and the pipeline's own state, and a review is the one thing here a
  * person authors.
  */
+/** Unverified prior-programme claims (factual:false). Verified ones are roster_players.prior_programme. */
+export const playerHistory = {
+  possibleTransfers(season, sport) {
+    return request(`/api/player-history/possible-transfers?season=${encodeURIComponent(season)}&sport=${encodeURIComponent(sport)}`);
+  },
+};
+
 export const rosterGaps = {
   queue(season) {
     const qs = season ? `?season=${encodeURIComponent(season)}` : '';

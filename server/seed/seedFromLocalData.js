@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import { College } from '../db/entities/college.js';
 import { GraduatingSenior } from '../db/entities/graduatingSenior.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
+import db from '../db/client.js';
 import { loadCollegeRankings, loadAcademicScores, loadD1Schools, graduatingCsvPath, GRADUATING_CSV_FILES } from '../lib/seedData.js';
 import { matchSchoolName, rankToRating } from '../lib/schoolMatch.js';
 import { groupCsvRowsIntoRecords } from '../lib/graduatingImport.js';
@@ -90,6 +92,7 @@ async function seedGraduatingRosters() {
 }
 
 async function main() {
+  assertLegacyWriteAllowed(db, { script: 'seedFromLocalData.js (npm run seed)' });
   seedColleges();
   await seedGraduatingRosters();
   console.log('Seed complete.');

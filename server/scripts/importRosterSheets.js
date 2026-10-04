@@ -7,6 +7,7 @@ import { readClassYear } from '../../shared/classYear.js';
 import { isPlausibleName, cleanRosterName } from '../lib/rosterName.js';
 import { registrySchoolName } from '../lib/rosterSchoolAliases.js';
 import db from '../db/client.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { RosterPlayer } from '../db/entities/rosterPlayer.js';
 
 /**
@@ -641,6 +642,7 @@ export function main(argv = process.argv) {
   if (!wantsScope) {
     if (dryRun) throw new Error('--dry-run is only available for scoped imports. '
       + 'Name a --scope file or --key entries.');
+    assertLegacyWriteAllowed(db, { script: 'importRosterSheets.js (broad: replaces a whole division-season)', argv });
     return runBroad({ season, dir });
   }
   if (scopeAt > -1 && argv.includes('--key')) {
@@ -654,6 +656,7 @@ export function main(argv = process.argv) {
     throw new Error('--key needs a School||sport||season value.');
   }
   const parsed = scopeAt > -1 ? loadScopeFile(scopeFile) : parseScope(keys);
+  if (!dryRun) assertLegacyWriteAllowed(db, { script: 'importRosterSheets.js (scoped)', argv });
   const r = importScoped({ season, dir, scope: parsed.scope, dryRun,
     allowMissing: argv.includes('--allow-missing') });
 

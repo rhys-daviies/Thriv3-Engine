@@ -73,7 +73,13 @@
     "v2:compare": "node server/scripts/v2Compare.js",
     "verify:baseline": "node server/scripts/verifyBaselineInvariants.js",
     "scan:committed-pii": "node server/scripts/committedPiiScan.js",
-    "validate:institution-integrity": "node server/scripts/validateInstitutionIntegrity.js"
+    "validate:institution-integrity": "node server/scripts/validateInstitutionIntegrity.js",
+    "integrity:refresh": "node server/scripts/integrityRefresh.js",
+    "integrity:promote": "node server/scripts/integrityPromote.js",
+    "integrity:monitor": "node server/scripts/integrityMonitor.js",
+    "integrity:freeze": "node server/scripts/integrityFreezeSeason.js",
+    "integrity:identity": "node server/scripts/validateAthleticsEntityIdentity.js",
+    "integrity:gather": "node server/scripts/integrityGather.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",

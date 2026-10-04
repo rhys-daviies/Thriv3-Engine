@@ -1,0 +1,1364 @@
+{
+  "phase": "7B.3 batch E — authoritative revalidation evidence (redacted)",
+  "built_at": "2026-09-28T03:14:17.295Z",
+  "redaction": "names -> [withheld]; existing-coach emails -> coach-<id>@redacted.invalid; insert emails -> [withheld]@domain; URLs/domains kept (institutional).",
+  "programmes_processed": 40,
+  "op_totals": {
+    "ADD_EVIDENCE": 84,
+    "CORRECT_EMAIL": 1,
+    "MARK_STALE": 11,
+    "INSERT_CURRENT": 10,
+    "HOLD": 35
+  },
+  "blocked_programmes": 2,
+  "needs_domain_repair": 0,
+  "programmes": [
+    {
+      "unitid": 120537,
+      "sport": "womens-soccer",
+      "institution": "Hope International University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://hiuroyals.com/sports/womens-soccer/coaches",
+          "reason": "Stored head coach still listed on official staff page with same published email",
+          "coach": "coach-5a1e8d4e-b775-4ae3-9691-25d4b931d53a@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://hiuroyals.com/sports/womens-soccer/coaches",
+          "reason": "Stored assistant still listed on official staff page with same published email",
+          "coach": "coach-a4841c04-cd17-46db-bcf9-6d063825eae6@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://hiuroyals.com/sports/womens-soccer/coaches",
+          "reason": "Stored assistant still listed on official staff page with same published email",
+          "coach": "coach-32460e15-d7b0-4fff-a5e0-8d23c359fd82@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://hiuroyals.com/sports/womens-soccer/coaches",
+          "reason": "CURRENT_EMAIL_UNPUBLISHED: still listed as Graduate Assistant Coach on official page but no email is published; stored email was pattern-inferred, not eligible",
+          "coach": "coach-6b2b6514-9f26-4dab-82c8-03f46e623b96@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 225575,
+      "sport": "mens-soccer",
+      "institution": "Huston-Tillotson University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://htramsathletics.com/sports/mens-soccer/coaches",
+          "reason": "Stored head coach still listed on official 2026 staff page with same published email",
+          "coach": "coach-3cf02cf0-9531-438a-920c-0d401753c2a5@redacted.invalid"
+        },
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Associate Head Coach",
+          "source": "https://htramsathletics.com/sports/mens-soccer/coaches",
+          "reason": "Current coach missing from stored rows; personal email published on official staff page",
+          "coach": "[withheld]@htu.edu"
+        },
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Assistant Coach",
+          "source": "https://htramsathletics.com/sports/mens-soccer/coaches",
+          "reason": "Current coach missing from stored rows; personal email published on official staff page",
+          "coach": "[withheld]@htu.edu"
+        }
+      ]
+    },
+    {
+      "unitid": 219949,
+      "sport": "womens-soccer",
+      "institution": "Cumberland University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://gocumberlandathletics.com/sports/womens-soccer/coaches",
+          "reason": "Stored head coach still listed on official staff page with same published email",
+          "coach": "coach-5af515c0-0dcf-4428-92cd-de6ab11e1895@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Graduate Assistant",
+          "source": "https://gocumberlandathletics.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach still listed on official staff page with same published email",
+          "coach": "coach-4f816d82-210d-437d-8627-1abe56d3c318@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Volunteer Assistant Coach",
+          "source": "https://gocumberlandathletics.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach still listed on official staff page with same published email",
+          "coach": "coach-e3ef3136-487d-4299-83f0-acca13577c80@redacted.invalid"
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "source": "https://gocumberlandathletics.com/sports/womens-soccer/coaches",
+          "reason": "departed: no longer listed on current official women's soccer staff page",
+          "coach": "coach-33e0cb6a-fde4-4e01-b13a-b14b203e8468@redacted.invalid"
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "source": "https://gocumberlandathletics.com/sports/womens-soccer/coaches",
+          "reason": "departed: no longer listed on current official women's soccer staff page",
+          "coach": "coach-ed8a7e5f-10cf-48a9-9dc6-1980ed14ad8d@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://gocumberlandathletics.com/sports/womens-soccer/coaches",
+          "reason": "Current Assistant Coach on official page but no published email; cannot INSERT without an observed personal email",
+          "coach": "[withheld]"
+        }
+      ]
+    },
+    {
+      "unitid": 170037,
+      "sport": "mens-soccer",
+      "institution": "Cornerstone University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://cugoldeneagles.com/sports/mens-soccer/coaches",
+          "reason": "Stored head coach still listed on official 2026 staff page with same published email",
+          "coach": "coach-6d2f3a3a-7e32-4626-936c-7c552d1a55fc@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://cugoldeneagles.com/sports/mens-soccer/coaches",
+          "reason": "Stored assistant still listed on official 2026 staff page with same published email",
+          "coach": "coach-01bd894b-e7b8-40b9-b2cf-87f8847a3ff6@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://cugoldeneagles.com/sports/mens-soccer/coaches",
+          "reason": "Student Assistant on official page but no published email; not eligible for INSERT",
+          "coach": "[withheld]"
+        }
+      ]
+    },
+    {
+      "unitid": 461795,
+      "sport": "mens-soccer",
+      "institution": "North American University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Soccer Coach",
+          "source": "https://stallions.na.edu/sports/mens-soccer/coaches",
+          "reason": "Stored head coach still listed on official staff page with same published email",
+          "coach": "coach-4b0aa77f-e062-4969-9e17-1d2020464c77@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://stallions.na.edu/sports/mens-soccer/coaches",
+          "reason": "Stored assistant still listed on official staff page with same published email",
+          "coach": "coach-9e1cff8b-d5b5-4b79-b252-58a79b2d5e6f@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://stallions.na.edu/sports/mens-soccer/coaches",
+          "reason": "Stored assistant still listed on official staff page; personal email published there matches stored value",
+          "coach": "coach-101c051d-b251-4a23-9ea2-c6375c17ce40@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://stallions.na.edu/sports/mens-soccer/coaches",
+          "reason": "Stored assistant still listed on official staff page; personal email published there matches stored value",
+          "coach": "coach-f82de98c-a1d0-4b49-a1d7-ea39bbdc1f36@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 176628,
+      "sport": "womens-soccer",
+      "institution": "Avila University",
+      "access_class": "OFFICIAL_DIRECTORY_FALLBACK",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach-W Soccer",
+          "source": "https://www.avila.edu/directory/laforge-kelly-kathleen-katie/",
+          "reason": "Stored coach current; same email published literally on the official Avila University institution directory (athletics staff page CloudFront-blocked, so directory used as authority fallback).",
+          "coach": "coach-b2e8bfb5-df4d-4fc0-8c2d-223c4837b249@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Appears to be a current assistant (first year 2025-26 per index snippets) but no official page bearing her email could be fetched: athletics staff page is CloudFront-blocked and she has no avila.edu institution-directory entry. Stored email was Wayback/inferred-sourced; no live official email observation.",
+          "coach": "coach-7ca6f6d5-1646-4207-9b00-d81575732f76@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 229160,
+      "sport": "mens-soccer",
+      "institution": "Texas Wesleyan University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Men's Soccer Coach",
+          "source": "https://ramsports.net/sports/mens-soccer/coaches",
+          "reason": "Stored coach current in same role; same email published literally on the live official athletics staff page.",
+          "coach": "coach-8d5273c4-9fab-455e-9cfb-f245b3475542@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current Assistant Coach on the live official staff page but no personal email is published; INSERT_CURRENT withheld pending an observed published email.",
+          "coach": "[withheld]"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current Graduate Assistant / Reserve Team Head Coach on the live official staff page but no personal email is published; INSERT_CURRENT withheld pending an observed published email.",
+          "coach": "[withheld]"
+        }
+      ]
+    },
+    {
+      "unitid": 236133,
+      "sport": "mens-soccer",
+      "institution": "Northwest University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://nueagles.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach current in same role; same email published literally on the live official athletics staff page.",
+          "coach": "coach-00da155a-7040-4d6d-a918-caaf216cfceb@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://nueagles.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach current in same role; same email published literally on the live official athletics staff page.",
+          "coach": "coach-bafa2c71-cae1-4b86-867d-2af795df0d00@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://nueagles.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach current in same role; same email published literally on the live official athletics staff page.",
+          "coach": "coach-f7b2d2a1-e597-4fda-be95-b9528315a688@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current Assistant Coach on the live official staff page but no email is published there; stored email was pattern-inferred and cannot be confirmed against an official published source.",
+          "coach": "coach-c91f93f1-bf36-4f95-a296-dc8592409e87@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current Assistant Coach on the live official staff page but no email is published there; stored email was pattern-inferred and cannot be confirmed against an official published source.",
+          "coach": "coach-4dac282c-eb43-45a4-8353-d6598e949e29@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 160904,
+      "sport": "womens-soccer",
+      "institution": "Xavier University of Louisiana",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Women's Soccer Head Coach",
+          "source": "https://xulagold.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach current in same role; same email published literally on the live official athletics staff page.",
+          "coach": "coach-8e3ce12d-c532-4c23-9501-55e1eefbe824@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Women's Soccer Assistant Coach",
+          "source": "https://xulagold.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach current in same role; same email published literally on the live official athletics staff page.",
+          "coach": "coach-7286466f-e7c6-41d7-bdf5-2fe0338eaeeb@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Women's Soccer Graduate Assistant",
+          "source": "https://xulagold.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach current in same role; same email published literally on the live official athletics staff page.",
+          "coach": "coach-312bcc64-468f-4329-9dbd-437f966b3372@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current Graduate Assistant on the live official staff page but no email is published there; stored email was pattern-inferred and cannot be confirmed against an official published source.",
+          "coach": "coach-ef827ed1-99e1-4216-989e-90dc57197767@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current Volunteer Assistant on the live official staff page but no email is published there; stored email was pattern-inferred and cannot be confirmed against an official published source.",
+          "coach": "coach-b1231825-84a7-46fd-8ae7-9237486d2bc1@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 139205,
+      "sport": "womens-soccer",
+      "institution": "Brewton-Parker College",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Director of Soccer / Head Men's and Women's Soccer Coach",
+          "source": "https://bpcuathletics.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach current; confirmed as head coach of the women's programme with the same email published literally on the live official women's soccer staff page.",
+          "coach": "coach-f268fb00-c32f-4d23-92b1-78e4903daab0@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://bpcuathletics.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach current in same role; same email published literally on the live official women's soccer staff page.",
+          "coach": "coach-9e1ae91d-f13d-418e-b8bc-e3bbb751dcfb@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://bpcuathletics.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach current in same role; same email published literally on the live official women's soccer staff page.",
+          "coach": "coach-d06094bf-0820-409f-8c0f-bd0bc3e9e3e7@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Listed as a current Assistant Coach (support staff) on the live official women's soccer staff page but no email is published there; stored email was pattern-inferred and cannot be confirmed against an official published source.",
+          "coach": "coach-e7f7cbcf-a82c-4a21-b6d4-683083c156dd@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 207351,
+      "sport": "mens-soccer",
+      "institution": "Oklahoma Panhandle State University",
+      "access_class": "BLOCKED",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://opsuaggies.com/news/2025/2/10/opsu-athletics-names-gabriel-gonzalez-as-head-mens-soccer-coach.aspx",
+          "reason": "Confirmed current OPSU Head Men's Soccer Coach (hired Feb 2025 per official athletics news release and staff-directory listing /staff-directory/gabriel-gonzalez/318), so identity/currentness is CURRENT_SAME_ROLE. However opsuaggies.com AND institution opsu.edu both return CloudFront 403 to WebFetch, the browser, and no Wayback capture exists, so the stored email [withheld]@opsu.edu was NOT observed on any official page actually retrieved. Email BLOCKED -> HOLD.",
+          "coach": "coach-f52616f4-0cd2-4611-85cc-ed5356bfb36b@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://opsuaggies.com/sports/mens-soccer/roster/2025",
+          "reason": "Appears in official OPSU athletics content as a current men's soccer ROSTER PLAYER (senior goalkeeper, Godollo Hungary), not confirmable as coaching staff. Possible 2025-player -> 2026-GA transition cannot be verified because opsuaggies.com is CloudFront-blocked (403) to fetch/browser and no Wayback capture exists. No published personal email observed on any retrieved official page. HOLD (blocked + ambiguous identity).",
+          "coach": "coach-9b2480ee-f304-4bca-8d24-4bf537153638@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://opsuaggies.com/sports/mens-soccer/roster/ayoup-bader/5825",
+          "reason": "Appears in official OPSU athletics content as a current men's soccer ROSTER PLAYER (senior forward, started all 17 games in 2025, 2025 Second-Team All-SAC), not confirmable as coaching staff. Coaching role cannot be confirmed or ruled out because opsuaggies.com is CloudFront-blocked (403) to fetch/browser and no Wayback capture exists. No published personal email observed on any retrieved official page. HOLD (blocked + ambiguous identity).",
+          "coach": "coach-966e48f6-6783-4fa8-b725-c546ef133296@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 408844,
+      "sport": "womens-soccer",
+      "institution": "Florida National University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Women's Soccer Head Coach",
+          "source": "https://fnusports.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach still listed as Women's Soccer Head Coach on the live official FNU staff page; stored email [withheld]@fnu.edu published verbatim on the fetched page. CURRENT_SAME_ROLE.",
+          "coach": "coach-578c76ab-1b2e-4ab9-b4ef-beadbbbdec60@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Women's Soccer Assistant Coach",
+          "source": "https://fnusports.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach still listed as Women's Soccer Assistant Coach on the live official FNU staff page; stored email [withheld]@fnu.edu published verbatim on the fetched page. CURRENT_SAME_ROLE.",
+          "coach": "coach-cb163dd5-d3c0-4584-a683-a8882b2a8088@redacted.invalid"
+        },
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Women's Soccer Volunteer Assistant",
+          "source": "https://fnusports.com/sports/womens-soccer/coaches",
+          "reason": "Current Women's Soccer Volunteer Assistant listed on the live official FNU staff page with published personal email [withheld]@fnu.edu; not present among stored rows. (Head Athletic Trainer Del Dolese also on page but is support staff, not soccer coaching staff, so excluded.)",
+          "coach": "[withheld]@fnu.edu"
+        }
+      ]
+    },
+    {
+      "unitid": 199032,
+      "sport": "womens-soccer",
+      "institution": "Montreat College",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://montreatcavaliers.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach still listed as Women's Soccer Head Coach on the live official Montreat staff page; stored email [withheld]@montreat.edu published verbatim on the fetched page. CURRENT_SAME_ROLE.",
+          "coach": "coach-47bee858-aa27-4213-bf9c-795ad9fcfa56@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach & Recruiting Coordinator",
+          "source": "https://montreatcavaliers.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach (Beth/Bethany Morgan) still listed as Assistant Coach & Recruiting Coordinator on the live official Montreat staff page; stored email [withheld]@montreat.edu published verbatim on the fetched page. CURRENT_SAME_ROLE. (Glen Eggert, Volunteer Assistant Coach, is also on the page but shows no email -> not eligible for insert.)",
+          "coach": "coach-9bf57e72-fb4d-49a5-b8e0-4ea6f3959f7b@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 170967,
+      "sport": "womens-soccer",
+      "institution": "Rochester Christian University",
+      "access_class": "OFFICIAL_DIRECTORY_FALLBACK",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach - Women's Soccer",
+          "source": "https://rcu.edu/people/skipper-mukhtar/",
+          "reason": "Athletics CDN rcuwarriors.com is CloudFront-blocked (403); official Rochester Christian University institution directory page rcu.edu/people/skipper-mukhtar/ was retrieved and lists him as current Women's Soccer staff with the stored email [withheld]@rcu.edu published verbatim. CURRENT_SAME_ROLE. Note: fetched institution page states role 'Assistant Coach - Women's Soccer' while athletics search index lists him as head coach (3rd season); role recorded per the fetched official page.",
+          "coach": "coach-e9359193-0d14-4c9f-8596-0fa10991d85e@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Stored email [withheld]@rcu.edu was inferred (pattern_inference:low). No institution people page exists (rcu.edu/people/adam-hill/ returns 404) and he is not on the readable rcu.edu directory; athletics domain rcuwarriors.com is CloudFront-blocked. No eligible published email observed on any retrieved official page. HOLD.",
+          "coach": "coach-a371b6b7-f842-4094-812f-36d6c4feb0e6@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Stored email [withheld]@rcu.edu was inferred (pattern_inference:low). No institution people page exists (rcu.edu/people/troy-caruso/ returns 404) and he is not on the readable rcu.edu directory; athletics domain rcuwarriors.com is CloudFront-blocked. No eligible published email observed on any retrieved official page. HOLD.",
+          "coach": "coach-ba3f7b66-f6aa-43bd-8031-d02946f3d3b1@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 229780,
+      "sport": "womens-soccer",
+      "institution": "Wayland Baptist University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://wbuathletics.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach still listed as Women's Soccer Head Coach on the live official WBU staff page; stored email [withheld]@wbu.edu published verbatim on the fetched page. CURRENT_SAME_ROLE.",
+          "coach": "coach-f9dba835-ed74-46b0-b5c9-93d488c2b4a6@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://wbuathletics.com/sports/womens-soccer/coaches",
+          "reason": "Stored coach still listed as Women's Soccer Assistant Coach on the live official WBU staff page; stored email [withheld]@wbu.edu published verbatim on the fetched page. CURRENT_SAME_ROLE. (Graduate Assistants Carolina Dos Santos and Gaia Chies are also listed but show no email -> not eligible for insert.)",
+          "coach": "coach-9f0aa7c6-bf62-4dec-8c96-bf53b23c8b4b@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 207458,
+      "sport": "womens-soccer",
+      "institution": "Oklahoma City University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://ocusports.com/sports/womens-soccer/coaches",
+          "reason": "Head coach on current 2026 women's soccer staff page; stored email published verbatim on official page.",
+          "coach": "coach-8e234704-0265-49d2-be07-de4ee1a94ab0@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://ocusports.com/sports/womens-soccer/coaches",
+          "reason": "Assistant coach on current 2026 staff page; stored email published verbatim on official page.",
+          "coach": "coach-910f2273-4de1-4117-a24a-c5d4ab01e27d@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 162210,
+      "sport": "mens-soccer",
+      "institution": "Washington Adventist University",
+      "access_class": "BROWSER_FALLBACK_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://wauathletics.com/sports/msoc/coaches/index",
+          "reason": "Head coach on current men's soccer staff page (read via browser after WebFetch 403); stored email published verbatim.",
+          "coach": "coach-8f137ef1-bdb3-44c6-aa23-1de323483773@redacted.invalid"
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "source": "https://wauathletics.com/sports/msoc/coaches/index",
+          "reason": "departed — no longer listed on current official men's soccer staff page (email was pattern-inferred, never officially published); current assistant is Luis Raul Zuniga.",
+          "coach": "coach-17a800dd-9433-4971-af5f-d2d2ae54e4aa@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://wauathletics.com/sports/msoc/coaches/index",
+          "reason": "generic team inbox ([withheld]@gmail.com) — not a personal published email and not present on current official staff page; ineligible.",
+          "coach": "coach-33bb7df3-4611-4d97-8916-a94dec50056b@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 236896,
+      "sport": "mens-soccer",
+      "institution": "Walla Walla University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://uwolves.com/sports/mens-soccer/coaches",
+          "reason": "Head coach on current men's soccer staff page; stored email published verbatim. Current assistant/GK coach Aldo Feria listed with no published email (no INSERT).",
+          "coach": "coach-f4e6bce7-0a3c-4f69-bd80-afb7b520fd58@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 170806,
+      "sport": "womens-soccer",
+      "institution": "Madonna University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://mucrusaders.com/sports/womens-soccer/coaches",
+          "reason": "Head coach on current 2026 women's soccer staff page; stored email published verbatim.",
+          "coach": "coach-147ac3ae-a285-4779-bb87-2f683db433cc@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://mucrusaders.com/sports/womens-soccer/coaches",
+          "reason": "Assistant coach on current staff page; stored email (my.madonna.edu subdomain) published verbatim. GA Nathalie Merts listed with no published email (no INSERT).",
+          "coach": "coach-98822323-2aab-47ba-8739-4a0b4a1fe261@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 154721,
+      "sport": "womens-soccer",
+      "institution": "Bethany College (Kansas)",
+      "access_class": "BROWSER_FALLBACK_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Director of Soccer",
+          "source": "https://www.bethanyswedes.com/sports/wsoc/coaches/index",
+          "reason": "Now listed on the current LIVE women's soccer staff page (Director of Soccer) with stored email published verbatim on athletics site bethanyswedes.com (email on bethanylb.edu domain); confirms prior msoc-archive source. Read via browser after WebFetch 403.",
+          "coach": "coach-ec8df6f8-f7a8-4a69-a58e-f75215e23cc9@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Women's Soccer Coach",
+          "source": "https://www.bethanyswedes.com/sports/wsoc/coaches/index",
+          "reason": "Assistant women's soccer coach on current staff page; stored email published verbatim on bethanyswedes.com (email on bethanylb.edu). Read via browser after WebFetch 403.",
+          "coach": "coach-2cafd0b4-43ef-415b-82e9-524b518f27b5@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 178369,
+      "sport": "womens-soccer",
+      "institution": "Missouri Valley College (now Missouri Valley University)",
+      "access_class": "OFFICIAL_DIRECTORY_FALLBACK",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Women's Soccer Coach",
+          "source": "https://www.moval.edu/faculty-staff/drew-hawkins/",
+          "reason": "Athletics site valleywillroll.com is CloudFront-blocked (403 via fetch and browser); official institution directory moval.edu confirms current Head Women's Soccer Coach with the same stored email literally published.",
+          "coach": "coach-9c899825-8bbd-4ab3-9fd7-f3f9762a5dd3@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Women's Soccer Coach",
+          "source": "https://www.moval.edu/faculty-staff/leticia-henrique-seabra/",
+          "reason": "Official institution directory moval.edu confirms current Assistant Women's Soccer Coach with the same stored email literally published.",
+          "coach": "coach-e9c80c73-28ba-4ef1-8811-2ceed2b4dfbc@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 139463,
+      "sport": "mens-soccer",
+      "institution": "Dalton State College",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://dsroadrunners.com/sports/mens-soccer/coaches",
+          "reason": "Listed as Head Coach on the current 2026-2027 official staff page with the same stored email literally published.",
+          "coach": "coach-7245ef5d-0f45-48a0-a1a5-037b12790096@redacted.invalid"
+        },
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Assistant Coach",
+          "source": "https://dsroadrunners.com/sports/mens-soccer/coaches",
+          "reason": "Current Assistant Coach on the official 2026-2027 staff page with a published personal email; missing from stored rows.",
+          "coach": "[withheld]@daltonstate.edu"
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "source": "https://dsroadrunners.com/sports/mens-soccer/coaches",
+          "reason": "departed - not present on the current 2026-2027 official staff page (stored row was pattern-inferred, never officially verified)",
+          "coach": "coach-88915d78-762a-40c6-bf9f-c19c115e7304@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 177542,
+      "sport": "womens-soccer",
+      "institution": "Hannibal-LaGrange University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://hlgtrojans.com/sports/womens-soccer/coaches",
+          "reason": "Listed as Head Coach on the current official women's soccer staff page with the same stored email literally published.",
+          "coach": "coach-cabb3e3a-f736-45c5-9546-a66687ad83d0@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Soccer Coach",
+          "source": "https://hlgtrojans.com/sports/womens-soccer/coaches",
+          "reason": "Listed as Assistant Soccer Coach on the current official women's soccer staff page with the same stored email literally published.",
+          "coach": "coach-9cc2da7b-0adb-447f-9f42-d65722231fa0@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://hlgtrojans.com/sports/womens-soccer/coaches",
+          "reason": "Current Assistant Soccer Coach on the official page, but no email is published there; stored email was pattern-inferred, so no eligible published email to confirm (CURRENT_EMAIL_UNPUBLISHED).",
+          "coach": "coach-63134a61-8321-4586-a165-8878957918ae@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 206835,
+      "sport": "mens-soccer",
+      "institution": "Oklahoma Wesleyan University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Athletic Director / Head Soccer Coach",
+          "source": "https://okwueagles.com/sports/mens-soccer/coaches",
+          "reason": "Listed as Head Soccer Coach on the current official staff page with the same stored email literally published.",
+          "coach": "coach-6da639a5-c899-4969-a57d-c93871829600@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://okwueagles.com/sports/mens-soccer/coaches",
+          "reason": "Listed as Assistant Coach on the current official staff page with the same stored email literally published.",
+          "coach": "coach-4e1f8b65-cca7-4b4d-ace3-7adbf76af8e2@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://okwueagles.com/sports/mens-soccer/coaches",
+          "reason": "Listed as Assistant Coach on the current official staff page with the same stored email literally published.",
+          "coach": "coach-b927efde-a735-40bb-9868-9b9bf27284c2@redacted.invalid"
+        },
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Graduate Assistant",
+          "source": "https://okwueagles.com/sports/mens-soccer/coaches",
+          "reason": "Current Graduate Assistant on the official staff page with a published personal email; missing from stored rows.",
+          "coach": "[withheld]@okwu.edu"
+        },
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Graduate Assistant",
+          "source": "https://okwueagles.com/sports/mens-soccer/coaches",
+          "reason": "Current Graduate Assistant on the official staff page with a published personal email; missing from stored rows.",
+          "coach": "[withheld]@okwu.edu"
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "source": "https://okwueagles.com/sports/mens-soccer/coaches",
+          "reason": "departed - Graduate Assistant no longer present on the current official staff page",
+          "coach": "coach-106daaba-3d52-4c35-8b63-671e5dea1d79@redacted.invalid"
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "source": "https://okwueagles.com/sports/mens-soccer/coaches",
+          "reason": "departed - Graduate Assistant no longer present on the current official staff page",
+          "coach": "coach-a3e1ad1e-b255-4cfb-b637-3b7a6f3e3027@redacted.invalid"
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "source": "https://okwueagles.com/sports/mens-soccer/coaches",
+          "reason": "departed - Graduate Assistant no longer present on the current official staff page",
+          "coach": "coach-af8eed93-fc50-4b10-a484-88a6023cc9f9@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 154518,
+      "sport": "womens-soccer",
+      "institution": "Waldorf University",
+      "access_class": "BLOCKED",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "source": "https://waldorf.edu/about/news/2026/waldorf-university-hires-emmanuel-awotula-as-head-women-s-soccer-coach/",
+          "reason": "departed - replaced as head women's soccer coach; official Waldorf institution news (June 8, 2026) announces Emmanuel Awotula as the new Head Women's Soccer Coach",
+          "coach": "coach-52186a81-e450-40f7-b798-ac3c5c1ff115@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://waldorf.edu/about/news/2026/waldorf-university-hires-emmanuel-awotula-as-head-women-s-soccer-coach/",
+          "reason": "New Head Women's Soccer Coach confirmed by official waldorf.edu news (June 8, 2026), but no email is published on that page and the athletics staff page (waldorfwarriors.com) is CloudFront-blocked (403 via fetch and browser). No eligible published personal email to INSERT.",
+          "coach": "[withheld]"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://www.waldorfwarriors.com/sports/wsoc/coaches/index",
+          "reason": "Cannot confirm current status or email from any official fetched page - athletics staff page waldorfwarriors.com is CloudFront-blocked (403 via fetch and browser); stored email not observed on an official page during this check.",
+          "coach": "coach-cfccab8d-7f17-4b66-932a-8338d35fbb50@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 245953,
+      "sport": "womens-soccer",
+      "institution": "Mid-America Christian University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://macuathletics.com/sports/womens-soccer/coaches",
+          "reason": "Listed as Head Coach on the 2026 Women's Soccer Coaching Staff page; stored email published verbatim on the official page",
+          "coach": "coach-8332fd43-bfdf-4e4c-af5b-f7b1ca2a34bf@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://macuathletics.com/sports/womens-soccer/coaches",
+          "reason": "Current Assistant Coach on the official 2026 staff page; stored email published verbatim",
+          "coach": "coach-a3ae4a1a-2db9-4c46-b762-8eff1d742e36@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach / Goalkeepers",
+          "source": "https://macuathletics.com/sports/womens-soccer/coaches",
+          "reason": "Current Assistant Coach / Goalkeepers on the official 2026 staff page; stored email published verbatim",
+          "coach": "coach-1c11f1cf-8cf1-43c5-ae72-cb0ce7451afb@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current on official staff page as Assistant Coach / Reserve Head Coach, but no email is published for her; stored email was pattern-inferred, so no eligible published personal email to confirm",
+          "coach": "coach-6d4848c9-2e6d-4db7-bbe3-ca7aa5afa37c@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 155511,
+      "sport": "mens-soccer",
+      "institution": "McPherson College",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://macbulldogs.com/sports/mens-soccer/coaches",
+          "reason": "Current Head Coach on the official McPherson men's soccer staff page; stored email published verbatim",
+          "coach": "coach-1d4b902b-8a32-4e78-ba14-65dc692b88bb@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Men's Soccer Coach",
+          "source": "https://macbulldogs.com/sports/mens-soccer/coaches",
+          "reason": "Current Assistant Coach on the official staff page; stored email published verbatim",
+          "coach": "coach-945f82a7-3445-4843-aabd-e8cca1dcd6cd@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://macbulldogs.com/sports/mens-soccer/coaches",
+          "reason": "Current Assistant Coach on the official staff page; stored email published verbatim",
+          "coach": "coach-c0e23bef-fbd7-41cb-b169-c524151f4f79@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current on official staff page as Assistant Coach / Equipment Manager, but no email is published for him; stored email was pattern-inferred, so no eligible published personal email to confirm",
+          "coach": "coach-12393c86-daf8-47b7-aa54-ef1567409815@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 489937,
+      "sport": "mens-soccer",
+      "institution": "Carolina University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Men's Soccer Coach",
+          "source": "https://cubruins.com/sports/mens-soccer/coaches",
+          "reason": "Current Head Men's Soccer Coach on the official staff page; stored email published verbatim",
+          "coach": "coach-310591c9-a289-4520-a996-65754cba6e11@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Associate Head Coach",
+          "source": "https://cubruins.com/sports/mens-soccer/coaches",
+          "reason": "Current Associate Head Coach on the official staff page; stored email published verbatim",
+          "coach": "coach-118476d4-5119-4bf5-adb1-3504df27c263@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current on official staff page as Assistant Men's Soccer Coach, but no email is published for him; stored email was pattern-inferred, so no eligible published personal email to confirm",
+          "coach": "coach-84d6f35d-55b4-41f5-a64e-07900f90c07f@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current on official staff page as Assistant Men's Soccer Coach, but no email is published for him; stored email was pattern-inferred, so no eligible published personal email to confirm",
+          "coach": "coach-45bed516-33ae-4bad-8ffc-0141427a3d51@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current on official staff page as Graduate Assistant Men's Soccer Coach, but no email is published for him; stored email was pattern-inferred, so no eligible published personal email to confirm",
+          "coach": "coach-329e242e-199e-461d-a8ff-9555f031e119@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 138275,
+      "sport": "mens-soccer",
+      "institution": "Warner University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Men's Soccer Coach",
+          "source": "https://warnerroyals.com/sports/mens-soccer/coaches",
+          "reason": "Current Head Men's Soccer Coach on the official 2026 staff page; stored email published verbatim",
+          "coach": "coach-35bd105f-69b9-42ad-afe4-1491d81b5286@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current on official staff page as Assistant Men's Soccer Coach, but no email is published for him; stored email was pattern-inferred, so no eligible published personal email to confirm",
+          "coach": "coach-35570e38-229a-4b11-8054-cbea67e3e970@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current on official staff page as Assistant Men's Soccer Coach, but no email is published for him; stored email was pattern-inferred, so no eligible published personal email to confirm",
+          "coach": "coach-77f0ff62-f5b0-49e7-b225-1ee936cee0c9@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current on official staff page as Assistant Men's Soccer Coach, but no email is published for him; stored email was pattern-inferred, so no eligible published personal email to confirm",
+          "coach": "coach-8899d63c-5995-470b-a593-f3c5f75b8575@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 203757,
+      "sport": "womens-soccer",
+      "institution": "Lourdes University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://lourdesathletics.com/sports/womens-soccer/coaches",
+          "reason": "Current Head Coach on the official Lourdes women's soccer staff page; stored email published verbatim",
+          "coach": "coach-11e393e4-a965-437d-96b5-a01dc624b424@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://lourdesathletics.com/sports/womens-soccer/coaches",
+          "reason": "Current Assistant Coach on the official staff page; stored email published verbatim",
+          "coach": "coach-6d3768db-04b8-4e20-a1e8-f445ecc659fd@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 177065,
+      "sport": "mens-soccer",
+      "institution": "Columbia College (Missouri)",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Men's Soccer Coach",
+          "source": "https://columbiacougars.com/sports/mens-soccer/coaches",
+          "reason": "Stored head coach still listed on official ccis athletics staff page with the same published email",
+          "coach": "coach-57545771-67b1-4907-8fea-2dfa151a9ad4@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://columbiacougars.com/sports/mens-soccer/coaches",
+          "reason": "Stored assistant still listed with the same published email",
+          "coach": "coach-186c13cb-6274-4673-9314-43b5b2087407@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://columbiacougars.com/sports/mens-soccer/coaches",
+          "reason": "Stored assistant still listed with the same published email",
+          "coach": "coach-152e5f20-445f-40c8-9108-0e852124fcb1@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 150145,
+      "sport": "mens-soccer",
+      "institution": "Bethel University (Indiana)",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://bupilots.com/sports/mens-soccer/coaches",
+          "reason": "Stored head coach still listed on official staff page with the same published email (page renders as [withheld]@BethelUniversity.edu)",
+          "coach": "coach-487e4895-8fd6-4659-9223-b56cfa587e05@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Associate Head Coach",
+          "source": "https://bupilots.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach still listed with the same published email",
+          "coach": "coach-e88a36c7-ca39-4de2-bdb0-2996a4624fee@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Goalkeeper Coach",
+          "source": "https://bupilots.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach still listed with the same published email",
+          "coach": "coach-821bcdc1-f179-4d60-bf34-f0fd27b473f6@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Graduate Assistant",
+          "source": "https://bupilots.com/sports/mens-soccer/coaches",
+          "reason": "Stored GA still listed with the same published email",
+          "coach": "coach-bd49845f-62cf-4115-8e36-3da2af3efa47@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Graduate Assistant",
+          "source": "https://bupilots.com/sports/mens-soccer/coaches",
+          "reason": "Stored GA still listed with the same published email",
+          "coach": "coach-12ef0126-e39f-45a3-b9e9-dbb91473fc9b@redacted.invalid"
+        },
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Strength & Conditioning Coach",
+          "source": "https://bupilots.com/sports/mens-soccer/coaches",
+          "reason": "Current men's soccer staff member with published personal email, not in stored rows",
+          "coach": "[withheld]@betheluniversity.edu"
+        },
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Mental Performance Coach",
+          "source": "https://bupilots.com/sports/mens-soccer/coaches",
+          "reason": "Current men's soccer staff member with published personal email, not in stored rows",
+          "coach": "[withheld]@betheluniversity.edu"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://bupilots.com/sports/mens-soccer/coaches",
+          "reason": "Current Assistant Coach on the official staff page but no email published; no eligible published email to add",
+          "coach": "[withheld]"
+        }
+      ]
+    },
+    {
+      "unitid": 147828,
+      "sport": "mens-soccer",
+      "institution": "Olivet Nazarene University (Illinois)",
+      "access_class": "BROWSER_FALLBACK_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://onutigers.com/sports/msoc/coaches/index",
+          "reason": "Stored head coach still listed on official staff page with the same published email (page returns 403 to plain fetch; read via browser)",
+          "coach": "coach-cae1e1e1-5e05-4fe9-852d-40d322356756@redacted.invalid"
+        },
+        {
+          "op": "CORRECT_EMAIL",
+          "role": "Goalkeeping Coach",
+          "source": "https://onutigers.com/sports/msoc/coaches/index",
+          "reason": "same person, published email is [withheld]@olivet.edu (stored value [withheld]@olivet.edu was pattern-inferred and is wrong)",
+          "coach": "coach-e80c900f-92e3-4a70-b4e6-b0cd3e1ae706@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Graduate Assistant",
+          "source": "https://onutigers.com/sports/msoc/coaches/index",
+          "reason": "Stored GA still listed with the same published email",
+          "coach": "coach-ce6188c2-480e-4b09-92e1-769d35144f84@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Graduate Assistant",
+          "source": "https://onutigers.com/sports/msoc/coaches/index",
+          "reason": "Stored GA still listed with the same published email",
+          "coach": "coach-a94446f1-7d74-4606-8a79-15ac9f25e0b1@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://onutigers.com/sports/msoc/coaches/index",
+          "reason": "Stored assistant still listed with the same published email",
+          "coach": "coach-8abaf8c8-9170-4c5f-809b-71ec5a84366b@redacted.invalid"
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "source": "https://onutigers.com/sports/msoc/coaches/index",
+          "reason": "departed - no longer listed on the current official men's soccer staff page",
+          "coach": "coach-823adbbf-1279-4101-ac6b-f3c9f29bf987@redacted.invalid"
+        },
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Assistant Coach",
+          "source": "https://onutigers.com/sports/msoc/coaches/index",
+          "reason": "Current assistant coach with published personal email, not in stored rows",
+          "coach": "[withheld]@olivet.edu"
+        }
+      ]
+    },
+    {
+      "unitid": 157377,
+      "sport": "womens-soccer",
+      "institution": "Midway University (Kentucky)",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://gomidwayeagles.com/sports/womens-soccer/coaches",
+          "reason": "Stored head coach still listed on official staff page with the same published email",
+          "coach": "coach-8bb20640-de29-4493-9b08-76bfde501688@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://gomidwayeagles.com/sports/womens-soccer/coaches",
+          "reason": "Current Assistant Coach on the official staff page but no email published; no eligible published email to add",
+          "coach": "[withheld]"
+        }
+      ]
+    },
+    {
+      "unitid": 149505,
+      "sport": "mens-soccer",
+      "institution": "Trinity Christian College (Illinois)",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Men's Soccer Coach",
+          "source": "https://trollsathletics.com/sports/mens-soccer/coaches",
+          "reason": "Stored head coach still listed on official staff page with the same published email",
+          "coach": "coach-86ce8d41-589a-4c9c-822f-732c17a38de0@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Goalkeepers Coach",
+          "source": "https://trollsathletics.com/sports/mens-soccer/coaches",
+          "reason": "Stored coach still listed with the same published email",
+          "coach": "coach-bfa2c316-5959-405f-8b93-d849ea742427@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://trollsathletics.com/sports/mens-soccer/coaches",
+          "reason": "Stored assistant still listed with the same published email",
+          "coach": "coach-1e2d284a-d2b0-4d74-b721-4b0bba712533@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://trollsathletics.com/sports/mens-soccer/coaches",
+          "reason": "Stored assistant still listed with the same published email",
+          "coach": "coach-39219386-6146-4d11-bfb2-da5648811e1e@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": "https://trollsathletics.com/sports/mens-soccer/coaches",
+          "reason": "Current Assistant Coach on the official staff page but email is not published (stored [withheld]@trnty.edu was pattern-inferred and cannot be confirmed) - CURRENT_EMAIL_UNPUBLISHED",
+          "coach": "coach-6af6f832-8ac9-4ed1-bf8b-cafb2ee97333@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 155973,
+      "sport": "mens-soccer",
+      "institution": "Tabor College",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Director of Soccer (head coach, men's soccer)",
+          "source": "https://taborbluejays.com/news/2026/2/10/womens-soccer-gaskell-elevated-to-director-of-soccer-at-tabor-college.aspx",
+          "reason": "Gaskell now leads men's soccer as Director of Soccer; not in stored rows; personal email published on official Tabor staff page",
+          "coach": "[withheld]@tabor.edu"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Associate Head Men's Soccer Coach",
+          "source": "https://taborbluejays.com/staff-directory",
+          "reason": "Current on staff; stored email matches email published on official coach bio page",
+          "coach": "coach-50a173b5-4309-4c85-b59b-69da9868aa4e@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Graduate Assistant Men's/Women's Soccer Coach",
+          "source": "https://taborbluejays.com/staff-directory",
+          "reason": "Current on staff; stored email matches email published on official coach bio page",
+          "coach": "coach-d8893005-210e-4da3-8ba9-c04c09f43529@redacted.invalid"
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "source": "https://taborbluejays.com/staff-directory",
+          "reason": "departed - no longer on Tabor men's soccer staff; Thomas Gaskell now leads programme",
+          "coach": "coach-8955e83e-650b-4fc2-ac24-e1ac08d05923@redacted.invalid"
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "source": "https://taborbluejays.com/staff-directory",
+          "reason": "departed - no longer listed on Tabor men's soccer staff",
+          "coach": "coach-682c4bc0-2ee8-44e2-b2fb-61e9d170c35b@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "current graduate assistant coach (men's/women's soccer) but no personal email published on any official page retrieved",
+          "coach": "[withheld]"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "current graduate assistant coach (men's/women's soccer) but no personal email published on any official page retrieved",
+          "coach": "[withheld]"
+        }
+      ]
+    },
+    {
+      "unitid": 231554,
+      "sport": "womens-soccer",
+      "institution": "Bluefield University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Women's Soccer Coach",
+          "source": "https://burams.com/sports/womens-soccer/coaches",
+          "reason": "Current head coach on 2026 staff page; stored email matches published email",
+          "coach": "coach-f4b78ca7-6e43-4e0b-8486-bba321e6bfb9@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current assistant coach on official staff page but no email published there; stored email was inferred, not observed on an official page",
+          "coach": "coach-5294d859-7475-42af-9ecf-5859a31bca52@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 220701,
+      "sport": "mens-soccer",
+      "institution": "University of Tennessee Southern",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://utsfirehawks.com/sports/mens-soccer/coaches",
+          "reason": "Current head coach; stored email matches published email",
+          "coach": "coach-142371a8-52df-40c4-bc8f-241f1d1650ca@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://utsfirehawks.com/sports/mens-soccer/coaches",
+          "reason": "Current assistant coach; stored email matches published email",
+          "coach": "coach-6311eedc-c2b8-4677-940f-c3ed67963dce@redacted.invalid"
+        }
+      ]
+    },
+    {
+      "unitid": 210304,
+      "sport": "womens-soccer",
+      "institution": "Warner Pacific University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://wpuknights.com/sports/womens-soccer/coaches",
+          "reason": "Current head coach on 2026 staff page; stored email matches published email",
+          "coach": "coach-a4517723-1625-4729-81ee-fb51026da1dd@redacted.invalid"
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "source": null,
+          "reason": "Current assistant/goalkeepers coach on official staff page but no email published there",
+          "coach": "[withheld]"
+        }
+      ]
+    },
+    {
+      "unitid": 155520,
+      "sport": "mens-soccer",
+      "institution": "MidAmerica Nazarene University",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "source": "https://mnusports.com/sports/mens-soccer/coaches",
+          "reason": "Current head coach; stored email matches published email",
+          "coach": "coach-8b3dfb80-af00-43d4-950e-a4b37939b55d@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Associate Head Coach",
+          "source": "https://mnusports.com/sports/mens-soccer/coaches",
+          "reason": "Current associate head coach; stored email matches published email",
+          "coach": "coach-9fb9a8d6-d954-458a-8358-95c5f480081c@redacted.invalid"
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "source": "https://mnusports.com/sports/mens-soccer/coaches",
+          "reason": "Current assistant coach; stored email matches published email",
+          "coach": "coach-c3dea19a-d20b-4323-9930-f0862859667a@redacted.invalid"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "milestone": "PHASE 7B.2 — STRICT HYBRID CORROBORATION APPLIED",
+  "created_at": "2026-09-28",
+  "db": "server/data/recruitmatch.sqlite (shared dev). NOTE: eligibility is NOT persisted in the DB — reconcileCoaches refuses the shared-dev path and derives coaches_reconciled on temp copies. So 7B.2 is a reconcile-CODE activation, not a DB row mutation. No coach/domain/programme factual records were changed in 7B.2 (the audit-note terminology correction from Part A is the only doc change).",
+  "part_0_checkpoint": { "pushed": "e849ec3", "local_eq_remote": true, "ahead_behind": "0/0" },
+  "part_A_56_email_reconciliation": {
+    "total": 56, "exact_current_valid_association": 50, "current_email_changed": 0, "no_longer_published": 0,
+    "departed_person_association": 4, "wrong_sport_association": 2, "wrong_institution_association": 0, "unverifiable": 0,
+    "ADDRESS_DEFECT": 0, "ASSOCIATION_DEFECT": 6,
+    "terminology_correction": "the 10.7% was an ASSOCIATION-defect rate; stored verified ADDRESSES were 0% wrong."
+  },
+  "gate_definitions": {
+    "preserved": ["COACH_SEASONS_IDENTITY (coach name in coach_seasons at resolved school)", "COACH_SEASONS_SOURCE_DOMAIN (email_source_url registrable domain coach_seasons scraped, VERIFIED/ALIAS to resolvedUnitid)"],
+    "added": "STRICT_AUTHORITATIVE_CURRENT — all of: inst RESOLVED; cls KEEP; resolvedUnitid==curUnitid==programme unitid; programme active; sport-scoped programme exists; currentness_status=CURRENT; currentness_source_url present; source domain VERIFIED/VERIFIED_ALIAS (not held) mapped to same unitid; email_seen_on_source_at present; email_seen_on_source_url present; email_status=verified; real per-person address; NOT PROVEN_STALE. Positive evidence never overrides a contradiction.",
+    "email_confirmed_at": "untouched (deliverability-only)"
+  },
+  "part_C_activation_scope": {
+    "decision": "Implemented generically (division-agnostic capability via STRICT_CORROB_SCOPE), activated conservatively NAIA-only by default.",
+    "env": "STRICT_CORROB_SCOPE (default 'NAIA'; 'OFF' = pre-7B.2 behaviour; 'ALL' = all divisions; comma-list supported)",
+    "rationale": "The evidence concept is not NAIA-specific, but widening to NCAA has a large blast radius and NCAA is already fully coach_seasons-corroborated; NAIA-only keeps NCAA byte-identical while unlocking the population that structurally lacked coach_seasons."
+  },
+  "corroboration_methods_implemented": ["COACH_SEASONS_IDENTITY", "COACH_SEASONS_SOURCE_DOMAIN", "STRICT_AUTHORITATIVE_CURRENT"],
+  "pilot": { "eligible_coaches_before_after": [0, 53], "covered_programmes_before_after": [0, 28], "of": 30, "remaining_blocked": ["Williams Baptist University W (email index-only, held)", "Sterling M (head departed; replacements held, 403 site)"], "strict_path_coaches": 53, "strict_evidence_completeness": "53/53 (100%)" },
+  "measurement": {
+    "global_eligible_before_after": [3360, 3413],
+    "naia_eligible_before_after": [2, 30],
+    "naia_covered_programmes_before_after": [2, 30],
+    "naia_coverage_pct_before_after": ["0.5%", "7.8%"],
+    "naia_scorecard_after": { "COVERED_ELIGIBLE": 30, "COVERED_INELIGIBLE_ONLY": 350, "NO_COACH_DATA": 4, "active": 384 },
+    "ncaa_eligible_before_after": [3357, 3357], "ncaa_added": 0, "ncaa_removed": 0,
+    "other_division_delta": 0,
+    "legacy_naia_without_fresh_evidence_newly_unlocked": 0
+  },
+  "eligibility_method_ledger": {
+    "NAIA": { "STRICT_AUTHORITATIVE_CURRENT": 53, "COACH_SEASONS_SOURCE_DOMAIN": 3 },
+    "NCAA D1": { "COACH_SEASONS_SOURCE_DOMAIN": 1246, "COACH_SEASONS_IDENTITY": 77 },
+    "NCAA D2": { "COACH_SEASONS_SOURCE_DOMAIN": 729, "COACH_SEASONS_IDENTITY": 82 },
+    "NCAA D3": { "COACH_SEASONS_SOURCE_DOMAIN": 1136, "COACH_SEASONS_IDENTITY": 87 },
+    "note": "NCAA is 0 strict-path (100% coach_seasons) — behaviour unchanged."
+  },
+  "integrity": {
+    "source_domain_conflicts": 0, "wrong_institution_eligible": 0, "wrong_sport_eligible": 0, "stale_eligible": 0,
+    "duplicate_identity_rows": 0, "canonical_round_trip": 0, "validator_critical_failures": 0, "integrity_check": "ok"
+  },
+  "privacy": { "committed_evidence_privacy_gate": "pass", "raw_pii_tracked": 0, "redacted_artifacts_list_ok": true, "orphan_prepurge_commit_reintroduced": false },
+  "tests": { "strict_hybrid_integration": 27, "strict_lib": 14, "phase7b1_applier": 13, "redaction_guard": 4, "committed_privacy": 4, "reconcile_currentness_emailSeen": 4, "institution_validator + g1": 5, "total_relevant_pass": 71 },
+  "code_hashes": { "reconcileCoaches.js": "e48360c866534a6f", "strictNaiaCorroboration.js": "0b236cc05d3f78cb", "reconcileCoaches.strictHybrid.test.js": "9981c8c73fa56e0c" },
+  "fingerprints": { "coach_fp": "d724caec73e77fc88591b470f1c0079b1000aa0388c9032e1fff6947e2cf9925 (unchanged from 7B.1 — no factual mutation)", "domain_fp": "498eb15f134f4e58d2a9a73bd281611a (unchanged)" },
+  "readiness_7b3": {
+    "zero_wrong_institution_eligible": true, "zero_wrong_sport_eligible": true, "zero_stale_eligible": true,
+    "zero_ncaa_regression": true, "strict_rows_complete_evidence": "53/53", "privacy_pass": true, "deterministic_explainability": true,
+    "declared_ready": true, "note": "205 remaining TIER-1 NOT processed this phase."
+  }
+}

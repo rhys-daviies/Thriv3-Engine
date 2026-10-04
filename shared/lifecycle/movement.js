@@ -71,15 +71,24 @@ export function identitySignals(source, destination) {
     classProgression: a != null && b != null && b === a + 1,
     graduationYear: source.estimated_graduation_year != null
       && source.estimated_graduation_year === destination.estimated_graduation_year,
-    // Recorded when the destination row names the source outright. Present
-    // only on 2026 rows in this dataset, so it confirms rather than carries.
+    // The destination's VERIFIED prior programme (Phase 8B.1A: prior_programme
+    // holds only VERIFIED_SAME_PERSON links — a structured previous school or
+    // hometown + class progression — never a bare name match). 2026 rows only.
     priorProgramme: Boolean(destination.prior_programme)
       && String(destination.prior_programme).trim().toLowerCase()
         === String(source.college_name).trim().toLowerCase(),
   };
 }
 
-const countSignals = (s) => Object.values(s).filter(Boolean).length;
+/**
+ * How many INDEPENDENT signals agree.
+ *
+ * `graduationYear` is derived from the class label (importRosterSheets reads
+ * one from the other), so it is not a second fact beside `classProgression`:
+ * counting both let MATCH_B stand on name + class alone (Phase 8B.1A). The two
+ * now count once between them.
+ */
+const countSignals = (s) => [s.hometown, s.position, s.classProgression || s.graduationYear, s.priorProgramme].filter(Boolean).length;
 
 /**
  * Every departure, with a destination only where the evidence supports one.

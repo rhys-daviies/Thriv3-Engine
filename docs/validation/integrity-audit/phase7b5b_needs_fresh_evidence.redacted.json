@@ -1,0 +1,1423 @@
+{
+  "phase": "7B.5B NEEDS_FRESH_EVIDENCE queue for 7B.5C (institutional; no PII)",
+  "count": 109,
+  "targets": [
+    {
+      "unitid": 157535,
+      "sport": "mens-soccer",
+      "programme": "Pikeville",
+      "conference": "AMC",
+      "verified_domain": "upikebears.com",
+      "athletics_host": "https://upikebears.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 219790,
+      "sport": "mens-soccer",
+      "programme": "Bryan",
+      "conference": "Appalachian",
+      "verified_domain": "bryanlions.com",
+      "athletics_host": "https://bryanlions.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 176947,
+      "sport": "mens-soccer",
+      "programme": "Central Methodist",
+      "conference": "Heart",
+      "verified_domain": "cmueagles.com",
+      "athletics_host": "https://cmueagles.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 153126,
+      "sport": "mens-soccer",
+      "programme": "Clarke",
+      "conference": "Heart",
+      "verified_domain": "clarkepride.com",
+      "athletics_host": "https://clarkepride.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 219091,
+      "sport": "mens-soccer",
+      "programme": "Dakota Wesleyan",
+      "conference": "GPAC",
+      "verified_domain": "dwuathletics.com",
+      "athletics_host": "https://dwuathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 153250,
+      "sport": "mens-soccer",
+      "programme": "Dordt",
+      "conference": "GPAC",
+      "verified_domain": "godordt.com",
+      "athletics_host": "https://godordt.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 177339,
+      "sport": "mens-soccer",
+      "programme": "Evangel",
+      "conference": "AMC",
+      "verified_domain": "evangelathletics.com",
+      "athletics_host": "https://evangelathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 181127,
+      "sport": "mens-soccer",
+      "programme": "Hastings",
+      "conference": "GPAC",
+      "verified_domain": "hastingsbroncos.com",
+      "athletics_host": "https://hastingsbroncos.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 151290,
+      "sport": "mens-soccer",
+      "programme": "Indiana Institute of Technology",
+      "conference": "WHAC",
+      "verified_domain": "indianatechwarriors.com",
+      "athletics_host": "https://indianatechwarriors.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 157100,
+      "sport": "mens-soccer",
+      "programme": "Kentucky Christian",
+      "conference": "AMC",
+      "verified_domain": "kcuknights.com",
+      "athletics_host": "https://kcuknights.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 178244,
+      "sport": "mens-soccer",
+      "programme": "Missouri Baptist",
+      "conference": "AMC",
+      "verified_domain": "mbuspartans.com",
+      "athletics_host": "https://mbuspartans.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 154004,
+      "sport": "mens-soccer",
+      "programme": "Morningside",
+      "conference": "GPAC",
+      "verified_domain": "msidemustangs.com",
+      "athletics_host": "https://msidemustangs.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 154013,
+      "sport": "mens-soccer",
+      "programme": "Mount Mercy",
+      "conference": "HAAC",
+      "verified_domain": "mountmercymustangs.com",
+      "athletics_host": "https://mountmercymustangs.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 204194,
+      "sport": "mens-soccer",
+      "programme": "Mount Vernon Nazarene",
+      "conference": "AMC",
+      "verified_domain": "mvnucougars.com",
+      "athletics_host": "https://mvnucougars.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 138868,
+      "sport": "mens-soccer",
+      "programme": "Point (GA)",
+      "conference": "Southern States Athletic Conference",
+      "verified_domain": "skyhawkathletics.com",
+      "athletics_host": "https://skyhawkathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 154235,
+      "sport": "mens-soccer",
+      "programme": "Saint Ambrose",
+      "conference": "CCAC",
+      "verified_domain": "saubees.com",
+      "athletics_host": "https://saubees.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 207722,
+      "sport": "mens-soccer",
+      "programme": "Science & Arts (OK)",
+      "conference": "Sooner",
+      "verified_domain": "usao.edu",
+      "athletics_host": "https://usao.edu",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 137564,
+      "sport": "mens-soccer",
+      "programme": "Southeastern University",
+      "conference": "Mid-South",
+      "verified_domain": "seu.edu",
+      "athletics_host": "https://seu.edu",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 152530,
+      "sport": "mens-soccer",
+      "programme": "Taylor",
+      "conference": "CCAC",
+      "verified_domain": "taylortrojans.com",
+      "athletics_host": "https://taylortrojans.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 154590,
+      "sport": "mens-soccer",
+      "programme": "William Penn",
+      "conference": "HAAC",
+      "verified_domain": "statesmenathletics.com",
+      "athletics_host": "https://statesmenathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 180814,
+      "sport": "mens-soccer",
+      "programme": "Bellevue University",
+      "conference": "Continental Athletic Conference",
+      "verified_domain": "bubruins.com",
+      "athletics_host": "https://bubruins.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 175430,
+      "sport": "mens-soccer",
+      "programme": "Blue Mountain Christian University",
+      "conference": "Southern States Athletic Conference",
+      "verified_domain": "bmcusports.com",
+      "athletics_host": "https://bmcusports.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 156356,
+      "sport": "mens-soccer",
+      "programme": "Brescia University",
+      "conference": "River States Conference",
+      "verified_domain": "bresciabearcats.com",
+      "athletics_host": "https://bresciabearcats.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 169327,
+      "sport": "mens-soccer",
+      "programme": "Cleary University",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "verified_domain": "clearycougars.com",
+      "athletics_host": "https://clearycougars.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 217934,
+      "sport": "mens-soccer",
+      "programme": "Columbia College (SC)",
+      "conference": "Appalachian Athletic Conference",
+      "verified_domain": "gokoalas.com",
+      "athletics_host": "https://gokoalas.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 177144,
+      "sport": "mens-soccer",
+      "programme": "Culver-Stockton College",
+      "conference": "Heart of America Athletic Conference",
+      "verified_domain": "cscwildcats.com",
+      "athletics_host": "https://cscwildcats.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 165802,
+      "sport": "mens-soccer",
+      "programme": "Fisher College",
+      "conference": "Continental Athletic Conference",
+      "verified_domain": "fisherfalcons.com",
+      "athletics_host": "https://fisherfalcons.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 145336,
+      "sport": "mens-soccer",
+      "programme": "Governors State University",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "verified_domain": "gsujaguars.com",
+      "athletics_host": "https://gsujaguars.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 150774,
+      "sport": "mens-soccer",
+      "programme": "Holy Cross College",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "verified_domain": "hcsaints.com",
+      "athletics_host": "https://hcsaints.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 170675,
+      "sport": "mens-soccer",
+      "programme": "Lawrence Technological University",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "verified_domain": "ltuathletics.com",
+      "athletics_host": "https://ltuathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 159416,
+      "sport": "mens-soccer",
+      "programme": "LSU Shreveport",
+      "conference": "Red River Athletic Conference",
+      "verified_domain": "lsusathletics.com",
+      "athletics_host": "https://lsusathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 151786,
+      "sport": "mens-soccer",
+      "programme": "Marian University (IN)",
+      "conference": "Crossroads League",
+      "verified_domain": "muknights.com",
+      "athletics_host": "https://muknights.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 140872,
+      "sport": "mens-soccer",
+      "programme": "Reinhardt University",
+      "conference": "Appalachian Athletic Conference",
+      "verified_domain": "reinhardteagles.com",
+      "athletics_host": "https://reinhardteagles.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 205203,
+      "sport": "mens-soccer",
+      "programme": "Rio Grande (University of)",
+      "conference": "River States Conference",
+      "verified_domain": "rioredstorm.com",
+      "athletics_host": "https://rioredstorm.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 399911,
+      "sport": "mens-soccer",
+      "programme": "Soka University of America",
+      "conference": "Great Southwest Athletic Conference",
+      "verified_domain": "sokaathletics.com",
+      "athletics_host": "https://sokaathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 218821,
+      "sport": "mens-soccer",
+      "programme": "Spartanburg Methodist College",
+      "conference": "Appalachian Athletic Conference",
+      "verified_domain": "gosmcpioneers.com",
+      "athletics_host": "https://gosmcpioneers.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 221731,
+      "sport": "mens-soccer",
+      "programme": "Tennessee Wesleyan University",
+      "conference": "Appalachian Athletic Conference",
+      "verified_domain": "twbulldogs.com",
+      "athletics_host": "https://twbulldogs.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 459949,
+      "sport": "mens-soccer",
+      "programme": "Texas A&M University-San Antonio",
+      "conference": "Red River Athletic Conference",
+      "verified_domain": "tamusasports.com",
+      "athletics_host": "https://tamusasports.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 224545,
+      "sport": "mens-soccer",
+      "programme": "Texas A&M University-Texarkana",
+      "conference": "Red River Athletic Conference",
+      "verified_domain": "tamut.edu",
+      "athletics_host": "https://tamut.edu",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 225502,
+      "sport": "mens-soccer",
+      "programme": "Texas A&M University-Victoria",
+      "conference": "Red River Athletic Conference",
+      "verified_domain": "tamuvathletics.com",
+      "athletics_host": "https://tamuvathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 228884,
+      "sport": "mens-soccer",
+      "programme": "Texas College",
+      "conference": "Red River Athletic Conference",
+      "verified_domain": "tcsteersathletics.com",
+      "athletics_host": "https://tcsteersathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 235167,
+      "sport": "mens-soccer",
+      "programme": "The Evergreen State College",
+      "conference": "Cascade Collegiate Conference",
+      "verified_domain": "gogeoducks.com",
+      "athletics_host": "https://gogeoducks.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 179265,
+      "sport": "mens-soccer",
+      "programme": "University of Health Sciences and Pharmacy in St. Louis",
+      "conference": "American Midwest Conference",
+      "verified_domain": "eutecticsports.com",
+      "athletics_host": "https://eutecticsports.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 171137,
+      "sport": "mens-soccer",
+      "programme": "University of Michigan-Dearborn",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "verified_domain": "umdearborn.edu",
+      "athletics_host": "https://umdearborn.edu",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 204486,
+      "sport": "mens-soccer",
+      "programme": "University of Northwestern Ohio",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "verified_domain": "unohracers.com",
+      "athletics_host": "https://unohracers.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 152336,
+      "sport": "mens-soccer",
+      "programme": "University of Saint Francis (IN)",
+      "conference": "Crossroads League",
+      "verified_domain": "saintfranciscougars.com",
+      "athletics_host": "https://saintfranciscougars.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 237950,
+      "sport": "mens-soccer",
+      "programme": "West Virginia University Institute of Technology",
+      "conference": "River States Conference",
+      "verified_domain": "goldenbearathletics.com",
+      "athletics_host": "https://goldenbearathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 490133,
+      "sport": "mens-soccer",
+      "programme": "Westcliff University",
+      "conference": "California Pacific Conference",
+      "verified_domain": "westcliffathletics.com",
+      "athletics_host": "https://westcliffathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 229887,
+      "sport": "mens-soccer",
+      "programme": "Wiley University",
+      "conference": "Continental Athletic Conference",
+      "verified_domain": "wileyathletics.com",
+      "athletics_host": "https://wileyathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 180814,
+      "sport": "womens-soccer",
+      "programme": "Bellevue University",
+      "conference": "Continental Athletic Conference",
+      "verified_domain": "bubruins.com",
+      "athletics_host": "https://bubruins.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 175430,
+      "sport": "womens-soccer",
+      "programme": "Blue Mountain Christian University",
+      "conference": "Southern States Athletic Conference",
+      "verified_domain": "bmcusports.com",
+      "athletics_host": "https://bmcusports.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 156356,
+      "sport": "womens-soccer",
+      "programme": "Brescia University",
+      "conference": "River States Conference",
+      "verified_domain": "bresciabearcats.com",
+      "athletics_host": "https://bresciabearcats.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 219790,
+      "sport": "womens-soccer",
+      "programme": "Bryan College",
+      "conference": "Appalachian Athletic Conference",
+      "verified_domain": "bryanlions.com",
+      "athletics_host": "https://bryanlions.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 150172,
+      "sport": "womens-soccer",
+      "programme": "Calumet College of St. Joseph",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "verified_domain": "ccsjathletics.com",
+      "athletics_host": "https://ccsjathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 176947,
+      "sport": "womens-soccer",
+      "programme": "Central Methodist University",
+      "conference": "Heart of America Athletic Conference",
+      "verified_domain": "cmueagles.com",
+      "athletics_host": "https://cmueagles.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 153126,
+      "sport": "womens-soccer",
+      "programme": "Clarke University",
+      "conference": "Heart of America Athletic Conference",
+      "verified_domain": "clarkepride.com",
+      "athletics_host": "https://clarkepride.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 169327,
+      "sport": "womens-soccer",
+      "programme": "Cleary University",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "verified_domain": "clearycougars.com",
+      "athletics_host": "https://clearycougars.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 181604,
+      "sport": "womens-soccer",
+      "programme": "College of Saint Mary",
+      "conference": "Great Plains Athletic Conference",
+      "verified_domain": "csmflames.com",
+      "athletics_host": "https://csmflames.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 219091,
+      "sport": "womens-soccer",
+      "programme": "Dakota Wesleyan University",
+      "conference": "Great Plains Athletic Conference",
+      "verified_domain": "dwuathletics.com",
+      "athletics_host": "https://dwuathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 181020,
+      "sport": "womens-soccer",
+      "programme": "Doane University",
+      "conference": "Great Plains Athletic Conference",
+      "verified_domain": "doane.edu",
+      "athletics_host": "https://doane.edu",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 153250,
+      "sport": "womens-soccer",
+      "programme": "Dordt University",
+      "conference": "Great Plains Athletic Conference",
+      "verified_domain": "godordt.com",
+      "athletics_host": "https://godordt.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 177339,
+      "sport": "womens-soccer",
+      "programme": "Evangel University",
+      "conference": "Kansas Collegiate Athletic Conference",
+      "verified_domain": "evangelathletics.com",
+      "athletics_host": "https://evangelathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 165802,
+      "sport": "womens-soccer",
+      "programme": "Fisher College",
+      "conference": "Continental Athletic Conference",
+      "verified_domain": "fisherfalcons.com",
+      "athletics_host": "https://fisherfalcons.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 156745,
+      "sport": "womens-soccer",
+      "programme": "Georgetown College",
+      "conference": "Mid-South Conference",
+      "verified_domain": "georgetowncollegeathletics.com",
+      "athletics_host": "https://georgetowncollegeathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 145336,
+      "sport": "womens-soccer",
+      "programme": "Governors State University",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "verified_domain": "gsujaguars.com",
+      "athletics_host": "https://gsujaguars.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 153366,
+      "sport": "womens-soccer",
+      "programme": "Graceland University",
+      "conference": "Heart of America Athletic Conference",
+      "verified_domain": "gujackets.com",
+      "athletics_host": "https://gujackets.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 181127,
+      "sport": "womens-soccer",
+      "programme": "Hastings College",
+      "conference": "Great Plains Athletic Conference",
+      "verified_domain": "hastingsbroncos.com",
+      "athletics_host": "https://hastingsbroncos.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 150774,
+      "sport": "womens-soccer",
+      "programme": "Holy Cross College",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "verified_domain": "hcsaints.com",
+      "athletics_host": "https://hcsaints.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 151290,
+      "sport": "womens-soccer",
+      "programme": "Indiana Institute of Technology",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "verified_domain": "indianatechwarriors.com",
+      "athletics_host": "https://indianatechwarriors.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 151388,
+      "sport": "womens-soccer",
+      "programme": "Indiana University East",
+      "conference": "River States Conference",
+      "verified_domain": "iueredwolves.com",
+      "athletics_host": "https://iueredwolves.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 146339,
+      "sport": "womens-soccer",
+      "programme": "Judson University",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "verified_domain": "judsoneagles.com",
+      "athletics_host": "https://judsoneagles.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 157100,
+      "sport": "womens-soccer",
+      "programme": "Kentucky Christian University",
+      "conference": "River States Conference",
+      "verified_domain": "kcuknights.com",
+      "athletics_host": "https://kcuknights.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 170675,
+      "sport": "womens-soccer",
+      "programme": "Lawrence Technological University",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "verified_domain": "ltuathletics.com",
+      "athletics_host": "https://ltuathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 117104,
+      "sport": "womens-soccer",
+      "programme": "Life Pacific University",
+      "conference": "Great Southwest Athletic Conference",
+      "verified_domain": "lpuwarriors.com",
+      "athletics_host": "https://lpuwarriors.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 159416,
+      "sport": "womens-soccer",
+      "programme": "LSU Shreveport",
+      "conference": "Red River Athletic Conference",
+      "verified_domain": "lsusathletics.com",
+      "athletics_host": "https://lsusathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 151786,
+      "sport": "womens-soccer",
+      "programme": "Marian University (IN)",
+      "conference": "Crossroads League",
+      "verified_domain": "muknights.com",
+      "athletics_host": "https://muknights.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 178244,
+      "sport": "womens-soccer",
+      "programme": "Missouri Baptist University",
+      "conference": "Heart of America Athletic Conference",
+      "verified_domain": "mbuspartans.com",
+      "athletics_host": "https://mbuspartans.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 154004,
+      "sport": "womens-soccer",
+      "programme": "Morningside University",
+      "conference": "Great Plains Athletic Conference",
+      "verified_domain": "msidemustangs.com",
+      "athletics_host": "https://msidemustangs.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 239390,
+      "sport": "womens-soccer",
+      "programme": "Mount Mary University",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "verified_domain": "mtmaryathletics.com",
+      "athletics_host": "https://mtmaryathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 154013,
+      "sport": "womens-soccer",
+      "programme": "Mount Mercy University",
+      "conference": "Heart of America Athletic Conference",
+      "verified_domain": "mountmercymustangs.com",
+      "athletics_host": "https://mountmercymustangs.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 204194,
+      "sport": "womens-soccer",
+      "programme": "Mount Vernon Nazarene University",
+      "conference": "Crossroads League",
+      "verified_domain": "mvnucougars.com",
+      "athletics_host": "https://mvnucougars.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 464226,
+      "sport": "womens-soccer",
+      "programme": "Ottawa University Arizona",
+      "conference": "Great Southwest Athletic Conference",
+      "verified_domain": "ouazspirit.com",
+      "athletics_host": "https://ouazspirit.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 138868,
+      "sport": "womens-soccer",
+      "programme": "Point University",
+      "conference": "Southern States Athletic Conference",
+      "verified_domain": "skyhawkathletics.com",
+      "athletics_host": "https://skyhawkathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 140872,
+      "sport": "womens-soccer",
+      "programme": "Reinhardt University",
+      "conference": "Appalachian Athletic Conference",
+      "verified_domain": "reinhardteagles.com",
+      "athletics_host": "https://reinhardteagles.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 205203,
+      "sport": "womens-soccer",
+      "programme": "Rio Grande (University of)",
+      "conference": "River States Conference",
+      "verified_domain": "rioredstorm.com",
+      "athletics_host": "https://rioredstorm.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 154235,
+      "sport": "womens-soccer",
+      "programme": "Saint Ambrose University",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "verified_domain": "saubees.com",
+      "athletics_host": "https://saubees.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 172264,
+      "sport": "womens-soccer",
+      "programme": "Siena Heights University",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "verified_domain": "shusaints.com",
+      "athletics_host": "https://shusaints.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 399911,
+      "sport": "womens-soccer",
+      "programme": "Soka University of America",
+      "conference": "Great Southwest Athletic Conference",
+      "verified_domain": "sokaathletics.com",
+      "athletics_host": "https://sokaathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 137564,
+      "sport": "womens-soccer",
+      "programme": "Southeastern University (Florida)",
+      "conference": "Sun Conference",
+      "verified_domain": "seu.edu",
+      "athletics_host": "https://seu.edu",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 218821,
+      "sport": "womens-soccer",
+      "programme": "Spartanburg Methodist College",
+      "conference": "Appalachian Athletic Conference",
+      "verified_domain": "gosmcpioneers.com",
+      "athletics_host": "https://gosmcpioneers.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 155937,
+      "sport": "womens-soccer",
+      "programme": "Sterling College (Kansas)",
+      "conference": "Kansas Collegiate Athletic Conference",
+      "verified_domain": "scwarriors.com",
+      "athletics_host": "https://scwarriors.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 152530,
+      "sport": "womens-soccer",
+      "programme": "Taylor University",
+      "conference": "Crossroads League",
+      "verified_domain": "taylortrojans.com",
+      "athletics_host": "https://taylortrojans.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 221731,
+      "sport": "womens-soccer",
+      "programme": "Tennessee Wesleyan University",
+      "conference": "Appalachian Athletic Conference",
+      "verified_domain": "twbulldogs.com",
+      "athletics_host": "https://twbulldogs.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 459949,
+      "sport": "womens-soccer",
+      "programme": "Texas A&M University-San Antonio",
+      "conference": "Red River Athletic Conference",
+      "verified_domain": "tamusasports.com",
+      "athletics_host": "https://tamusasports.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 224545,
+      "sport": "womens-soccer",
+      "programme": "Texas A&M University-Texarkana",
+      "conference": "Red River Athletic Conference",
+      "verified_domain": "tamut.edu",
+      "athletics_host": "https://tamut.edu",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 225502,
+      "sport": "womens-soccer",
+      "programme": "Texas A&M University-Victoria",
+      "conference": "Red River Athletic Conference",
+      "verified_domain": "tamuvathletics.com",
+      "athletics_host": "https://tamuvathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 228884,
+      "sport": "womens-soccer",
+      "programme": "Texas College",
+      "conference": "Red River Athletic Conference",
+      "verified_domain": "tcsteersathletics.com",
+      "athletics_host": "https://tcsteersathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 235167,
+      "sport": "womens-soccer",
+      "programme": "The Evergreen State College",
+      "conference": "Cascade Collegiate Conference",
+      "verified_domain": "gogeoducks.com",
+      "athletics_host": "https://gogeoducks.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 176406,
+      "sport": "womens-soccer",
+      "programme": "Tougaloo College",
+      "conference": "HBCU Athletic Conference",
+      "verified_domain": "tougaloobulldogs.com",
+      "athletics_host": "https://tougaloobulldogs.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 179265,
+      "sport": "womens-soccer",
+      "programme": "University of Health Sciences and Pharmacy in St. Louis",
+      "conference": "American Midwest Conference",
+      "verified_domain": "eutecticsports.com",
+      "athletics_host": "https://eutecticsports.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 171137,
+      "sport": "womens-soccer",
+      "programme": "University of Michigan-Dearborn",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "verified_domain": "umdearborn.edu",
+      "athletics_host": "https://umdearborn.edu",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 204486,
+      "sport": "womens-soccer",
+      "programme": "University of Northwestern Ohio",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "verified_domain": "unohracers.com",
+      "athletics_host": "https://unohracers.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 157535,
+      "sport": "womens-soccer",
+      "programme": "University of Pikeville",
+      "conference": "Appalachian Athletic Conference",
+      "verified_domain": "upikebears.com",
+      "athletics_host": "https://upikebears.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 152336,
+      "sport": "womens-soccer",
+      "programme": "University of Saint Francis (IN)",
+      "conference": "Crossroads League",
+      "verified_domain": "saintfranciscougars.com",
+      "athletics_host": "https://saintfranciscougars.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 237950,
+      "sport": "womens-soccer",
+      "programme": "West Virginia University Institute of Technology",
+      "conference": "River States Conference",
+      "verified_domain": "goldenbearathletics.com",
+      "athletics_host": "https://goldenbearathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 490133,
+      "sport": "womens-soccer",
+      "programme": "Westcliff University",
+      "conference": "California Pacific Conference",
+      "verified_domain": "westcliffathletics.com",
+      "athletics_host": "https://westcliffathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 229887,
+      "sport": "womens-soccer",
+      "programme": "Wiley University",
+      "conference": "HBCU Athletic Conference",
+      "verified_domain": "wileyathletics.com",
+      "athletics_host": "https://wileyathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 154590,
+      "sport": "womens-soccer",
+      "programme": "William Penn University",
+      "conference": "Heart of America Athletic Conference",
+      "verified_domain": "statesmenathletics.com",
+      "athletics_host": "https://statesmenathletics.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    },
+    {
+      "unitid": 464226,
+      "sport": "mens-soccer",
+      "programme": "Ottawa University Arizona",
+      "conference": null,
+      "verified_domain": "ouazspirit.com",
+      "athletics_host": "https://ouazspirit.com",
+      "institution_main": null,
+      "needs": [
+        "current-staff confirmation",
+        "coach email observed on authoritative page (email_seen)"
+      ]
+    }
+  ]
+}

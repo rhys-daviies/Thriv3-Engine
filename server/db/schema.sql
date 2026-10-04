@@ -1387,6 +1387,308 @@ CREATE INDEX IF NOT EXISTS idx_athletics_domains_unitid ON athletics_domains(uni
 CREATE INDEX IF NOT EXISTS idx_athletics_domains_status ON athletics_domains(status);
 
 -- ===========================================================================
+-- athletics_entities — the institution/campus that actually recruits (Phase 7D)
+--
+-- A federal UNITID names a reporting institution, not an athletics programme.
+-- Measured on this corpus: IU Columbus (NAIA) is reported under IU Indianapolis
+-- 151111, which is also our NCAA D1 "IU Indy"; Commonwealth University 498562
+-- runs three separate NCAA D2 campus programmes; Park University Gilbert and
+-- Benedictine University Mesa are NAIA branches of parents with their own
+-- athletics; Stanton University has no UNITID at all. Keyed on UNITID alone,
+-- 33 coaches were canonicalised onto a different campus's row and 15 branch
+-- coaches resolved into a parent's programme (5 across divisions).
+--
+-- IDENTIFIER SEMANTICS (server/lib/athleticsEntity.js is the one implementation):
+--   federal_unitid  the entity's OWN six-digit IPEDS UNITID, or NULL. Never
+--                   synthetic, never an NCES/College Navigator location code
+--                   (15111102 = parent 151111 + suffix 02), never a guess.
+--                   UNIQUE: one institution owns at most one entity by id.
+--   parent_unitid   the IPEDS UNITID a campus/branch entity is reported under.
+--                   The only sanctioned way two entities share a UNITID.
+--   athletics_entity_id  internal, stable, opaque. AE-U<unitid> for a single
+--                   institution; AE-X-<slug> for a modeled exception.
+--
+-- colleges.unitid is NOT rewritten by this layer; it keeps its legacy meaning.
+-- Programme identity = athletics_entity_id + sport. Additive: a database with
+-- no rows here behaves exactly as before (the reconciler falls back).
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS athletics_entities (
+  athletics_entity_id TEXT PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  federal_unitid INTEGER,
+  parent_unitid INTEGER,
+  campus_label TEXT,
+  entity_kind TEXT NOT NULL,
+  provenance TEXT NOT NULL,
+  notes TEXT,
+  created_at TEXT NOT NULL,
+  CHECK (entity_kind IN ('SINGLE', 'SYSTEM_CAMPUS', 'BRANCH_CAMPUS', 'NON_TITLE_IV', 'FOREIGN', 'UNRESOLVED_FEDERAL')),
+  CHECK (federal_unitid IS NULL OR (federal_unitid BETWEEN 100000 AND 999999)),
+  CHECK (parent_unitid IS NULL OR (parent_unitid BETWEEN 100000 AND 999999)),
+  CHECK (NOT (entity_kind IN ('SYSTEM_CAMPUS', 'BRANCH_CAMPUS')) OR (parent_unitid IS NOT NULL AND federal_unitid IS NULL AND campus_label IS NOT NULL)),
+  CHECK (NOT (entity_kind IN ('NON_TITLE_IV', 'FOREIGN')) OR federal_unitid IS NULL),
+  CHECK (entity_kind <> 'SINGLE' OR federal_unitid IS NOT NULL)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_athletics_entities_federal ON athletics_entities(federal_unitid) WHERE federal_unitid IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_athletics_entities_parent ON athletics_entities(parent_unitid);
+
+-- ===========================================================================
+-- PHASE 7E — safe annual refresh: temporal membership, programme row links,
+-- refresh staging, season freezes. All additive; nothing here is read by a
+-- legacy path, and a database with empty tables behaves exactly as before.
+-- ===========================================================================
+
+-- programme_membership_periods — WHAT DIVISION/CONFERENCE A PROGRAMME IS IN, OVER TIME.
+--
+-- colleges.division is a single timeless value, and a timeless value is how a
+-- transition rewrites history: Shawnee State played NAIA (River States) through
+-- 2025 and NCAA D2 (Mountain East, provisional) from 2026, and one column cannot
+-- say both. A period is keyed on the athletics entity + sport (the programme,
+-- whichever colleges row carries it) and the first season it applies to. The
+-- open period (last_season NULL) is the current state; colleges.division is only
+-- a pointer to it, and the monitor checks they agree. Closed periods are never
+-- edited by a refresh: a transition closes the open period at season-1 and opens
+-- a new one. Per-season OBSERVED division stays in programme_conference_seasons.
+CREATE TABLE IF NOT EXISTS programme_membership_periods (
+  athletics_entity_id TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  first_season INTEGER NOT NULL,     -- fall-season year the membership first applies to
+  last_season INTEGER,               -- NULL = open (current)
+  governing_body TEXT NOT NULL,
+  division TEXT NOT NULL,            -- colleges.division vocabulary
+  membership_status TEXT NOT NULL,
+  conference TEXT,
+  postseason_eligible INTEGER,       -- 1 / 0 / NULL unknown (provisional members are 0)
+  college_id TEXT,                   -- the programme row that carries this period
+  source_url TEXT,
+  source_tier TEXT NOT NULL,         -- server/lib/refresh/sourceAuthority.js tiers, or SEED
+  provenance TEXT NOT NULL,
+  review_due_season INTEGER,         -- e.g. provisional membership: re-verify when it should end
+  recorded_at TEXT NOT NULL,
+  PRIMARY KEY (athletics_entity_id, sport, first_season),
+  CHECK (last_season IS NULL OR last_season >= first_season),
+  -- CCCAA / NWAC (Phase 8B.1): associations outside Thriv3's recruiting scope, recorded
+  -- truthfully (governing_body OTHER) instead of as NJCAA — never deleted, never promoted into scope
+  CHECK (governing_body IN ('NCAA', 'NAIA', 'NJCAA', 'USCAA', 'NCCAA', 'OTHER')),
+  CHECK (division IN ('NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA', 'USCAA', 'NCCAA', 'CCCAA', 'NWAC')),
+  CHECK (membership_status IN ('ACTIVE', 'PROVISIONAL', 'RECLASSIFYING', 'DISCONTINUED')),
+  CHECK (postseason_eligible IS NULL OR postseason_eligible IN (0, 1)),
+  CHECK (source_tier IN ('A', 'B', 'C', 'D', 'SEED'))
+);
+CREATE INDEX IF NOT EXISTS idx_pmp_open ON programme_membership_periods(athletics_entity_id, sport, last_season);
+CREATE INDEX IF NOT EXISTS idx_pmp_college ON programme_membership_periods(college_id);
+
+-- athletics_source_locations — WHERE A PROGRAMME'S OFFICIAL PAGES LIVE, as host + PATH SCOPE.
+--
+-- athletics_domains answers "which entity owns this HOST", and a host-level claim is exactly
+-- wrong for a college whose athletics live under its own site (institution.edu/athletics/...):
+-- registering institution.edu would make every page on it proof of athletics ownership
+-- (Phase 8A held 38 such hosts rather than do that). A location scopes the claim to a path
+-- prefix. A URL is inside it only when it is on that exact host AND its path starts with the
+-- prefix on a segment boundary. An INSTITUTION_ATHLETICS_PATH can never be the host root, and
+-- a location never widens host ownership: athletics_domains is unchanged by it.
+--   ATHLETICS_HOST              a whole host already owned in athletics_domains (mirror, optional)
+--   INSTITUTION_ATHLETICS_PATH  institution.edu/<prefix> (e.g. /athletics)
+--   SPORT_PAGE                  a single programme's pages (<prefix> = the sport path), sport required
+CREATE TABLE IF NOT EXISTS athletics_source_locations (
+  location_id TEXT PRIMARY KEY,           -- deterministic: entity|host|prefix|sport
+  athletics_entity_id TEXT NOT NULL,
+  host TEXT NOT NULL,                     -- exact host, lower case, no www.
+  path_prefix TEXT NOT NULL,              -- '/athletics'; '/' only for ATHLETICS_HOST
+  source_type TEXT NOT NULL,
+  sport TEXT,                             -- NULL = every sport of the entity
+  status TEXT NOT NULL,                   -- VERIFIED | HISTORICAL | REVIEW
+  evidence_url TEXT,
+  provenance TEXT NOT NULL,
+  first_seen_season INTEGER,
+  last_verified_at TEXT,
+  recorded_at TEXT NOT NULL,
+  CHECK (source_type IN ('ATHLETICS_HOST', 'INSTITUTION_ATHLETICS_PATH', 'SPORT_PAGE')),
+  CHECK (status IN ('VERIFIED', 'HISTORICAL', 'REVIEW')),
+  CHECK (path_prefix LIKE '/%' AND path_prefix NOT LIKE '%?%' AND path_prefix NOT LIKE '%#%'),
+  CHECK (source_type = 'ATHLETICS_HOST' OR length(path_prefix) > 1),
+  CHECK (source_type <> 'SPORT_PAGE' OR sport IS NOT NULL),
+  CHECK (sport IS NULL OR sport IN ('mens-soccer', 'womens-soccer'))
+);
+CREATE INDEX IF NOT EXISTS idx_asl_host ON athletics_source_locations(host);
+CREATE INDEX IF NOT EXISTS idx_asl_entity ON athletics_source_locations(athletics_entity_id);
+
+-- ===========================================================================
+-- PLAYER HISTORY IDENTITY (Phase 8B.1A) — an observation is not a person.
+--
+-- `roster_players` rows are ROSTER OBSERVATIONS: a name on programme P's official
+-- roster for season S. They are factual when the source is valid and never need a
+-- global person resolution. A claim that two observations are the same human (a
+-- transfer, a prior programme, a cross-school progression) is a separate thing with
+-- its own evidence, and lives here. `roster_players.prior_programme` is only a
+-- projection of the FACTUAL links below (VERIFIED_SAME_PERSON), written by
+-- `npm run project-minutes`; nothing else may set it.
+--
+-- player_prior_school_evidence — what an official roster page SAYS about where a
+-- player came from, verbatim, with the field type the markup declares. An
+-- observation of the source, not a decision. Never free-text bio prose.
+CREATE TABLE IF NOT EXISTS player_prior_school_evidence (
+  evidence_id TEXT PRIMARY KEY,           -- deterministic: observation|source_url|field_type
+  observation_id TEXT NOT NULL,           -- roster_players.id of the DESTINATION row
+  source_url TEXT NOT NULL,
+  observed_at TEXT,                       -- when the page was fetched
+  field_type TEXT NOT NULL,
+  raw_value TEXT NOT NULL,
+  resolution TEXT NOT NULL,               -- per-part kinds, '+'-joined (COLLEGE / HIGH_SCHOOL_OR_CLUB / ...)
+  resolved_programmes TEXT,               -- JSON array of canonical college_name the value resolves to
+  resolved_entity TEXT,                   -- athletics_entity_id when exactly one
+  evidence_strength TEXT NOT NULL,
+  parser_version TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  CHECK (field_type IN ('PREVIOUS_SCHOOL', 'HIGH_SCHOOL_OR_PREVIOUS_COMBINED', 'HOMETOWN_PREVIOUS_COMBINED')),
+  CHECK (evidence_strength IN ('STRUCTURED_COLLEGE', 'STRUCTURED_AMBIGUOUS', 'STRUCTURED_HIGH_SCHOOL', 'STRUCTURED_UNRESOLVED'))
+);
+CREATE INDEX IF NOT EXISTS idx_ppse_observation ON player_prior_school_evidence(observation_id);
+
+-- player_observation_links — one PAIRWISE identity claim and its decision.
+--   relation  SAME_PROGRAMME_CONTINUATION | CROSS_PROGRAMME_PRIOR | EXPLICIT_PRIOR_INSTITUTION
+--   decision  VERIFIED_SAME_PERSON (the ONLY factual one) | PROBABLE_SAME_PERSON (internal,
+--             review queue) | CANDIDATE | AMBIGUOUS | CONTRADICTED | DIFFERENT_PERSON
+-- A link never edits either observation. Deleting every row here loses no roster fact.
+CREATE TABLE IF NOT EXISTS player_observation_links (
+  link_id TEXT PRIMARY KEY,               -- deterministic: relation|to_observation|from_programme
+  relation TEXT NOT NULL,
+  to_observation_id TEXT NOT NULL,        -- roster_players.id, the later observation
+  from_observation_id TEXT,               -- roster_players.id, the earlier one (NULL: explicit institution, no prior observation on file)
+  sport TEXT NOT NULL,
+  to_programme TEXT NOT NULL,
+  to_season TEXT NOT NULL,
+  from_programme TEXT NOT NULL,
+  from_season TEXT,                       -- NULL when only an explicit previous school is known
+  decision TEXT NOT NULL,
+  evidence_class TEXT NOT NULL,
+  evidence_json TEXT NOT NULL,            -- the signals and the reasons, exactly as decided
+  evidence_id TEXT,                       -- player_prior_school_evidence row, when one was used
+  method TEXT NOT NULL,                   -- rule version, e.g. p8b1a-identity-1
+  reviewed_at TEXT,
+  reviewed_by TEXT,
+  review_note TEXT,
+  recorded_at TEXT NOT NULL,
+  CHECK (relation IN ('SAME_PROGRAMME_CONTINUATION', 'CROSS_PROGRAMME_PRIOR', 'EXPLICIT_PRIOR_INSTITUTION')),
+  CHECK (decision IN ('VERIFIED_SAME_PERSON', 'PROBABLE_SAME_PERSON', 'CANDIDATE', 'AMBIGUOUS', 'CONTRADICTED', 'DIFFERENT_PERSON')),
+  CHECK (relation <> 'EXPLICIT_PRIOR_INSTITUTION' OR evidence_id IS NOT NULL),
+  CHECK (relation = 'EXPLICIT_PRIOR_INSTITUTION' OR from_observation_id IS NOT NULL),
+  CHECK (decision <> 'VERIFIED_SAME_PERSON' OR evidence_class IN ('EXPLICIT_PRIOR_SCHOOL', 'MULTI_SIGNAL', 'REVIEWED', 'PROGRAMME_SCOPED')),
+  CHECK (evidence_class <> 'PROGRAMME_SCOPED' OR relation = 'SAME_PROGRAMME_CONTINUATION'),
+  CHECK (evidence_class <> 'REVIEWED' OR reviewed_at IS NOT NULL)
+);
+CREATE INDEX IF NOT EXISTS idx_pol_to ON player_observation_links(to_observation_id);
+CREATE INDEX IF NOT EXISTS idx_pol_from ON player_observation_links(from_observation_id);
+CREATE INDEX IF NOT EXISTS idx_pol_decision ON player_observation_links(sport, to_season, decision);
+
+-- programme_row_links — one programme, more than one colleges row, said explicitly.
+--
+-- Importers match exact `sport|name`, so a physical merge of two spellings is
+-- undone by the next records refresh (Calumet, Phase 7D). A link keeps both rows
+-- and every row keyed on either, and names the one that carries the programme:
+--   SAME_PROGRAMME_ALT_NAME  both spellings stay active as name receivers
+--   SUPERSEDED_DIVISION_ROW  the row that carried a closed membership period
+--   PHANTOM_ROW              a row for a programme that never existed as labelled
+--   STALE_CAMPUS_ROW         a campus row after athletics consolidated
+-- Never chained: a canonical row is not itself linked.
+CREATE TABLE IF NOT EXISTS programme_row_links (
+  college_id TEXT PRIMARY KEY,
+  canonical_college_id TEXT NOT NULL,
+  link_kind TEXT NOT NULL,
+  effective_from_season INTEGER,
+  provenance TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  CHECK (college_id <> canonical_college_id),
+  CHECK (link_kind IN ('SAME_PROGRAMME_ALT_NAME', 'SUPERSEDED_DIVISION_ROW', 'PHANTOM_ROW', 'STALE_CAMPUS_ROW'))
+);
+CREATE INDEX IF NOT EXISTS idx_prl_canonical ON programme_row_links(canonical_college_id);
+
+-- refresh_batches / refresh_observations — the STAGING LAYER.
+--
+-- A refresh never writes a canonical table. Gathered records land here with
+-- their raw source identity, their resolution and a classification; the diff
+-- report and the promotion gate read them; only integrityPromote.js turns an
+-- approved observation into a canonical write, with an expected-old guard.
+CREATE TABLE IF NOT EXISTS refresh_batches (
+  batch_id TEXT PRIMARY KEY,
+  season INTEGER NOT NULL,
+  scope TEXT NOT NULL,               -- division scope, e.g. NAIA
+  datasets TEXT NOT NULL,            -- JSON array
+  status TEXT NOT NULL,
+  input_hash TEXT NOT NULL,          -- sha256 of the gathered input
+  batch_hash TEXT,                   -- sha256 of the staged, classified observations
+  parser_version TEXT,
+  created_at TEXT NOT NULL,
+  validated_at TEXT,
+  promoted_at TEXT,
+  gate_json TEXT,
+  notes TEXT,
+  CHECK (status IN ('STAGED', 'VALIDATED', 'REVIEW_REQUIRED', 'PROMOTED', 'REJECTED', 'REVERTED'))
+);
+CREATE TABLE IF NOT EXISTS refresh_observations (
+  observation_id TEXT PRIMARY KEY,   -- deterministic: sha of batch + dataset + source key
+  batch_id TEXT NOT NULL,
+  dataset TEXT NOT NULL,             -- COACH | ROSTER | PROGRAMME | DOMAIN
+  source_url TEXT,
+  source_host TEXT,
+  source_kind TEXT,
+  source_tier TEXT,
+  fetched_at TEXT,
+  observed_season INTEGER,
+  parser_version TEXT,
+  raw_name TEXT,
+  normalized_name TEXT,
+  raw_json TEXT NOT NULL,
+  candidate_entity_id TEXT,
+  candidate_college_id TEXT,
+  resolution_method TEXT,
+  resolution_decision TEXT,
+  confidence REAL,
+  evidence_json TEXT,
+  target_table TEXT,
+  target_key TEXT,
+  classification TEXT NOT NULL,
+  proposed_action TEXT,
+  proposed_json TEXT,                -- the fields the action would write
+  expected_old_json TEXT,            -- what the target must still hold at promotion
+  requires_review INTEGER NOT NULL DEFAULT 0,
+  review_status TEXT,                -- NULL | APPROVED | REJECTED
+  review_note TEXT,
+  promoted_at TEXT,
+  CHECK (dataset IN ('COACH', 'ROSTER', 'PROGRAMME', 'DOMAIN')),
+  CHECK (classification IN ('CONFIRMED_UNCHANGED', 'NEW_RECORD', 'VERIFIED_UPDATE', 'POSSIBLE_CHANGE',
+                            'CONTRADICTION', 'STALE_CANDIDATE', 'IDENTITY_AMBIGUOUS', 'SOURCE_UNTRUSTED',
+                            'DISAPPEARED_FROM_SOURCE')),
+  CHECK (review_status IS NULL OR review_status IN ('APPROVED', 'REJECTED'))
+);
+CREATE INDEX IF NOT EXISTS idx_refresh_obs_batch ON refresh_observations(batch_id, dataset, classification);
+CREATE TABLE IF NOT EXISTS refresh_promotions (
+  promotion_id TEXT PRIMARY KEY,
+  batch_id TEXT NOT NULL,
+  batch_hash TEXT NOT NULL,
+  promoted_at TEXT NOT NULL,
+  ops_applied INTEGER NOT NULL,
+  manifest_json TEXT NOT NULL,       -- every op with its old values: the revert input
+  gate_json TEXT NOT NULL,
+  status TEXT NOT NULL,
+  CHECK (status IN ('PROMOTED', 'REVERTED'))
+);
+
+-- season_freezes — a finished season is history. A freeze records a fingerprint
+-- of every season-keyed row (rosters, coach seasons, records, conference
+-- seasons) for that season and scope; the promotion gate refuses any batch that
+-- would change a frozen fingerprint, and the monitor re-checks them.
+CREATE TABLE IF NOT EXISTS season_freezes (
+  season INTEGER NOT NULL,
+  scope TEXT NOT NULL,               -- division scope, or '*' for every division
+  frozen_at TEXT NOT NULL,
+  fingerprint_json TEXT NOT NULL,
+  provenance TEXT NOT NULL,
+  PRIMARY KEY (season, scope)
+);
+
+-- ===========================================================================
 -- conference_seasons — one conference's own table, for one sport, one season
 --
 -- The cheapest coverage in this design. One fetch of a conference's standings

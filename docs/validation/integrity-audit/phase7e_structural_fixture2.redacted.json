@@ -1,0 +1,34 @@
+{
+ "phase": "7E-structural-2",
+ "created_at": "2026-09-29",
+ "fixture_hash": "ff33d246459239fa988069bbbef5c7eca52e15b8a632792af55420edb362a0df",
+ "entities": [],
+ "entity_notes": [],
+ "repairs": [],
+ "row_links": [],
+ "periods": [],
+ "seed_periods": {
+  "first_season": 2026,
+  "source_tier": "SEED",
+  "provenance": "SEED: colleges current state at the Phase 7E cut-over (2026-09-29); not independently verified — verified on the first guarded refresh"
+ },
+ "alias_entity_ties": [],
+ "alias_repairs": [
+  {
+   "alias_key": "east central ok",
+   "conference_scope": "*",
+   "expected_old": {
+    "unitid": 207041,
+    "athletics_entity_id": null
+   },
+   "set": {
+    "unitid": 175643,
+    "athletics_entity_id": "AE-U175643"
+   },
+   "provenance": "alias of the \"East Central (OK)\" NJCAA row followed its UNITID correction (207041 East Central University OK -> 175643 East Central Community College MS); found by the Phase 7E historical simulation (alias contradicted the corrected row)"
+  }
+ ],
+ "coach_reassign": [],
+ "domains": [],
+ "_redaction": "no personal data"
+}

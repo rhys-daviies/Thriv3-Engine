@@ -1,0 +1,170 @@
+{
+  "milestone": "PHASE 7B.3 — TIER-1 NAIA AUTHORITATIVE REVALIDATION CLOSURE",
+  "created_at": "2026-09-28T03:20:28.579Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev). Factual repairs applied; eligibility derived on temp copies.",
+  "frozen_population": 205,
+  "batches_completed": 6,
+  "batch_sizes": {
+    "A": 40,
+    "B": 40,
+    "C": 40,
+    "D": 40,
+    "E": 40,
+    "F": 5
+  },
+  "access_class_totals": {
+    "LIVE_AUTHORITATIVE_READ": 176,
+    "OFFICIAL_DIRECTORY_FALLBACK": 5,
+    "BLOCKED": 11,
+    "BROWSER_FALLBACK_READ": 13
+  },
+  "blocked_programmes": 11,
+  "needs_domain_repair": 1,
+  "domain_class_totals": {
+    "VERIFIED_CORRECT": 201,
+    "NEEDS_DOMAIN_REPAIR": 1,
+    "SHARED_AMBIGUOUS": 1,
+    "VERIFIED_ALIAS_CORRECT": 2
+  },
+  "factual_repairs": {
+    "ADD_EVIDENCE": 406,
+    "CORRECT_EMAIL": 3,
+    "MARK_STALE": 51,
+    "INSERT_CURRENT": 35,
+    "HOLD": 187
+  },
+  "mark_stale_breakdown": {
+    "departed": 42,
+    "wrong_institution": 6,
+    "wrong_sport": 3
+  },
+  "email_quality": {
+    "exact_current_valid_association": 406,
+    "changed_addresses": 3,
+    "departed_or_wrong_association": 51,
+    "ADDRESS_DEFECT_note": "CORRECT_EMAIL cases = published address changed",
+    "ASSOCIATION_DEFECT_note": "MARK_STALE cases = email tied to departed/wrong-institution/wrong-sport association"
+  },
+  "coverage_before": {
+    "naia_eligible": 56,
+    "naia_covered": 30,
+    "strict": 53
+  },
+  "coverage_after": {
+    "naia_eligible": 494,
+    "naia_covered": 222,
+    "strict": 491
+  },
+  "naia_universe_after": {
+    "active": 384,
+    "COVERED_ELIGIBLE": 222,
+    "COVERED_INELIGIBLE_ONLY": 152,
+    "COACH_SEASONS_ONLY": 0,
+    "NO_COACH_DATA": 10,
+    "coverage_pct": "57.8%"
+  },
+  "remaining_uncovered_tier1": 13,
+  "residual_reasons": {
+    "blocked_official_site": 11,
+    "positive_evidence_but_domain_or_strict_gate": 2
+  },
+  "residual_detail": [
+    {
+      "key": "150941|mens-soccer",
+      "reason": "blocked_official_site",
+      "access_class": "BLOCKED",
+      "domain_class": "VERIFIED_CORRECT"
+    },
+    {
+      "key": "154688|mens-soccer",
+      "reason": "blocked_official_site",
+      "access_class": "BLOCKED",
+      "domain_class": "VERIFIED_CORRECT"
+    },
+    {
+      "key": "181330|mens-soccer",
+      "reason": "blocked_official_site",
+      "access_class": "BLOCKED",
+      "domain_class": "VERIFIED_CORRECT"
+    },
+    {
+      "key": "170967|mens-soccer",
+      "reason": "blocked_official_site",
+      "access_class": "BLOCKED",
+      "domain_class": "VERIFIED_CORRECT"
+    },
+    {
+      "key": "202514|mens-soccer",
+      "reason": "blocked_official_site",
+      "access_class": "BLOCKED",
+      "domain_class": "VERIFIED_CORRECT"
+    },
+    {
+      "key": "152099|mens-soccer",
+      "reason": "blocked_official_site",
+      "access_class": "BLOCKED",
+      "domain_class": "VERIFIED_CORRECT"
+    },
+    {
+      "key": "207351|mens-soccer",
+      "reason": "blocked_official_site",
+      "access_class": "BLOCKED",
+      "domain_class": "VERIFIED_CORRECT"
+    },
+    {
+      "key": "154688|womens-soccer",
+      "reason": "blocked_official_site",
+      "access_class": "BLOCKED",
+      "domain_class": "VERIFIED_CORRECT"
+    },
+    {
+      "key": "181330|womens-soccer",
+      "reason": "blocked_official_site",
+      "access_class": "BLOCKED",
+      "domain_class": "VERIFIED_CORRECT"
+    },
+    {
+      "key": "152099|womens-soccer",
+      "reason": "blocked_official_site",
+      "access_class": "BLOCKED",
+      "domain_class": "SHARED_AMBIGUOUS"
+    },
+    {
+      "key": "154518|womens-soccer",
+      "reason": "blocked_official_site",
+      "access_class": "BLOCKED",
+      "domain_class": "VERIFIED_CORRECT"
+    },
+    {
+      "key": "210331|mens-soccer",
+      "reason": "positive_evidence_but_domain_or_strict_gate",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT"
+    },
+    {
+      "key": "219718|womens-soccer",
+      "reason": "positive_evidence_but_domain_or_strict_gate",
+      "access_class": "LIVE_AUTHORITATIVE_READ",
+      "domain_class": "VERIFIED_CORRECT"
+    }
+  ],
+  "remaining_naia_tiers": {
+    "tier2_domain_verification": 128,
+    "tier3_email_research": 4,
+    "tier4_currentness": 0,
+    "tier5_6_7_multi_axis": 5,
+    "note": "unchanged by 7B.3 (no domain mappings altered); frozen for next phase"
+  },
+  "ncaa_non_regression": {
+    "membership_hash_before": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+    "ncaa_eligible_before": 3356,
+    "other_division_hash_before": "3d9181c9d5cd1ddb4a48d856dcf856deeafbc88c2a4c15195938a77273c077d0",
+    "other_division_before": 1,
+    "note": "compare against a fresh live measure; harness gate confirmed 0 delta each batch"
+  },
+  "fingerprints": {
+    "coach_fp": "86d8dba417937d284704c95686d23d821f8721c1e77c1c0d3fdf5c605f05e7c8",
+    "domain_fp": "498eb15f134f4e58d2a9a73bd281611a21e8885f7ab8568ffa7e61fe411699cc",
+    "college_fp": "9d0b6fda34a5f330243290f94858119e91fe14c6c5932bce6ff3d4bfd8d5768a"
+  }
+}

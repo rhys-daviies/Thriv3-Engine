@@ -20,6 +20,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import db from '../db/client.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { assertCanonicalWrite } from '../db/corpusIdentity.js';
 import { readClassYear } from '../../shared/classYear.js';
 import { snapshotDatabase } from '../lib/dbSnapshot.js';
@@ -54,6 +55,7 @@ function main() {
     console.log('\ndry run — nothing written. Re-run with --apply.\n');
     return;
   }
+  assertLegacyWriteAllowed(db, { script: 'refreshGraduationYears.js' });
 
   /*
    * L7ZM. This writes product data. When the corpus is one other checkouts

@@ -42,6 +42,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import db from '../db/client.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { utcNow } from '../lib/time.js';
 import { buildResolvers } from '../lib/institutionQueries.js';
 import {
@@ -271,6 +272,7 @@ export function run({ apply = false, dir = DIR, log = console.log } = {}) {
   log('by domain :'); for (const [k, v] of Object.entries(byDom).sort((a, b) => b[1] - a[1])) log(`  ${k.padEnd(24)}${String(v).padStart(5)}`);
 
   if (!apply) { log('\ndry run — pass --apply to write'); return { rows, mappings, written: 0 }; }
+  assertLegacyWriteAllowed(db, { script: 'verifyAthleticsDomains.js' });
   const cols = Object.keys(rows[0]);
   const ins = db.prepare(`INSERT INTO athletics_domains (${cols.join(', ')}) VALUES (${cols.map((c) => `@${c}`).join(', ')})`);
   const write = db.transaction((all) => {

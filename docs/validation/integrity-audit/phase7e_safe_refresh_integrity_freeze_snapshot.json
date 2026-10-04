@@ -1,0 +1,1053 @@
+{
+ "milestone": "PHASE 7E — SAFE REFRESH ARCHITECTURE + NAIA FREEZE (shared dev)",
+ "created_at": "2026-09-29",
+ "db": "server/data/recruitmatch.sqlite (shared dev; production untouched)",
+ "checkpoint": {
+  "pushed": "2faa4a2",
+  "branch": "feature/coach-corroboration-7b",
+  "local_equals_remote": true,
+  "behind_main": 0
+ },
+ "structural_cleanup": {
+  "fixture_hash": "c9f166936e28f02bc9b0c93ce0341ec76c471a26b982f62ea201609f20281bfe",
+  "fixture2_hash": "ff33d246459239fa988069bbbef5c7eca52e15b8a632792af55420edb362a0df",
+  "decisions": {
+   "shawnee_transition": "user-approved (apply transition)",
+   "scad_phantom": "user-approved (retire phantom row)"
+  },
+  "repairs": [
+   {
+    "label": "East Central (OK) [NJCAA mens]",
+    "from": {
+     "unitid": 207041,
+     "athletics_entity_id": "AE-X-EAST-CENTRAL-NJCAA-UNRESOLVED"
+    },
+    "to": {
+     "unitid": 175643,
+     "athletics_entity_id": "AE-U175643"
+    }
+   },
+   {
+    "label": "Penn State Brandywine [NCAA D3 womens]",
+    "from": {
+     "unitid": null
+    },
+    "to": {
+     "unitid": 214731
+    }
+   },
+   {
+    "label": "Central Penn [mens]",
+    "from": {
+     "division": "NJCAA",
+     "conference": "EPAC"
+    },
+    "to": {
+     "division": "USCAA",
+     "conference": "Eastern States Athletic Conference"
+    }
+   },
+   {
+    "label": "Shawnee State [NCAA D2 mens]",
+    "from": {
+     "conference": "GMAC"
+    },
+    "to": {
+     "conference": "Mountain East Conference"
+    }
+   },
+   {
+    "label": "Shawnee State University [NAIA mens]",
+    "from": {
+     "active": 1
+    },
+    "to": {
+     "active": 0
+    }
+   },
+   {
+    "label": "Shawnee State University [NAIA womens]",
+    "from": {
+     "active": 1
+    },
+    "to": {
+     "active": 0
+    }
+   },
+   {
+    "label": "SCAD [NCAA D3 mens]",
+    "from": {
+     "active": 1
+    },
+    "to": {
+     "active": 0
+    }
+   }
+  ],
+  "row_links": [
+   {
+    "label": "Shawnee State University -> Shawnee State [mens-soccer]",
+    "kind": "SUPERSEDED_DIVISION_ROW"
+   },
+   {
+    "label": "Shawnee State University -> Shawnee State [womens-soccer]",
+    "kind": "SUPERSEDED_DIVISION_ROW"
+   },
+   {
+    "label": "SCAD -> Savannah College of Art and Design [mens-soccer]",
+    "kind": "PHANTOM_ROW"
+   },
+   {
+    "label": "Calumet College -> Calumet College of St. Joseph [mens-soccer]",
+    "kind": "SAME_PROGRAMME_ALT_NAME"
+   },
+   {
+    "label": "Pomona-Pitzer -> Pomona College [womens-soccer]",
+    "kind": "SAME_PROGRAMME_ALT_NAME"
+   },
+   {
+    "label": "UC Santa Cruz -> University of California-Santa Cruz [womens-soccer]",
+    "kind": "SAME_PROGRAMME_ALT_NAME"
+   },
+   {
+    "label": "Mississippi College -> Mississippi Christian [womens-soccer]",
+    "kind": "SAME_PROGRAMME_ALT_NAME"
+   },
+   {
+    "label": "FDU-Florham -> Fairleigh Dickinson University-Florham [womens-soccer]",
+    "kind": "SAME_PROGRAMME_ALT_NAME"
+   },
+   {
+    "label": "Claremont-Mudd-Scripps -> Claremont McKenna College [womens-soccer]",
+    "kind": "SAME_PROGRAMME_ALT_NAME"
+   },
+   {
+    "label": "Cal Lutheran -> California Lutheran University [womens-soccer]",
+    "kind": "SAME_PROGRAMME_ALT_NAME"
+   }
+  ],
+  "explicit_periods": [
+   "AE-U205443|mens-soccer 2022-2022 NAIA ACTIVE Mid-South Conference",
+   "AE-U205443|mens-soccer 2023-2025 NAIA ACTIVE River States Conference",
+   "AE-U205443|mens-soccer 2026-open NCAA D2 PROVISIONAL Mountain East Conference",
+   "AE-U205443|womens-soccer 2022-2022 NAIA ACTIVE Mid-South Conference",
+   "AE-U205443|womens-soccer 2023-2025 NAIA ACTIVE River States Conference",
+   "AE-U205443|womens-soccer 2026-open NCAA D2 PROVISIONAL Mountain East Conference",
+   "AE-U211477|mens-soccer 2025-open USCAA ACTIVE Eastern States Athletic Conference",
+   "AE-X-SIMON-FRASER|mens-soccer 2026-open NCAA D2 ACTIVE GNAC",
+   "AE-X-SIMON-FRASER|womens-soccer 2026-open NCAA D2 ACTIVE Great Northwest Athletic Conference"
+  ],
+  "seeded_periods": [
+   {
+    "source_tier": "A",
+    "membership_status": "ACTIVE",
+    "n": 1
+   },
+   {
+    "source_tier": "B",
+    "membership_status": "ACTIVE",
+    "n": 4
+   },
+   {
+    "source_tier": "B",
+    "membership_status": "PROVISIONAL",
+    "n": 2
+   },
+   {
+    "source_tier": "SEED",
+    "membership_status": "ACTIVE",
+    "n": 2383
+   }
+  ],
+  "alias_entity_ties": 18,
+  "alias_repairs": [
+   "east central ok: 207041 -> 175643"
+  ],
+  "coach_rehomes": 2,
+  "domains": [
+   "UPDATE ecccathletics.com -> VERIFIED 175643",
+   "INSERT eccc.edu -> VERIFIED 175643",
+   "UPDATE centralpennknights.com -> VERIFIED 211477",
+   "INSERT centralpenn.edu -> VERIFIED 211477"
+  ],
+  "entities_created": [
+   "AE-U175643"
+  ],
+  "simulation_gates": {
+   "G1_programme_resolves_to_one_entity": true,
+   "G2_no_cross_entity_domain_contradiction": true,
+   "G3_no_wrong_institution_eligible": true,
+   "G4_no_wrong_sport_eligible": true,
+   "G5_no_stale_eligible": true,
+   "G6_no_inferred_email_eligible": true,
+   "G7_no_synthetic_federal_unitid": true,
+   "G8_no_unexplained_programme_duplicate": true,
+   "G9_no_historical_season_rewritten": true,
+   "G10_membership_changes_accounted": true,
+   "G11_db_integrity_ok": true,
+   "G12_privacy": true
+  },
+  "simulation_extra": {
+   "X1_no_roster_or_record_moved": true,
+   "X2_only_fixture_coaches_moved": true,
+   "X3_ncaa_legacy_hash_vs_frozen": true,
+   "X4_strict_evidence_complete": true
+  },
+  "live_equals_simulation": true,
+  "reconciler_fix": "requireActiveCanonical (inert on the pre-7E corpus: 4,158 eligible ids identical, 0 canonical changes)"
+ },
+ "shawnee_representation": {
+  "model": "programme_membership_periods keyed on entity+sport; NAIA periods 2022 (Mid-South) and 2023-2025 (River States) on the superseded NAIA rows; NCAA D2 PROVISIONAL (MEC) 2026-open, postseason_eligible 0, review_due_season 2028 on the NCAA D2 rows",
+  "evidence": [
+   "mountaineast.org 2026-02-11 announcement (tier B)",
+   "ssubears.com 2026 men's and women's schedules list MEC matches (tier B)"
+  ],
+  "history": "programme_conference_seasons/programme_seasons/rosters untouched; seasons 2022-2025 frozen"
+ },
+ "remaining_structural_holds": [
+  "STLCC: three stale campus rows of one consolidated NJCAA programme (archersathletics.com, MCCAC); physical consolidation + rename needs importer alias awareness; women's programme not in the universe",
+  "East Central (OK) NJCAA row: identity fixed (175643); display name / nickname (Tigers) / logo still ECU's — cosmetic, importer keys on the name",
+  "Lincoln Trail + George C. Wallace: UNRESOLVED_FEDERAL (NJCAA identity phase)",
+  "NCAA same-programme spellings (6 women's pairs) + Calumet: linked as data; physical consolidation deferred (importers match exact names)",
+  "Shawnee State men's duplicate coach rows on the superseded NAIA row (history; person merge = protected action)",
+  "Stanton men's programme not in the universe (Phase 7D)"
+ ],
+ "ingestion_audit": {
+  "path_entries": 36,
+  "by_status": {
+   "CLOSED_GUARDED": 21,
+   "CLOSED_ROUTE": 8,
+   "SAFE_UNCHANGED": 3,
+   "LEGACY_APPLIER": 1,
+   "RESIDUAL_OPEN": 3
+  },
+  "unsafe_or_bypass_entries": 33,
+  "cli_scripts_now_guarded": 23,
+  "http_routes_now_refused": 8,
+  "note": "CLOSED_GUARDED entries cover 23 CLI scripts (22 Node + 1 Python) (two entries group 2 scripts each; dedupe_schools.py included)"
+ },
+ "unsafe_paths": [
+  {
+   "path": "server/scripts/verifyAthleticsDomains.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS",
+    "UNSAFE"
+   ]
+  },
+  {
+   "path": "server/scripts/importInstitutionAliases.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "server/scripts/importCoachTenure.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "FUZZY_MATCH",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "server/scripts/importProgrammeSeasons.js (npm import:seasons)",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "server/scripts/importConferenceSeasons.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "INFERRED_DATA",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "server/scripts/importOfficialMembership.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "server/scripts/importRosterSheets.js (npm import-rosters)",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "server/scripts/loadMatchingInputs.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS",
+    "UNSAFE"
+   ]
+  },
+  {
+   "path": "server/scripts/promoteCoaches.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "LEGACY",
+    "UNSAFE",
+    "BYPASS",
+    "DESTRUCTIVE_OVERWRITE",
+    "INFERRED_DATA"
+   ]
+  },
+  {
+   "path": "server/scripts/verifiedDomainBackfill.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "server/scripts/applyUscaaDivision.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "LEGACY",
+    "BYPASS",
+    "DESTRUCTIVE_OVERWRITE",
+    "INFERRED_DATA"
+   ]
+  },
+  {
+   "path": "server/scripts/seedRosterGapColleges.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "INFERRED_DATA",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "server/scripts/refreshGraduationYears.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE"
+   ]
+  },
+  {
+   "path": "server/scripts/alignRosterSchoolNames.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "LEGACY"
+   ]
+  },
+  {
+   "path": "server/scripts/cleanupInactiveMensSoccer.js / cleanupInactiveWomensSoccer.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "LEGACY"
+   ]
+  },
+  {
+   "path": "server/scripts/mergeCoachingContacts.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "FUZZY_MATCH",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "server/scripts/placeBucketB.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "LEGACY",
+    "BYPASS",
+    "INFERRED_DATA"
+   ]
+  },
+  {
+   "path": "server/scripts/applyWomensProgrammes.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "LEGACY",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "server/scripts/seedNaiaMensGapColleges.js / seedWomensSoccerColleges.js",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "LEGACY",
+    "BYPASS",
+    "DESTRUCTIVE_OVERWRITE",
+    "FUZZY_MATCH"
+   ]
+  },
+  {
+   "path": "server/seed/seedFromLocalData.js (npm seed)",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "LEGACY",
+    "FUZZY_MATCH",
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "tools/soccer/dedupe_schools.py",
+   "status": "CLOSED_GUARDED",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "LEGACY"
+   ]
+  },
+  {
+   "path": "POST /api/functions/cleanInactiveSchools",
+   "status": "CLOSED_ROUTE",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "FUZZY_MATCH",
+    "UNSAFE"
+   ]
+  },
+  {
+   "path": "POST /api/functions/importSoccerScores",
+   "status": "CLOSED_ROUTE",
+   "flags": [
+    "LEGACY",
+    "FUZZY_MATCH",
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "POST /api/functions/evaluateSoccerProgram",
+   "status": "CLOSED_ROUTE",
+   "flags": [
+    "INFERRED_DATA",
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "POST /api/functions/seedD1Schools",
+   "status": "CLOSED_ROUTE",
+   "flags": [
+    "LEGACY",
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS",
+    "INFERRED_DATA"
+   ]
+  },
+  {
+   "path": "POST /api/functions/buildGraduatingDatabase (called by src/pages/GraduatingDatabase.jsx)",
+   "status": "CLOSED_ROUTE",
+   "flags": [
+    "UNSAFE",
+    "INFERRED_DATA"
+   ]
+  },
+  {
+   "path": "POST /api/functions/importGraduatingCSV",
+   "status": "CLOSED_ROUTE",
+   "flags": [
+    "UNSAFE"
+   ]
+  },
+  {
+   "path": "POST /api/coaching-import/apply",
+   "status": "CLOSED_ROUTE",
+   "flags": [
+    "UNSAFE",
+    "FUZZY_MATCH",
+    "BYPASS",
+    "DESTRUCTIVE_OVERWRITE"
+   ]
+  },
+  {
+   "path": "POST/PUT/DELETE /api/entities/{colleges,roster_players,graduating_seniors}",
+   "status": "CLOSED_ROUTE",
+   "flags": [
+    "UNSAFE",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "server/scripts/applyPhase*.js / applyCoach*.js / applyDomainCorrections.js (Phases 3-7D)",
+   "status": "LEGACY_APPLIER",
+   "flags": [
+    "LEGACY",
+    "BYPASS (all but 7D)"
+   ]
+  },
+  {
+   "path": "server/lib/coaches.js findOrCreateCoach (POST /api/outreach/send)",
+   "status": "RESIDUAL_OPEN",
+   "flags": [
+    "UNSAFE (client-supplied school)",
+    "BYPASS"
+   ]
+  },
+  {
+   "path": "server/routes/programmeCoaches.js (read path)",
+   "status": "RESIDUAL_OPEN",
+   "flags": [
+    "UNSAFE (read)"
+   ]
+  },
+  {
+   "path": "roster_players.projected_games_* columns",
+   "status": "RESIDUAL_OPEN"
+  }
+ ],
+ "architecture": {
+  "identity_hierarchy": [
+   "known athletics_entity_id",
+   "authoritative host/domain (host-level first)",
+   "entity-tied alias",
+   "federal UNITID (parent-only when campuses hang off it)",
+   "parent + exact programme name",
+   "exact programme name (NAME ONLY — never promotes alone)",
+   "review (fuzzy = candidates only)"
+  ],
+  "source_tiers": {
+   "A": "entity-owned official pages, governing-body membership, NCES",
+   "B": "conference site, institutional announcement, official schedule",
+   "C": "archived / prior-season / Wayback — history only",
+   "D": "search, aggregators, third-party, inferred — never promotes"
+  },
+  "classifications": [
+   "CONFIRMED_UNCHANGED",
+   "NEW_RECORD",
+   "VERIFIED_UPDATE",
+   "POSSIBLE_CHANGE",
+   "CONTRADICTION",
+   "STALE_CANDIDATE",
+   "IDENTITY_AMBIGUOUS",
+   "SOURCE_UNTRUSTED",
+   "DISAPPEARED_FROM_SOURCE"
+  ],
+  "staging": "refresh_batches + refresh_observations (additive); integrity:refresh writes staging only",
+  "promotion": "integrity:promote — batch hash, review decisions, protected actions, frozen seasons, simulate + 12 gates, one transaction, expected-old guards, idempotent, manifest revert, live re-measure == simulation or auto-revert",
+  "temporal": "programme_membership_periods (division/conference/status over seasons) + programme_row_links + season_freezes; colleges.division is a pointer (H10)",
+  "gates": [
+   "G1 entity",
+   "G2 domain contradiction",
+   "G3 wrong institution",
+   "G4 wrong sport",
+   "G5 stale",
+   "G6 inferred email",
+   "G7 synthetic UNITID",
+   "G8 duplicate",
+   "G9 history rewrite",
+   "G10 membership accounting",
+   "G11 integrity_check",
+   "G12 privacy"
+  ],
+  "monitors": "integrity:monitor — IDENTITY / PROGRAMME / ROSTER / DOMAIN / COACH / DB + NAIA freeze drift",
+  "freshness": "competitive cycle (1 Jul-30 Jun): CURRENT this cycle, AGING last cycle, STALE older, UNKNOWN never; roster prior season AGING until 1 Oct",
+  "guards": "canonicalWriteGuard: 23 CLI writers refuse on the managed DB without --legacy-write-ack --reason; 8 HTTP write routes 409"
+ },
+ "regression_fixtures": [
+  "Concordia Texas vs Texas (+ Concordia NE)",
+  "Saint Mary's CA/MN/TX",
+  "Trinity TX vs Trinity Christian",
+  "USF Indiana vs Illinois",
+  "Columbia MO vs SC vs Columbia (WRONG_INSTITUTION host)",
+  "Johnson vs Johnson & Wales (longest self-identification)",
+  "IU Columbus vs IU Indianapolis (parent-only domain)",
+  "Benedictine Mesa vs Lisle (cross-division branch)",
+  "Park Gilbert vs Park (campus subdomain)",
+  "Shawnee transition (two tier-B; no history rewrite)",
+  "shared PrestoSports",
+  "inferred email discarded",
+  "stale coach reinstatement reviewed",
+  "departed head coach (named successor) / absent assistant (investigate)",
+  "changed email (same person, old gone)",
+  "wrong-sport source",
+  "branch campus on parent host",
+  "no-UNITID institution (Stanton)",
+  "same address across both teams of one institution",
+  "old roster page / frozen season / non-player rows / duplicate names / class regression / transfer candidate"
+ ],
+ "historical_simulation": {
+  "summary": {
+   "safe_facts_promoted": true,
+   "uncertainty_staged_not_written": true,
+   "contradictions_rejected": true,
+   "inferred_email_never_stored": true,
+   "transition_closed_and_opened": "[{\"first_season\":2026,\"last_season\":2026,\"division\":\"NAIA\",\"membership_status\":\"ACTIVE\"},{\"first_season\":2027,\"last_season\":null,\"division\":\"NCAA D2\",\"membership_status\":\"PROVISIONAL\"}]",
+   "discontinued_programme_inactive_not_deleted": true,
+   "departed_head_marked_stale_not_deleted": "PROVEN_STALE",
+   "frozen_seasons_unchanged": true,
+   "prior_season_rosters_unchanged": true,
+   "new_season_rows": 39
+  },
+  "promoted": [
+   {
+    "a": "ASSIGN_DOMAIN",
+    "n": 1
+   },
+   {
+    "a": "CHANGE_DIVISION",
+    "n": 1
+   },
+   {
+    "a": "CREATE_COACH",
+    "n": 3
+   },
+   {
+    "a": "DEACTIVATE_PROGRAMME",
+    "n": 1
+   },
+   {
+    "a": "INSERT_ROSTER_ROW",
+    "n": 39
+   },
+   {
+    "a": "MARK_PROVEN_STALE",
+    "n": 1
+   },
+   {
+    "a": "REFRESH_COACH_EVIDENCE",
+    "n": 7
+   },
+   {
+    "a": "REPLACE_VERIFIED_EMAIL",
+    "n": 1
+   }
+  ],
+  "withheld": [
+   {
+    "c": "CONTRADICTION",
+    "a": null,
+    "n": 6
+   },
+   {
+    "c": "CONTRADICTION",
+    "a": "CHANGE_DIVISION",
+    "n": 1
+   },
+   {
+    "c": "CONTRADICTION",
+    "a": "CHANGE_DOMAIN_OWNERSHIP",
+    "n": 1
+   },
+   {
+    "c": "DISAPPEARED_FROM_SOURCE",
+    "a": "INVESTIGATE_CURRENTNESS",
+    "n": 1
+   },
+   {
+    "c": "IDENTITY_AMBIGUOUS",
+    "a": null,
+    "n": 1
+   },
+   {
+    "c": "SOURCE_UNTRUSTED",
+    "a": null,
+    "n": 1
+   }
+  ],
+  "classifications": {
+   "COACH:CONFIRMED_UNCHANGED": 7,
+   "COACH:CONTRADICTION": 5,
+   "COACH:DISAPPEARED_FROM_SOURCE": 1,
+   "COACH:IDENTITY_AMBIGUOUS": 1,
+   "COACH:NEW_RECORD": 3,
+   "COACH:STALE_CANDIDATE": 1,
+   "COACH:VERIFIED_UPDATE": 1,
+   "DOMAIN:CONTRADICTION": 1,
+   "DOMAIN:NEW_RECORD": 1,
+   "PROGRAMME:CONTRADICTION": 1,
+   "PROGRAMME:VERIFIED_UPDATE": 2,
+   "ROSTER:CONTRADICTION": 1,
+   "ROSTER:NEW_RECORD": 39,
+   "ROSTER:SOURCE_UNTRUSTED": 1
+  },
+  "defects_found_and_fixed": [
+   "a coach coaching both teams of one institution was flagged as an address conflict -> rule now entity-scoped",
+   "alias \"east central ok\" still pointed at 207041 after the UNITID correction -> repaired (fixture 2) + permanent H11"
+  ]
+ },
+ "naia_freeze": {
+  "_doc": "Phase 7E NAIA identity/coverage FREEZE. From this point NAIA changes ONLY through the guarded refresh workflow (npm run integrity:refresh -> integrity:promote). integrity:monitor compares the live NAIA universe/coverage/membership to these hashes: a difference with no guarded promotion recorded after frozen_at is a HARD finding (a bypass); a difference explained by promotions is reported with their ids.",
+  "frozen_at": "2026-09-29T05:00:00.000Z",
+  "season": 2026,
+  "scope": "NAIA",
+  "logical_programmes": 381,
+  "active_rows": 382,
+  "covered_authoritative": 370,
+  "coverage_pct": 97.11,
+  "valid_residuals": 11,
+  "explained_pct": 100,
+  "eligible_coaches": 798,
+  "strict_path_coaches": 798,
+  "strict_evidence_complete": true,
+  "universe_hash": "0f8bc0695d4ea21616e43d6a42680fd0843acacc31df54660abfd26a81eaa39a",
+  "covered_hash": "a4d8584bb1e203155331e4a9e163c36c262fda300a200c1e2fbf4287228f04c0",
+  "membership_hash": "41e6db873629398a8adec1ee764af686c3697be5617123f89166e70c8a27e0bc",
+  "residuals": [
+   {
+    "key": "AE-U140951|mens-soccer",
+    "programme": "Savannah College of Art and Design",
+    "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+   },
+   {
+    "key": "AE-U140951|womens-soccer",
+    "programme": "Savannah College of Art and Design",
+    "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+   },
+   {
+    "key": "AE-U152099|mens-soccer",
+    "programme": "Oakland City University",
+    "disposition": "AUTHORITATIVE_SOURCE_BLOCKED"
+   },
+   {
+    "key": "AE-U152099|womens-soccer",
+    "programme": "Oakland City University",
+    "disposition": "AUTHORITATIVE_SOURCE_BLOCKED"
+   },
+   {
+    "key": "AE-U162210|womens-soccer",
+    "programme": "Washington Adventist University",
+    "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+   },
+   {
+    "key": "AE-U176406|mens-soccer",
+    "programme": "Tougaloo College",
+    "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+   },
+   {
+    "key": "AE-U179265|mens-soccer",
+    "programme": "University of Health Sciences and Pharmacy in St. Louis",
+    "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+   },
+   {
+    "key": "AE-U220473|mens-soccer",
+    "programme": "Johnson University",
+    "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+   },
+   {
+    "key": "AE-U225885|womens-soccer",
+    "programme": "Jarvis Christian University",
+    "disposition": "AUTHORITATIVE_SOURCE_BLOCKED"
+   },
+   {
+    "key": "AE-U486901|mens-soccer",
+    "programme": "Milligan University",
+    "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+   },
+   {
+    "key": "AE-U486901|womens-soccer",
+    "programme": "Milligan University",
+    "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+   }
+  ],
+  "transitions_out": [
+   {
+    "key": "AE-U205443|mens-soccer",
+    "to": "NCAA D2 PROVISIONAL (MEC) from 2026",
+    "review_due_season": 2028
+   },
+   {
+    "key": "AE-U205443|womens-soccer",
+    "to": "NCAA D2 PROVISIONAL (MEC) from 2026",
+    "review_due_season": 2028
+   }
+  ],
+  "universe_keys": "381 keys (shared/naiaIntegrityFreeze.json)"
+ },
+ "naia_final": {
+  "logical": 381,
+  "covered": 370,
+  "coverage_pct": 97.11,
+  "valid_residuals": 11,
+  "explained_pct": 100,
+  "eligible": 798,
+  "strict_path": 798,
+  "strict_evidence_complete": true
+ },
+ "membership_delta": {
+  "NCAA D1": {
+   "eligible": "1327 -> 1327",
+   "universe_logical": "562 -> 562",
+   "hash_changed": false
+  },
+  "NCAA D2": {
+   "eligible": "808 -> 810",
+   "universe_logical": "461 -> 461",
+   "hash_changed": true
+  },
+  "NCAA D3": {
+   "eligible": "1222 -> 1222",
+   "universe_logical": "736 -> 735",
+   "hash_changed": false
+  },
+  "NAIA": {
+   "eligible": "801 -> 798",
+   "universe_logical": "383 -> 381",
+   "hash_changed": true
+  },
+  "NJCAA": {
+   "eligible": "0 -> 0",
+   "universe_logical": "224 -> 223",
+   "hash_changed": false
+  },
+  "USCAA": {
+   "eligible": "0 -> 0",
+   "universe_logical": "21 -> 22",
+   "hash_changed": false
+  },
+  "NCCAA": {
+   "eligible": "0 -> 0",
+   "universe_logical": "2 -> 2",
+   "hash_changed": false
+  }
+ },
+ "ncaa_membership_hash": {
+  "legacy_frozen": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+  "legacy_unchanged": true,
+  "truthful_pre": "abe344e759a821f32d7d7d20e6fa26fd4ba920e5425bec7a5a5faa4e3ff9b3bf",
+  "truthful_post": "f8cfef4a58d052bd07fa6f7e8dd4601c78108276b91f8906a0e34f1d5bd2ce74",
+  "explained_by": "Shawnee State women's 2 coaches re-homed to the NCAA D2 row (+2 NCAA D2); SCAD phantom NCAA D3 row retired (-1 NCAA D3 programme, 0 coaches)"
+ },
+ "integrity": {
+  "source_domain_conflicts": 0,
+  "wrong_institution_eligible": 0,
+  "wrong_sport_eligible": 0,
+  "stale_eligible": 0,
+  "inferred_eligible": 0,
+  "duplicate_identity": 0,
+  "canonical_round_trip": 0
+ },
+ "njcaa_uscaa_starting_baselines": {
+  "phase": "7E",
+  "measured_at": "2026-09-29",
+  "note": "Inspection only — no NJCAA/USCAA coach acquisition. Institutional identifiers only.",
+  "NJCAA": {
+   "rows": 227,
+   "active_rows": 225,
+   "inactive_rows": 2,
+   "logical_programmes": 223,
+   "by_sport_logical": {
+    "mens-soccer": 223
+   },
+   "entities": 223,
+   "entity_kinds": {
+    "SINGLE": 221,
+    "UNRESOLVED_FEDERAL": 2
+   },
+   "unresolved_federal": [
+    "AE-X-LINCOLN-TRAIL",
+    "AE-X-GEORGE-C-WALLACE"
+   ],
+   "non_title_iv": [],
+   "documented_duplicates": [
+    "AE-U179308|mens-soccer CONSOLIDATED_ATHLETICS_STALE_CAMPUS_ROWS"
+   ],
+   "entities_with_trusted_host": 22,
+   "trusted_hosts": 23,
+   "membership_open_periods": 223,
+   "membership_seed_only": 223,
+   "membership_verified": 0,
+   "roster_programmes_by_season": {},
+   "roster_rows_by_season": {},
+   "coach_rows": 0,
+   "coach_rows_verified": 0,
+   "coach_seasons_rows": 0
+  },
+  "USCAA": {
+   "rows": 22,
+   "active_rows": 22,
+   "inactive_rows": 0,
+   "logical_programmes": 22,
+   "by_sport_logical": {
+    "mens-soccer": 12,
+    "womens-soccer": 10
+   },
+   "entities": 15,
+   "entity_kinds": {
+    "SINGLE": 14,
+    "NON_TITLE_IV": 1
+   },
+   "unresolved_federal": [],
+   "non_title_iv": [
+    "AE-X-CHRISTENDOM"
+   ],
+   "documented_duplicates": [],
+   "entities_with_trusted_host": 1,
+   "trusted_hosts": 2,
+   "membership_open_periods": 22,
+   "membership_seed_only": 21,
+   "membership_verified": 1,
+   "roster_programmes_by_season": {
+    "2022": 1,
+    "2023": 2,
+    "2024": 2,
+    "2025": 21,
+    "2026": 1
+   },
+   "roster_rows_by_season": {
+    "2022": 14,
+    "2023": 35,
+    "2024": 35,
+    "2025": 384,
+    "2026": 19
+   },
+   "coach_rows": 0,
+   "coach_rows_verified": 0,
+   "coach_seasons_rows": 0
+  }
+ },
+ "fingerprints": {
+  "domain_fp": "d84f1bb23782aa5f2832f669cd084afb442a73c03dadc5c8958b439559b06fd4",
+  "coach_fp": "f17cdff6ecfb1bac2df560566031af825a1dea8e9c450741655a87488f2f7cd4",
+  "college_fp": "52c0e2744a7903dc129b8c83bf0d20a8fcb4009435b29ed41d919f7e544755dc",
+  "entity_fp": "29d707b60fa395b29fd9118ae44261d68778038951970d043a075623fdbf46a4",
+  "membership_period_fp": "10137a422df9f2c4dd515b88d8378c581454e864145cdabd0fbbedfffb90e862",
+  "row_link_fp": "976b66b4b4ef4c172ab9286491a4dcf2f4d607ed1a0c6752f9b6564fe2c93e18",
+  "alias_fp": "278d338f5a4df8fa9e565902ab39fc9fd1d968de71c15240a42e5aa155003de2",
+  "season_freezes": [
+   {
+    "season": 2022,
+    "scope": "*",
+    "frozen_at": "2026-09-29T04:12:55.780Z",
+    "fingerprint": {
+     "roster_players": {
+      "rows": 50559,
+      "sha256": "d2aceb37082dd9394991d89a86078992313d68b1afabe36cc1689f54783955bc"
+     },
+     "coach_seasons": {
+      "rows": 1719,
+      "sha256": "6a5f202e6f1e769f9d05f006fe03ba934f3870078db553b2a0f3d41a40f8d678"
+     },
+     "programme_seasons": {
+      "rows": 2156,
+      "sha256": "e0417c26c2363f7bf52d6d6cdb2e71995953e257e22465c036d184b049674838"
+     },
+     "programme_conference_seasons": {
+      "rows": 1765,
+      "sha256": "18eac7ce0878e0972bf364c4d50f2b795e2d9213b85d3407f160c4ab50799f00"
+     }
+    }
+   },
+   {
+    "season": 2023,
+    "scope": "*",
+    "frozen_at": "2026-09-29T04:12:56.110Z",
+    "fingerprint": {
+     "roster_players": {
+      "rows": 51104,
+      "sha256": "8dc91bb66a901ba681db5598d171a69797b4bb47a3b55254d876a26d0bd43369"
+     },
+     "coach_seasons": {
+      "rows": 1719,
+      "sha256": "792455ff39b220e623e761cd8ca92dd99e3a3d6859bb70711c92ebefb0d1fae9"
+     },
+     "programme_seasons": {
+      "rows": 2153,
+      "sha256": "ccc7001ad7331a8025ab46856f46f91fb2c1a01566ab432958615391132acad5"
+     },
+     "programme_conference_seasons": {
+      "rows": 1795,
+      "sha256": "7662b82832370554c4d00638cf324e72ad7932b1aa5b88b941ecd37ccca2d402"
+     }
+    }
+   },
+   {
+    "season": 2024,
+    "scope": "*",
+    "frozen_at": "2026-09-29T04:12:56.433Z",
+    "fingerprint": {
+     "roster_players": {
+      "rows": 52539,
+      "sha256": "f828f8d1161d5063df2faa5c0db7a41ec287871f5408a5be91e51d89a66ab06d"
+     },
+     "coach_seasons": {
+      "rows": 1719,
+      "sha256": "3a3f07c58371ee9802414cf855be298d46c3e2a4829834b9d12e208054e47253"
+     },
+     "programme_seasons": {
+      "rows": 2191,
+      "sha256": "7e2b52f7c2f5eac1a29e46349b0d91b5cd3cda5c7e74dfee0bf2c2ab2bc4a643"
+     },
+     "programme_conference_seasons": {
+      "rows": 1809,
+      "sha256": "c9a4ba60f0cddb6d11ac69c472deb92e7348a4d408f7e17729b6098542f6682b"
+     }
+    }
+   },
+   {
+    "season": 2025,
+    "scope": "*",
+    "frozen_at": "2026-09-29T04:12:56.683Z",
+    "fingerprint": {
+     "roster_players": {
+      "rows": 64700,
+      "sha256": "f4640b17a2c941a00d8cd7b262a1925a8182df7b0c1ae89ae7835a226dc99bed"
+     },
+     "coach_seasons": {
+      "rows": 1719,
+      "sha256": "0fd8e6b720fcacdfc152f5e43054f408393c2c6e89e55397bcb487950a23857d"
+     },
+     "programme_seasons": {
+      "rows": 2185,
+      "sha256": "f4e672bd9b7cc91cfd884eeb89aa33c1b9d9cd5ff6ec3702ac0813926cd8ea57"
+     },
+     "programme_conference_seasons": {
+      "rows": 1850,
+      "sha256": "837c41493b4c241f87e8c09a2e495020bdb0551378d311b0f0aed62079d49612"
+     }
+    }
+   }
+  ]
+ },
+ "tests": {
+  "new_phase7e_tests": {
+   "files": [
+    "server/lib/refresh/refresh.regression.test.js",
+    "server/lib/refresh/refreshPipeline.test.js",
+    "server/lib/refresh/refreshUnits.test.js",
+    "server/scripts/phase7e.scripts.test.js"
+   ],
+   "passed": 66,
+   "failed": 0
+  },
+  "related_suites_rerun": {
+   "files": 21,
+   "passed": 332,
+   "failed_pre_existing": 1,
+   "note": "verifiedDomainBackfill 'stayed inside NCAA' reads the live ledger; already failing on the pre-7E backup (7B.5A NAIA domain repairs)"
+  },
+  "broad": {
+   "post_7e": {
+    "total": 8780,
+    "passed": 8732,
+    "failed": 48
+   },
+   "checkpoint_2faa4a2_on_pre7e_db": {
+    "total": 8676,
+    "passed": 8624,
+    "failed": 30
+   },
+   "common_failures": 30,
+   "new_vs_checkpoint": 19,
+   "new_explained": {
+    "fixed_after_run (H11 tolerant of legacy alias tables)": 4,
+    "timing_only (5s timeout / database locked under full-suite contention; pass in isolation)": 4,
+    "pre_existing_at_checkpoint_once_its_baseline_snapshot_is_present (evidenceBaseline, 8)": 8,
+    "fails_in_both_runs (generalisation: stale recruiting materialisation)": 1,
+    "data_drift_from_approved_changes (programmeStatusIntegration pinned live counts; checkpoint code on the post-7E DB fails identically)": 2
+   },
+   "new_unexplained": 0
+  }
+ },
+ "privacy": "No coach names or addresses in committed artifacts (person hashes / 8-char ids; institutional hosts and UNITIDs only). Synthetic simulation people exist only in gitignored scratch and temp copies. Raw fixtures, manifests and unredacted reports untracked."
+}

@@ -1,6 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 
+// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
+// current address — the pre-8A coach offer. It opts in to that explicitly; the default
+// runtime floor (verified address, coach not PROVEN_STALE) is tested in
+// server/lib/coachEligibility.test.js.
+process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+
+
 process.env.RECRUITMATCH_DB = ':memory:';
 process.env.PUBLIC_BASE_URL = 'https://example.test';
 process.env.SENDER_IDENTITY = 'Striv3';

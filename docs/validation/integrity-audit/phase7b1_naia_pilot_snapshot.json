@@ -1,0 +1,49 @@
+{
+  "milestone": "PHASE 7B.1 — NAIA AUTHORITATIVE REVALIDATION PILOT APPLIED",
+  "created_at": "2026-09-28",
+  "db": "server/data/recruitmatch.sqlite (shared dev — NOT production /data)",
+  "pre_snapshot": "server/data/recruitmatch.sqlite.snapshot-pre-phase7b1-2026-09-27T225107Z",
+  "pii_note": "Real coach names/emails live ONLY in untracked server/data/generated/audit-fixtures/. Committed fixtures are redacted (coach-<id>@redacted.invalid); appliers read the raw copies and refuse redacted input via assertUnredacted.",
+  "fingerprints": {
+    "coach_fp_post": "d724caec73e77fc88591b470f1c0079b1000aa0388c9032e1fff6947e2cf9925",
+    "domain_fp": "498eb15f134f4e58d2a9a73bd281611a (unchanged — no domain corrections)",
+    "colleges_fp": "dc92cf3d57bf9101410eedd0a3e2b04c (unchanged — no programme mutation)"
+  },
+  "fixture_hashes": { "corroboration": "67fe9feff69d88d0", "stale": "727230c8cc43031c", "current": "abff2be7338513aa", "pilot_selection": "933d5a58f52d34e0" },
+  "tier1_population": 235,
+  "pilot": {
+    "count": 30, "strata": { "VERIFIED_strict": 17, "VERIFIED_ALIAS": 13, "men": 15, "women": 15, "multi_coach": 21, "single_coach": 9, "collision_risk": 11, "email_seen_present": 1 },
+    "activity": { "ACTIVE_CONFIRMED": 30, "DISCONTINUED": 0, "ASSOCIATION_CHANGED": 0, "SPORT_DROPPED": 0, "IDENTITY_DEFECT": 0 },
+    "identity_collisions_resolved_clean": ["137476 St. Thomas University (FL) — one institution", "105899 Arizona Christian — one institution", "107141 John Brown University — one institution", "123457 Simpson University CA (distinct from 154350 Simpson College IA)", "104586 ERAU Prescott AZ (distinct from Daytona D2)"]
+  },
+  "legacy_quality": {
+    "stored_coaches_researched": 72,
+    "person": { "PERSON_CURRENT_SAME_ROLE": 50, "PERSON_CURRENT_ROLE_CHANGED": 1, "PERSON_CURRENT_EMAIL_UNPUBLISHED": 15, "PERSON_DEPARTED": 4, "WRONG_SPORT": 2, "WRONG_INSTITUTION": 0, "DUPLICATE_IDENTITY": 0, "held_browser_recheck": 1 },
+    "person_defect_rate": "8.3% (6/72: 4 departed + 2 wrong-sport)",
+    "legacy_verified_emails_researched": 56,
+    "email": { "exact_current_published": 50, "changed": 0, "no_longer_published_verified": 0, "departed_or_wrong_person": 6 },
+    "legacy_verified_email_defect_rate": "10.7% (6/56)",
+    "legacy_inferred_emails": 16, "inferred_unpublished_unconfirmable": 15,
+    "consumer_domain_verified_emails_confirmed_published": ["gemcorp.com (Master's M)", "yahoo (Simpson U W)", "yahoo (Oakwood W)"],
+    "domain_defect_rate": "0% (0/19 pilot domains needed correction)"
+  },
+  "critical_finding": "Pacific Union College WOMEN — the three Phase-6C.3 acquired women's rows (coach ids 447c1fee…, 61b353ce…, daa47adc…) were WRONG: two are the men's staff (WRONG_SPORT), one departed. Real current women's head coach inserted (coach e730fcbb…). Root cause: 6C.3 sourced them from a Jan-2026 Wayback mirror that mis-attributed men's staff to the women's team. Confirms the 'do not bulk-trust; research from scratch' thesis.",
+  "applied_repairs": {
+    "current_coach_inserts": 3, "insert_ids": ["e730fcbb-8b53-4d64-b85c-130da97cfdda", "5244d817-1b2b-4a58-a6d4-1d9f7e08c8c6", "07158389-1f73-4bf4-a737-8e8c2556d999"],
+    "email_corrections": 0, "proven_stale": 6, "email_seen_evidence_added": 50, "current_evidence_added": 53, "domain_corrections": 0
+  },
+  "eligibility": {
+    "coaches_before_after": [6413, 6416],
+    "eligible_under_live_gate_before_after": [3360, 3360],
+    "eligible_change_live": 0,
+    "pilot_programmes_covered_live_gate": "0 flip (NAIA remains uncorroborated under G6 — unchanged by design)",
+    "pilot_coaches_corroborated_under_strict_hybrid": 53,
+    "pilot_programmes_covered_under_strict_hybrid": "28 of 30",
+    "path_A_vs_path_C": "Same safe eligible set for the pilot: both rest on the same authoritative current-coach evidence; the binding constraint is a published personal email, which both paths route through. Path A (coach_seasons scrape) would additionally corroborate the ~15 current-but-email-unpublished coaches, but they still fail the email gate, so eligibility is identical. Path C achieves it with stronger per-row provenance (email_seen) and without fabricating coach_seasons rows."
+  },
+  "integrity": {
+    "duplicate_identity_rows": 0, "duplicate_emails": 121, "wrong_institution_eligible": 0, "source_domain_conflicts": 0,
+    "canonical_round_trip": 0, "orphan_coaches": 1, "email_confirmed_at": 0, "validator_critical_failures": 0, "integrity_check": "ok"
+  },
+  "phase7b_queues": { "trusted_not_scraped_tier1": 235, "pilot_processed": 30, "remaining_tier1": 205 }
+}

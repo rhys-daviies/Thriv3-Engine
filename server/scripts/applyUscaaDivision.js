@@ -34,6 +34,7 @@
 import '../db/refuseProductionVolume.js'; // MUST precede db/client.js — see that file
 import db, { dbPath } from '../db/client.js';
 import { assertCanonicalWrite } from '../db/corpusIdentity.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 
 const APPLY = process.argv.includes('--apply');
 
@@ -85,6 +86,7 @@ function main() {
     console.log(`  ${c.name.slice(0, 50).padEnd(52)} ${college.get(c.name, c.sport) ? 'already exists' : 'CREATE'}`);
   }
   if (!APPLY) { console.log('\nPass --apply to write.'); return; }
+  assertLegacyWriteAllowed(db, { script: 'applyUscaaDivision.js' });
   /*
    * L7ZM. This writes product data. When the corpus is one other checkouts
    * share, say so out loud rather than surprising them — see

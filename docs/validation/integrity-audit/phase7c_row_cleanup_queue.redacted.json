@@ -1,0 +1,40 @@
+{
+  "phase": "7C row-level structural cleanup queue (for a later phase)",
+  "queue": [
+    {
+      "type": "DUPLICATE_ROW",
+      "detail": "unitid 150172 mens-soccer has two college rows (\"Calumet College\" + \"Calumet College of St. Joseph\"); collapse to one.",
+      "count": 1
+    },
+    {
+      "type": "WRONG_UNITID_SPLIT",
+      "detail": "University of St. Francis (Joliet, IL) split across 148575 (Peoria nursing college, no soccer) [mens row] and 148584 [womens row]; men’s soccer belongs to 148584. Unify to 148584; 148575 soccer is erroneous.",
+      "count": 1
+    },
+    {
+      "type": "CROSS_DIVISION_DUPLICATE",
+      "detail": "unitid 140951 (SCAD) appears as an NCAA D3 \"SCAD\" mens row AND NAIA \"Savannah College of Art and Design\" M+W rows. NAIA is correct; the NCAA D3 row is a stray. Do NOT touch NCAA membership without a separate decision.",
+      "count": 1
+    },
+    {
+      "type": "WRONG_UNITID_SHARED_FEDERAL_ID",
+      "detail": "IU Columbus (NAIA) M+W stapled to 151111 = IU Indianapolis (also our NCAA D1 \"IU Indy\"). IU Columbus has no distinct federal UNITID; needs additive identity model.",
+      "count": 2
+    },
+    {
+      "type": "NULL_UNITID_BRANCH",
+      "detail": "Park University Gilbert (M+W), Benedictine University at Mesa (M+W): branch campuses with no distinct federal UNITID; parent 178721 / 145619.",
+      "count": 4
+    },
+    {
+      "type": "NULL_UNITID_NON_TITLE_IV",
+      "detail": "Stanton University (W): active NAIA (Cal Pac), not Title IV, no IPEDS UNITID.",
+      "count": 1
+    },
+    {
+      "type": "NAME_DRIFT",
+      "detail": "75 unitids carry two name spellings across their M/W rows (short in men’s, long in women’s). Cosmetic; not a coverage defect. Normalize college_name==colleges.name per the school-spelled-two-ways rule.",
+      "count": 75
+    }
+  ]
+}

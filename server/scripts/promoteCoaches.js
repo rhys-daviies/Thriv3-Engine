@@ -31,6 +31,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { parseCsvToObjects } from '../lib/csv.js';
 import { normalizeDivision } from '../../shared/divisions.js';
 import { utcNow } from '../lib/time.js';
@@ -172,6 +173,7 @@ function main() {
     console.log('\ndry run — nothing written. Re-run with --apply.\n');
     return;
   }
+  assertLegacyWriteAllowed(db, { script: 'promoteCoaches.js' });
 
   const dbPath = db.name;
   const backup = `${dbPath}.pre-promote-coaches-${new Date().toISOString().replace(/[:.]/g, '-')}`;

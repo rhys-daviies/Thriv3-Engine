@@ -1,0 +1,4681 @@
+{
+ "phase": "8B.1",
+ "adapter_version": "p8b1-gatherers-3",
+ "note": "URLs, statuses and counts only",
+ "by_division_before": {
+  "NJCAA": {
+   "NOT_PROBED": 44,
+   "CURRENT_ROSTER_FOUND": 162,
+   "NOT_FOUND": 127,
+   "NO_ROSTER_FOUND": 72,
+   "BLOCKED": 4,
+   "PRIOR_ROSTER_ONLY": 1
+  },
+  "USCAA": {
+   "NOT_PROBED": 4,
+   "NOT_FOUND": 26,
+   "CURRENT_ROSTER_FOUND": 11,
+   "NO_ROSTER_FOUND": 4,
+   "BLOCKED": 1
+  },
+  "CCCAA": {
+   "NOT_PROBED": 19
+  },
+  "NWAC": {
+   "NOT_PROBED": 4
+  }
+ },
+ "by_division_after": {
+  "NJCAA": {
+   "NOT_SEARCHED": 41,
+   "CURRENT_ROSTER_FOUND": 191,
+   "NOT_FOUND": 120,
+   "BLOCKED": 34,
+   "ROSTER_PAGE_UNPARSED": 7,
+   "SOURCE_UNAVAILABLE": 8,
+   "ROSTER_SEASON_UNKNOWN": 7,
+   "PROGRAMME_CURRENT_NO_ROSTER": 2
+  },
+  "USCAA": {
+   "CURRENT_ROSTER_FOUND": 13,
+   "BLOCKED": 13,
+   "NOT_FOUND": 13,
+   "NOT_SEARCHED": 2,
+   "SOURCE_UNAVAILABLE": 2,
+   "PROGRAMME_CURRENT_NO_ROSTER": 1,
+   "ROSTER_PAGE_UNPARSED": 1,
+   "PRIOR_ROSTER_ONLY": 1
+  },
+  "CCCAA": {
+   "NOT_PROBED": 19
+  },
+  "NWAC": {
+   "NOT_PROBED": 4
+  }
+ },
+ "recovery": [
+  {
+   "entity": "AE-U211477",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://centralpennknights.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "centralpennknights.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U105792",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "status": "BLOCKED",
+   "url": "https://www.southmountaincc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U139700",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "status": "NOT_FOUND",
+   "url": "https://ghcchargers.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "ghcchargers.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U184791",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "status": "NOT_FOUND",
+   "url": "https://rcsj.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U100760",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "status": "NOT_FOUND",
+   "url": "https://www.cacc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U163426",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "status": "NOT_FOUND",
+   "url": "https://montgomerycollege.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U191339",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://geneseeathletics.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "geneseeathletics.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U211477",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "SEED",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://centralpennknights.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "centralpennknights.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U142559",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "status": "NOT_FOUND",
+   "url": "https://csi.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U199634",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "status": "BLOCKED",
+   "url": "https://sccflyersathletics.com/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U184481",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://essexwolverines.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "essexwolverines.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U216825",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "status": "NOT_FOUND",
+   "url": "https://athletics.westmoreland.edu/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "athletics.westmoreland.edu",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U179308",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "status": "NOT_FOUND",
+   "url": "https://www.stlcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U193946",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "status": "NOT_FOUND",
+   "url": "https://ncccathletics.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "ncccathletics.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U146472",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://clclancers.com/sports/mens-soccer/roster",
+   "locator": {
+    "host": "clclancers.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "SIDEARM"
+  },
+  {
+   "entity": "AE-U233037",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://pdc.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U143215",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.swic.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U229355",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://apacheathletics.com/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105154",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.mesacc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U364016",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.paradisevalley.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214810",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://schuylkill.psu.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214652",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://scranton.psu.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U188517",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.bryantstratton.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U175810",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "SOURCE_UNAVAILABLE",
+   "url": "https://holmescc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214670",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://lehighvalley.psu.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U101295",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.wallacestate.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U227225",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_SEASON_UNKNOWN",
+   "url": "https://ntcceagles.com/mens-soccer/roster?season=fall_2026",
+   "locator": {
+    "host": "ntcceagles.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "CUSTOM"
+  },
+  {
+   "entity": "AE-U199856",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105525",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.pima.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U153533",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://iowalakesathletics.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "iowalakesathletics.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U198233",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://cvcc.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214786",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://greaterallegheny.psu.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214698",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://beaver.psu.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U183655",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://atlanticcape.edu/athletics/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "atlanticcape.edu",
+    "path_prefix": "/athletics",
+    "kind": "INSTITUTION_PATH"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U176008",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://mdcctrojans.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "mdcctrojans.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U214698",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://beaver.psu.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U155858",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://sewardsaints.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "sewardsaints.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U214768",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://hazleton.psu.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U187198",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U166133",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.hcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214810",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://schuylkill.psu.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U175652",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://eastms.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U144564",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://danvillejaguars.com/404-1.aspx?url=%2froster.aspx%3fpath%3dgeneral%26",
+   "locator": {
+    "host": "danvillejaguars.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U170444",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://jacksoncollegejets.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "jacksoncollegejets.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U170055",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.grcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U154697",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "SOURCE_UNAVAILABLE",
+   "url": "https://bartonsports.com/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U155210",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.jccc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214795",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://montalto.psu.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-LINCOLN-TRAIL",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105747",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.scottsdalecc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U240657",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://nwctrappers.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "nwctrappers.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U364025",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "SOURCE_UNAVAILABLE",
+   "url": "https://www.cgc.maricopa.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105145",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.gatewaycc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U104708",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.gccaz.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105206",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://athletics.mohave.edu/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "athletics.mohave.edu",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U105428",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.phoenixcollege.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U106148",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://ycathletics.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "ycathletics.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U364025",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "SOURCE_UNAVAILABLE",
+   "url": "https://www.cgc.maricopa.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105145",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.gatewaycc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U104708",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.gccaz.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105154",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.mesacc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105206",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://athletics.mohave.edu/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "athletics.mohave.edu",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U364016",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.paradisevalley.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105428",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.phoenixcollege.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105525",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.pima.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105747",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.scottsdalecc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105792",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.southmountaincc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U106148",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://ycathletics.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "ycathletics.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U223898",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://wranglersports.net/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "wranglersports.net",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-X-DALLAS-COLLEGE-CEDAR-VALLEY",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-DALLAS-COLLEGE-MOUNTAIN-VIEW",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-DALLAS-COLLEGE-RICHLAND",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U225371",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://hillcollegeathletics.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "hillcollegeathletics.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U229832",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.wtc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-DALLAS-COLLEGE-CEDAR-VALLEY",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-DALLAS-COLLEGE-BROOKHAVEN",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-DALLAS-COLLEGE-EASTFIELD",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-DALLAS-COLLEGE-MOUNTAIN-VIEW",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-DALLAS-COLLEGE-NORTH-LAKE",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-DALLAS-COLLEGE-RICHLAND",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U225371",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://hillcollegeathletics.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "hillcollegeathletics.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U227304",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://wranglersports.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "wranglersports.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U229832",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.wtc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U155210",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.jccc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U154697",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "SOURCE_UNAVAILABLE",
+   "url": "https://bartonsports.com/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U155858",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://sewardsaints.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "sewardsaints.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U220057",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://athletics.dscc.edu/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "athletics.dscc.edu",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U219824",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.chattanoogastate.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U219888",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.columbiastate.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U220057",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://athletics.dscc.edu/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "athletics.dscc.edu",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U221397",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U222053",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://volstatepioneers.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "volstatepioneers.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U135717",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://mdc.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U135717",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://mdc.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U136400",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.phsc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U136473",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://myemail.constantcontact.com/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U240666",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://sheridan.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U127389",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.lamarcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U240666",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://sheridan.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U127389",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.lamarcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U240657",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://nwctrappers.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "nwctrappers.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U240693",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U198251",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.cccc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U217989",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://denmarktech.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U233338",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "SOURCE_UNAVAILABLE",
+   "url": "https://rbcathletics.com/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U233648",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://sw.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U199740",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.stanly.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U218885",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.tctc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U218672",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.sc.edu/about/system_and_campuses/lancaster/index.php",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U218681",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://sc.edu/about/system_and_campuses/salkehatchie/index.php",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U218690",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.sc.edu/about/system_and_campuses/sumter/index.php",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U218706",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://njcaa.org/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U233754",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.vpcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U233037",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://pdc.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U217989",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://denmarktech.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U198817",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www2.ed.gov/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U233019",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://phccsports.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "phccsports.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U233338",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "SOURCE_UNAVAILABLE",
+   "url": "https://rbcathletics.com/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U233648",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://sw.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U199740",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.stanly.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U218885",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.tctc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U218672",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.sc.edu/about/system_and_campuses/lancaster/index.php",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U218681",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://sc.edu/about/system_and_campuses/salkehatchie/index.php",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U218690",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.sc.edu/about/system_and_campuses/sumter/index.php",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U218706",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://njcaa.org/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U199856",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U181491",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_SEASON_UNKNOWN",
+   "url": "https://northeasthawks.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "northeasthawks.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U154572",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://witcomets.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "witcomets.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U154059",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U154129",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://nwicc.edu/athletics/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "nwicc.edu",
+    "path_prefix": "/athletics",
+    "kind": "INSTITUTION_PATH"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U181491",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_SEASON_UNKNOWN",
+   "url": "https://northeasthawks.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "northeasthawks.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U154572",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://witcomets.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "witcomets.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U154059",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U153533",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://iowalakesathletics.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "iowalakesathletics.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U154129",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://nwicc.edu/athletics/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "nwicc.edu",
+    "path_prefix": "/athletics",
+    "kind": "INSTITUTION_PATH"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U172200",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.schoolcraft.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U202356",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://athletics.tri-c.edu/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "athletics.tri-c.edu",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U172200",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.schoolcraft.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U170444",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://jacksoncollegejets.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "jacksoncollegejets.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U170055",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.grcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U169521",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.delta.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U170550",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.kellogg.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U172918",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "SOURCE_UNAVAILABLE",
+   "url": "https://alextech.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U172963",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://arccgoldenrams.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "arccgoldenrams.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U173063",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_SEASON_UNKNOWN",
+   "url": "https://riverlandbluedevils.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "riverlandbluedevils.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U159407",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U229355",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://apacheathletics.com/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U159407",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U227225",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_SEASON_UNKNOWN",
+   "url": "https://ntcceagles.com/womens-soccer/roster?season=fall_2026",
+   "locator": {
+    "host": "ntcceagles.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "CUSTOM"
+  },
+  {
+   "entity": "AE-U139986",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U141006",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "SOURCE_UNAVAILABLE",
+   "url": "https://www.southgatech.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U139968",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://gordonstate.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U483045",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_SEASON_UNKNOWN",
+   "url": "https://cgtctitans.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "cgtctitans.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U139986",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U183938",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.camdencc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U212869",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.harcum.edu/s/1044/edu/start.aspx",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U185509",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://mccc.edu/athletics_home.shtml/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U184180",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.ccm.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U185873",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.ocean.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U186645",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.raritanval.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U184205",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://rcsj.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U186469",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://salemcc.edu/athletics/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "salemcc.edu",
+    "path_prefix": "/athletics",
+    "kind": "INSTITUTION_PATH"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U183655",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://atlanticcape.edu/athletics/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "atlanticcape.edu",
+    "path_prefix": "/athletics",
+    "kind": "INSTITUTION_PATH"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U183938",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.camdencc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U184481",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://essexwolverines.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "essexwolverines.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U185509",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://mccc.edu/athletics_home.shtml/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U185873",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.ocean.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U184205",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://rcsj.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U184791",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://rcsj.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U187198",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U212869",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.harcum.edu/s/1044/edu/start.aspx",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U165033",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.bristolcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U165112",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "PROGRAMME_CURRENT_NO_ROSTER",
+   "url": "https://bhcc.edu/athletics/menssoccer/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U217475",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.ccri.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U166647",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.massbay.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U166823",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.massasoit.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U167525",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://quincycollege.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U167534",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.qcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U167631",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.rcc.mass.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U167905",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.stcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U165033",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.bristolcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U165112",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "PROGRAMME_CURRENT_NO_ROSTER",
+   "url": "https://bhcc.edu/athletics/womenssoccer/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U217475",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.ccri.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U166133",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.hcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U167534",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.qcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U167631",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.rcc.mass.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U167905",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.stcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U101514",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://calhounathletics.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "calhounathletics.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U101143",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://escc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U101897",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://naccathletics.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "naccathletics.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U251260",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://susccathletics.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "susccathletics.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U101514",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://calhounathletics.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "calhounathletics.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U251260",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://susccathletics.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "susccathletics.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U101295",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.wallacestate.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U175810",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "SOURCE_UNAVAILABLE",
+   "url": "https://holmescc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U175652",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://eastms.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U176008",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://mdcctrojans.com/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "mdcctrojans.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U145682",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://icc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U146366",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://kaskaskiaathletics.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "kaskaskiaathletics.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U143215",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.swic.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U146685",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.llcc.edu/athletics/sports/womens-soccer/roster",
+   "locator": {
+    "host": "llcc.edu",
+    "path_prefix": "/athletics",
+    "kind": "INSTITUTION_PATH"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U145682",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://icc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-LINCOLN-TRAIL",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-IECC-WABASH-VALLEY",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-USU-EASTERN",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U182500",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.tmcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U495147",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://pnwccgladiators.com/sports/mens-soccer/roster",
+   "locator": {
+    "host": "pnwccgladiators.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "SIDEARM"
+  },
+  {
+   "entity": "AE-X-USU-EASTERN",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U142559",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://csi.edu/athletics/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U182500",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.tmcc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U495147",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://pnwccgladiators.com/sports/womens-soccer/roster",
+   "locator": {
+    "host": "pnwccgladiators.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "SIDEARM"
+  },
+  {
+   "entity": "AE-U173638",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "ROSTER_SEASON_UNKNOWN",
+   "url": "https://mnwestathletics.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "mnwestathletics.com",
+    "path_prefix": "/",
+    "kind": "SEPARATE_ATHLETICS_HOST_CANDIDATE",
+    "chain": "linked from institution site + self-identifies"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U161235",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "SOURCE_UNAVAILABLE",
+   "url": "https://www.umfk.maine.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U156189",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.alc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U213774",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://manor.edu/athletics/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "manor.edu",
+    "path_prefix": "/athletics",
+    "kind": "INSTITUTION_PATH"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U137962",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "PROGRAMME_CURRENT_NO_ROSTER",
+   "url": "https://www.trinitycollege.edu/tcf-athletics/mens-soccer/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U183822",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U189583",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.bryantstratton.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U485768",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://athleticsau.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "athleticsau.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U161235",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "SOURCE_UNAVAILABLE",
+   "url": "https://www.umfk.maine.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-KEAN-JERSEY-CITY",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U156189",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://www.alc.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U189583",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://www.bryantstratton.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U191205",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "PRIOR_ROSTER_ONLY",
+   "url": "https://ftcsound.com/sports/wsoc/2024-25/roster",
+   "locator": {
+    "host": "ftcsound.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U213774",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "NOT_FOUND",
+   "url": "https://manor.edu/athletics/sports/wsoc/2026-27/roster",
+   "locator": {
+    "host": "manor.edu",
+    "path_prefix": "/athletics",
+    "kind": "INSTITUTION_PATH"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U486354",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "A",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://uiceaglerays.com/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214786",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "B",
+   "mode": "FULL",
+   "status": "BLOCKED",
+   "url": "https://greaterallegheny.psu.edu/",
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U155186",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_FOUND",
+   "url": "https://scottieathletics.com/404-1.aspx?url=%2froster.aspx%3fpath%3dgeneral%26",
+   "locator": {
+    "host": "scottieathletics.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U169521",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214768",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214625",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U193478",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U225308",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "PRIOR_ROSTER_ONLY",
+   "url": "https://tvccsports.com/sports/mbkb/2025-26/roster",
+   "locator": {
+    "host": "tvccsports.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U173203",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U144218",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214652",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U144209",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U139384",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U133021",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U148821",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U195058",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U155450",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U133702",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U203155",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U247834",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U228158",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U191719",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U170550",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U190673",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U483212",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U441760",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U221096",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_FOUND",
+   "url": "https://motlowsports.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "motlowsports.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U207290",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://neoathletics.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "neoathletics.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "PRESTO"
+  },
+  {
+   "entity": "AE-U226019",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U186034",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U158431",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U170541",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U199768",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U232414",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U136516",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_FOUND",
+   "url": "https://polkeagles.com/404-1.aspx?url=%2froster.aspx%3fpath%3dgeneral%26",
+   "locator": {
+    "host": "polkeagles.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U152637",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U157711",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U179715",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U191083",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U153737",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U146506",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U178448",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U134495",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U229799",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U232575",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U179645",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U222062",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214625",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U153214",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U215585",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U233116",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U101161",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U127200",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U226578",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U195988",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U189565",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U149842",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://www.harperhawks.net/sports/mens-soccer/roster",
+   "locator": {
+    "host": "harperhawks.net",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "SIDEARM"
+  },
+  {
+   "entity": "AE-U132709",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U148256",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U137759",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U485111",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U148292",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U153296",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U196565",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U227182",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U136473",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_FOUND",
+   "url": "https://athletics.pensacolastate.edu/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "athletics.pensacolastate.edu",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U146685",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U101602",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U227304",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_FOUND",
+   "url": "https://wranglersports.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "wranglersports.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U211343",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-X-CHRISTENDOM",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U105349",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U221397",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U205470",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214795",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U222053",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U233903",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U144193",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U240693",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U179344",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U207449",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U107549",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U207670",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://rscraiders.com/sports/mens-soccer/roster",
+   "locator": {
+    "host": "rscraiders.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "SIDEARM"
+  },
+  {
+   "entity": "AE-U104346",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U233949",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U176169",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U194222",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://onondagalazers.com/sports/mens-soccer/roster",
+   "locator": {
+    "host": "onondagalazers.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": "SIDEARM"
+  },
+  {
+   "entity": "AE-U187903",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U206011",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U107460",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U193326",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U155098",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U192022",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U244446",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U420440",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U191199",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U101240",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U240596",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U229841",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U366395",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U227386",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U144175",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U162168",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_FOUND",
+   "url": "https://letsgoskipjacks.com/sports/msoc/2026-27/roster",
+   "locator": {
+    "host": "letsgoskipjacks.com",
+    "path_prefix": "/",
+    "kind": "ATHLETICS_HOST"
+   },
+   "platform": null
+  },
+  {
+   "entity": "AE-U233772",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U101736",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U207935",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U229504",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  },
+  {
+   "entity": "AE-U214829",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "tier": "SEED",
+   "mode": "LIGHT",
+   "status": "NOT_SEARCHED",
+   "url": null,
+   "locator": null,
+   "platform": null
+  }
+ ],
+ "recheck": [
+  {
+   "entity": "AE-U105792",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "athletics.southmountaincc.edu",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://athletics.southmountaincc.edu/sports/msoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U184481",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "essexwolverines.com",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://essexwolverines.com/sports/msoc/2026-27/roster",
+   "list_view": "https://essexwolverines.com/sports/msoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U216825",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "athletics.westmoreland.edu",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://athletics.westmoreland.edu/sports/msoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U155186",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "scottieathletics.com",
+   "platform": "SIDEARM",
+   "status": "NOT_FOUND",
+   "url": "https://scottieathletics.com/404-1.aspx?url=%2froster.aspx%3fpath%3dgeneral%26",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U225308",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "tvccsports.com",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://tvccsports.com/sports/msoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U221096",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "motlowsports.com",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://motlowsports.com/sports/msoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U207290",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "neoathletics.com",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://neoathletics.com/sports/msoc/2026-27/roster",
+   "list_view": "https://neoathletics.com/sports/msoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U136516",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "polkeagles.com",
+   "platform": "SIDEARM",
+   "status": "NOT_FOUND",
+   "url": "https://polkeagles.com/404-1.aspx?url=%2froster.aspx%3fpath%3dgeneral%26",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U176008",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "mdcctrojans.com",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://mdcctrojans.com/sports/msoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U155858",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "sewardsaints.com",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://sewardsaints.com/sports/msoc/2026-27/roster",
+   "list_view": "https://sewardsaints.com/sports/msoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U136473",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "athletics.pensacolastate.edu",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://athletics.pensacolastate.edu/sports/msoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U227304",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "wranglersports.com",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://wranglersports.com/sports/msoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U144564",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "danvillejaguars.com",
+   "platform": "SIDEARM",
+   "status": "NOT_FOUND",
+   "url": "https://danvillejaguars.com/404-1.aspx?url=%2froster.aspx%3fpath%3dgeneral%26",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U207670",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "rscraiders.com",
+   "platform": "SIDEARM",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://rscraiders.com/sports/mens-soccer/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U162168",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "letsgoskipjacks.com",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://letsgoskipjacks.com/sports/msoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U105206",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "athletics.mohave.edu",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://athletics.mohave.edu/sports/msoc/2026-27/roster",
+   "list_view": "https://athletics.mohave.edu/sports/msoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U105206",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "athletics.mohave.edu",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://athletics.mohave.edu/sports/wsoc/2026-27/roster",
+   "list_view": "https://athletics.mohave.edu/sports/wsoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U105792",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "athletics.southmountaincc.edu",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://athletics.southmountaincc.edu/sports/wsoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U223898",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "wranglersports.net",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://wranglersports.net/sports/msoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U225371",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "hillcollegeathletics.com",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://hillcollegeathletics.com/sports/msoc/2026-27/roster",
+   "list_view": "https://hillcollegeathletics.com/sports/msoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U225371",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "hillcollegeathletics.com",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://hillcollegeathletics.com/sports/wsoc/2026-27/roster",
+   "list_view": "https://hillcollegeathletics.com/sports/wsoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U227304",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "wranglersports.com",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://wranglersports.com/sports/wsoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U155858",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "sewardsaints.com",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://sewardsaints.com/sports/wsoc/2026-27/roster",
+   "list_view": "https://sewardsaints.com/sports/wsoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U220057",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "athletics.dscc.edu",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://athletics.dscc.edu/sports/msoc/2026-27/roster",
+   "list_view": "https://athletics.dscc.edu/sports/msoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U220057",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "athletics.dscc.edu",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://athletics.dscc.edu/sports/wsoc/2026-27/roster",
+   "list_view": "https://athletics.dscc.edu/sports/wsoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U136473",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "athletics.pensacolastate.edu",
+   "platform": "PRESTO",
+   "status": "NO_ROSTER_ON_PAGE",
+   "url": "https://athletics.pensacolastate.edu/sports/wsoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U233019",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "phccsports.com",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://phccsports.com/sports/wsoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U483045",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "cgtctitans.com",
+   "platform": "PRESTO",
+   "status": "ROSTER_SEASON_UNKNOWN",
+   "url": "https://cgtctitans.com/sports/wsoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U184481",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "essexwolverines.com",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://essexwolverines.com/sports/wsoc/2026-27/roster",
+   "list_view": "https://essexwolverines.com/sports/wsoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U101514",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "calhounathletics.com",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://calhounathletics.com/sports/msoc/2026-27/roster",
+   "list_view": "https://calhounathletics.com/sports/msoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U101514",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "calhounathletics.com",
+   "platform": "PRESTO",
+   "status": "CURRENT_ROSTER_FOUND",
+   "url": "https://calhounathletics.com/sports/wsoc/2026-27/roster",
+   "list_view": "https://calhounathletics.com/sports/wsoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U176008",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "mdcctrojans.com",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://mdcctrojans.com/sports/wsoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U146366",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "kaskaskiaathletics.com",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://kaskaskiaathletics.com/sports/msoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U191205",
+   "sport": "womens-soccer",
+   "division": "USCAA",
+   "host": "ftcsound.com",
+   "platform": "PRESTO",
+   "status": "NOT_FOUND",
+   "url": "https://ftcsound.com/sports/wsoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U170444",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "jacksoncollegejets.com",
+   "platform": "PRESTO",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://jacksoncollegejets.com/sports/msoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U202356",
+   "sport": "mens-soccer",
+   "division": "NJCAA",
+   "host": "athletics.tri-c.edu",
+   "platform": "PRESTO",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://athletics.tri-c.edu/sports/msoc/2026-27/roster",
+   "list_view": "https://athletics.tri-c.edu/sports/msoc/2026-27/roster?view=list"
+  },
+  {
+   "entity": "AE-U170444",
+   "sport": "womens-soccer",
+   "division": "NJCAA",
+   "host": "jacksoncollegejets.com",
+   "platform": "PRESTO",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://jacksoncollegejets.com/sports/wsoc/2026-27/roster",
+   "list_view": null
+  },
+  {
+   "entity": "AE-U485768",
+   "sport": "mens-soccer",
+   "division": "USCAA",
+   "host": "athleticsau.com",
+   "platform": "PRESTO",
+   "status": "ROSTER_PAGE_UNPARSED",
+   "url": "https://athleticsau.com/sports/msoc/2026-27/roster",
+   "list_view": "https://athleticsau.com/sports/msoc/2026-27/roster?view=list"
+  }
+ ],
+ "institution_domain_holds": [
+  {
+   "entity": "AE-U219888",
+   "held_host": "columbiastate.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U221397",
+   "held_host": "roanestate.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U135717",
+   "held_host": "mdc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U240657",
+   "held_host": "nwc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST",
+   "source": "nwctrappers.com"
+  },
+  {
+   "entity": "AE-U240693",
+   "held_host": "westernwyoming.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U233037",
+   "held_host": "pdc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U198251",
+   "held_host": "cccc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U217989",
+   "held_host": "denmarktech.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U198817",
+   "held_host": "lenoircc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "BLOCKED",
+   "source": null
+  },
+  {
+   "entity": "AE-U172963",
+   "held_host": "anokaramsey.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST",
+   "source": "arccgoldenrams.com"
+  },
+  {
+   "entity": "AE-U173638",
+   "held_host": "mnwest.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST",
+   "source": "mnwestathletics.com"
+  },
+  {
+   "entity": "AE-U173063",
+   "held_host": "riverland.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST",
+   "source": "riverlandbluedevils.com"
+  },
+  {
+   "entity": "AE-U229355",
+   "held_host": "tjc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "BLOCKED",
+   "source": null
+  },
+  {
+   "entity": "AE-U227146",
+   "held_host": "esports.navarrocollege.edu",
+   "code": "NON_ATHLETICS_SUBDOMAIN",
+   "resolution": "SEPARATE_ATHLETICS_HOST (already trusted)",
+   "source": null
+  },
+  {
+   "entity": "AE-U139986",
+   "held_host": "sctech.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NOT_PROBED (programme already had a current roster source, or no current programme)",
+   "source": null
+  },
+  {
+   "entity": "AE-U139968",
+   "held_host": "gordonstate.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U183743",
+   "held_host": "bergen.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST (already trusted)",
+   "source": null
+  },
+  {
+   "entity": "AE-U183859",
+   "held_host": "brookdalecc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST (already trusted)",
+   "source": null
+  },
+  {
+   "entity": "AE-U211927",
+   "held_host": "dccc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST (already trusted)",
+   "source": null
+  },
+  {
+   "entity": "AE-U185509",
+   "held_host": "mccc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U185873",
+   "held_host": "ocean.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U186645",
+   "held_host": "raritanval.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U217475",
+   "held_host": "apply.ccri.edu",
+   "code": "NON_ATHLETICS_SUBDOMAIN",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U167525",
+   "held_host": "quincycollege.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U101143",
+   "held_host": "escc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U101897",
+   "held_host": "nacc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST",
+   "source": "naccathletics.com"
+  },
+  {
+   "entity": "AE-U251260",
+   "held_host": "suscc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST",
+   "source": "susccathletics.com"
+  },
+  {
+   "entity": "AE-U176178",
+   "held_host": "northwestms.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST (already trusted)",
+   "source": null
+  },
+  {
+   "entity": "AE-U176239",
+   "held_host": "prcc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST (already trusted)",
+   "source": null
+  },
+  {
+   "entity": "AE-U176071",
+   "held_host": "mgccc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST (already trusted)",
+   "source": null
+  },
+  {
+   "entity": "AE-U175573",
+   "held_host": "colin.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST (already trusted)",
+   "source": null
+  },
+  {
+   "entity": "AE-U175652",
+   "held_host": "eastms.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U175786",
+   "held_host": "hindscc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST (already trusted)",
+   "source": null
+  },
+  {
+   "entity": "AE-U143215",
+   "held_host": "swic.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U142559",
+   "held_host": "csi.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U495147",
+   "held_host": "pnwcc.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST",
+   "source": "pnwccgladiators.com"
+  },
+  {
+   "entity": "AE-U408844",
+   "held_host": "fnu.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST (already trusted)",
+   "source": null
+  },
+  {
+   "entity": "AE-U102395",
+   "held_host": "ussu.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST (already trusted)",
+   "source": null
+  },
+  {
+   "entity": "AE-U213774",
+   "held_host": "manor.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "NO_STANDALONE_ATHLETICS_SITE_FOUND",
+   "source": null
+  },
+  {
+   "entity": "AE-U461795",
+   "held_host": "na.edu",
+   "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+   "resolution": "SEPARATE_ATHLETICS_HOST (already trusted)",
+   "source": null
+  }
+ ],
+ "source_holds": []
+}

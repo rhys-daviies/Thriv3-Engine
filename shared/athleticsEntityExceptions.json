@@ -1,0 +1,5 @@
+{
+  "_doc": "Phase 7D documented identity exceptions read by server/scripts/validateAthleticsEntityIdentity.js. Every entry is a known, reasoned exception queued for structural cleanup; anything NOT listed here fails the validator. Remove an entry when the cleanup lands (the validator warns on stale entries). Phase 7E: duplicates that are one programme are now DATA (programme_row_links: SAME_PROGRAMME_ALT_NAME / SUPERSEDED_DIVISION_ROW / PHANTOM_ROW), validated by H9/H6; only unresolved cases stay here. East Central resolved to AE-U175643. Phase 8A: STLCC resolved (one carrier row \"St. Louis Community College\"; campus rows STALE_CAMPUS_ROW links). No unresolved duplicate remains.",
+  "duplicate_programmes": [],
+  "known_wrong_unitid_entities": []
+}

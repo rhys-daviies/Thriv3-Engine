@@ -722,11 +722,15 @@ export function arrivedFromElsewhere(priorProgramme, school) {
 }
 
 /**
- * Arrivals the roster names outright, rather than ones inferred from absence.
+ * Arrivals with a VERIFIED previous programme (Phase 8B.1A).
  *
- * `prior_programme` is populated for 63% of squad-season rows and holds the
- * school a player came from. Most values are the programme's own name — those
- * are returners, not arrivals — so the filter is the whole function.
+ * `prior_programme` holds only VERIFIED_SAME_PERSON origins: the destination
+ * roster's structured previous-school field names the programme, or name +
+ * hometown + class progression agree with nothing against
+ * (server/lib/players/linkBuilder.js). A same-name match alone never reaches
+ * it — unverified origins live in `player_observation_links`. Most values are
+ * the programme's own name — returners, not arrivals — so the filter is the
+ * whole function. These are VERIFIED transfers; possible ones are not here.
  */
 export function namedArrivals(squadRows, { school } = {}) {
   return squadRows

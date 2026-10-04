@@ -721,7 +721,8 @@ describe('the supporting record', () => {
     });
     const { text } = await build();
     expect(text).toContain('A Named Programme');
-    expect(text).toMatch(/A dash under Previous programme means the roster did not record one/);
+    // Phase 8B.1A: a dash means no VERIFIED origin, never a bare name match
+    expect(text).toMatch(/A dash under Previous programme means no previous programme is verified/);
   });
 
   it('keeps one row per opening rather than one per departing player', async () => {

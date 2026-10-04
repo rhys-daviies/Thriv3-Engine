@@ -17,6 +17,7 @@
  */
 import db, { dbPath } from '../db/client.js';
 import { assertCanonicalWrite } from '../db/corpusIdentity.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { ROSTER_SCHOOL_ALIASES } from '../lib/rosterSchoolAliases.js';
 
 const APPLY = process.argv.includes('--apply');
@@ -58,6 +59,7 @@ function main() {
   }
 
   if (!APPLY) { console.log('\nPass --apply to write.'); return; }
+  assertLegacyWriteAllowed(db, { script: 'alignRosterSchoolNames.js' });
   /*
    * L7ZM. This writes product data. When the corpus is one other checkouts
    * share, say so out loud rather than surprising them — see

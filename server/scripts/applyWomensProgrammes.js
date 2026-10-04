@@ -23,6 +23,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import Database from 'better-sqlite3';
 import { assertUnredacted } from '../lib/redactedFixtureGuard.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i > -1 ? process.argv[i + 1] : null; };
 const apply = process.argv.includes('--apply');
@@ -68,6 +69,7 @@ console.log(`coaches:    ${fixture.coaches.length} fixture | ${coachPlan.length}
 problems.forEach((x) => console.log('  BLOCKED:', x));
 if (problems.length) { console.error(`\nABORT — ${problems.length} precondition failure(s). Nothing changed.`); db.close(); process.exit(1); }
 if (!apply) { console.log(`\nDRY RUN — would insert ${progPlan.length} programmes, reassign ${coachPlan.length} coaches.`); db.close(); process.exit(0); }
+assertLegacyWriteAllowed(db, { script: 'applyWomensProgrammes.js' });
 
 let inserted = 0; let reassigned = 0;
 try {

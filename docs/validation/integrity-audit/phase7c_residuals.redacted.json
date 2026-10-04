@@ -1,0 +1,111 @@
+{
+  "phase": "7C documented residuals",
+  "counts": {
+    "CURRENT_NO_ELIGIBLE_EMAIL": 8,
+    "AUTHORITATIVE_SOURCE_BLOCKED": 3,
+    "IDENTITY_NOT_REPRESENTABLE_SAFELY": 8
+  },
+  "detail": {
+    "CURRENT_NO_ELIGIBLE_EMAIL": [
+      {
+        "programme": "Savannah College of Art and Design",
+        "sport": "womens-soccer",
+        "unitid": 140951
+      },
+      {
+        "programme": "Milligan University",
+        "sport": "womens-soccer",
+        "unitid": 486901
+      },
+      {
+        "programme": "Washington Adventist University",
+        "sport": "womens-soccer",
+        "unitid": 162210
+      },
+      {
+        "programme": "Milligan University",
+        "sport": "mens-soccer",
+        "unitid": 486901
+      },
+      {
+        "programme": "Savannah College of Art and Design",
+        "sport": "mens-soccer",
+        "unitid": 140951
+      },
+      {
+        "programme": "Tougaloo College",
+        "sport": "mens-soccer",
+        "unitid": 176406
+      },
+      {
+        "programme": "University of Health Sciences and Pharmacy in St. Louis",
+        "sport": "mens-soccer",
+        "unitid": 179265
+      },
+      {
+        "programme": "Johnson University",
+        "sport": "mens-soccer",
+        "unitid": 220473
+      }
+    ],
+    "AUTHORITATIVE_SOURCE_BLOCKED": [
+      {
+        "programme": "Oakland City University",
+        "sport": "womens-soccer",
+        "unitid": 152099
+      },
+      {
+        "programme": "Jarvis Christian University",
+        "sport": "womens-soccer",
+        "unitid": 225885
+      },
+      {
+        "programme": "Oakland City University",
+        "sport": "mens-soccer",
+        "unitid": 152099
+      }
+    ],
+    "IDENTITY_NOT_REPRESENTABLE_SAFELY": [
+      {
+        "programme": "Stanton University",
+        "sport": "womens-soccer",
+        "unitid": null
+      },
+      {
+        "programme": "Park University Gilbert",
+        "sport": "womens-soccer",
+        "unitid": null
+      },
+      {
+        "programme": "Benedictine University at Mesa",
+        "sport": "womens-soccer",
+        "unitid": null
+      },
+      {
+        "programme": "Indiana University Columbus",
+        "sport": "womens-soccer",
+        "unitid": 151111
+      },
+      {
+        "programme": "Benedictine University at Mesa",
+        "sport": "mens-soccer",
+        "unitid": null
+      },
+      {
+        "programme": "Indiana University Columbus",
+        "sport": "mens-soccer",
+        "unitid": 151111
+      },
+      {
+        "programme": "University of St. Francis (IL)",
+        "sport": "womens-soccer",
+        "unitid": 148584
+      },
+      {
+        "programme": "Park University Gilbert",
+        "sport": "mens-soccer",
+        "unitid": null
+      }
+    ]
+  }
+}

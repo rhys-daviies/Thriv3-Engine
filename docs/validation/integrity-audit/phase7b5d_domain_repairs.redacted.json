@@ -1,0 +1,115 @@
+{
+  "phase": "7B.5D adjudicated domain repairs (institutional)",
+  "fixture_hash": "f810fa780076872b751fe635ef33d672bc6505553ce75d4c35fedebf31ca5337",
+  "count": 7,
+  "entries": [
+    {
+      "op": "UPDATE",
+      "domain": "gofightingsaints.com",
+      "unitid": 148575,
+      "new_status": "VERIFIED",
+      "expected_old_status": "INSUFFICIENT_EVIDENCE",
+      "expected_old_unitid": null,
+      "collision_class": "DISTINCT_DOMAINS_RESOLVED",
+      "evidence_url": "https://stfrancis.edu/",
+      "affected_programmes": [
+        "148575|mens-soccer"
+      ],
+      "reason": "Saint Francis (IL): stfrancis.edu is 'University of St. Francis' (Joliet IL); its own Athletics nav link points to gofightingsaints.com, whose coaches pages title 'University of St"
+    },
+    {
+      "op": "UPDATE",
+      "domain": "gounionbulldogs.com",
+      "unitid": 157863,
+      "new_status": "VERIFIED",
+      "expected_old_status": "INSUFFICIENT_EVIDENCE",
+      "expected_old_unitid": null,
+      "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN",
+      "evidence_url": "https://gounionbulldogs.com/sports/msoc/coaches/index",
+      "affected_programmes": [
+        "157863|mens-soccer",
+        "157863|womens-soccer"
+      ],
+      "reason": "Union (KY): gounionbulldogs.com self-identifies throughout as 'Union Commonwealth' (page titles, footer). Coaches carry @unionky.edu emails, matching the school's legacy unionky.ed"
+    },
+    {
+      "op": "UPDATE",
+      "domain": "johnsonroyals.com",
+      "unitid": 220473,
+      "new_status": "VERIFIED",
+      "expected_old_status": "INSUFFICIENT_EVIDENCE",
+      "expected_old_unitid": null,
+      "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN",
+      "evidence_url": "https://johnsonroyals.com/sports/wsoc/coaches/Todd_Halliburton",
+      "affected_programmes": [
+        "220473|womens-soccer"
+      ],
+      "reason": "Johnson University: johnsonroyals.com self-identifies as 'Johnson University Tennessee Athletics' (header + footer 'Johnson University' logo; site links out to johnsonu.edu). Coach"
+    },
+    {
+      "op": "UPDATE",
+      "domain": "lsuagenerals.com",
+      "unitid": 159382,
+      "new_status": "VERIFIED",
+      "expected_old_status": "INSUFFICIENT_EVIDENCE",
+      "expected_old_unitid": null,
+      "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN",
+      "evidence_url": "https://lsuagenerals.com/sports/mens-soccer/coaches",
+      "affected_programmes": [
+        "159382|mens-soccer",
+        "159382|womens-soccer"
+      ],
+      "reason": "LSU Alexandria: lsuagenerals.com self-identifies as 'Louisiana State University at Alexandria - Official Athletics Website' ('© 2026 La Sierra University' was a transient stale-tre"
+    },
+    {
+      "op": "UPDATE",
+      "domain": "lsugoldeneagles.com",
+      "unitid": 117627,
+      "new_status": "VERIFIED",
+      "expected_old_status": "WRONG_INSTITUTION",
+      "expected_old_unitid": 117627,
+      "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN",
+      "evidence_url": "https://lsugoldeneagles.com/sports/mens-soccer/coaches",
+      "affected_programmes": [
+        "117627|mens-soccer",
+        "117627|womens-soccer"
+      ],
+      "reason": "La Sierra University: lsugoldeneagles.com self-identifies as 'La Sierra University' (logo alt + '© 2026 La Sierra University') and coaches carry @lasierra.edu emails. 'LSU' here = "
+    },
+    {
+      "op": "UPDATE",
+      "domain": "tamuteagles.com",
+      "unitid": 224545,
+      "new_status": "VERIFIED",
+      "expected_old_status": "INSUFFICIENT_EVIDENCE",
+      "expected_old_unitid": null,
+      "collision_class": "DISTINCT_DOMAINS_RESOLVED",
+      "evidence_url": "https://tamuteagles.com/sports/wsoc/coaches/Don_Koontz",
+      "affected_programmes": [
+        "224545|womens-soccer"
+      ],
+      "reason": "Texas A&M University-Texarkana: tamuteagles.com self-identifies as 'Home of the Texas A&M Texarkana Eagles' (page titles) and coach bios carry @tamut.edu emails (verified instituti"
+    },
+    {
+      "op": "INSERT",
+      "domain": "viterboathletics.com",
+      "unitid": 240107,
+      "new_status": "VERIFIED",
+      "expected_old_status": "ABSENT",
+      "expected_old_unitid": null,
+      "collision_class": "DISTINCT_DOMAINS_RESOLVED",
+      "claimed_keys": [
+        "Viterbo University"
+      ],
+      "claimed_unitids": [
+        240107
+      ],
+      "role": "ATHLETICS_SITE",
+      "evidence_url": "https://www.viterboathletics.com/sports/wsoc/coaches/Scott_Pirnstill",
+      "affected_programmes": [
+        "240107|womens-soccer"
+      ],
+      "reason": "Viterbo University: viterbo.edu's own Athletics nav link points to https://www.viterboathletics.com/; that host self-identifies as 'Viterbo University' (page titles) and coach bios"
+    }
+  ]
+}

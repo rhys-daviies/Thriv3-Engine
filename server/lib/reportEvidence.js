@@ -757,8 +757,13 @@ export function currentSquadOutlookPage(k, model) {
         // What the programme has historically done with arrivals is its own
         // section, and that section already points here. One direction is
         // enough; two is the cross-reference reading as an apology.
-        `Recorded as arriving from another programme; the roster names a previous programme for `
-          + `some players and not others. All ${plural(squad.rostered, 'player', 'players')} on `
+        // Phase 8B.1A: only VERIFIED origins are listed (a structured previous
+        // school on the roster, or name + hometown + class progression). A
+        // same-name player elsewhere is never printed as where someone came from.
+        `Listed only where the previous programme is verified — named by the roster itself, or `
+          + 'matched on name, hometown and class progression with nothing against. A player whose '
+          + 'origin is uncertain is not listed here. All '
+          + `${plural(squad.rostered, 'player', 'players')} on `
           + 'this roster are listed individually in the supporting record at the back.',
       ].filter(Boolean).join(' ') || null,
     });

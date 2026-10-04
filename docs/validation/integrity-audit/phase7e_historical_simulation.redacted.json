@@ -1,0 +1,125 @@
+{
+ "batch": "RB-2027-NAIA-a8cc7e434586",
+ "staged_observations": 65,
+ "classifications": {
+  "COACH:CONFIRMED_UNCHANGED": 7,
+  "COACH:CONTRADICTION": 5,
+  "COACH:DISAPPEARED_FROM_SOURCE": 1,
+  "COACH:IDENTITY_AMBIGUOUS": 1,
+  "COACH:NEW_RECORD": 3,
+  "COACH:STALE_CANDIDATE": 1,
+  "COACH:VERIFIED_UPDATE": 1,
+  "DOMAIN:CONTRADICTION": 1,
+  "DOMAIN:NEW_RECORD": 1,
+  "PROGRAMME:CONTRADICTION": 1,
+  "PROGRAMME:VERIFIED_UPDATE": 2,
+  "ROSTER:CONTRADICTION": 1,
+  "ROSTER:NEW_RECORD": 39,
+  "ROSTER:SOURCE_UNTRUSTED": 1
+ },
+ "reviews_approved": 4,
+ "promote_exit": 0,
+ "promote_tail": [
+  "SIMULATED: applied 54, noop 0",
+  "  PASS G1_programme_resolves_to_one_entity",
+  "  PASS G2_no_cross_entity_domain_contradiction",
+  "  PASS G3_no_wrong_institution_eligible",
+  "  PASS G4_no_wrong_sport_eligible",
+  "  PASS G5_no_stale_eligible",
+  "  PASS G6_no_inferred_email_eligible",
+  "  PASS G7_no_synthetic_federal_unitid",
+  "  PASS G8_no_unexplained_programme_duplicate",
+  "  PASS G9_no_historical_season_rewritten",
+  "  PASS G10_membership_changes_accounted",
+  "  PASS G11_db_integrity_ok",
+  "  PASS G12_privacy",
+  "PROMOTED 54 op(s) (0 already in place). integrity ok. Live re-measure == simulation."
+ ],
+ "promoted_by_action": [
+  {
+   "a": "ASSIGN_DOMAIN",
+   "n": 1
+  },
+  {
+   "a": "CHANGE_DIVISION",
+   "n": 1
+  },
+  {
+   "a": "CREATE_COACH",
+   "n": 3
+  },
+  {
+   "a": "DEACTIVATE_PROGRAMME",
+   "n": 1
+  },
+  {
+   "a": "INSERT_ROSTER_ROW",
+   "n": 39
+  },
+  {
+   "a": "MARK_PROVEN_STALE",
+   "n": 1
+  },
+  {
+   "a": "REFRESH_COACH_EVIDENCE",
+   "n": 7
+  },
+  {
+   "a": "REPLACE_VERIFIED_EMAIL",
+   "n": 1
+  }
+ ],
+ "withheld_by_class": [
+  {
+   "c": "CONTRADICTION",
+   "a": null,
+   "n": 6
+  },
+  {
+   "c": "CONTRADICTION",
+   "a": "CHANGE_DIVISION",
+   "n": 1
+  },
+  {
+   "c": "CONTRADICTION",
+   "a": "CHANGE_DOMAIN_OWNERSHIP",
+   "n": 1
+  },
+  {
+   "c": "DISAPPEARED_FROM_SOURCE",
+   "a": "INVESTIGATE_CURRENTNESS",
+   "n": 1
+  },
+  {
+   "c": "IDENTITY_AMBIGUOUS",
+   "a": null,
+   "n": 1
+  },
+  {
+   "c": "SOURCE_UNTRUSTED",
+   "a": null,
+   "n": 1
+  }
+ ],
+ "proofs": {
+  "safe_facts_promoted": true,
+  "uncertainty_staged_not_written": true,
+  "contradictions_rejected": true,
+  "inferred_email_never_stored": true,
+  "transition_closed_and_opened": "[{\"first_season\":2026,\"last_season\":2026,\"division\":\"NAIA\",\"membership_status\":\"ACTIVE\"},{\"first_season\":2027,\"last_season\":null,\"division\":\"NCAA D2\",\"membership_status\":\"PROVISIONAL\"}]",
+  "discontinued_programme_inactive_not_deleted": true,
+  "departed_head_marked_stale_not_deleted": "PROVEN_STALE",
+  "frozen_seasons_unchanged": true,
+  "prior_season_rosters_unchanged": true,
+  "new_season_rows": 39
+ },
+ "programmes": {
+  "unchanged": "Aquinas [mens-soccer]",
+  "departed": "Arizona Christian University [womens-soccer]",
+  "emailChange": "Baker [mens-soccer]",
+  "transition": "Bellevue University [mens-soccer]",
+  "discontinued": "Benedictine (KS) [mens-soccer]",
+  "roster": "Ave Maria University [mens-soccer]"
+ },
+ "_note": "Part T: hypothetical 2027 refresh on a COPY of shared dev (never live). Controlled observations derived from existing programmes; synthetic successors/addresses existed only in the scratch fixture and the temp copy. Coach ids/names/addresses omitted."
+}

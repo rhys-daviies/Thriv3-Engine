@@ -113,6 +113,17 @@ def main():
     # L7ZO: writing a corpus other checkouts share needs saying so.
     _corpus.assert_canonical_write("dedupe_schools.py", DB)
 
+    # Phase 7E: a hard delete by name orphans every row keyed on the programme. On an
+    # integrity-managed database (athletics-entity model present) duplicates are LINKED
+    # (programme_row_links), never deleted — see server/lib/refresh/canonicalWriteGuard.js.
+    managed = con.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='athletics_entities'").fetchone() \
+        and con.execute("SELECT 1 FROM athletics_entities LIMIT 1").fetchone()
+    if managed and "--legacy-write-ack" not in sys.argv:
+        con.close()
+        sys.exit("dedupe_schools.py hard-deletes colleges rows; this database is integrity-managed. "
+                 "Link duplicates with programme_row_links through the guarded workflow, or pass "
+                 "--legacy-write-ack --reason \"<why>\" and run npm run integrity:monitor afterwards.")
+
     shutil.copy2(RECORDS, RECORDS.replace(".csv", ".pre_dedupe.csv"))
     with open(RECORDS, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields)

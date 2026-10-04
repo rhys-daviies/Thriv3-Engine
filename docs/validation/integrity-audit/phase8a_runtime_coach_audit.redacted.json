@@ -1,0 +1,68 @@
+{
+ "phase": "8A",
+ "decision": "Full floor, default-on (user decision). Legacy behaviour only with THRIV3_ALLOW_LEGACY_COACHES=1 (read per call, trimmed).",
+ "pre_8a_audit": {
+  "flag_gated_paths": [
+   "server/routes/programmeCoaches.js staffRows (USE_RECONCILED_COACHES)"
+  ],
+  "legacy_unfiltered_paths": [
+   "campaign recipient selection (pursuitPolicy)",
+   "bulk / manual composers",
+   "send route (sendOutreach)",
+   "execution claim",
+   "draftOutreach CLI"
+  ],
+  "reconciled_path_gaps": [
+   "coaches_reconciled absent on the shared dev DB — enabling the flag was a no-op",
+   "snapshot: never re-checked against live coach state",
+   "empty table blanked every coach list",
+   "campaign path checked the legacy school",
+   "strict flag regex (\" 1\" read as off)",
+   "badge read legacy email_status"
+  ]
+ },
+ "chokepoints_now": {
+  "server/lib/coachEligibility.js": "single eligibility function: usable email, email_status verified, not PROVEN_STALE; recipientIneligibility adds address-at-programme (incl. programme_row_links alt names)",
+  "server/routes/programmeCoaches.js": "reconciled path only if the table exists and is non-empty, with a live re-check; otherwise applyCoachFloor",
+  "server/lib/pursuitPolicy.js": "NOT_OUTREACH_ELIGIBLE after NO_USABLE_EMAIL",
+  "server/routes/sendOutreach.js": "status 'not-eligible' after suppression",
+  "server/lib/executionClaim.js": "CLAIM_REFUSAL.COACH_NOT_OUTREACH_ELIGIBLE before the send cap",
+  "server/scripts/draftOutreach.js": "skipped.notEligible",
+  "src/components/BulkEmailComposer.jsx": "'not eligible' label"
+ },
+ "live_measure": {
+  "reconciled_eligible": 4157,
+  "hidden_by_floor": 0,
+  "floor_passing_rows": 4946,
+  "excluded_rows": 1540,
+  "byReason": {
+   "EMAIL_NOT_VERIFIED:unknown": 26,
+   "EMAIL_NOT_VERIFIED:inferred": 1118,
+   "EMAIL_NOT_VERIFIED:generic": 168,
+   "COACH_PROVEN_STALE": 228
+  },
+  "coverage": {
+   "NCAA D1": {
+    "reconciled_programmes": 473,
+    "floor_programmes": 521,
+    "reconciled_not_in_floor": 0
+   },
+   "NAIA": {
+    "reconciled_programmes": 370,
+    "floor_programmes": 372,
+    "reconciled_not_in_floor": 0
+   },
+   "NCAA D3": {
+    "reconciled_programmes": 603,
+    "floor_programmes": 685,
+    "reconciled_not_in_floor": 0
+   },
+   "NCAA D2": {
+    "reconciled_programmes": 404,
+    "floor_programmes": 443,
+    "reconciled_not_in_floor": 0
+   }
+  }
+ },
+ "proof": "no reconciled-eligible coach is hidden by the floor; no covered programme loses its last eligible coach in any division"
+}

@@ -1,0 +1,54 @@
+{
+  "phase": "7B.1",
+  "note": "REDACTED. Deterministic current-coach inserts (real values in untracked raw fixture).",
+  "entries": [
+    {
+      "coach_id": "e730fcbb-8b53-4d64-b85c-130da97cfdda",
+      "canonical_programme": "Pacific Union College",
+      "unitid": 120865,
+      "sport": "womens-soccer",
+      "division": "NAIA",
+      "name": "[name withheld — coach e730fcbb-8b53-4d64-b85c-130da97cfdda]",
+      "role": "Head Women's Soccer Coach",
+      "email": "coach-e730fcbb-8b53-4d64-b85c-130da97cfdda@redacted.invalid",
+      "email_status": "verified",
+      "email_seen_on_source_url": "https://www.pioneersathletics.com/sports/wsoc/coaches",
+      "source_url": "https://www.pioneersathletics.com/sports/wsoc/coaches",
+      "currentness_source_url": "https://www.pioneersathletics.com/sports/wsoc/coaches",
+      "evidence_rationale": "current head/assistant coach confirmed on official athletics page; replaces mis-attributed/stale record",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "5244d817-1b2b-4a58-a6d4-1d9f7e08c8c6",
+      "canonical_programme": "Oakwood University",
+      "unitid": 101912,
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "name": "[name withheld — coach 5244d817-1b2b-4a58-a6d4-1d9f7e08c8c6]",
+      "role": "Assistant Coach",
+      "email": "coach-5244d817-1b2b-4a58-a6d4-1d9f7e08c8c6@redacted.invalid",
+      "email_status": "verified",
+      "email_seen_on_source_url": "https://athletics.oakwood.edu/staff-directory",
+      "source_url": "https://athletics.oakwood.edu/staff-directory",
+      "currentness_source_url": "https://athletics.oakwood.edu/staff-directory",
+      "evidence_rationale": "current head/assistant coach confirmed on official athletics page; replaces mis-attributed/stale record",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "07158389-1f73-4bf4-a737-8e8c2556d999",
+      "canonical_programme": "University of Mobile",
+      "unitid": 101693,
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "name": "[name withheld — coach 07158389-1f73-4bf4-a737-8e8c2556d999]",
+      "role": "Assistant Men's Soccer Coach",
+      "email": "coach-07158389-1f73-4bf4-a737-8e8c2556d999@redacted.invalid",
+      "email_status": "verified",
+      "email_seen_on_source_url": "https://umobilerams.com/sports/mens-soccer/coaches",
+      "source_url": "https://umobilerams.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://umobilerams.com/sports/mens-soccer/coaches",
+      "evidence_rationale": "current head/assistant coach confirmed on official athletics page; replaces mis-attributed/stale record",
+      "auto_apply_safe": true
+    }
+  ]
+}

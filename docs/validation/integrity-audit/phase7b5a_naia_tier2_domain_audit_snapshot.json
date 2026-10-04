@@ -1,0 +1,1039 @@
+{
+  "milestone": "PHASE 7B.5A — NAIA TIER-2 DOMAIN GROUND-TRUTH AUDIT (READ-ONLY)",
+  "created_at": "2026-09-28T07:47:26.944Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev) — NO mutation this phase.",
+  "checkpoint_7b4a_push": "8be4d1e pushed to origin/feature/coach-corroboration-7b; 10 ahead / 0 behind main",
+  "frozen_tier2": 128,
+  "reconciles": true,
+  "distinct_domains": 70,
+  "failure_taxonomy": {
+    "DOMAIN_INSUFFICIENT": 86,
+    "DOMAIN_WRONG_STATUS": 8,
+    "SOURCE_DOMAIN_STALE": 18,
+    "SOURCE_USES_MAIN_DOMAIN": 8,
+    "DOMAIN_WRONG_UNITID": 2,
+    "OTHER": 3,
+    "SHARED_PLATFORM": 2,
+    "DOMAIN_MISSING": 1
+  },
+  "multi_unitid_domains": [
+    {
+      "domain": "johnsonroyals.com",
+      "unitids": [
+        146339,
+        220473
+      ],
+      "programmes": [
+        "146339|mens-soccer",
+        "220473|womens-soccer"
+      ]
+    },
+    {
+      "domain": "prestosports.com",
+      "unitids": [
+        202514,
+        133809,
+        240107
+      ],
+      "programmes": [
+        "202514|womens-soccer",
+        "133809|womens-soccer",
+        "240107|womens-soccer"
+      ]
+    }
+  ],
+  "collision_flag_count": 21,
+  "domain_classification_counts": {
+    "AUTO_SAFE_CORRECTION": 61,
+    "HOLD_COLLISION": 7,
+    "NO_REPAIR_NEEDED": 1,
+    "SAFE_ALIAS_ADDITION": 1
+  },
+  "proposed_safe_repairs": 62,
+  "blast_radius_totals": {
+    "coach_rows": 241,
+    "programmes": 114
+  },
+  "simulation": {
+    "global_eligible": "3876 -> 3876",
+    "naia_eligible": "519 -> 519",
+    "naia_covered": "234 -> 234",
+    "newly_eligible": 0,
+    "ncaa_delta_zero": true
+  },
+  "simulation_note": "Domain repair alone unlocks 0 coverage: all 128 Tier-2 best-coaches lack email_seen + CURRENT. Strict gate holds. NCAA delta 0; 0 outside-target newly eligible.",
+  "residual_classification": {
+    "DOMAIN_REPAIR_PLUS_EVIDENCE": 109,
+    "COLLISION_HOLD": 14,
+    "BLOCKER_NOT_DOMAIN": 2,
+    "INSUFFICIENT_HOLD": 3
+  },
+  "root_causes": {
+    "importer_found_domain_but_never_verified": 61,
+    "alias_not_modeled": 1,
+    "same_name_contamination_protection_withheld": 7,
+    "source_used_main_edu_not_athletics_host": 8,
+    "source_from_wayback_stale_host": 18,
+    "shared_platform_source_school_migrated": 0,
+    "registry_already_correct_blocker_elsewhere": 1
+  },
+  "prevention_review": {
+    "finding": "The acquisition/verification importer located each athletics host and a candidate UNITID (claimed_unitids populated) but left the row unpromoted (unitid null, status INSUFFICIENT_EVIDENCE, confidence NONE, verification_method PAGE_SELF_IDENTIFICATION). It never re-attempted promotion when independent one-to-one evidence became available, and never modelled the main-.edu-vs-athletics-host split, Wayback-sourced staleness, or shared-platform hosts.",
+    "narrow_gap": "Ingestion does not flag a verified-personal-email coach whose source/athletics domain is INSUFFICIENT/MISSING for a follow-up ownership check, and does not record when a coach source is a Wayback URL or a shared-platform CDN host.",
+    "proposal": "Add a read-side flag (no schema change) surfacing coaches with verified email + non-verified source domain, plus a Wayback/shared-CDN source detector, so the domain-authority gap is visible at ingest rather than discovered phases later. Do NOT auto-promote domains on self-identification alone (the same-name contamination protection that correctly withheld johnsonroyals/sfuathletics/iuccrimsonpride must remain)."
+  },
+  "candidate_queues": {
+    "AUTO_SAFE_CORRECTION": [
+      {
+        "domain": "upikebears.com",
+        "claimed_unitids": [
+          157535
+        ],
+        "proposed": {
+          "domain": "upikebears.com",
+          "unitid": 157535,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "bryanlions.com",
+        "claimed_unitids": [
+          219790
+        ],
+        "proposed": {
+          "domain": "bryanlions.com",
+          "unitid": 219790,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "cmueagles.com",
+        "claimed_unitids": [
+          176947
+        ],
+        "proposed": {
+          "domain": "cmueagles.com",
+          "unitid": 176947,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "clarkepride.com",
+        "claimed_unitids": [
+          153126
+        ],
+        "proposed": {
+          "domain": "clarkepride.com",
+          "unitid": 153126,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "dwuathletics.com",
+        "claimed_unitids": [
+          219091
+        ],
+        "proposed": {
+          "domain": "dwuathletics.com",
+          "unitid": 219091,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "godordt.com",
+        "claimed_unitids": [
+          153250
+        ],
+        "proposed": {
+          "domain": "godordt.com",
+          "unitid": 153250,
+          "new_status": "VERIFIED",
+          "expected_old_status": "WRONG_INSTITUTION",
+          "expected_old_unitid": 153250
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "evangelathletics.com",
+        "claimed_unitids": [
+          177339
+        ],
+        "proposed": {
+          "domain": "evangelathletics.com",
+          "unitid": 177339,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "hastingsbroncos.com",
+        "claimed_unitids": [
+          181127
+        ],
+        "proposed": {
+          "domain": "hastingsbroncos.com",
+          "unitid": 181127,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "indianatechwarriors.com",
+        "claimed_unitids": [
+          151290
+        ],
+        "proposed": {
+          "domain": "indianatechwarriors.com",
+          "unitid": 151290,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "kcuknights.com",
+        "claimed_unitids": [
+          157100
+        ],
+        "proposed": {
+          "domain": "kcuknights.com",
+          "unitid": 157100,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "mbuspartans.com",
+        "claimed_unitids": [
+          178244
+        ],
+        "proposed": {
+          "domain": "mbuspartans.com",
+          "unitid": 178244,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "msidemustangs.com",
+        "claimed_unitids": [
+          154004
+        ],
+        "proposed": {
+          "domain": "msidemustangs.com",
+          "unitid": 154004,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "mountmercymustangs.com",
+        "claimed_unitids": [
+          154013
+        ],
+        "proposed": {
+          "domain": "mountmercymustangs.com",
+          "unitid": 154013,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "mvnucougars.com",
+        "claimed_unitids": [
+          204194
+        ],
+        "proposed": {
+          "domain": "mvnucougars.com",
+          "unitid": 204194,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "skyhawkathletics.com",
+        "claimed_unitids": [
+          138868
+        ],
+        "proposed": {
+          "domain": "skyhawkathletics.com",
+          "unitid": 138868,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "saubees.com",
+        "claimed_unitids": [
+          154235
+        ],
+        "proposed": {
+          "domain": "saubees.com",
+          "unitid": 154235,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "usao.edu",
+        "claimed_unitids": [
+          207722
+        ],
+        "proposed": {
+          "domain": "usao.edu",
+          "unitid": 207722,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "seu.edu",
+        "claimed_unitids": [
+          137564
+        ],
+        "proposed": {
+          "domain": "seu.edu",
+          "unitid": 137564,
+          "new_status": "VERIFIED",
+          "expected_old_status": "UNREACHABLE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "taylortrojans.com",
+        "claimed_unitids": [
+          152530
+        ],
+        "proposed": {
+          "domain": "taylortrojans.com",
+          "unitid": 152530,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "statesmenathletics.com",
+        "claimed_unitids": [
+          154590
+        ],
+        "proposed": {
+          "domain": "statesmenathletics.com",
+          "unitid": 154590,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "bubruins.com",
+        "claimed_unitids": [
+          180814
+        ],
+        "proposed": {
+          "domain": "bubruins.com",
+          "unitid": 180814,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "bmcusports.com",
+        "claimed_unitids": [
+          175430
+        ],
+        "proposed": {
+          "domain": "bmcusports.com",
+          "unitid": 175430,
+          "new_status": "VERIFIED",
+          "expected_old_status": "WRONG_INSTITUTION",
+          "expected_old_unitid": 175430
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "bresciabearcats.com",
+        "claimed_unitids": [
+          156356
+        ],
+        "proposed": {
+          "domain": "bresciabearcats.com",
+          "unitid": 156356,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "clearycougars.com",
+        "claimed_unitids": [
+          169327
+        ],
+        "proposed": {
+          "domain": "clearycougars.com",
+          "unitid": 169327,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "gokoalas.com",
+        "claimed_unitids": [
+          217934
+        ],
+        "proposed": {
+          "domain": "gokoalas.com",
+          "unitid": 217934,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "cscwildcats.com",
+        "claimed_unitids": [
+          177144
+        ],
+        "proposed": {
+          "domain": "cscwildcats.com",
+          "unitid": 177144,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "fisherfalcons.com",
+        "claimed_unitids": [
+          165802
+        ],
+        "proposed": {
+          "domain": "fisherfalcons.com",
+          "unitid": 165802,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "gsujaguars.com",
+        "claimed_unitids": [
+          145336
+        ],
+        "proposed": {
+          "domain": "gsujaguars.com",
+          "unitid": 145336,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "hcsaints.com",
+        "claimed_unitids": [
+          150774
+        ],
+        "proposed": {
+          "domain": "hcsaints.com",
+          "unitid": 150774,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "ltuathletics.com",
+        "claimed_unitids": [
+          170675
+        ],
+        "proposed": {
+          "domain": "ltuathletics.com",
+          "unitid": 170675,
+          "new_status": "VERIFIED",
+          "expected_old_status": "WRONG_INSTITUTION",
+          "expected_old_unitid": 170675
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "lsusathletics.com",
+        "claimed_unitids": [
+          159416
+        ],
+        "proposed": {
+          "domain": "lsusathletics.com",
+          "unitid": 159416,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "muknights.com",
+        "claimed_unitids": [
+          151786
+        ],
+        "proposed": {
+          "domain": "muknights.com",
+          "unitid": 151786,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "reinhardteagles.com",
+        "claimed_unitids": [
+          140872
+        ],
+        "proposed": {
+          "domain": "reinhardteagles.com",
+          "unitid": 140872,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "rioredstorm.com",
+        "claimed_unitids": [
+          205203
+        ],
+        "proposed": {
+          "domain": "rioredstorm.com",
+          "unitid": 205203,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "sokaathletics.com",
+        "claimed_unitids": [
+          399911
+        ],
+        "proposed": {
+          "domain": "sokaathletics.com",
+          "unitid": 399911,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "gosmcpioneers.com",
+        "claimed_unitids": [
+          218821
+        ],
+        "proposed": {
+          "domain": "gosmcpioneers.com",
+          "unitid": 218821,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "twbulldogs.com",
+        "claimed_unitids": [
+          221731
+        ],
+        "proposed": {
+          "domain": "twbulldogs.com",
+          "unitid": 221731,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "tamusasports.com",
+        "claimed_unitids": [
+          459949
+        ],
+        "proposed": {
+          "domain": "tamusasports.com",
+          "unitid": 459949,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "tamut.edu",
+        "claimed_unitids": [
+          224545
+        ],
+        "proposed": {
+          "domain": "tamut.edu",
+          "unitid": 224545,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "tamuvathletics.com",
+        "claimed_unitids": [
+          225502
+        ],
+        "proposed": {
+          "domain": "tamuvathletics.com",
+          "unitid": 225502,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "tcsteersathletics.com",
+        "claimed_unitids": [
+          228884
+        ],
+        "proposed": {
+          "domain": "tcsteersathletics.com",
+          "unitid": 228884,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "gogeoducks.com",
+        "claimed_unitids": [
+          235167
+        ],
+        "proposed": {
+          "domain": "gogeoducks.com",
+          "unitid": 235167,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "eutecticsports.com",
+        "claimed_unitids": [
+          179265
+        ],
+        "proposed": {
+          "domain": "eutecticsports.com",
+          "unitid": 179265,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "umdearborn.edu",
+        "claimed_unitids": [
+          171137
+        ],
+        "proposed": {
+          "domain": "umdearborn.edu",
+          "unitid": 171137,
+          "new_status": "VERIFIED",
+          "expected_old_status": "ABSENT",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "unohracers.com",
+        "claimed_unitids": [
+          204486
+        ],
+        "proposed": {
+          "domain": "unohracers.com",
+          "unitid": 204486,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "saintfranciscougars.com",
+        "claimed_unitids": [
+          152336
+        ],
+        "proposed": {
+          "domain": "saintfranciscougars.com",
+          "unitid": 152336,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "goldenbearathletics.com",
+        "claimed_unitids": [
+          237950
+        ],
+        "proposed": {
+          "domain": "goldenbearathletics.com",
+          "unitid": 237950,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "westcliffathletics.com",
+        "claimed_unitids": [
+          490133
+        ],
+        "proposed": {
+          "domain": "westcliffathletics.com",
+          "unitid": 490133,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "ccsjathletics.com",
+        "claimed_unitids": [
+          150172
+        ],
+        "proposed": {
+          "domain": "ccsjathletics.com",
+          "unitid": 150172,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "csmflames.com",
+        "claimed_unitids": [
+          181604
+        ],
+        "proposed": {
+          "domain": "csmflames.com",
+          "unitid": 181604,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "doane.edu",
+        "claimed_unitids": [
+          181020
+        ],
+        "proposed": {
+          "domain": "doane.edu",
+          "unitid": 181020,
+          "new_status": "VERIFIED",
+          "expected_old_status": "UNREACHABLE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "georgetowncollegeathletics.com",
+        "claimed_unitids": [
+          156745
+        ],
+        "proposed": {
+          "domain": "georgetowncollegeathletics.com",
+          "unitid": 156745,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "gujackets.com",
+        "claimed_unitids": [
+          153366
+        ],
+        "proposed": {
+          "domain": "gujackets.com",
+          "unitid": 153366,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "iueredwolves.com",
+        "claimed_unitids": [
+          151388
+        ],
+        "proposed": {
+          "domain": "iueredwolves.com",
+          "unitid": 151388,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "judsoneagles.com",
+        "claimed_unitids": [
+          146339
+        ],
+        "proposed": {
+          "domain": "judsoneagles.com",
+          "unitid": 146339,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "lpuwarriors.com",
+        "claimed_unitids": [
+          117104
+        ],
+        "proposed": {
+          "domain": "lpuwarriors.com",
+          "unitid": 117104,
+          "new_status": "VERIFIED",
+          "expected_old_status": "ABSENT",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "mtmaryathletics.com",
+        "claimed_unitids": [
+          239390
+        ],
+        "proposed": {
+          "domain": "mtmaryathletics.com",
+          "unitid": 239390,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "ouazspirit.com",
+        "claimed_unitids": [
+          464226
+        ],
+        "proposed": {
+          "domain": "ouazspirit.com",
+          "unitid": 464226,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "shusaints.com",
+        "claimed_unitids": [
+          172264
+        ],
+        "proposed": {
+          "domain": "shusaints.com",
+          "unitid": 172264,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "scwarriors.com",
+        "claimed_unitids": [
+          155937
+        ],
+        "proposed": {
+          "domain": "scwarriors.com",
+          "unitid": 155937,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      },
+      {
+        "domain": "tougaloobulldogs.com",
+        "claimed_unitids": [
+          176406
+        ],
+        "proposed": {
+          "domain": "tougaloobulldogs.com",
+          "unitid": 176406,
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      }
+    ],
+    "SAFE_ALIAS_ADDITION": [
+      {
+        "domain": "wileyathletics.com",
+        "claimed_unitids": [
+          229887
+        ],
+        "proposed": {
+          "domain": "wileyathletics.com",
+          "unitid": 229887,
+          "new_status": "VERIFIED_ALIAS",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "expected_old_unitid": null
+        },
+        "reason": "independently verified one-to-one"
+      }
+    ],
+    "HOLD_SHARED": [],
+    "HOLD_COLLISION": [
+      {
+        "domain": "sfuathletics.com",
+        "claimed_unitids": [
+          148575
+        ],
+        "proposed": null,
+        "reason": "MISMATCH. sfuathletics.com is the official athletics host of Saint Francis University, Loretto PA (unitid 216287) — the Red Wolves (rebranded from Red Flash on 2026-06-03 on transition to NCAA D-III / Presidents' Athletic Conference). It is NOT the claimed University of Saint Francis (Joliet, IL, 148575), whose teams are the Fighting Saints and whose athletics site is gofightingsaints.com (institution site stfrancis.edu). Third collision: University of Saint Francis (Fort Wayne, IN, 152336), the Cougars. Claimed unitid 148575 is incorrect for this domain."
+      },
+      {
+        "domain": "gounionbulldogs.com",
+        "claimed_unitids": [
+          157863
+        ],
+        "proposed": null,
+        "reason": "Many 'Union' institutions exist (Union College NY, Union University TN, etc.), but this domain and its Bulldogs branding map uniquely to Union Commonwealth University in Barbourville, KY (NAIA, Appalachian Athletic Conference). NCES DFR confirms unitid 157863 = Union College (KY), the same institution renamed Union Commonwealth University in March 2024."
+      },
+      {
+        "domain": "iuccrimsonpride.com",
+        "claimed_unitids": [
+          151111
+        ],
+        "proposed": null,
+        "reason": "MISMATCH: the domain is legitimately owned by exactly one institution (IU Columbus, 'Crimson Pride', NAIA River States Conference), but the CLAIMED unitid 151111 belongs to a DIFFERENT Indiana University campus. NCES lists unitid 151111 as Indiana University-Indianapolis (formerly IUPUI / Indiana University-Purdue University Indianapolis), not IU Columbus. IU Columbus was formerly IUPUC (a satellite of IUPUI; the Columbus center appears under unitid 500254) and became a standalone institution on July 1, 2024, so its own IPEDS unitid is not 151111. Indiana campus family collision confirmed against the claimed unitid."
+      },
+      {
+        "domain": "johnsonroyals.com",
+        "claimed_unitids": [
+          146339,
+          220473
+        ],
+        "proposed": null,
+        "reason": "COLLISION RESOLVED: johnsonroyals.com is owned by Johnson University Tennessee (unitid 220473, 'Royals', Knoxville TN, NAIA/AAC). The competing claim by Judson University IL (unitid 146339) is WRONG — Judson University's own athletics domain is judsoneagles.com. Site pages self-title 'Johnson University Tennessee Athletics'."
+      },
+      {
+        "domain": "lsugoldeneagles.com",
+        "claimed_unitids": [
+          117627
+        ],
+        "proposed": null,
+        "reason": "CRITICAL LSU-abbreviation ambiguity resolved: here 'LSU' = La Sierra University (Golden Eagles, NAIA/GSAC, Riverside/Riverside County CA), NOT Louisiana State University. Registry WRONG_INSTITUTION flag is a false alarm — the claimed mapping to La Sierra (117627) is CORRECT. Confirm La Sierra, not Louisiana State."
+      },
+      {
+        "domain": "lsuagenerals.com",
+        "claimed_unitids": [
+          159382
+        ],
+        "proposed": null,
+        "reason": "LSU-family collision risk (LSU Baton Rouge main, LSU Shreveport). Resolved: 'LSUA'/Generals is LSU Alexandria specifically (NAIA, Red River Conference). Site header: 'The Louisiana State University of Alexandria Generals'. NOT LSU main and NOT LSU Shreveport."
+      },
+      {
+        "domain": "prestosports.com",
+        "claimed_unitids": [
+          202514,
+          133809,
+          240107
+        ],
+        "proposed": null,
+        "reason": "prestosports.com is a shared multi-tenant platform serving many schools under <school>.prestosports.com subdomains; it is NOT a single institution and must never be attributed to one UNITID. All three of our coach-source schools have since migrated to their own branded standalone hosts, so any prestosports.com coach-source URL is a STALE host: Defiance College (202514) -> defianceathletics.com; Florida College (133809) -> wearefc.com (floridacollege.prestosports.com is the old/stale host); Viterbo University (240107) -> viterboathletics.com (viterbo.prestosports.com is the old/stale host)."
+      }
+    ],
+    "HOLD_INSUFFICIENT": [],
+    "HOLD_STALE": [],
+    "NO_REPAIR_NEEDED": [
+      {
+        "domain": "parkathletics.com",
+        "claimed_unitids": [
+          null
+        ],
+        "proposed": null,
+        "reason": "registry already verified-correct"
+      }
+    ]
+  },
+  "ncaa_membership_hash": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+  "ncaa_matches_baseline": true,
+  "domain_fp": "498eb15f134f4e58d2a9a73bd281611a21e8885f7ab8568ffa7e61fe411699cc",
+  "privacy": {
+    "note": "no coach PII in committed artifacts; domains/unitids/URLs are institutional, not PII"
+  }
+}

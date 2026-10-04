@@ -1,0 +1,526 @@
+{
+  "milestone": "PHASE 7B.5D — NAIA TIER-2 HOLD ADJUDICATION + CLOSURE (APPLIED, shared dev)",
+  "created_at": "2026-09-28T20:54:48.001Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev). Production untouched.",
+  "preserved_7b5c_commit": "4131bf9",
+  "frozen_residual_rows": 22,
+  "frozen_residual_by_category": {
+    "COLLISION_HOLD": 11,
+    "SHARED_DOMAIN_HOLD": 3,
+    "INSUFFICIENT_HOLD": 3,
+    "NON_DOMAIN_BLOCKER": 2,
+    "CURRENT_NO_ELIGIBLE_EMAIL": 1,
+    "DOMAIN_REOPEN": 2
+  },
+  "distinct_residual_programmes": 19,
+  "domain_claim_graphs_note": "Full per-domain claim graphs (claimed_unitids, wrong_mappings, verified hosts) in p7b5d_case_ledger; adjudications in redacted_case_adjudications.",
+  "redacted_case_adjudications": [
+    {
+      "unitid": 148575,
+      "sport": "mens-soccer",
+      "programme": "Saint Francis (IL)",
+      "category": "COLLISION_HOLD",
+      "canonical_institution": "University of St. Francis (Joliet, IL)",
+      "canonical_unitid_confirmed": 148575,
+      "true_athletics_host": "gofightingsaints.com",
+      "collision_class": "DISTINCT_DOMAINS_RESOLVED",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "gofightingsaints.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 148575,
+        "evidence_url": "https://stfrancis.edu/"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "stfrancis.edu is 'University of St. Francis' (Joliet IL); its own Athletics nav link points to gofightingsaints.com, whose coaches pages title 'University of St. Francis (Ill.)' and carry stfrancis.edu emails. sfuathletics.com self-identifies as 'Saint Francis University' (© Saint Francis University Athletics) = the PA D1 Red Flash school (unitid 215743), NOT the IL school. The DB claim of sfuathletics.com for 148575 is WRONG."
+    },
+    {
+      "unitid": 157863,
+      "sport": "mens-soccer",
+      "programme": "Union (KY)",
+      "category": "COLLISION_HOLD",
+      "canonical_institution": "Union Commonwealth University (formerly Union College, Barbourville KY)",
+      "canonical_unitid_confirmed": 157863,
+      "true_athletics_host": "gounionbulldogs.com",
+      "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "gounionbulldogs.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 157863,
+        "evidence_url": "https://gounionbulldogs.com/sports/msoc/coaches/index"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "gounionbulldogs.com self-identifies throughout as 'Union Commonwealth' (page titles, footer). Coaches carry @unionky.edu emails, matching the school's legacy unionky.edu domain. Union College (KY) was renamed Union Commonwealth University; men's (Union KY) and women's (Union Commonwealth) programmes are the same institution 157863. One-to-one ownership confirmed."
+    },
+    {
+      "unitid": 151111,
+      "sport": "mens-soccer",
+      "programme": "Indiana University Columbus",
+      "category": "COLLISION_HOLD",
+      "canonical_institution": "Indiana University Columbus",
+      "canonical_unitid_confirmed": 15111102,
+      "true_athletics_host": "iuccrimsonpride.com",
+      "collision_class": "DISTINCT_DOMAINS_RESOLVED",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "iuccrimsonpride.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 15111102,
+        "evidence_url": "https://nces.ed.gov/collegenavigator/?q=Indiana+University+Columbus&id=15111102"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "PROGRAMME_DEFECT",
+      "host_ownership_finding": "iuccrimsonpride.com self-identifies as 'Indiana University Columbus Athletics' (logo alt + '© 2026 Indiana University Columbus'). NCES College Navigator lists 'Indiana University Columbus' as a distinct institution with IPEDS id=15111102 (Columbus, Indiana), separate from IU Indy/IUPUI (151111). iuindyjags.com serves IU Indy (151111). IDENTITY DEFECT: this programme is stapled to unitid 151111 (IU Indy) but is actually IU Columbus (15111102)."
+    },
+    {
+      "unitid": 146339,
+      "sport": "mens-soccer",
+      "programme": "Judson University",
+      "category": "COLLISION_HOLD",
+      "canonical_institution": "Judson University (Elgin, IL)",
+      "canonical_unitid_confirmed": 146339,
+      "true_athletics_host": "judsoneagles.com",
+      "collision_class": "DISTINCT_DOMAINS_RESOLVED",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "judsoneagles.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 146339,
+        "evidence_url": "https://judsoneagles.com/sports/msoc/coaches/Rafa_Heck"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "judsoneagles.com self-identifies as 'Judson University (IL)' (page titles) and coach bios carry @judsonu.edu emails. Both judsoneagles.com and judsonu.edu already VERIFIED to 146339. johnsonroyals.com self-identifies as 'Johnson University Tennessee' (unitid 220473) — a DIFFERENT school; Judson's legacy coach row sourced from johnsonroyals.com is a wrong-institution contamination."
+    },
+    {
+      "unitid": 117627,
+      "sport": "mens-soccer",
+      "programme": "La Sierra University",
+      "category": "COLLISION_HOLD",
+      "canonical_institution": "La Sierra University (Riverside, CA)",
+      "canonical_unitid_confirmed": 117627,
+      "true_athletics_host": "lsugoldeneagles.com",
+      "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "lsugoldeneagles.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 117627,
+        "evidence_url": "https://lsugoldeneagles.com/sports/mens-soccer/coaches"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "lsugoldeneagles.com self-identifies as 'La Sierra University' (logo alt + '© 2026 La Sierra University') and coaches carry @lasierra.edu emails. 'LSU' here = La Sierra University, NOT Louisiana State. The registry 'Sierra'->123341 (Sierra College) claim is FALSE; the host belongs solely to La Sierra University 117627."
+    },
+    {
+      "unitid": 159382,
+      "sport": "mens-soccer",
+      "programme": "LSU Alexandria",
+      "category": "COLLISION_HOLD",
+      "canonical_institution": "Louisiana State University at Alexandria",
+      "canonical_unitid_confirmed": 159382,
+      "true_athletics_host": "lsuagenerals.com",
+      "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "lsuagenerals.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 159382,
+        "evidence_url": "https://lsuagenerals.com/sports/mens-soccer/coaches"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "lsuagenerals.com self-identifies as 'Louisiana State University at Alexandria - Official Athletics Website' ('© 2026 La Sierra University' was a transient stale-tree read; live page title and content are LSUA Generals). Coaches carry @lsua.edu emails. One-to-one ownership for 159382 confirmed."
+    },
+    {
+      "unitid": 151111,
+      "sport": "womens-soccer",
+      "programme": "Indiana University Columbus",
+      "category": "COLLISION_HOLD",
+      "canonical_institution": "Indiana University Columbus",
+      "canonical_unitid_confirmed": 15111102,
+      "true_athletics_host": "iuccrimsonpride.com",
+      "collision_class": "DISTINCT_DOMAINS_RESOLVED",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "iuccrimsonpride.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 15111102,
+        "evidence_url": "https://nces.ed.gov/collegenavigator/?q=Indiana+University+Columbus&id=15111102"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "PROGRAMME_DEFECT",
+      "host_ownership_finding": "Same as men's: iuccrimsonpride.com = 'Indiana University Columbus Athletics' (© Indiana University Columbus). NCES id=15111102 is the distinct IPEDS record for IU Columbus, separate from IU Indy 151111. Programme is mis-attached to 151111."
+    },
+    {
+      "unitid": 220473,
+      "sport": "womens-soccer",
+      "programme": "Johnson University",
+      "category": "COLLISION_HOLD",
+      "canonical_institution": "Johnson University (Knoxville, TN)",
+      "canonical_unitid_confirmed": 220473,
+      "true_athletics_host": "johnsonroyals.com",
+      "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "johnsonroyals.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 220473,
+        "evidence_url": "https://johnsonroyals.com/sports/wsoc/coaches/Todd_Halliburton"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "johnsonroyals.com self-identifies as 'Johnson University Tennessee Athletics' (header + footer 'Johnson University' logo; site links out to johnsonu.edu). Coach bios carry @johnsonu.edu emails (already VERIFIED domain). One-to-one ownership for 220473 confirmed."
+    },
+    {
+      "unitid": 117627,
+      "sport": "womens-soccer",
+      "programme": "La Sierra University",
+      "category": "COLLISION_HOLD",
+      "canonical_institution": "La Sierra University (Riverside, CA)",
+      "canonical_unitid_confirmed": 117627,
+      "true_athletics_host": "lsugoldeneagles.com",
+      "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "lsugoldeneagles.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 117627,
+        "evidence_url": "https://lsugoldeneagles.com/sports/womens-soccer/coaches"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "lsugoldeneagles.com = 'La Sierra University' (self-ID + lasierra.edu emails). Same host as men's; 'Sierra'->123341 claim false. One-to-one for 117627."
+    },
+    {
+      "unitid": 159382,
+      "sport": "womens-soccer",
+      "programme": "LSU Alexandria",
+      "category": "COLLISION_HOLD",
+      "canonical_institution": "Louisiana State University at Alexandria",
+      "canonical_unitid_confirmed": 159382,
+      "true_athletics_host": "lsuagenerals.com",
+      "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "lsuagenerals.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 159382,
+        "evidence_url": "https://lsuagenerals.com/sports/womens-soccer/coaches"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "lsuagenerals.com = 'Louisiana State University at Alexandria' Generals; coaches carry @lsua.edu emails. One-to-one for 159382."
+    },
+    {
+      "unitid": 157863,
+      "sport": "womens-soccer",
+      "programme": "Union Commonwealth University",
+      "category": "COLLISION_HOLD",
+      "canonical_institution": "Union Commonwealth University (formerly Union College KY)",
+      "canonical_unitid_confirmed": 157863,
+      "true_athletics_host": "gounionbulldogs.com",
+      "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "gounionbulldogs.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 157863,
+        "evidence_url": "https://gounionbulldogs.com/sports/wsoc/coaches/index"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "gounionbulldogs.com = 'Union Commonwealth'; women's coaches carry @unionky.edu emails. Same institution 157863 as men's Union (KY). One-to-one confirmed."
+    },
+    {
+      "unitid": 202514,
+      "sport": "womens-soccer",
+      "programme": "Defiance College",
+      "category": "SHARED_DOMAIN_HOLD",
+      "canonical_institution": "Defiance College (Defiance, OH)",
+      "canonical_unitid_confirmed": 202514,
+      "true_athletics_host": "defianceathletics.com",
+      "collision_class": "NA",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "defianceathletics.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 202514,
+        "evidence_url": "https://defianceathletics.com/sports/wsoc/coaches/danner"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "defianceathletics.com self-identifies as 'Defiance College' (page titles) and coach bios carry @defiance.edu emails; both defiance.edu and defianceathletics.com already VERIFIED to 202514. The legacy coach source 'prestosports.com' is the shared PrestoSports platform ROOT (never mappable to one school) — the institution-specific host is defianceathletics.com."
+    },
+    {
+      "unitid": 133809,
+      "sport": "womens-soccer",
+      "programme": "Florida College",
+      "category": "SHARED_DOMAIN_HOLD",
+      "canonical_institution": "Florida College (Temple Terrace, FL)",
+      "canonical_unitid_confirmed": 133809,
+      "true_athletics_host": "wearefc.com",
+      "collision_class": "NA",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "wearefc.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 133809,
+        "evidence_url": "https://wearefc.com/information/directory/Cortney_MacKay"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "wearefc.com self-identifies as 'Florida College' (page titles) and coach bios carry @floridacollege.edu emails; wearefc.com already VERIFIED to 133809. Legacy source 'prestosports.com' is the shared platform root; institution-specific host is wearefc.com."
+    },
+    {
+      "unitid": 240107,
+      "sport": "womens-soccer",
+      "programme": "Viterbo University",
+      "category": "SHARED_DOMAIN_HOLD",
+      "canonical_institution": "Viterbo University (La Crosse, WI)",
+      "canonical_unitid_confirmed": 240107,
+      "true_athletics_host": "viterboathletics.com",
+      "collision_class": "NA",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "viterboathletics.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 240107,
+        "evidence_url": "https://www.viterboathletics.com/sports/wsoc/coaches/Scott_Pirnstill"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "viterbo.edu's own Athletics nav link points to https://www.viterboathletics.com/; that host self-identifies as 'Viterbo University' (page titles) and coach bios carry @viterbo.edu emails. Legacy source was shared prestosports.com root / archive.org; institution-specific host is viterboathletics.com. One-to-one ownership proven."
+    },
+    {
+      "unitid": null,
+      "sport": "womens-soccer",
+      "programme": "Christendom College",
+      "category": "INSUFFICIENT_HOLD",
+      "canonical_institution": "Christendom College (Front Royal, VA)",
+      "canonical_unitid_confirmed": null,
+      "true_athletics_host": "christendomathletics.com",
+      "collision_class": "NA",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": null,
+      "staff_outcome": "CURRENT_GENERIC_ONLY",
+      "residual_disposition": "CURRENT_GENERIC_ONLY",
+      "host_ownership_finding": "christendom.edu's own Athletics nav link points to http://www.christendomathletics.com; that host self-identifies as 'Christendom Crusaders' (page titles) with @christendom.edu contact. Christendom College declines federal Title IV funding and has NO IPEDS record (NCES College Navigator returns no result), so there is no UNITID."
+    },
+    {
+      "unitid": null,
+      "sport": "mens-soccer",
+      "programme": "Park University Gilbert",
+      "category": "NON_DOMAIN_BLOCKER",
+      "canonical_institution": "Park University Gilbert (Gilbert, AZ) — branch campus of Park University (Parkville, MO)",
+      "canonical_unitid_confirmed": null,
+      "true_athletics_host": "gilbert.parkathletics.com",
+      "collision_class": "NA",
+      "shared_class": "SPECIFIC_ALIAS_SAFE",
+      "proposed_domain": null,
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "PROGRAMME_DEFECT",
+      "host_ownership_finding": "Park University Gilbert is a distinct NAIA athletics programme (Buccaneers, Golden State Athletic Conference, Gilbert AZ) served by gilbert.parkathletics.com — a school-specific SUBDOMAIN of parkathletics.com (page title 'Park University (AZ)'), NOT the main parkathletics.com (Parkville MO, Heart of America Conf, VERIFIED to 178721). NCES has no separate 'Park University Gilbert' record: it is a branch campus of Park University (178721) with no distinct IPEDS UNITID."
+    },
+    {
+      "unitid": 179265,
+      "sport": "mens-soccer",
+      "programme": "University of Health Sciences and Pharmacy in St. Louis",
+      "category": "CURRENT_NO_ELIGIBLE_EMAIL",
+      "canonical_institution": "University of Health Sciences and Pharmacy in St. Louis (UHSP)",
+      "canonical_unitid_confirmed": 179265,
+      "true_athletics_host": "eutecticsports.com",
+      "collision_class": "NA",
+      "shared_class": "NA",
+      "proposed_domain": {
+        "host": "eutecticsports.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 179265,
+        "evidence_url": "https://eutecticsports.com/information/directory/index"
+      },
+      "staff_outcome": "CURRENT_NO_ELIGIBLE_EMAIL",
+      "residual_disposition": "CURRENT_NO_ELIGIBLE_EMAIL",
+      "host_ownership_finding": "eutecticsports.com self-identifies as 'University of Health Sciences & Pharmacy in St. Louis' (Eutectics), already VERIFIED to 179265. Ownership not in dispute."
+    },
+    {
+      "unitid": 224545,
+      "sport": "womens-soccer",
+      "programme": "Texas A&M University-Texarkana",
+      "category": "DOMAIN_REOPEN",
+      "canonical_institution": "Texas A&M University-Texarkana",
+      "canonical_unitid_confirmed": 224545,
+      "true_athletics_host": "tamuteagles.com",
+      "collision_class": "NA",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "tamuteagles.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 224545,
+        "evidence_url": "https://tamuteagles.com/sports/wsoc/coaches/Don_Koontz"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "tamuteagles.com self-identifies as 'Home of the Texas A&M Texarkana Eagles' (page titles) and coach bios carry @tamut.edu emails (verified institution domain). Reachable in the user's real Chrome (the prior Cloudflare/datacenter block did not apply). tamuteagles.com is a school-specific branded host (front for the tamuteagles.prestosports.com tenant) — safely representable and one-to-one for 224545."
+    },
+    {
+      "unitid": 239390,
+      "sport": "womens-soccer",
+      "programme": "Mount Mary University",
+      "category": "DOMAIN_REOPEN",
+      "canonical_institution": "Mount Mary University (Milwaukee, WI)",
+      "canonical_unitid_confirmed": 239390,
+      "true_athletics_host": "mtmaryathletics.com",
+      "collision_class": "NA",
+      "shared_class": "SPECIFIC_HOST_SAFE",
+      "proposed_domain": {
+        "host": "mtmaryathletics.com",
+        "proposed_status": "VERIFIED",
+        "proposed_unitid": 239390,
+        "evidence_url": "https://mtmaryathletics.com/sports/wsoc/coaches/Mike_Da_Silva"
+      },
+      "staff_outcome": "CURRENT_ELIGIBLE_EMAIL",
+      "residual_disposition": "COVERABLE",
+      "host_ownership_finding": "mtmaryathletics.com self-identifies as 'Mount Mary University Blue Angel Athletics' (page titles) and coach bios carry @mtmary.edu emails; already VERIFIED to 239390. Reachable in the user's real Chrome (the prior CloudFront block did not apply). Institution-specific host, safely representable, one-to-one for 239390."
+    }
+  ],
+  "domain_repairs_applied": {
+    "count": 7,
+    "fixture_hash": "f810fa780076872b751fe635ef33d672bc6505553ce75d4c35fedebf31ca5337",
+    "entries": [
+      {
+        "op": "UPDATE",
+        "domain": "gofightingsaints.com",
+        "unitid": 148575,
+        "new_status": "VERIFIED",
+        "expected_old_status": "INSUFFICIENT_EVIDENCE",
+        "collision_class": "DISTINCT_DOMAINS_RESOLVED"
+      },
+      {
+        "op": "UPDATE",
+        "domain": "gounionbulldogs.com",
+        "unitid": 157863,
+        "new_status": "VERIFIED",
+        "expected_old_status": "INSUFFICIENT_EVIDENCE",
+        "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN"
+      },
+      {
+        "op": "UPDATE",
+        "domain": "johnsonroyals.com",
+        "unitid": 220473,
+        "new_status": "VERIFIED",
+        "expected_old_status": "INSUFFICIENT_EVIDENCE",
+        "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN"
+      },
+      {
+        "op": "UPDATE",
+        "domain": "lsuagenerals.com",
+        "unitid": 159382,
+        "new_status": "VERIFIED",
+        "expected_old_status": "INSUFFICIENT_EVIDENCE",
+        "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN"
+      },
+      {
+        "op": "UPDATE",
+        "domain": "lsugoldeneagles.com",
+        "unitid": 117627,
+        "new_status": "VERIFIED",
+        "expected_old_status": "WRONG_INSTITUTION",
+        "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN"
+      },
+      {
+        "op": "UPDATE",
+        "domain": "tamuteagles.com",
+        "unitid": 224545,
+        "new_status": "VERIFIED",
+        "expected_old_status": "INSUFFICIENT_EVIDENCE",
+        "collision_class": "DISTINCT_DOMAINS_RESOLVED"
+      },
+      {
+        "op": "INSERT",
+        "domain": "viterboathletics.com",
+        "unitid": 240107,
+        "new_status": "VERIFIED",
+        "expected_old_status": "ABSENT",
+        "collision_class": "DISTINCT_DOMAINS_RESOLVED"
+      }
+    ]
+  },
+  "coach_repairs_applied": {
+    "INSERT_CURRENT": 3,
+    "CORRECT_EMAIL": 4,
+    "MARK_STALE": 5,
+    "ADD_EVIDENCE": 19,
+    "CORRECT_NAME": 0,
+    "REASSIGN": 3
+  },
+  "collision_classification": {
+    "ONE_TO_ONE_CORRECTION_PROVEN": 7,
+    "DISTINCT_DOMAINS_RESOLVED": 4,
+    "LEGITIMATE_SHARED_DOMAIN": 0,
+    "STALE_HISTORICAL_CLAIM": 0,
+    "UNRESOLVED_COLLISION": 0
+  },
+  "tier2_exit_gate": {
+    "rows": 128,
+    "disposition": {
+      "COVERED_AUTHORITATIVE": 120,
+      "PROGRAMME_DEFECT": 4,
+      "CURRENT_NO_ELIGIBLE_EMAIL": 4
+    },
+    "unexplained": [],
+    "exit_gate_met": true
+  },
+  "naia_measurement": {
+    "active_naia_programmes": 384,
+    "covered_programmes_lineage": 354,
+    "coverage_pct_intersection": 93.5,
+    "eligible_coaches": "519 -> 773",
+    "covered_lineage": "234 -> 354",
+    "strict_path": "516 -> 770",
+    "uncovered_by_queue": {
+      "other/baseline": 9,
+      "Tier-5/6/7": 5,
+      "Tier-1": 3,
+      "Tier-3": 5,
+      "Tier-2": 3
+    }
+  },
+  "non_regression": {
+    "global_eligible": "3876 -> 4130",
+    "ncaa_membership_hash": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+    "ncaa_delta_vs_baseline": 0,
+    "other_division_hash": "3d9181c9d5cd1ddb4a48d856dcf856deeafbc88c2a4c15195938a77273c077d0",
+    "other_delta_vs_baseline": 0
+  },
+  "shared_platform_architecture_finding": {
+    "question": "Can Thriv3 safely model hostname/path or institution-specific tenant -> UNITID without weakening the registrable-domain safety model?",
+    "finding": "PrestoSports/Sidearm shared platforms recurred as a blocker: schools serve athletics from an institution-specific host (defianceathletics.com) OR a shared-platform tenant subdomain (defiance.prestosports.com whose registrable root prestosports.com serves hundreds of schools). The registrable-domain model correctly refuses the shared root. In every 7B.5D shared case the school ALSO had an institution-specific VERIFIED host, so option (B/C) was unnecessary — the fix was to repoint coach email_source_url from the shared tenant/root (or a Wayback URL) to the institution-specific verified host.",
+    "options": {
+      "A_host_only_registry": "Current model. Safe, but cannot represent a school that ONLY has a shared-tenant host (none in Tier-2).",
+      "B_host_plus_path_tenant": "Add tenant/path authority (prestosports.com/<tenant> -> UNITID). More expressive but widens the trust surface and needs per-tenant proof; NOT needed for Tier-2.",
+      "C_per_programme_institution_link": "Store an independent institution->athletics link as per-programme evidence. Cleanest for shared platforms; recommended IF a future division has schools with only a shared-tenant host.",
+      "D_manual_hold": "Leave shared-only platforms manual/held."
+    },
+    "recommendation": "Keep A (host-only registry) for now — no Tier-2 school required B/C. Adopt C (per-programme institution-link evidence) only if NJCAA/USCAA surface schools whose ONLY athletics host is a shared-platform tenant. Do NOT implement in this phase."
+  },
+  "prevention_findings": {
+    "same_name_collision": "6 registry collision domains were name-family false flags or wrong-owner claims (sfuathletics IL vs PA; johnsonroyals Johnson vs Judson; lsugoldeneagles La Sierra vs Sierra College). Prevention: never auto-map a host any other UNITID can credibly claim; require institution-site->athletics-link + host self-id.",
+    "stale_registry_claim": "lsugoldeneagles.com carried a false \"Sierra\"->123341 claim; iuindyjags.com WRONG_INSTITUTION. Prevention: periodically re-adjudicate WRONG_INSTITUTION/AMBIGUOUS rows against live evidence.",
+    "shared_platform": "prestosports.com root + tenant subdomains + Wayback source URLs blocked strict corroboration though the email was on the institution host. Prevention: at ingest, prefer the institution-specific host and flag shared-tenant/Wayback source URLs.",
+    "missing_alias_new_host": "gofightingsaints.com, viterboathletics.com were the true hosts but unregistered/insufficient. Prevention: a verified-email coach on an unverified source host should trigger an ownership follow-up.",
+    "identity_defect": "IU Columbus programme stapled to IU Indy UNITID 151111 (true IPEDS 15111102 absent from colleges); Park University Gilbert branch has no distinct UNITID. Prevention: a college-identity reconciliation pass against IPEDS for branch campuses.",
+    "no_email": "UHSP publishes no men's-soccer coach email; Christendom only a generic team inbox. Valid integrity outcomes — never infer."
+  },
+  "fingerprints": {
+    "domain_fp": "0fc6c91a726b8fb3b2d0ab0827ded3cd9299004a279c3458f3a11fade5c7465f",
+    "coach_fp": "000f75b2df776a16f3771fb82290c7d42feb9ec3f7941162b9521b99459ae41f",
+    "college_fp": "40d9660b4611a295c6d81b92869ddbe0fd08176aed2b0079e557610cfb8791ed"
+  },
+  "ncaa_membership_hash": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+  "privacy": {
+    "note": "No coach PII in committed artifacts; institutional domains/UNITIDs/URLs only. Raw research fixtures untracked."
+  }
+}

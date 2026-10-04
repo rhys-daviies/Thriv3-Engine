@@ -20,6 +20,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import db from '../db/client.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { parseCsvToObjects } from '../lib/csv.js';
 import { utcNow } from '../lib/time.js';
 import { matchSchoolName } from '../lib/schoolMatch.js';
@@ -213,6 +214,7 @@ function main() {
     console.log('\ndry run — nothing written. Re-run with --apply.\n');
     return;
   }
+  assertLegacyWriteAllowed(db, { script: 'importCoachTenure.js' });
 
   const saved = backup();
   if (saved) console.log(`\nbacked up to ${saved}`);

@@ -11,6 +11,13 @@ import { APPROVAL_STATUS } from './firstTouchApprovals.js';
 import { suppress } from './suppressions.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
 
+// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
+// current address — the pre-8A coach offer. It opts in to that explicitly; the default
+// runtime floor (verified address, coach not PROVEN_STALE) is tested in
+// server/lib/coachEligibility.test.js.
+process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+
+
 /**
  * F6d — A FIRST TOUCH TO SOMEBODY WHO IS NOT A FIRST TOUCH.
  *

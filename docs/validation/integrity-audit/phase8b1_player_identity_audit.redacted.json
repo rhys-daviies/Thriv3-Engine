@@ -1,0 +1,20 @@
+{
+ "phase": "8B.1",
+ "model": "roster_players rows are SEASON ROSTER OBSERVATIONS of a programme (random id per row); there is no global player/person identity column or table (players = Thriv3 athletes, not roster players)",
+ "writers": {
+  "refresh classifier (integrity:refresh)": "identity scoped to programme + season; same name twice on a page -> IDENTITY_AMBIGUOUS; same name on another programme that season -> review; name-format variant of a held row -> IDENTITY_AMBIGUOUS (8B.1); transfer -> NEW row + TRANSFER CANDIDATE note, never linked; absence -> NOT_OBSERVED_CURRENT_SEASON (8B.1), never deleted",
+  "projectRosterMinutes.js prior_programme": "NAME-ONLY national link: a 2026 row gets prior_programme = the programme of the unique same-normalised-name 2025 row anywhere (skips names on >1 programme). UNSAFE — see measure",
+  "projectRosterMinutes.js projected_minutes": "same programme + normalised name carry-forward (programme-scoped; a same-name teammate collision is possible but bounded to one roster)"
+ },
+ "summary": {
+  "roster_rows": 281153,
+  "prior_programme_cross_links": 4431,
+  "corroborated_by_hometown_city": 3010,
+  "contradicted_by_hometown_city": 1139,
+  "not_comparable": 282,
+  "same_name_same_season_on_multiple_programmes": 4308,
+  "same_name_twice_in_one_programme_season": 8,
+  "name_format_variants_in_one_programme_season": 33
+ },
+ "decision": "Safe hierarchy: (1) same programme + season + name = the same player-season observation; (2) same programme, next season, same name + class progressing = CONTINUATION note (new row); (3) another programme = TRANSFER CANDIDATE only, linked by nobody without corroboration (hometown + class/eligibility continuity + review). Broad roster promotion is BLOCKED until prior_programme requires corroboration (it is the one place a name alone establishes cross-programme identity)."
+}

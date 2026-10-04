@@ -1,0 +1,37 @@
+{
+  "milestone": "PHASE 7B.3 — TIER-1 NAIA batch E applied (shared dev)",
+  "created_at": "2026-09-28T03:14:17.257Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev). Factual repairs applied; eligibility derived on temp copies (reconcile refuses shared-dev path).",
+  "batch": "E",
+  "fixture_sha256": {
+    "current": "9bc4de7acdc8f6cf13ad0912d56eea4a66a2ef2883462ebbb11a33cf8de84363",
+    "email": "086d3c245aed2685b129b861e49c253be8f70d8369f8fe977d55cabdc4b0afb9",
+    "stale": "7932446749c84256de327d994b615b8a4ac6c5c0d2a787d98a4d30a3150932cf",
+    "evidence": "fe495df1c7dc9666a0d52b0a222700b33d404f86586337fa062d938bcba82b3b"
+  },
+  "applied": {
+    "inserts": 9,
+    "email_corrections": 1,
+    "stale": 11,
+    "evidence": 84
+  },
+  "measurement": {
+    "global_eligible_before": 3413,
+    "global_eligible_after": 3841,
+    "naia_eligible_before": 56,
+    "naia_eligible_after": 484,
+    "naia_covered_before": 30,
+    "naia_covered_after": 217,
+    "strict_path_before": 53,
+    "strict_path_after": 481,
+    "ncaa_membership_hash_before": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+    "ncaa_membership_hash_after_recompute_note": "compared in harness gate (=0 delta); this snapshot stores canonical-key hash for cross-check",
+    "ncaa_canonkey_hash": "d4376d79761040daa8b8778e47f179997b55f251a49628219a007b79885c8967"
+  },
+  "gates_all_pass": true,
+  "fingerprints": {
+    "coach_fp": "b6d9f6d6126caa847139077b9b2a046e4ba9418a388da49692797d4f1e392307",
+    "domain_fp": "498eb15f134f4e58d2a9a73bd281611a21e8885f7ab8568ffa7e61fe411699cc",
+    "college_fp": "077d15f03b7b43d3c7963b82f2bd6b14d3735b2e1e58170166354d3a196ff2f8"
+  }
+}

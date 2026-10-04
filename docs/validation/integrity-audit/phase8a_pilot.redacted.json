@@ -1,0 +1,279 @@
+{
+ "phase": "8A",
+ "scope": "STAGING ONLY — integrity:refresh --stage; integrity:promote NOT run",
+ "slots": {
+  "pool": 180,
+  "chosen": [
+   {
+    "slot": "NJCAA mens-soccer PrestoSports",
+    "entity": "AE-U142443",
+    "association": "NJCAA",
+    "sport": "mens-soccer",
+    "host": "nicathletics.com",
+    "platform": "PRESTO",
+    "entity_kind": "SINGLE",
+    "kinds": [
+     "ROSTER",
+     "COACH"
+    ]
+   },
+   {
+    "slot": "NJCAA womens-soccer PrestoSports",
+    "entity": "AE-U104577",
+    "association": "NJCAA",
+    "sport": "womens-soccer",
+    "host": "eacmonsters.com",
+    "platform": "PRESTO",
+    "entity_kind": "SINGLE",
+    "kinds": [
+     "ROSTER",
+     "COACH"
+    ]
+   },
+   {
+    "slot": "NJCAA Sidearm",
+    "entity": "AE-U126748",
+    "association": "NJCAA",
+    "sport": "mens-soccer",
+    "host": "athletics.cncc.edu",
+    "platform": "SIDEARM",
+    "entity_kind": "SINGLE",
+    "kinds": [
+     "ROSTER"
+    ]
+   },
+   {
+    "slot": "USCAA mens-soccer",
+    "entity": "AE-U102395",
+    "association": "USCAA",
+    "sport": "mens-soccer",
+    "host": "ussueagles.com",
+    "platform": "SIDEARM",
+    "entity_kind": "SINGLE",
+    "kinds": [
+     "ROSTER"
+    ]
+   },
+   {
+    "slot": "USCAA womens-soccer",
+    "entity": "AE-U102395",
+    "association": "USCAA",
+    "sport": "womens-soccer",
+    "host": "ussueagles.com",
+    "platform": "SIDEARM",
+    "entity_kind": "SINGLE",
+    "kinds": [
+     "ROSTER"
+    ]
+   },
+   {
+    "slot": "custom athletics site (no known roster path — refusal expected)",
+    "entity": "AE-U227225",
+    "association": "NJCAA",
+    "sport": "mens-soccer",
+    "host": "ntcceagles.com",
+    "platform": "CUSTOM",
+    "entity_kind": "SINGLE",
+    "kinds": [
+     "ROSTER"
+    ]
+   },
+   {
+    "slot": "EXPECTED REFUSAL — host not owned by the entity",
+    "entity": "AE-U364025",
+    "association": "NJCAA",
+    "sport": "mens-soccer",
+    "host": "cgccathletics.com",
+    "platform": "PRESTO",
+    "entity_kind": null,
+    "kinds": [
+     "ROSTER"
+    ]
+   }
+  ],
+  "unfilled": [
+   "branch / system campus / non-Title-IV: no such NJCAA/USCAA entity has a verified athletics host (Dallas College x6, USU Eastern, Kean Jersey City INSUFFICIENT; Lincoln Trail, Wabash Valley NO_ATHLETICS_SITE; Christendom not on the listing)"
+  ]
+ },
+ "gather": {
+  "pages_emitted": 7,
+  "by_kind": {
+   "ROSTER": 5,
+   "COACH": 2
+  },
+  "refusals": [
+   {
+    "kind": "ROSTER",
+    "code": "BLOCKED_OR_INCOMPLETE_PAGE",
+    "detail": "HTTP_404",
+    "entity": "AE-U227225",
+    "sport": "mens-soccer",
+    "source_url": "https://ntcceagles.com/sports/msoc/2026-27/roster",
+    "http": 404
+   },
+   {
+    "kind": "ROSTER",
+    "code": "INSTITUTION_MISMATCH",
+    "detail": "cgccathletics.com is not owned by the programme's athletics entity",
+    "entity": "AE-U364025",
+    "sport": "mens-soccer",
+    "source_url": "https://cgccathletics.com/sports/msoc/2026-27/roster",
+    "http": 200
+   }
+  ]
+ },
+ "refresh": {
+  "batch": {
+   "batch_id": "RB-2026-*-4255e100af20",
+   "batch_hash": "82269f3b5f682d9a34bee21afe82605e924194b60d547ba735437769642b9058",
+   "status": "STAGED",
+   "season": 2026,
+   "scope": "*"
+  },
+  "summary": {
+   "observations": 154,
+   "requires_review": 2,
+   "promoted": 0,
+   "by_dataset_classification": {
+    "COACH|NEW_RECORD": 3,
+    "ROSTER|NEW_RECORD": 151
+   }
+  },
+  "by_programme": [
+   {
+    "dataset": "COACH",
+    "entity": "AE-U104577",
+    "sport": "womens-soccer",
+    "division": "NJCAA",
+    "season": 2026,
+    "source_host": "eacmonsters.com",
+    "tier": "A",
+    "parser_version": "presto-staff-1",
+    "resolution_method": "KNOWN_ENTITY",
+    "classification": "NEW_RECORD",
+    "n": 1,
+    "requires_review": 0,
+    "promoted": 0
+   },
+   {
+    "dataset": "COACH",
+    "entity": "AE-U142443",
+    "sport": "mens-soccer",
+    "division": "NJCAA",
+    "season": 2026,
+    "source_host": "nicathletics.com",
+    "tier": "A",
+    "parser_version": "presto-staff-1",
+    "resolution_method": "KNOWN_ENTITY",
+    "classification": "NEW_RECORD",
+    "n": 2,
+    "requires_review": 0,
+    "promoted": 0
+   },
+   {
+    "dataset": "ROSTER",
+    "entity": "AE-U102395",
+    "sport": "mens-soccer",
+    "division": "USCAA",
+    "season": 2026,
+    "source_host": "ussueagles.com",
+    "tier": "A",
+    "parser_version": "sidearm-roster-1",
+    "resolution_method": "KNOWN_ENTITY",
+    "classification": "NEW_RECORD",
+    "n": 39,
+    "requires_review": 2,
+    "promoted": 0
+   },
+   {
+    "dataset": "ROSTER",
+    "entity": "AE-U102395",
+    "sport": "womens-soccer",
+    "division": "USCAA",
+    "season": 2026,
+    "source_host": "ussueagles.com",
+    "tier": "A",
+    "parser_version": "sidearm-roster-1",
+    "resolution_method": "KNOWN_ENTITY",
+    "classification": "NEW_RECORD",
+    "n": 27,
+    "requires_review": 0,
+    "promoted": 0
+   },
+   {
+    "dataset": "ROSTER",
+    "entity": "AE-U104577",
+    "sport": "womens-soccer",
+    "division": "NJCAA",
+    "season": 2026,
+    "source_host": "eacmonsters.com",
+    "tier": "A",
+    "parser_version": "presto-roster-2",
+    "resolution_method": "KNOWN_ENTITY",
+    "classification": "NEW_RECORD",
+    "n": 29,
+    "requires_review": 0,
+    "promoted": 0
+   },
+   {
+    "dataset": "ROSTER",
+    "entity": "AE-U126748",
+    "sport": "mens-soccer",
+    "division": "NJCAA",
+    "season": 2026,
+    "source_host": "athletics.cncc.edu",
+    "tier": "A",
+    "parser_version": "sidearm-roster-1",
+    "resolution_method": "KNOWN_ENTITY",
+    "classification": "NEW_RECORD",
+    "n": 23,
+    "requires_review": 0,
+    "promoted": 0
+   },
+   {
+    "dataset": "ROSTER",
+    "entity": "AE-U142443",
+    "sport": "mens-soccer",
+    "division": "NJCAA",
+    "season": 2026,
+    "source_host": "nicathletics.com",
+    "tier": "A",
+    "parser_version": "presto-roster-2",
+    "resolution_method": "KNOWN_ENTITY",
+    "classification": "NEW_RECORD",
+    "n": 33,
+    "requires_review": 0,
+    "promoted": 0
+   }
+  ],
+  "review_reasons": "2 USCAA roster rows: same name on another 2026 roster (one also a transfer candidate) — not linked automatically",
+  "promote_run": false
+ },
+ "canonical_mutation": {
+  "pre": "493df9c9fc92500bf7bf9560cefac07422f0e48d31875b31d749c6d54468a165",
+  "post": "493df9c9fc92500bf7bf9560cefac07422f0e48d31875b31d749c6d54468a165",
+  "unchanged": true,
+  "tables": 45,
+  "changed_tables": [],
+  "staging_rows_pre": {
+   "refresh_batches": {
+    "rows": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "refresh_observations": {
+    "rows": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  },
+  "staging_rows_post": {
+   "refresh_batches": {
+    "rows": 1,
+    "sha256": "cc210eb6b06dff50f6cbc42c2efeab29e849a11d2abdf7ba5b677c77793519a4"
+   },
+   "refresh_observations": {
+    "rows": 154,
+    "sha256": "c99b1cff7f219102bd98dd00e9e612547eddb8150379df31f49e99fad1ae2f4a"
+   }
+  }
+ }
+}

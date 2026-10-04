@@ -60,6 +60,13 @@ const ALLOWED = new Map([
   // A regex that PARSES markdown links, including mailto: ones. It sends
   // nothing and creates no link of its own.
   ['shared/emailHtml.js', 'markdown link parser, not a link'],
+  // PHASE 8A staff adapters: regexes that READ the mailto: links printed on an
+  // official staff page, so only an address the source actually publishes is
+  // staged (email_origin PUBLISHED_ON_SOURCE). They build no link, send
+  // nothing, and write only to staging — the same shape as emailHtml.js above.
+  ['server/lib/refresh/adapters/presto.js', 'Phase 8A: parses printed staff addresses, builds no link'],
+  ['server/lib/refresh/adapters/sidearm.js', 'Phase 8A: parses printed staff addresses, builds no link'],
+  ['server/lib/refresh/adapters/adapters.test.js', 'Phase 8A: fixture staff pages for the parsers above'],
   // Local fixtures: 24 fake outreach rows so the engagement screens have
   // something to render. No send primitive exists anywhere under server/seed/,
   // which the test below asserts rather than assumes.

@@ -229,7 +229,9 @@ const PATHWAY_COPY = Object.freeze({
      * may be phrased as one. It says nothing about whether the programme wants
      * another transfer, has a place for one, or would fund it.
      */
-    headline: `${f.arrivals} of ${f.squadSize} came from another programme`,
+    // Phase 8B.1A: `arrivals` counts VERIFIED origins only — a same-name
+    // player elsewhere last season is never counted as a transfer.
+    headline: `${f.arrivals} of ${f.squadSize} are verified transfers from another programme`,
     detail: n(f.atPosition)
       ? `${f.atPosition} of those play this athlete’s position.`
       : null,

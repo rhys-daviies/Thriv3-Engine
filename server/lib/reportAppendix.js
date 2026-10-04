@@ -90,17 +90,19 @@ export function arrivalRecordPage(k, model) {
       { key: 'gamesStarted', label: 'Starts', width: 0.1, align: 'right' },
     ],
     rows: [...pts].sort((a, b) => Number(b.season) - Number(a.season) || b.minutes - a.minutes),
-    // Never inferred. A blank previous programme means the roster did not
-    // record one, not that the player came from nowhere — and where NO row
+    // Never a bare name match (Phase 8B.1A): a previous programme is a VERIFIED
+    // link or nothing. A blank means none is verified, not that the player came
+    // from nowhere — and where NO row
     // records one the column is dropped rather than printed as dashes, so the
     // sentence explaining the dash goes with it.
     note: ({ dropped }) => (dropped.includes('priorProgramme')
       ? 'No row here records a previous programme, so that column is not shown rather than '
         + 'printed as a column of dashes. No source is inferred: an arrival is identified by not '
         + 'having been on the previous roster, which says nothing about where they came from.'
-      : 'A dash under Previous programme means the roster did not record one. No source is '
-        + 'inferred: an arrival is identified by not having been on the previous roster, which says '
-        + 'nothing about where they came from.'),
+      : 'A dash under Previous programme means no previous programme is verified for that player. '
+        + 'A previous programme is shown only when the roster names it or name, hometown and class '
+        + 'progression agree; a same-name player elsewhere is never treated as the same person. An '
+        + 'arrival is identified by not having been on the previous roster.'),
   });
 }
 

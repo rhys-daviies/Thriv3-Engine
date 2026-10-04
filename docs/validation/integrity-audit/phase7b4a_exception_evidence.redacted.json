@@ -1,0 +1,499 @@
+{
+  "phase": "7B.4A exception closure — authoritative recheck evidence (redacted)",
+  "built_at": "2026-09-28T04:08:28.683Z",
+  "redaction": "names -> [withheld]; existing-coach emails -> coach-<id>@redacted.invalid; insert emails -> [withheld]@domain; URLs/domains kept",
+  "research_op_totals": {
+    "ADD_EVIDENCE": 22,
+    "MARK_STALE": 12,
+    "INSERT_CURRENT": 4,
+    "HOLD": 4,
+    "CORRECT_NAME": 2,
+    "DOMAIN_REPAIR": 1
+  },
+  "programmes": [
+    {
+      "unitid": 150941,
+      "sport": "mens-soccer",
+      "institution": "Huntington University (IN)",
+      "access_outcome": "RECOVERED_AUTHORITATIVE",
+      "domain_class": "NEEDS_DOMAIN_REPAIR",
+      "how_read": "browser",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "coach": "coach-180cdd8d@redacted.invalid",
+          "source": "https://www.huathletics.com/sports/msoc/coaches/index",
+          "reason": "Current HC; published email read on official coaches page and matches stored value. Page served on CORRECT domain huathletics.com; stored domain huntingtonforesters.com is dead/repurposed (now serves Rochester Christian University / rcuwarriors.com)."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "coach": "coach-fac2ef42@redacted.invalid",
+          "source": "https://www.huathletics.com/sports/msoc/coaches/index",
+          "reason": "Current assistant; published email read on official coaches page and matches stored value (correct domain huathletics.com)."
+        }
+      ]
+    },
+    {
+      "unitid": 152099,
+      "sport": "mens-soccer",
+      "institution": "Oakland City University (IN)",
+      "access_outcome": "PROGRAMME_DEFECT",
+      "domain_class": "MISSING",
+      "how_read": "webfetch",
+      "actions": [
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "coach": "coach-bba0f58c@redacted.invalid",
+          "source": "https://www.insideindianabusiness.com/articles/oakland-city-university-to-suspend-undergraduate-programs-conduct-layoffs",
+          "reason": "Programme suspended: OCU suspended ALL undergraduate offerings for 2026-27, laid off ~167 employees (WARN, effective ~2026-06-01), signed teach-out with University of Southern Indiana; athletics site gomightyoaks.com down site-wide (HTTP 404 on all paths) and athletics.oak.edu connection refused."
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "coach": "coach-8d2bb474@redacted.invalid",
+          "source": "https://www.insideindianabusiness.com/articles/oakland-city-university-to-suspend-undergraduate-programs-conduct-layoffs",
+          "reason": "Programme suspended (OCU undergraduate cease of operations 2026-27; athletics site offline)."
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "coach": "coach-c3783e0a@redacted.invalid",
+          "source": "https://www.insideindianabusiness.com/articles/oakland-city-university-to-suspend-undergraduate-programs-conduct-layoffs",
+          "reason": "Programme suspended (OCU undergraduate cease of operations 2026-27; athletics site offline). Row was inferred, now non-current."
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "coach": "coach-9ce7ea56@redacted.invalid",
+          "source": "https://www.insideindianabusiness.com/articles/oakland-city-university-to-suspend-undergraduate-programs-conduct-layoffs",
+          "reason": "Programme suspended (OCU undergraduate cease of operations 2026-27; athletics site offline). Row was inferred, now non-current."
+        }
+      ]
+    },
+    {
+      "unitid": 152099,
+      "sport": "womens-soccer",
+      "institution": "Oakland City University (IN)",
+      "access_outcome": "PROGRAMME_DEFECT",
+      "domain_class": "MISSING",
+      "how_read": "webfetch",
+      "actions": [
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "coach": "coach-7fff670e@redacted.invalid",
+          "source": "https://www.insideindianabusiness.com/articles/oakland-city-university-to-suspend-undergraduate-programs-conduct-layoffs",
+          "reason": "Programme suspended: OCU suspended ALL undergraduate offerings for 2026-27, laid off ~167 employees (effective ~2026-06-01), USI teach-out signed; athletics site gomightyoaks.com down site-wide (HTTP 404)."
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "coach": "coach-f3774e93@redacted.invalid",
+          "source": "https://www.insideindianabusiness.com/articles/oakland-city-university-to-suspend-undergraduate-programs-conduct-layoffs",
+          "reason": "Programme suspended (OCU undergraduate cease of operations 2026-27; athletics site offline). Row was inferred, now non-current."
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "coach": "coach-80f22c2b@redacted.invalid",
+          "source": "https://www.insideindianabusiness.com/articles/oakland-city-university-to-suspend-undergraduate-programs-conduct-layoffs",
+          "reason": "Programme suspended (OCU undergraduate cease of operations 2026-27; athletics site offline). Row was inferred, now non-current."
+        }
+      ]
+    },
+    {
+      "unitid": 154518,
+      "sport": "womens-soccer",
+      "institution": "Waldorf University (IA)",
+      "access_outcome": "RECOVERED_AUTHORITATIVE",
+      "domain_class": "VERIFIED_CORRECT",
+      "how_read": "browser",
+      "actions": [
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "coach": "coach-52186a81@redacted.invalid",
+          "source": "https://www.waldorfwarriors.com/sports/wsoc/coaches/index",
+          "reason": "Departed. Emmanuel Awotula hired as Head Women's Soccer Coach (Waldorf announcement dated 2026-06-08). Goodman absent from current official coaches page. Confirms prior PROVEN_STALE."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Women's Soccer Coach",
+          "coach": "coach-cfccab8d@redacted.invalid",
+          "source": "https://www.waldorfwarriors.com/sports/wsoc/coaches/index",
+          "reason": "Still current assistant (listed as 'Iveth Guzman '23'); published email read on official coaches page and matches stored value."
+        },
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Head Women's Soccer Coach",
+          "coach": "[withheld]@waldorf.edu",
+          "source": "https://waldorf.edu/about/news/2026/waldorf-university-hires-emmanuel-awotula-as-head-women-s-soccer-coach/",
+          "reason": "Current head coach missing from stored rows; hire announced 2026-06-08 (waldorf.edu). Published personal email read on official coaches page."
+        }
+      ]
+    },
+    {
+      "unitid": 154688,
+      "sport": "mens-soccer",
+      "institution": "Baker University (KS)",
+      "access_outcome": "RECOVERED_AUTHORITATIVE",
+      "domain_class": "VERIFIED_CORRECT",
+      "how_read": "browser",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "coach": "coach-9ae03137@redacted.invalid",
+          "source": "https://www.bakerwildcats.com/sports/msoc/coaches/index",
+          "reason": "Current HC; published email [withheld]@bakeru.edu read on official coaches page. If stored local-part differs, apply as CORRECT_EMAIL."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach",
+          "coach": "coach-ec9c301a@redacted.invalid",
+          "source": "https://www.bakerwildcats.com/sports/msoc/coaches/index",
+          "reason": "Current assistant; published email read on official coaches page. If stored local-part differs, apply as CORRECT_EMAIL."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Goalkeeper Coach",
+          "coach": "coach-c5853091@redacted.invalid",
+          "source": "https://www.bakerwildcats.com/sports/msoc/coaches/index",
+          "reason": "Current goalkeeper coach; published email read on official coaches page. If stored local-part differs, apply as CORRECT_EMAIL."
+        },
+        {
+          "op": "MARK_STALE",
+          "role": null,
+          "coach": "coach-bd523059@redacted.invalid",
+          "source": "https://www.bakerwildcats.com/sports/msoc/coaches/index",
+          "reason": "Not listed on current official men's soccer coaches page; departed. (Current staff now: Aguilar, Burrell, Foldesi, Ejimadu.)"
+        }
+      ]
+    },
+    {
+      "unitid": 154688,
+      "sport": "womens-soccer",
+      "institution": "Baker University (KS)",
+      "access_outcome": "RECOVERED_AUTHORITATIVE",
+      "domain_class": "VERIFIED_CORRECT",
+      "how_read": "browser",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach",
+          "coach": "coach-1558ec4e@redacted.invalid",
+          "source": "https://www.bakerwildcats.com/sports/wsoc/coaches/index",
+          "reason": "Current HC; published email read on official coaches page. If stored local-part differs, apply as CORRECT_EMAIL."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Goalkeeper Coach",
+          "coach": "coach-c24a720f@redacted.invalid",
+          "source": "https://www.bakerwildcats.com/sports/wsoc/coaches/index",
+          "reason": "Current goalkeeper coach (shared with men's programme); published email read on official coaches page."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Grad Assistant",
+          "coach": "coach-c221883e@redacted.invalid",
+          "source": "https://www.bakerwildcats.com/sports/wsoc/coaches/index",
+          "reason": "Current grad assistant; published student email [withheld]@stu.bakeru.edu read on official coaches page (matches stored @stu.bakeru.edu pattern)."
+        }
+      ]
+    },
+    {
+      "unitid": 170967,
+      "sport": "mens-soccer",
+      "institution": "Rochester Christian University",
+      "access_outcome": "RECOVERED_AUTHORITATIVE",
+      "domain_class": "official_athletics_site",
+      "how_read": "CloudFront 403 to headless/automated fetch and to the built-in browser pane; rendered normally in a real user Chrome session (claude-in-chrome). Full staff directory read at https://rcuwarriors.com/staff-directory/index on 2026-09-28.",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach (Men's Soccer); also listed as Head Coach (Women's Soccer)",
+          "coach": "coach-303ee9e2@redacted.invalid",
+          "source": "https://rcuwarriors.com/staff-directory/index",
+          "reason": "Current on authoritative staff directory; published email matches stored value exactly."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach (Men's Soccer)",
+          "coach": "coach-50c4770c@redacted.invalid",
+          "source": "https://rcuwarriors.com/staff-directory/index",
+          "reason": "Stored as inferred with no email; authoritative directory publishes [withheld]@rcu.edu for the current Head Coach. Upgrades inferred to observed/published."
+        },
+        {
+          "op": "HOLD",
+          "role": "Assistant Coach (Men's Soccer)",
+          "coach": "coach-20c27cc4@redacted.invalid",
+          "source": "https://rcuwarriors.com/staff-directory/index",
+          "reason": "Confirmed current (Dr. Adam Hill, Assistant Coach) but no personal email published on the authoritative page. No email to add; do not infer."
+        },
+        {
+          "op": "MARK_STALE",
+          "role": "n/a",
+          "coach": "coach-73935c6d@redacted.invalid",
+          "source": "https://rcuwarriors.com/staff-directory/index",
+          "reason": "Wrong institution: not present anywhere on the RCU staff directory (men's or women's soccer); [withheld]@bpc.edu is a different school (Brewton-Parker College domain). Mis-filed row."
+        }
+      ]
+    },
+    {
+      "unitid": 181330,
+      "sport": "mens-soccer",
+      "institution": "Midland University",
+      "access_outcome": "RECOVERED_AUTHORITATIVE",
+      "domain_class": "official_athletics_site",
+      "how_read": "CloudFront 403 to automated fetch and to the built-in browser pane; rendered normally in a real user Chrome session. The stored /staff-directory path 404s; the live directory is at https://midlandathletics.com/information/directory/index, read on 2026-09-28.",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach (Men's Soccer)",
+          "coach": "coach-c7f4a5ae@redacted.invalid",
+          "source": "https://midlandathletics.com/information/directory/index",
+          "reason": "Current on authoritative directory; published email matches stored value exactly."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach (Men's Soccer)",
+          "coach": "coach-33bb01ce@redacted.invalid",
+          "source": "https://midlandathletics.com/information/directory/index",
+          "reason": "Current on authoritative directory; published email matches stored value exactly."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Graduate Assistant (Men's Soccer)",
+          "coach": "coach-80070fca@redacted.invalid",
+          "source": "https://midlandathletics.com/information/directory/index",
+          "reason": "Current on authoritative directory; published email matches stored value exactly."
+        },
+        {
+          "op": "HOLD",
+          "role": "Graduate Assistant (Men's Soccer)",
+          "coach": "coach-a21ae4b2@redacted.invalid",
+          "source": "https://midlandathletics.com/information/directory/index",
+          "reason": "Confirmed current (Graduate Assistant) but no personal email published on the authoritative page. No email to add; do not infer."
+        }
+      ]
+    },
+    {
+      "unitid": 181330,
+      "sport": "womens-soccer",
+      "institution": "Midland University",
+      "access_outcome": "RECOVERED_AUTHORITATIVE",
+      "domain_class": "official_athletics_site",
+      "how_read": "Same as Midland men's: read the live directory at https://midlandathletics.com/information/directory/index in a real user Chrome session on 2026-09-28.",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Coach (Women's Soccer)",
+          "coach": "coach-3530f6bf@redacted.invalid",
+          "source": "https://midlandathletics.com/information/directory/index",
+          "reason": "Current on authoritative directory; the page lists the display name 'Keri Cordell' with the published email [withheld]@midlandu.edu (married-name local-part), matching the stored value exactly."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Graduate Assistant (Women's Soccer)",
+          "coach": "coach-c216b01f@redacted.invalid",
+          "source": "https://midlandathletics.com/information/directory/index",
+          "reason": "Current on authoritative directory; published email matches stored value exactly."
+        }
+      ]
+    },
+    {
+      "unitid": 202514,
+      "sport": "mens-soccer",
+      "institution": "Defiance College",
+      "access_outcome": "RECOVERED_AUTHORITATIVE",
+      "domain_class": "official_athletics_site_domain_migrated",
+      "how_read": "Stored domain defiancejackets.com is dead (DNS/error page, unreachable in both real Chrome and the built-in pane). The live athletics domain is www.defianceathletics.com (PrestoSports, JS-rendered). Read the men's soccer coaches page (https://www.defianceathletics.com/sports/msoc/coaches/index) and the full staff directory (https://www.defianceathletics.com/information/directory/index) in a real user Chrome session on 2026-09-28. A head-coaching change was confirmed via the 2026-08-28 official release.",
+      "actions": [
+        {
+          "op": "MARK_STALE",
+          "role": "former Head Coach (Men's Soccer)",
+          "coach": "coach-e6445930@redacted.invalid",
+          "source": "https://www.defianceathletics.com/sports/msoc/coaches/index",
+          "reason": "Departed. Matt Johnson was announced as the 12th men's soccer head coach on 2026-08-28 (https://www.defianceathletics.com/sports/msoc/2026-27/releases/20260828pzo6jx) and is the sole Head Coach on the current coaches page and directory. Htut Zar no longer appears on staff."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach (Men's Soccer)",
+          "coach": "coach-2fc47c1b@redacted.invalid",
+          "source": "https://www.defianceathletics.com/sports/msoc/coaches/index",
+          "reason": "Stored as inferred; still current as Assistant Coach and authoritative directory publishes [withheld]@defiance.edu. Upgrades inferred to observed/published."
+        },
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Head Coach (Men's Soccer)",
+          "coach": "[withheld]@defiance.edu",
+          "source": "https://www.defianceathletics.com/sports/msoc/coaches/index",
+          "reason": "New Head Coach (announced 2026-08-28) with observed published personal email on the authoritative directory. Replaces departed Htut Zar."
+        },
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Assistant Coach (Men's Soccer)",
+          "coach": "[withheld]@defiance.edu",
+          "source": "https://www.defianceathletics.com/sports/msoc/coaches/index",
+          "reason": "Current assistant coach with observed published personal email on the authoritative directory; not previously stored."
+        }
+      ]
+    },
+    {
+      "unitid": 207351,
+      "sport": "mens-soccer",
+      "institution": "Oklahoma Panhandle State University",
+      "access_outcome": "RECOVERED_AUTHORITATIVE",
+      "domain_class": "official_athletics_site",
+      "how_read": "PrestoSports site; JS-rendered coaches page read in a real user Chrome session (https://opsuaggies.com/sports/msoc/coaches/index). The staff directory link (/information/directory/index) triggered a spurious client-side redirect to a shared PrestoSports domain (huathletics.com) during navigation, so the directory HTML was read directly via a same-origin fetch from the opsuaggies.com context (HTTP 200, not redirected) on 2026-09-28; mailto links parsed from that authoritative HTML.",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Men's Soccer Coach",
+          "coach": "coach-f52616f4@redacted.invalid",
+          "source": "https://opsuaggies.com/sports/msoc/coaches/index",
+          "reason": "Current Head Coach on authoritative coaches page; published email in staff directory matches stored value exactly."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Assistant Coach / Goalkeeper Coach (Men's Soccer)",
+          "coach": "coach-9b2480ee@redacted.invalid",
+          "source": "https://opsuaggies.com/sports/msoc/coaches/index",
+          "reason": "Identity ambiguity resolved: Aron Kanyai is listed as staff (Assistant Coach / Goalkeeper Coach), NOT a player. Current on the coaches page with published email [withheld]@opsu.edu in the staff directory."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Student Assistant - Recruiting Coordinator (Men's Soccer)",
+          "coach": "coach-966e48f6@redacted.invalid",
+          "source": "https://opsuaggies.com/sports/msoc/coaches/index",
+          "reason": "Identity ambiguity resolved: Ayoup Bader is listed as staff (Student Assistant - Recruiting Coordinator), NOT a rostered player. Current on the coaches page with published email [withheld]@opsu.edu in the staff directory."
+        }
+      ]
+    },
+    {
+      "unitid": 107877,
+      "sport": "womens-soccer",
+      "institution": "Williams Baptist University",
+      "access_outcome": "RECOVERED_AUTHORITATIVE",
+      "domain_class": "VERIFIED_CORRECT",
+      "how_read": "institution_directory",
+      "actions": [
+        {
+          "op": "ADD_EVIDENCE",
+          "role": "Head Women's Soccer Coach",
+          "coach": "coach-1e29c187@redacted.invalid",
+          "source": "https://williamsbu.edu/directory/",
+          "reason": "Athletics site wbueagles.com / prestosports mirror were CloudFront/CF-challenge blocked (stored 'williamsbaptisteagles.com' does not resolve). Official institution directory (williamsbu.edu/directory/) lists 'Carney, Danny - Head Women's Soccer Coach' as current, and his official profile page (williamsbu.edu/team/carney-danny/) LITERALLY publishes [withheld]@williamsbu.edu plus phone 870-759-4191. This upgrades the prior INDEX-ONLY email to email_seen on an official page. Stored name 'Daniel Carney' = published 'Danny Carney' (same person). Note: stored phone 870-759-4192 vs official 870-759-4191."
+        }
+      ]
+    },
+    {
+      "unitid": 155937,
+      "sport": "mens-soccer",
+      "institution": "Sterling College (Kansas)",
+      "access_outcome": "RECOVERED_AUTHORITATIVE",
+      "domain_class": "VERIFIED_CORRECT",
+      "how_read": "institution_directory",
+      "actions": [
+        {
+          "op": "INSERT_CURRENT",
+          "role": "Head Men's Soccer Coach",
+          "coach": "[withheld]@sterling.edu",
+          "source": "https://web.archive.org/web/20260417114207/https://www.sterling.edu/profile/nic-martinez",
+          "reason": "Athletics site scwarriors.com CloudFront-blocked; sterling.edu live app timed out ('application did not respond in time'), so read via most-recent Wayback snapshot (2026-04-17) of the OFFICIAL institution profile sterling.edu/profile/nic-martinez, which titles him Head Men's Soccer Coach and LITERALLY publishes mailto:[withheld]@sterling.edu (phone 620-278-4404). Martinez has led the men's program since 2017; Dec 2024 he additionally became Director of Soccer + Head Women's Soccer Coach but continues over men's; LinkedIn corroborates 'Head men's soccer coach'. CAUTION: current published personal email is [withheld]@sterling.edu, NOT the '[withheld]@sterling.edu' shown on the stale 2023 athletics page and repeated by search snippets."
+        },
+        {
+          "op": "MARK_STALE",
+          "role": "Head Men's Soccer Coach (former)",
+          "coach": "coach-32c48a1f@redacted.invalid",
+          "source": "https://web.archive.org/web/20260417114207/https://www.sterling.edu/profile/nic-martinez",
+          "reason": "Retain existing PROVEN_STALE status; the current head men's soccer coach is Nic Martinez, not Jeff Kidd."
+        }
+      ]
+    },
+    {
+      "unitid": 210331,
+      "sport": "mens-soccer",
+      "institution": "corban",
+      "case": true,
+      "verdicts": {
+        "identity": "WRONG_IDENTITY"
+      },
+      "notes": "DISTINCT_PEOPLE established: Jordan Keegan (hired May 2026 as 16th head coach, ex-Portland Timbers) and Justin Keegan (Goalkeeper Coach) are two different people, both on the CURRENT 2026 staff — not aliases. Emails are not published in the department staff-directory listing, but Jordan's individual staff-directory page (id 314) explicitly publishes [withheld]@corban.edu. The stored row d2d7307a therefore has WRONG_IDENTITY: name 'Justin Keegan' bound to Jordan's email. Prior pass's suspicion (email belongs to Jordan, not Justin) is CONFIRMED by the official page. No merge was made on surname/email similarity alone — Jordan's page states the email.",
+      "actions": [
+        {
+          "op": "CORRECT_NAME",
+          "role": "Head Men's Soccer Coach, OAC Coordinator",
+          "coach": "coach-d2d7307a@redacted.invalid",
+          "name": "[withheld]->[withheld]",
+          "source": "https://corbanwarriors.com/staff-directory/jordan-keegan/314",
+          "reason": "The email [withheld]@corban.edu is officially published as HEAD coach Jordan Keegan's on his individual staff-directory page. The stored row attaches this email to 'Justin Keegan' (a DISTINCT current coach, the Goalkeeper Coach). Relabel the row to its true owner (Jordan Keegan, head coach). NOTE: op is outside the listed enum but the finding is a name repair, per the task's own example ('CORRECT the stored row's name if the email provably belongs to a differently-named current coach')."
+        },
+        {
+          "op": "HOLD",
+          "role": null,
+          "coach": "[withheld]",
+          "source": "https://corbanwarriors.com/sports/mens-soccer/roster/justin-keegan/4136",
+          "reason": "Justin Keegan is a real current staffer (Goalkeeper Coach) but Corban publishes NO email for him (ZoomInfo shows only masked j***@corban.edu, which cannot equal Jordan's [withheld]@corban.edu since two people cannot share one address). No emailable, authoritatively-proven contact exists for Justin — HOLD rather than fabricate one."
+        }
+      ]
+    },
+    {
+      "unitid": 219718,
+      "sport": "womens-soccer",
+      "institution": "bethel_tn",
+      "case": true,
+      "verdicts": {
+        "domain": "VERIFIED_ALIAS_NEEDED",
+        "aird_identity": "DISTINCT_PEOPLE / WRONG_IDENTITY on stored row — Misty Aird (Head Coach) and Maggie Aird are two different people both listed on the current staff; the stored email belongs to Misty, not Maggie"
+      },
+      "notes": "Canonical institution = Bethel University, McKenzie TN (NAIA, Mid-South Conference), UNITID 219718 — NOT Bethel University Indiana (150145) and NOT Bethel College Kansas (154749), and NOT Bethel University Minnesota, whose athletics site is athletics.bethel.edu (a search decoy that must not be conflated with Bethel TN). Two distinct Bethel-TN domains exist: athletics site bethelathletics.com and institution/email domain bethelu.edu; both belong to 219718. The domain stayed uncovered because bethelathletics.com was not registered to the UNITID → VERIFIED_ALIAS_NEEDED (one-to-one ownership proven, so a guarded alias add is warranted). Maggie-vs-Misty resolved: both are current, distinct people; head coach is Misty Aird and [withheld]@bethelu.edu is hers; stored 'Maggie Aird' is a name error on the row (WRONG_IDENTITY), not a domain problem.",
+      "actions": [
+        {
+          "op": "CORRECT_NAME",
+          "role": "Head Coach",
+          "coach": "coach-2bee79d4@redacted.invalid",
+          "name": "[withheld]->[withheld]",
+          "source": "https://bethelathletics.com/sports/womens-soccer/coaches",
+          "reason": "The official Bethel TN women's soccer coaches page publishes [withheld]@bethelu.edu specifically for HEAD coach Misty Aird (27th season, most wins by any woman in NAIA history). Maggie Aird is a SEPARATE current staffer with NO published email. The stored row binds Misty's email to the name 'Maggie Aird' — relabel to Misty Aird. NOTE: op outside listed enum; it is the name repair the task anticipates."
+        },
+        {
+          "op": "DOMAIN_REPAIR",
+          "role": null,
+          "coach": "coach-2bee79d4@redacted.invalid",
+          "source": "https://bethelathletics.com/sports/wsoc/2025-26/roster",
+          "reason": "bethelathletics.com is provably the official athletics site of Bethel University (TN), McKenzie (219718) — its roster pages carry the McKenzie/Mid-South program and Misty Aird. It was previously unmapped to 219718 (the institution/email domain is bethelu.edu, so the athletics host stayed uncovered). Register bethelathletics.com as a one-to-one alias of 219718."
+        }
+      ]
+    },
+    {
+      "unitid": 154721,
+      "sport": "mens-soccer",
+      "institution": "bethany_ks",
+      "case": true,
+      "verdicts": {
+        "collision_with_bethany_wv": false
+      },
+      "notes": "College Navigator confirms UNITID 154721 = Bethany College, 335 E Swensson St, Lindsborg, Kansas 67456 (NAIA, KCAC, 'Swedes'). Official institution site is www.bethanylb.edu (email domain bethanylb.edu, e.g. Dane Straight = [withheld]@bethanylb.edu). Official athletics site is bethanyswedes.com (msoc pages, Dane Straight). Both are Bethany KS, one-to-one with 154721. Historic same-name contamination risk is Bethany College WEST VIRGINIA (bethanywv.edu / bethanybison.com, 'Bison') — entirely distinct domains and mascot, so collision_with_bethany_wv = false. No WRONG_MAPPING/SHARED_AMBIGUOUS/MISSING condition found; both domains VERIFIED_CORRECT.",
+      "actions": [
+        {
+          "op": "HOLD",
+          "role": null,
+          "coach": "[withheld]@bethanylb.edu",
+          "source": "https://nces.ed.gov/collegenavigator/?id=154721",
+          "reason": "Registry-hygiene check only — programme already covered (Dane Straight, Karl-Heinz Morrow). Both domains verified one-to-one to UNITID 154721; no collision with Bethany WV. No repair needed → HOLD."
+        },
+        {
+          "op": "ADD_EVIDENCE",
+          "role": null,
+          "coach": "[withheld]",
+          "source": "https://nces.ed.gov/collegenavigator/?id=154721",
+          "reason": "Record the verified mapping: athletics domain bethanyswedes.com and institution/email domain bethanylb.edu both belong exclusively to Bethany College, Lindsborg KS (154721); Bethany College WV uses bethanywv.edu / bethanybison.com — no overlap."
+        }
+      ]
+    }
+  ]
+}

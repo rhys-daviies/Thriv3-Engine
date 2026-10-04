@@ -1,0 +1,506 @@
+{
+  "phase": "7B.1",
+  "note": "REDACTED published copy. Raw unredacted original untracked at server/data/generated/audit-fixtures/. ADD_EVIDENCE: email_seen + currentness on confirmed-current coaches.",
+  "entries": [
+    {
+      "coach_id": "8705d9a8-e180-48ea-97d1-be498796d92f",
+      "expected_old_email": "coach-8705d9a8-e180-48ea-97d1-be498796d92f@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://acufirestorm.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://acufirestorm.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "d33373d8-4c5a-49e2-9c16-41ef0110c435",
+      "expected_old_email": "coach-d33373d8-4c5a-49e2-9c16-41ef0110c435@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://acufirestorm.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://acufirestorm.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "e6b537fa-e0d3-4558-b71d-6277c81eab7f",
+      "expected_old_email": "coach-e6b537fa-e0d3-4558-b71d-6277c81eab7f@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://wbueagles.com/sports/msoc/coaches/Lucas_Custodio",
+      "currentness_source_url": "https://wbueagles.com/sports/msoc/coaches/Lucas_Custodio",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "326927e2-6b6c-4101-9a87-0cca754d1dd2",
+      "expected_old_email": "coach-326927e2-6b6c-4101-9a87-0cca754d1dd2@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://www.pioneersathletics.com/sports/msoc/coaches",
+      "currentness_source_url": "https://www.pioneersathletics.com/sports/msoc/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "dc0a0d64-d956-4c2d-9605-d81f2b5e1e10",
+      "expected_old_email": "coach-dc0a0d64-d956-4c2d-9605-d81f2b5e1e10@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://www.pioneersathletics.com/sports/msoc/coaches",
+      "currentness_source_url": "https://www.pioneersathletics.com/sports/msoc/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "5d07b113-2b6b-4857-a82a-dd59c749102f",
+      "expected_old_email": "coach-5d07b113-2b6b-4857-a82a-dd59c749102f@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://stubobcats.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://stubobcats.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "eae9708b-cc4b-49d2-a431-8c4547ec3550",
+      "expected_old_email": "coach-eae9708b-cc4b-49d2-a431-8c4547ec3550@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://stubobcats.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://stubobcats.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "677270f6-d1e3-4f6a-93ce-cfa4d7dee860",
+      "expected_old_email": "coach-677270f6-d1e3-4f6a-93ce-cfa4d7dee860@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://yoteathletics.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://yoteathletics.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "9ec84c30-894b-4dcb-b7ef-e42bf55380b9",
+      "expected_old_email": "coach-9ec84c30-894b-4dcb-b7ef-e42bf55380b9@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://yoteathletics.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://yoteathletics.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "64b9bd08-cbe1-45e0-bc1d-b89d0792526e",
+      "expected_old_email": "coach-64b9bd08-cbe1-45e0-bc1d-b89d0792526e@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://yoteathletics.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://yoteathletics.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "dc598e48-d13b-492f-816c-ee41a3ed6722",
+      "expected_old_email": "coach-dc598e48-d13b-492f-816c-ee41a3ed6722@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://yoteathletics.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://yoteathletics.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "a9bb1b52-164b-43d3-b722-a9b020f145ce",
+      "expected_old_email": "coach-a9bb1b52-164b-43d3-b722-a9b020f145ce@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://gclancers.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://gclancers.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "69cc2433-9ae5-4754-bc9c-81e5249161c1",
+      "expected_old_email": "coach-69cc2433-9ae5-4754-bc9c-81e5249161c1@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://gclancers.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://gclancers.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "399773a1-08da-40fb-b9c6-9bf0e6a8034d",
+      "expected_old_email": "coach-399773a1-08da-40fb-b9c6-9bf0e6a8034d@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://stubobcats.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://stubobcats.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "60a94df2-423b-4689-a8c0-b8de1308f2bc",
+      "expected_old_email": "coach-60a94df2-423b-4689-a8c0-b8de1308f2bc@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://yoteathletics.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://yoteathletics.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "622bd8e8-5921-4a67-bb0f-9d6e941e1ee2",
+      "expected_old_email": "coach-622bd8e8-5921-4a67-bb0f-9d6e941e1ee2@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://yoteathletics.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://yoteathletics.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "ce54c046-97d7-4c0f-989c-df948d64ad58",
+      "expected_old_email": "coach-ce54c046-97d7-4c0f-989c-df948d64ad58@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://acufirestorm.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://acufirestorm.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "1e5900af-74e6-4437-a9b9-d2d2c5f76fc5",
+      "expected_old_email": "coach-1e5900af-74e6-4437-a9b9-d2d2c5f76fc5@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://acufirestorm.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://acufirestorm.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "4697e721-88e0-4701-9d49-2627f43bedc7",
+      "expected_old_email": "coach-4697e721-88e0-4701-9d49-2627f43bedc7@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://faulknereagles.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://faulknereagles.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "b5988330-ea48-4de9-ad83-bad2822584a3",
+      "expected_old_email": "coach-b5988330-ea48-4de9-ad83-bad2822584a3@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://faulknereagles.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://faulknereagles.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "743c6947-934b-437d-af68-0897a348509a",
+      "expected_old_email": "coach-743c6947-934b-437d-af68-0897a348509a@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://athletics.oakwood.edu/staff-directory",
+      "currentness_source_url": "https://athletics.oakwood.edu/staff-directory",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "39b6b3a1-1e82-4ef3-b45b-270a3c171e71",
+      "expected_old_email": "coach-39b6b3a1-1e82-4ef3-b45b-270a3c171e71@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://hiuroyals.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://hiuroyals.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "b97d977e-38ae-4728-99af-d5e8b3226185",
+      "expected_old_email": "coach-b97d977e-38ae-4728-99af-d5e8b3226185@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://hiuroyals.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://hiuroyals.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "269dca80-00b9-471f-a089-1de2693e4a6e",
+      "expected_old_email": "coach-269dca80-00b9-471f-a089-1de2693e4a6e@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://umobilerams.com/sports/mens-soccer/roster/coaches/micheal-azira/715",
+      "currentness_source_url": "https://umobilerams.com/sports/mens-soccer/roster/coaches/micheal-azira/715",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "72ef77bd-9068-4d0d-af0f-6f819195af4d",
+      "expected_old_email": "coach-72ef77bd-9068-4d0d-af0f-6f819195af4d@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://faulknereagles.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://faulknereagles.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "7c4ba025-649f-4387-866e-e5fd15fe8746",
+      "expected_old_email": "coach-7c4ba025-649f-4387-866e-e5fd15fe8746@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://faulknereagles.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://faulknereagles.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "9807b40c-ef9f-429b-8215-3d455b6c4d5e",
+      "expected_old_email": "coach-9807b40c-ef9f-429b-8215-3d455b6c4d5e@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://umobilerams.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://umobilerams.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "29141c19-a968-4d37-ac78-15f221127b51",
+      "expected_old_email": "coach-29141c19-a968-4d37-ac78-15f221127b51@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://umobilerams.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://umobilerams.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "cd3beeac-2e10-4d5a-ac99-6bba4371e5f3",
+      "expected_old_email": "coach-cd3beeac-2e10-4d5a-ac99-6bba4371e5f3@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://athletics.abac.edu/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://athletics.abac.edu/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "017a8cd2-cd47-4342-99e8-2fab9a0e32a8",
+      "expected_old_email": "coach-017a8cd2-cd47-4342-99e8-2fab9a0e32a8@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://jbuathletics.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://jbuathletics.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "de35a0be-6357-4fd1-bd28-e30beda80638",
+      "expected_old_email": "coach-de35a0be-6357-4fd1-bd28-e30beda80638@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://jbuathletics.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://jbuathletics.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "aac760d3-c9cc-4729-85aa-edac1acb9846",
+      "expected_old_email": "coach-aac760d3-c9cc-4729-85aa-edac1acb9846@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://gomustangs.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://gomustangs.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "2ec1d332-b805-4452-94ec-3f7abf7e83f8",
+      "expected_old_email": "coach-2ec1d332-b805-4452-94ec-3f7abf7e83f8@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://gomustangs.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://gomustangs.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "26e7bfa3-14c2-4b2c-b9a7-a0a90373e1d8",
+      "expected_old_email": "coach-26e7bfa3-14c2-4b2c-b9a7-a0a90373e1d8@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://gomustangs.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://gomustangs.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "1fb7684f-a35a-4f9d-9203-e51d3a693020",
+      "expected_old_email": "coach-1fb7684f-a35a-4f9d-9203-e51d3a693020@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://gomustangs.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://gomustangs.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "3af5ffc5-811e-46bd-9e97-55dd6aaf0a4c",
+      "expected_old_email": "coach-3af5ffc5-811e-46bd-9e97-55dd6aaf0a4c@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://simpsonredhawks.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://simpsonredhawks.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "63c9c086-15e6-4730-8088-f3389fc5ab43",
+      "expected_old_email": "coach-63c9c086-15e6-4730-8088-f3389fc5ab43@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://simpsonredhawks.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://simpsonredhawks.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "fa136f1d-4457-47f2-a10b-d25622f489c4",
+      "expected_old_email": "coach-fa136f1d-4457-47f2-a10b-d25622f489c4@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://jbuathletics.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://jbuathletics.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "174525e9-70c4-4bfc-a360-eb568b42f93c",
+      "expected_old_email": "coach-174525e9-70c4-4bfc-a360-eb568b42f93c@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://jbuathletics.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://jbuathletics.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "832d7104-0454-4da0-8f7a-56a8df6b3ce4",
+      "expected_old_email": "coach-832d7104-0454-4da0-8f7a-56a8df6b3ce4@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://gomustangs.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://gomustangs.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "63951d31-72ce-40d2-8e13-9c068718cdfd",
+      "expected_old_email": "coach-63951d31-72ce-40d2-8e13-9c068718cdfd@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://gomustangs.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://gomustangs.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "92bc6424-9348-44d7-be68-26b3c2cb7eae",
+      "expected_old_email": "coach-92bc6424-9348-44d7-be68-26b3c2cb7eae@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://simpsonredhawks.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://simpsonredhawks.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "f71370ba-7daa-45c5-a538-749aa4f0c37b",
+      "expected_old_email": "coach-f71370ba-7daa-45c5-a538-749aa4f0c37b@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://simpsonredhawks.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://simpsonredhawks.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "269e2d48-118e-46a6-b808-b3236e46f535",
+      "expected_old_email": "coach-269e2d48-118e-46a6-b808-b3236e46f535@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://simpsonredhawks.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://simpsonredhawks.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "a6fc2cff-2246-48c9-bf67-e02130a38b1e",
+      "expected_old_email": "coach-a6fc2cff-2246-48c9-bf67-e02130a38b1e@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://campbellsvilletigers.com/sports/womens-soccer/coaches",
+      "currentness_source_url": "https://campbellsvilletigers.com/sports/womens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "46574c29-ce55-49ab-8880-136b72cdc3ee",
+      "expected_old_email": "coach-46574c29-ce55-49ab-8880-136b72cdc3ee@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://athletics.oakwood.edu/staff-directory/anthony-walker/16",
+      "currentness_source_url": "https://athletics.oakwood.edu/staff-directory/anthony-walker/16",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "3cb483f2-2a8c-4357-b5dc-a18ca8b62544",
+      "expected_old_email": "coach-3cb483f2-2a8c-4357-b5dc-a18ca8b62544@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://athletics.oakwood.edu/staff-directory/frank-davies/44",
+      "currentness_source_url": "https://athletics.oakwood.edu/staff-directory/frank-davies/44",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "b8a16072-8e27-4fcf-9b4c-65a5959b83fd",
+      "expected_old_email": "coach-b8a16072-8e27-4fcf-9b4c-65a5959b83fd@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://talladegatornadoes.com/staff-directory/junior-noel/130",
+      "currentness_source_url": "https://talladegatornadoes.com/staff-directory/junior-noel/130",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "4876111f-5cb6-4260-b171-83803cda17a8",
+      "expected_old_email": "coach-4876111f-5cb6-4260-b171-83803cda17a8@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://talladegatornadoes.com/staff-directory/junior-noel/130",
+      "currentness_source_url": "https://talladegatornadoes.com/staff-directory/junior-noel/130",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    },
+    {
+      "coach_id": "937b2933-1643-4c22-9f72-e8657498ecc5",
+      "expected_old_email": "coach-937b2933-1643-4c22-9f72-e8657498ecc5@redacted.invalid",
+      "email_seen_on_source_at": "2026-09-28",
+      "email_seen_on_source_url": "https://eraueagles.com/sports/mens-soccer/coaches",
+      "currentness_source_url": "https://eraueagles.com/sports/mens-soccer/coaches",
+      "currentness_checked_at": "2026-09-28",
+      "evidence_rationale": "authoritative current-staff + exact email observed on official athletics page",
+      "auto_apply_safe": true
+    }
+  ]
+}

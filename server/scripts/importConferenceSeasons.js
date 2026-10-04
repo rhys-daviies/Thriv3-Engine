@@ -33,6 +33,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import db from '../db/client.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { utcNow } from '../lib/time.js';
 import { buildResolvers, PROGRAMME_UNRESOLVED } from '../lib/institutionQueries.js';
 import {
@@ -455,6 +456,7 @@ export function run({ apply = false, dir = DIR, log = console.log } = {}) {
   for (const [k, v] of Object.entries(byReason).sort((a, b) => b[1] - a[1])) log(`  ${k.padEnd(30)}${String(v).padStart(5)}`);
 
   if (!apply) { log('\ndry run — pass --apply to write'); return { conferenceRows, programmeRows, quarantine, written: 0 }; }
+  assertLegacyWriteAllowed(db, { script: 'importConferenceSeasons.js' });
   const insert = (table, rows) => {
     if (!rows.length) return 0;
     const cols = Object.keys(rows[0]);

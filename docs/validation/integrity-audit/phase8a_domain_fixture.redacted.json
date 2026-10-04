@@ -1,0 +1,2610 @@
+{
+ "phase": "8A-domains",
+ "fixture_hash": "c940bd93dc8013e66e15cb1e6d983e3bc3dc5d251820dc48ef48700c63e002be",
+ "rule": "ownership chain (institution site -> athletics link -> host self-identification -> entity) + Part I collision audit across athletics_domains, colleges, coaches (address domain + source URLs), coach_seasons, roster and membership sources, registrable domain, held adjudications; only ABSENT or INSUFFICIENT/UNREACHABLE unowned rows; shared platform roots never mapped",
+ "counts": {
+  "register": 110,
+  "by_status": {
+   "VERIFIED": 110
+  },
+  "by_platform": {
+   "PRESTO": 90,
+   "SIDEARM": 19,
+   "CUSTOM": 1
+  },
+  "inserts": 78,
+  "updates": 32
+ },
+ "domain_register": [
+  {
+   "domain": "awcmatadors.com",
+   "athletics_entity_id": "AE-U104160",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Arizona Western College Arizona Western College\"; institution site https://www.azwestern.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Arizona Western College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes awcmatadors.com trusted for AE-U104160 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "eacmonsters.com",
+   "athletics_entity_id": "AE-U104577",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Eastern Arizona College Eastern Arizona College\"; institution site https://www.eac.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Eastern Arizona College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes eacmonsters.com trusted for AE-U104577 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.mohave.edu",
+   "athletics_entity_id": "AE-U105206",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 1 member link \"Mohave Athletic Link\"; host self-identifies as \"Mohave College Mohave College\"; institution site https://www.mohave.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Mohave College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athletics.mohave.edu trusted for AE-U105206 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.cochise.edu",
+   "athletics_entity_id": "AE-U104425",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Official Website of Cochise College Athletics Official Website of Cochise Colleg\"; institution site https://www.cochise.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Cochise College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athletics.cochise.edu trusted for AE-U104425 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.southmountaincc.edu",
+   "athletics_entity_id": "AE-U105792",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 1 member link \"SMCC Athletic Link\"; host self-identifies as \"South Mountain Community College\"; institution site https://www.southmountaincc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for South Mountain Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athletics.southmountaincc.edu trusted for AE-U105792 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "neoathletics.com",
+   "athletics_entity_id": "AE-U207290",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 2 member link \"Northeastern Oklahoma A&M College\"; host self-identifies as \"Northeastern Oklahoma A&amp;M College Northeastern Oklahoma A&M College\"; institution site https://www.neo.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Northeastern Oklahoma A&M College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes neoathletics.com trusted for AE-U207290 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "sandburgchargers.com",
+   "athletics_entity_id": "AE-U143613",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Carl Sandburg College Carl Sandburg College\"; institution site https://www.sandburg.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Carl Sandburg College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes sandburgchargers.com trusted for AE-U143613 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.kcc.edu",
+   "athletics_entity_id": "AE-U146348",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Kankakee Community College Main Menu - Kankakee Community College\"; institution site https://www.kcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Kankakee CC (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athletics.kcc.edu trusted for AE-U146348 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "wranglersports.net",
+   "athletics_entity_id": "AE-U223898",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Cisco College Cisco College\"; institution site https://www.cisco.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Cisco / Cisco College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes wranglersports.net trusted for AE-U223898 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "hillcollegeathletics.com",
+   "athletics_entity_id": "AE-U225371",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Hill College Athletics Hill College Athletics - Hill College Athletics\"; institution site https://www.hillcollege.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Hill College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes hillcollegeathletics.com trusted for AE-U225371 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "rangersports.net",
+   "athletics_entity_id": "AE-U227687",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Ranger College Ranger College\"; institution site https://www.rangercollege.edu/#gsc.tab=0 links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Ranger College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes rangersports.net trusted for AE-U227687 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "wranglersports.com",
+   "athletics_entity_id": "AE-U227304",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Odessa College Odessa College Home - Odessa College\"; institution site https://www.odessa.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Odessa College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes wranglersports.com trusted for AE-U227304 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "gobroncbusters.com",
+   "athletics_entity_id": "AE-U155104",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Garden City CC Garden City CC\"; institution site https://www.gcccks.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Garden City (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes gobroncbusters.com trusted for AE-U155104 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "sewardsaints.com",
+   "athletics_entity_id": "AE-U155858",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Seward County Saints Seward County Saints\"; institution site https://sccc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Seward County (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes sewardsaints.com trusted for AE-U155858 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "cowleytigers.com",
+   "athletics_entity_id": "AE-U154952",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Cowley Tigers Sports | Cowley College Athletics Cowley Tigers Sports | Cowley Co\"; institution site https://www.cowley.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Cowley (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes cowleytigers.com trusted for AE-U154952 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "bluedevils.kckcc.edu",
+   "athletics_entity_id": "AE-U155292",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Kansas City Kansas Community College Kansas City Kansas Community College Athlet\"; institution site https://www.kckcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for KCKCC (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes bluedevils.kckcc.edu trusted for AE-U155292 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "goneosho.com",
+   "athletics_entity_id": "AE-U155566",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Neosho County Community College Athletics Neosho County Community College Athlet\"; institution site https://www.neosho.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Neosho County (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes goneosho.com trusted for AE-U155566 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "redravenathletics.com",
+   "athletics_entity_id": "AE-U154925",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Coffeyville Community College Red Raven Athletics Coffeyville Community College \"; institution site https://www.coffeyville.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Coffeyville (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes redravenathletics.com trusted for AE-U154925 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "gobeaversports.com",
+   "athletics_entity_id": "AE-U155715",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Pratt CC Pratt CC\"; institution site https://www.prattcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Pratt (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes gobeaversports.com trusted for AE-U155715 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "goconqs.com",
+   "athletics_entity_id": "AE-U154998",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Dodge City Community College Athletics Dodge City Community College Athletics - \"; institution site https://dc3.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Dodge City (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes goconqs.com trusted for AE-U154998 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "allenreddevils.com",
+   "athletics_entity_id": "AE-U154642",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Allen Community College Allen Community College\"; institution site https://www.allencc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Allen (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes allenreddevils.com trusted for AE-U154642 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "bluedragonsports.com",
+   "athletics_entity_id": "AE-U155195",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Hutchinson Community College Hutchinson Community College\"; institution site https://www.hutchcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Hutchinson (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes bluedragonsports.com trusted for AE-U155195 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "butlergrizzlies.com",
+   "athletics_entity_id": "AE-U154800",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Butler Community College Athletics Butler Community College Athletics\"; institution site https://www.butlercc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Butler (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes butlergrizzlies.com trusted for AE-U154800 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "scottieathletics.com",
+   "athletics_entity_id": "AE-U155186",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Highland Community College Athletics Highland Community College Athletics - Offi\"; institution site https://www.highlandcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Highland (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes scottieathletics.com trusted for AE-U155186 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.dscc.edu",
+   "athletics_entity_id": "AE-U220057",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 7 member link \"DYERSBURG STATE COMMUNITY COLLEGE\"; host self-identifies as \"Dyersburg State Athletics Dyersburg State Athletics\"; institution site https://www.dscc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Dyersburg State Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athletics.dscc.edu trusted for AE-U220057 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "psccpanthers.com",
+   "athletics_entity_id": "AE-U221643",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 7 member link \"PELLISSIPPI STATE COMMUNITY COLLEGE\"; host self-identifies as \"PELLISSIPPI STATE PANTHERS index - PELLISSIPPI STATE PANTHERS\"; institution site https://www.pstcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Pellissippi State Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes psccpanthers.com trusted for AE-U221643 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "motlowsports.com",
+   "athletics_entity_id": "AE-U221096",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 7 member link \"MOTLOW STATE COMMUNITY COLLEGE\"; host self-identifies as \"Motlow State Athletics Motlow State Athletics\"; institution site https://www.mscc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Motlow State Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes motlowsports.com trusted for AE-U221096 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.southwest.tn.edu",
+   "athletics_entity_id": "AE-U221485",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 7 member link \"SOUTHWEST TENNESSEE COMMUNITY COLLEGE\"; host self-identifies as \"Southwest Tennessee Community College Athletics Southwest Tennessee Community Co\"; institution site https://www.southwest.tn.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Southwest Tennessee Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athletics.southwest.tn.edu trusted for AE-U221485 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "dscfalcons.com",
+   "athletics_entity_id": "AE-U133386",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 8 member link \"Daytona State College\"; host self-identifies as \"HOME OF DAYTONA STATE ATHLETICS HOME OF DAYTONA STATE ATHLETICS\"; institution site https://www.daytonastate.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Daytona State College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes dscfalcons.com trusted for AE-U133386 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "efsctitans.com",
+   "athletics_entity_id": "AE-U132693",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 8 member link \"Eastern Florida State College\"; host self-identifies as \"Eastern Florida State College Eastern Florida State College\"; institution site https://www.easternflorida.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Eastern Florida State College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes efsctitans.com trusted for AE-U132693 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.pensacolastate.edu",
+   "athletics_entity_id": "AE-U136473",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 8 member link \"Pensacola State College\"; host self-identifies as \"Pensacola State College Pensacola State College\"; institution site https://www.pensacolastate.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Pensacola State College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athletics.pensacolastate.edu trusted for AE-U136473 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "tbirds.cc",
+   "athletics_entity_id": "AE-U240505",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 9 member link \"Casper College\"; host self-identifies as \"Casper College Casper College\"; institution site https://www.caspercollege.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Casper College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes tbirds.cc trusted for AE-U240505 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "rustlerathletics.com",
+   "athletics_entity_id": "AE-U240514",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 9 member link \"Central Wyoming College\"; host self-identifies as \"Central Wyoming College Central Wyoming College\"; institution site https://www.cwc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Central Wyoming College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes rustlerathletics.com trusted for AE-U240514 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "golccc.com",
+   "athletics_entity_id": "AE-U240620",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 9 member link \"Laramie County Community College\"; host self-identifies as \"Laramie County Community College Athletics Laramie County Community College Athl\"; institution site https://www.lccc.wy.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Laramie County Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes golccc.com trusted for AE-U240620 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "gonjc.com",
+   "athletics_entity_id": "AE-U127732",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 9 member link \"Northeastern Junior College\"; host self-identifies as \"Northeastern Junior College Northeastern Junior College\"; institution site https://www.njc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Northeastern Junior College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes gonjc.com trusted for AE-U127732 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "tsctrojans.com",
+   "athletics_entity_id": "AE-U128258",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 9 member link \"Trinidad State College\"; host self-identifies as \"Trinidad State Trinidad State\"; institution site https://www.trinidadstate.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Trinidad State College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes tsctrojans.com trusted for AE-U128258 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "wnccathletics.com",
+   "athletics_entity_id": "AE-U181817",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 9 member link \"Western Nebraska College\"; host self-identifies as \"Western Nebraska College Western Nebraska College\"; institution site https://www.wncc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Western Nebraska Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes wnccathletics.com trusted for AE-U181817 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "goseadevils.com",
+   "athletics_entity_id": "AE-U198154",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 10 member link \"Cape Fear Community College\"; host self-identifies as \"Cape Fear CC Cape Fear CC\"; institution site https://www.cfcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Cape Fear Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes goseadevils.com trusted for AE-U198154 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "lchurricanes.com",
+   "athletics_entity_id": "AE-U198871",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 10 member link \"Louisburg College\"; host self-identifies as \"Louisburg College Louisburg College\"; institution site https://www.louisburg.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Louisburg College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes lchurricanes.com trusted for AE-U198871 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "phccsports.com",
+   "athletics_entity_id": "AE-U233019",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 10 member link \"Patrick & Henry Community College\"; host self-identifies as \"Patrick & Henry Community College Patrick & Henry Community College\"; institution site https://www.patrickhenry.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Patrick & Henry Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes phccsports.com trusted for AE-U233019 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "goreivers.com",
+   "athletics_entity_id": "AE-U153630",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Iowa Western Reivers Iowa Western Reivers\"; institution site https://www.iwcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Iowa Western Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes goreivers.com trusted for AE-U153630 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "indianhillsathletics.com",
+   "athletics_entity_id": "AE-U153472",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Indian Hills CC Athletics Indian Hills CC Athletics\"; institution site https://www.indianhills.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Indian Hills Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes indianhillsathletics.com trusted for AE-U153472 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "sccblackhawks.com",
+   "athletics_entity_id": "AE-U154378",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Southeastern Community College Southeastern Community College\"; institution site https://www.scciowa.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Southeastern Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes sccblackhawks.com trusted for AE-U154378 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "redtailathletics.com",
+   "athletics_entity_id": "AE-U153445",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Hawkeye Community College RedTail Athletics Hawkeye Community College RedTail At\"; institution site https://www.hawkeyecollege.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Hawkeye Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes redtailathletics.com trusted for AE-U153445 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "cccraiders.com",
+   "athletics_entity_id": "AE-U180902",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Central Community College Athletics CCC Raiders - Central Community College Athl\"; institution site https://www.cccneb.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Central Community College-Columbus / Central Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes cccraiders.com trusted for AE-U180902 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "ictritons.com",
+   "athletics_entity_id": "AE-U153524",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Iowa Central Community College Iowa Central Community College\"; institution site https://www.iowacentral.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Iowa Central Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes ictritons.com trusted for AE-U153524 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "mccathletics.com",
+   "athletics_entity_id": "AE-U153922",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Marshalltown Community College Athletics Marshalltown Athletics Home - Marshallt\"; institution site https://mcc.iavalley.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Marshalltown CC (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes mccathletics.com trusted for AE-U153922 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "sc4skippers.com",
+   "athletics_entity_id": "AE-U172291",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 12 member link \"St. Clair County\"; host self-identifies as \"St. Clair County Community College Athletics St. Clair County Community College \"; institution site https://www.sc4.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for St. Clair County Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes sc4skippers.com trusted for AE-U172291 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "ancillachargers.com",
+   "athletics_entity_id": "AE-U497833",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Marian University Ancilla Marian University Ancilla Athletics\"; institution site https://www.marian.edu/plymouth links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Marian Universitys Ancilla (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes ancillachargers.com trusted for AE-U497833 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.lakelandcc.edu",
+   "athletics_entity_id": "AE-U203599",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 12 member link \"Lakeland\"; host self-identifies as \"Lakeland Community College Lakeland Community College\"; institution site https://www.lakelandcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Lakeland Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athletics.lakelandcc.edu trusted for AE-U203599 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "redhawks.lakemichigancollege.edu",
+   "athletics_entity_id": "AE-U170620",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 12 member link \"Lake Michigan\"; host self-identifies as \"Lake Michigan College Lake Michigan College\"; institution site https://www.lakemichigancollege.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Lake Michigan College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes redhawks.lakemichigancollege.edu trusted for AE-U170620 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.tri-c.edu",
+   "athletics_entity_id": "AE-U202356",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 12 member link \"Cuyahoga\"; host self-identifies as \"Cuyahoga Community College Cuyahoga Community College\"; institution site https://www.tri-c.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Cuyahoga Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athletics.tri-c.edu trusted for AE-U202356 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "acclumberjacks.com",
+   "athletics_entity_id": "AE-U168607",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 12 member link \"Alpena\"; host self-identifies as \"Alpena Community College Alpena Community College\"; institution site https://www.alpenacc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Alpena Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes acclumberjacks.com trusted for AE-U168607 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "muskegonjayhawks.com",
+   "athletics_entity_id": "AE-U171304",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 12 member link \"Muskegon\"; host self-identifies as \"The Official Home of Muskegon Community College Athletics The Official Home of M\"; institution site https://www.muskegoncc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Muskegon Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes muskegonjayhawks.com trusted for AE-U171304 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "jacksoncollegejets.com",
+   "athletics_entity_id": "AE-U170444",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 12 member link \"Jackson\"; host self-identifies as \"Jackson College Athletics Jackson College Athletics\"; institution site https://www.jccmi.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Jackson College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes jacksoncollegejets.com trusted for AE-U170444 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "pjcathletics.com",
+   "athletics_entity_id": "AE-U227401",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Paris Junior College Athletics Paris Junior College Athletics\"; institution site https://www.parisjc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Paris Junior College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes pjcathletics.com trusted for AE-U227401 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "cbcathletics.com",
+   "athletics_entity_id": "AE-U223320",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Coastal Bend College Coastal Bend College\"; institution site https://www.coastalbend.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Coastal Bend College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes cbcathletics.com trusted for AE-U223320 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "angelinaathletics.com",
+   "athletics_entity_id": "AE-U222822",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Angelina College Angelina College\"; institution site https://www.angelina.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Angelina College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes angelinaathletics.com trusted for AE-U222822 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.jacksonvillecollege.edu",
+   "athletics_entity_id": "AE-U225876",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Jacksonville College Jacksonville College - Official Athletics Website\"; institution site https://jacksonvillecollege.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Jacksonville College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athletics.jacksonvillecollege.edu trusted for AE-U225876 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "tscscorpions.com",
+   "athletics_entity_id": "AE-U227377",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Texas Southmost College Texas Southmost College - Official Athletics Website\"; institution site https://www.tsc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Texas Southmost College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes tscscorpions.com trusted for AE-U227377 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "ntcceagles.com",
+   "athletics_entity_id": "AE-U227225",
+   "status": "VERIFIED",
+   "platform": "CUSTOM",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Northeast Texas Community College Eagles Home Page | Northeast Texas Community C\"; institution site https://www.ntcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Northeast Texas Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes ntcceagles.com trusted for AE-U227225 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "tvccsports.com",
+   "athletics_entity_id": "AE-U225308",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"The Official Home of the Trinity Valley Community College Cardinals The Official\"; institution site https://www.tvcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Trinity Valley Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes tvccsports.com trusted for AE-U225308 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "navarrobulldogs.com",
+   "athletics_entity_id": "AE-U227146",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Navarro College Navarro College - Official Athletics Website\"; institution site https://www.navarrocollege.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Navarro College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes navarrobulldogs.com trusted for AE-U227146 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "crowderathletics.com",
+   "athletics_entity_id": "AE-U177135",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 16 member link \"Crowder College\"; host self-identifies as \"Crowder College Crowder College\"; institution site https://www.crowder.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Crowder College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes crowderathletics.com trusted for AE-U177135 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "sccathletics.com",
+   "athletics_entity_id": "AE-U262031",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 16 member link \"St. Charles Community College\"; host self-identifies as \"St. Charles Community College Athletics St. Charles Community College Athletics\"; institution site https://www.stchas.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for St. Charles Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes sccathletics.com trusted for AE-U262031 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "cgtctitans.com",
+   "athletics_entity_id": "AE-U483045",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Central Georgia Tech Athletics Central Georgia Tech Athletics\"; institution site https://www.centralgatech.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for C. Georgia Tech (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes cgtctitans.com trusted for AE-U483045 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "oxfordcollegeathletics.com",
+   "athletics_entity_id": "AE-U487092",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Oxford College of Emory Oxford College of Emory\"; institution site https://www.oxford.emory.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Oxford (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes oxfordcollegeathletics.com trusted for AE-U487092 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "bergenccbulldogs.com",
+   "athletics_entity_id": "AE-U183743",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Bergen Community College Bergen Community College\"; institution site https://www.bergen.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Bergen (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes bergenccbulldogs.com trusted for AE-U183743 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "brookdaleathletics.com",
+   "athletics_entity_id": "AE-U183859",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Brookdale Athletics Brookdale Athletics\"; institution site https://www.brookdalecc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Brookdale (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes brookdaleathletics.com trusted for AE-U183859 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "dcccphantoms.com",
+   "athletics_entity_id": "AE-U211927",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Delaware County Community College Athletics Delaware County Community College At\"; institution site https://www.dccc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Delaware County (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes dcccphantoms.com trusted for AE-U211927 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "essexwolverines.com",
+   "athletics_entity_id": "AE-U184481",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Essex County College Essex County College\"; institution site https://www.essex.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Essex (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes essexwolverines.com trusted for AE-U184481 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "mccbluecolts.com",
+   "athletics_entity_id": "AE-U185536",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Middlesex College Athletics Middlesex College Athletics\"; institution site https://www.middlesexcollege.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Middlesex (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes mccbluecolts.com trusted for AE-U185536 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "nccspartans.com",
+   "athletics_entity_id": "AE-U214379",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Northampton Community College Athletics Northampton Community College Athletics \"; institution site https://www.northampton.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Northampton (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes nccspartans.com trusted for AE-U214379 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "sussexskylanders.com",
+   "athletics_entity_id": "AE-U247603",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Sussex County CC Sussex County CC\"; institution site https://www.sussex.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Sussex (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes sussexskylanders.com trusted for AE-U247603 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "neccknights.com",
+   "athletics_entity_id": "AE-U167376",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Northern Essex Community College Athletics Northern Essex Community College Athl\"; institution site https://www.necc.mass.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Northern Essex Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes neccknights.com trusted for AE-U167376 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "calhounathletics.com",
+   "athletics_entity_id": "AE-U101514",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 22 member link \"Calhoun\"; host self-identifies as \"Calhoun Community College Athletics Calhoun Community College Athletics\"; institution site https://calhoun.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Calhoun Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes calhounathletics.com trusted for AE-U101514 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "jcbobcats.com",
+   "athletics_entity_id": "AE-U175883",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Jones College Athletics Jones College Athletics - Official Athletics Website\"; institution site https://www.jcjc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Jones College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes jcbobcats.com trusted for AE-U175883 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "nwccrangers.com",
+   "athletics_entity_id": "AE-U176178",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Northwest Mississippi Community College Athletics Northwest Mississippi Communit\"; institution site https://www.northwestms.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Northwest Mississippi Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes nwccrangers.com trusted for AE-U176178 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "mcceagles.com",
+   "athletics_entity_id": "AE-U175935",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Meridian Community College Meridian Community College\"; institution site https://www.meridiancc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Meridian Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes mcceagles.com trusted for AE-U175935 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "prccathletics.com",
+   "athletics_entity_id": "AE-U176239",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Pearl River CC Pearl River CC\"; institution site https://www.prcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Pearl River Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes prccathletics.com trusted for AE-U176239 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "mgcccbulldogs.com",
+   "athletics_entity_id": "AE-U176071",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Mississippi Gulf Coast Community College Athletics Mississippi Gulf Coast Commun\"; institution site https://www.mgccc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Mississippi Gulf Coast Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes mgcccbulldogs.com trusted for AE-U176071 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "southwestbearathletics.com",
+   "athletics_entity_id": "AE-U176354",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Southwest Mississippi Community College Athletics Southwest Mississippi Communit\"; institution site https://www.smcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Southwest Mississippi Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes southwestbearathletics.com trusted for AE-U176354 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "colinathletics.com",
+   "athletics_entity_id": "AE-U175573",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Copiah-Lincoln CC Copiah-Lincoln CC\"; institution site https://www.colin.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Copiah-Lincoln Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes colinathletics.com trusted for AE-U175573 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "letsgoicc.com",
+   "athletics_entity_id": "AE-U175829",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Itawamba Community College Athletics Itawamba Community College Athletics\"; institution site https://www.iccms.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Itawamba Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes letsgoicc.com trusted for AE-U175829 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "sports.hindscc.edu",
+   "athletics_entity_id": "AE-U175786",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Hinds Community College Athletics Hinds Community College Athletics - Official A\"; institution site https://www.hindscc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Hinds Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes sports.hindscc.edu trusted for AE-U175786 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "mdcctrojans.com",
+   "athletics_entity_id": "AE-U176008",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Mississippi Delta Community College Mississippi Delta Community College\"; institution site https://www.msdelta.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Mississippi Delta Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes mdcctrojans.com trusted for AE-U176008 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "johnwoodblazers.com",
+   "athletics_entity_id": "AE-U146278",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"John Wood Community College John Wood Community College\"; institution site https://www.jwcc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for John Wood Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes johnwoodblazers.com trusted for AE-U146278 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "heartlandhawks.com",
+   "athletics_entity_id": "AE-U384342",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Heartland Community College Athletics Heartland Community College Athletics - Of\"; institution site https://www.heartland.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Heartland Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes heartlandhawks.com trusted for AE-U384342 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "danvillejaguars.com",
+   "athletics_entity_id": "AE-U144564",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "institution site athletics link; host self-identifies as \"Danville Area Community College Athletics Danville Area Community College Athlet\"; institution site https://dacc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Danville Area Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes danvillejaguars.com trusted for AE-U144564 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "kaskaskiaathletics.com",
+   "athletics_entity_id": "AE-U146366",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Kaskaskia College Kaskaskia College\"; institution site https://www.kaskaskia.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Kaskaskia College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes kaskaskiaathletics.com trusted for AE-U146366 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "trailblazers.lc.edu",
+   "athletics_entity_id": "AE-U146603",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Lewis &amp; Clark Community College Lewis & Clark Community College\"; institution site https://www.lc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Lewis & Clark Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes trailblazers.lc.edu trusted for AE-U146603 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "acmtrojans.com",
+   "athletics_entity_id": "AE-U161688",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 20 member link \"Allegany\"; host self-identifies as \"Allegany College of Maryland Allegany College of Maryland - Official Athletics W\"; institution site https://www.allegany.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Allegany College of Maryland (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes acmtrojans.com trusted for AE-U161688 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "aaccathletics.com",
+   "athletics_entity_id": "AE-U161767",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 20 member link \"Anne Arundel\"; host self-identifies as \"Anne Arundel Community College Anne Arundel Community College Athletics - Anne A\"; institution site https://www.aacc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Anne Arundel Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes aaccathletics.com trusted for AE-U161767 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "cecilathletics.com",
+   "athletics_entity_id": "AE-U162104",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 20 member link \"Cecil\"; host self-identifies as \"Cecil College Athletics Index Landing - Cecil College Athletics\"; institution site https://www.cecil.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Cecil College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes cecilathletics.com trusted for AE-U162104 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "letsgoskipjacks.com",
+   "athletics_entity_id": "AE-U162168",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 20 member link \"Chesapeake\"; host self-identifies as \"Chesapeake College Chesapeake College\"; institution site https://www.chesapeake.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Chesapeake College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes letsgoskipjacks.com trusted for AE-U162168 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "fccathletics.com",
+   "athletics_entity_id": "AE-U162557",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 20 member link \"Frederick\"; host self-identifies as \"Frederick Community College Frederick Community College\"; institution site https://www.frederick.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Frederick Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes fccathletics.com trusted for AE-U162557 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "garrettlakers.com",
+   "athletics_entity_id": "AE-U162609",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "region 20 member link \"Garrett\"; host self-identifies as \"Garrett College Garrett College\"; institution site https://www.garrettcollege.edu/index.php links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Garrett College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes garrettlakers.com trusted for AE-U162609 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.hagerstowncc.edu",
+   "athletics_entity_id": "AE-U162690",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 20 member link \"Hagerstown\"; host self-identifies as \"Hagerstown C.C. Athletics Hagerstown C.C. Athletics\"; institution site https://www.hagerstowncc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Hagerstown Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes athletics.hagerstowncc.edu trusted for AE-U162690 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "harfordathletics.com",
+   "athletics_entity_id": "AE-U162706",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 20 member link \"Harford\"; host self-identifies as \"Harford Community College Athletics Harford Community College Athletics - Offici\"; institution site https://www.harford.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Harford Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes harfordathletics.com trusted for AE-U162706 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.westmoreland.edu",
+   "athletics_entity_id": "AE-U216825",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "evidence": "region 20 member link \"Westmoreland CC\"; host self-identifies as \"Westmoreland County Community College Westmoreland County Community College\"; institution site https://westmoreland.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Westmoreland County Community College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (update of a INSUFFICIENT_EVIDENCE row); makes athletics.westmoreland.edu trusted for AE-U216825 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "nicathletics.com",
+   "athletics_entity_id": "AE-U142443",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"North Idaho College North Idaho College\"; institution site https://www.nic.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for North Idaho College (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes nicathletics.com trusted for AE-U142443 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.cncc.edu",
+   "athletics_entity_id": "AE-U126748",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Colorado Northwestern Community College Athletics Colorado Northwestern Communit\"; institution site https://cncc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Colorado Northwestern CC (NJCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athletics.cncc.edu trusted for AE-U126748 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "ussueagles.com",
+   "athletics_entity_id": "AE-U102395",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"United States Sports University United States Sports University - Official Athle\"; institution site https://www.ussu.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for US Sports University (USCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes ussueagles.com trusted for AE-U102395 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "ftcsound.com",
+   "athletics_entity_id": "AE-U191205",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Five Towns College Five Towns College\"; institution site https://www.ftc.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Five Towns College (USCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes ftcsound.com trusted for AE-U191205 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "berkeleycollegeknights.com",
+   "athletics_entity_id": "AE-U183789",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Berkeley College Athletics Berkeley College Athletics Athletics\"; institution site https://berkeleycollege.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Berkeley College NJ (USCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes berkeleycollegeknights.com trusted for AE-U183789 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "gomacumustangs.com",
+   "athletics_entity_id": "AE-U199458",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Mid-Atlantic Christian University  Mid-Atlantic Christian University - Official \"; institution site https://www.macuniversity.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Mid-Atlantic Christian University (USCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes gomacumustangs.com trusted for AE-U199458 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "miuathletics.com",
+   "athletics_entity_id": "AE-U153861",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Maharishi International University Maharishi International University\"; institution site https://www.miu.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Maharishi (USCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes miuathletics.com trusted for AE-U153861 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "lackawannafalcons.com",
+   "athletics_entity_id": "AE-U213376",
+   "status": "VERIFIED",
+   "platform": "SIDEARM",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Lackawanna College Stay Informed: Follow Our NCAA Division II Journey - Lackawan\"; institution site https://www.lackawanna.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Lackawanna College (USCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes lackawannafalcons.com trusted for AE-U213376 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athleticsau.com",
+   "athletics_entity_id": "AE-U485768",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Atlantis University Athletics Atlantis University Athletics\"; institution site https://atlantisuniversity.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Atlantis University (USCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athleticsau.com trusted for AE-U485768 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  },
+  {
+   "domain": "athletics.baypath.edu",
+   "athletics_entity_id": "AE-U164632",
+   "status": "VERIFIED",
+   "platform": "PRESTO",
+   "expected_old": null,
+   "evidence": "institution site athletics link; host self-identifies as \"Bay Path University Bay Path University\"; institution site https://www.baypath.edu/ links to / shares the domain of the host; discovered 2026-09-30; collision audit clean (domains, colleges, coaches, coach_seasons, roster and membership sources)",
+   "reason": "athletics host for Bay Path (USCAA) verified by the ownership chain and owned by no other entity",
+   "blast_radius": "1 athletics_domains row (insert); makes athletics.baypath.edu trusted for AE-U164632 only — no coach, roster, record, programme or membership row changes; NCAA/NAIA hosts untouched"
+  }
+ ],
+ "held": {
+  "total": 159,
+  "by_code": {
+   "INSUFFICIENT": 53,
+   "ALREADY_REGISTERED": 19,
+   "REDIRECTS": 3,
+   "UNREACHABLE": 5,
+   "NO_ATHLETICS_SITE": 34,
+   "INSTITUTION_SITE_NOT_ATHLETICS_HOST": 38,
+   "BLOCKED": 3,
+   "NON_ATHLETICS_SUBDOMAIN": 2,
+   "DB_ROW_DECIDED": 2
+  },
+  "rows": [
+   {
+    "entity": "AE-U364025",
+    "association": "NJCAA",
+    "host": "cgccathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U182005",
+    "association": "NJCAA",
+    "host": "csncoyotes.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U105145",
+    "association": "NJCAA",
+    "host": "gauchoathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U104708",
+    "association": "NJCAA",
+    "host": "gauchoathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U105154",
+    "association": "NJCAA",
+    "host": "mesatbirdsports.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U364016",
+    "association": "NJCAA",
+    "host": "gopumas.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U105428",
+    "association": "NJCAA",
+    "host": "athletics.phoenixcollege.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "REDIRECTS",
+    "detail": "athletics.phoenixcollege.edu -> pcbearsathletics.com"
+   },
+   {
+    "entity": "AE-U105525",
+    "association": "NJCAA",
+    "host": "pimaaztecs.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U105747",
+    "association": "NJCAA",
+    "host": "gochokes.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U106148",
+    "association": "NJCAA",
+    "host": "goroughriders.com",
+    "host_status": "UNREACHABLE",
+    "code": "UNREACHABLE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U207670",
+    "association": "NJCAA",
+    "host": "rscraiders.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U144865",
+    "association": "NJCAA",
+    "host": "gochapsgo.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U146472",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U149842",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U148007",
+    "association": "NJCAA",
+    "host": "prairiestateathletics.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U144193",
+    "association": "NJCAA",
+    "host": "citycollegeofchicagoathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U148380",
+    "association": "NJCAA",
+    "host": "rvcsports.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U144218",
+    "association": "NJCAA",
+    "host": "citycollegeofchicagoathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-X-DALLAS-COLLEGE-CEDAR-VALLEY",
+    "association": "NJCAA",
+    "host": "dallascollege.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-X-DALLAS-COLLEGE-MOUNTAIN-VIEW",
+    "association": "NJCAA",
+    "host": "dallascollege.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-X-DALLAS-COLLEGE-RICHLAND",
+    "association": "NJCAA",
+    "host": "dallascollege.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U229832",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-X-DALLAS-COLLEGE-BROOKHAVEN",
+    "association": "NJCAA",
+    "host": "dallascollege.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-X-DALLAS-COLLEGE-EASTFIELD",
+    "association": "NJCAA",
+    "host": "dallascollege.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-X-DALLAS-COLLEGE-NORTH-LAKE",
+    "association": "NJCAA",
+    "host": "dallascollege.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U154697",
+    "association": "NJCAA",
+    "host": "bartonsports.com",
+    "host_status": "UNREACHABLE",
+    "code": "UNREACHABLE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U155210",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U219824",
+    "association": "NJCAA",
+    "host": "chattstatetigers.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U219888",
+    "association": "NJCAA",
+    "host": "columbiastate.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "columbiastate.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U221397",
+    "association": "NJCAA",
+    "host": "roanestate.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "roanestate.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U222053",
+    "association": "NJCAA",
+    "host": "volstate.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U135717",
+    "association": "NJCAA",
+    "host": "mdc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "mdc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U136516",
+    "association": "NJCAA",
+    "host": "polkeagles.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U136400",
+    "association": "NJCAA",
+    "host": "bobcats.phsc.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U240666",
+    "association": "NJCAA",
+    "host": "sheridan.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U127389",
+    "association": "NJCAA",
+    "host": "golopes.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U240657",
+    "association": "NJCAA",
+    "host": "nwc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "nwc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U127778",
+    "association": "NJCAA",
+    "host": "oterorattlers.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U240693",
+    "association": "NJCAA",
+    "host": "westernwyoming.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "westernwyoming.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U233037",
+    "association": "NJCAA",
+    "host": "pdc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "pdc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U198233",
+    "association": "NJCAA",
+    "host": "gocvcc.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U198251",
+    "association": "NJCAA",
+    "host": "cccc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "cccc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U217989",
+    "association": "NJCAA",
+    "host": "denmarktech.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "denmarktech.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U233338",
+    "association": "NJCAA",
+    "host": "gorbcathletics.com",
+    "host_status": "BLOCKED",
+    "code": "BLOCKED",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U233648",
+    "association": "NJCAA",
+    "host": "swccsports.com",
+    "host_status": "BLOCKED",
+    "code": "BLOCKED",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U199740",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U218885",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U218672",
+    "association": "NJCAA",
+    "host": "usclathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U218681",
+    "association": "NJCAA",
+    "host": "uscsalkathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U218690",
+    "association": "NJCAA",
+    "host": "uscfireants.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U218706",
+    "association": "NJCAA",
+    "host": "uscunionathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U233754",
+    "association": "NJCAA",
+    "host": "vpccgators.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U199856",
+    "association": "NJCAA",
+    "host": "waketechsports.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U198817",
+    "association": "NJCAA",
+    "host": "lenoircc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "lenoircc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U181491",
+    "association": "NJCAA",
+    "host": "northeasthawks.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "host claimed by AE-U181491, AE-U154572"
+   },
+   {
+    "entity": "AE-U153533",
+    "association": "NJCAA",
+    "host": "iowalakesathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "host claimed by AE-U153533, AE-U154129"
+   },
+   {
+    "entity": "AE-U154572",
+    "association": "NJCAA",
+    "host": "northeasthawks.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U154059",
+    "association": "NJCAA",
+    "host": "niacctrojans.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U154129",
+    "association": "NJCAA",
+    "host": "iowalakesathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U172200",
+    "association": "NJCAA",
+    "host": "schoolcraftocelots.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U204945",
+    "association": "NJCAA",
+    "host": "owensexpress.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U170055",
+    "association": "NJCAA",
+    "host": "grccraiders.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U169521",
+    "association": "NJCAA",
+    "host": "deltapioneers.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U170550",
+    "association": "NJCAA",
+    "host": "kelloggbruins.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U172918",
+    "association": "NJCAA",
+    "host": "alextech.edu",
+    "host_status": "UNREACHABLE",
+    "code": "UNREACHABLE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U172963",
+    "association": "NJCAA",
+    "host": "anokaramsey.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "anokaramsey.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U173638",
+    "association": "NJCAA",
+    "host": "mnwest.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "mnwest.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U173063",
+    "association": "NJCAA",
+    "host": "riverland.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "riverland.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U223427",
+    "association": "NJCAA",
+    "host": "buccaneersports.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U229355",
+    "association": "NJCAA",
+    "host": "tjc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "tjc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U159407",
+    "association": "NJCAA",
+    "host": "lsuebengals.net",
+    "host_status": "UNREACHABLE",
+    "code": "UNREACHABLE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U227146",
+    "association": "NJCAA",
+    "host": "athletics.navarrocollege.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "REDIRECTS",
+    "detail": "athletics.navarrocollege.edu -> navarrobulldogs.com"
+   },
+   {
+    "entity": "AE-U227146",
+    "association": "NJCAA",
+    "host": "esports.navarrocollege.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "NON_ATHLETICS_SUBDOMAIN",
+    "detail": "esports.navarrocollege.edu is neither athletics-named nor an athletics platform site (SIDEARM)"
+   },
+   {
+    "entity": "AE-U178217",
+    "association": "NJCAA",
+    "host": "athletic.mineralarea.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U179308",
+    "association": "NJCAA",
+    "host": "archersathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U139986",
+    "association": "NJCAA",
+    "host": "sctech.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "sctech.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U141006",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U139968",
+    "association": "NJCAA",
+    "host": "gordonstate.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "gordonstate.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U183655",
+    "association": "NJCAA",
+    "host": "governmentjobs.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U183743",
+    "association": "NJCAA",
+    "host": "bergen.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "bergen.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U183859",
+    "association": "NJCAA",
+    "host": "brookdalecc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "brookdalecc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U183938",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U211927",
+    "association": "NJCAA",
+    "host": "dccc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "dccc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U212869",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U185509",
+    "association": "NJCAA",
+    "host": "mccc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "mccc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U184180",
+    "association": "NJCAA",
+    "host": "ccm.edu",
+    "host_status": "UNREACHABLE",
+    "code": "UNREACHABLE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U185873",
+    "association": "NJCAA",
+    "host": "ocean.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "ocean.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U186645",
+    "association": "NJCAA",
+    "host": "raritanval.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "raritanval.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U184205",
+    "association": "NJCAA",
+    "host": "rcsj.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U184791",
+    "association": "NJCAA",
+    "host": "rcsj.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U186469",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U187198",
+    "association": "NJCAA",
+    "host": "unionowls.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U165033",
+    "association": "NJCAA",
+    "host": "google.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U165112",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U217475",
+    "association": "NJCAA",
+    "host": "apply.ccri.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "NON_ATHLETICS_SUBDOMAIN",
+    "detail": "apply.ccri.edu is neither athletics-named nor an athletics platform site (CUSTOM)"
+   },
+   {
+    "entity": "AE-U166133",
+    "association": "NJCAA",
+    "host": "docs.google.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U166647",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U166823",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U167525",
+    "association": "NJCAA",
+    "host": "quincycollege.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "quincycollege.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U167534",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U167631",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U167905",
+    "association": "NJCAA",
+    "host": "mail.google.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U101143",
+    "association": "NJCAA",
+    "host": "escc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "escc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U101897",
+    "association": "NJCAA",
+    "host": "nacc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "nacc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U251260",
+    "association": "NJCAA",
+    "host": "suscc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "suscc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U101295",
+    "association": "NJCAA",
+    "host": "wallacestate.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U176178",
+    "association": "NJCAA",
+    "host": "northwestms.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "northwestms.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U176239",
+    "association": "NJCAA",
+    "host": "prcc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "prcc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U175810",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U176071",
+    "association": "NJCAA",
+    "host": "mgccc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "mgccc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U175573",
+    "association": "NJCAA",
+    "host": "colin.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "colin.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U175652",
+    "association": "NJCAA",
+    "host": "eastms.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "eastms.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U175643",
+    "association": "NJCAA",
+    "host": "ecccathletics.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U175786",
+    "association": "NJCAA",
+    "host": "hindscc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "hindscc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U143215",
+    "association": "NJCAA",
+    "host": "swic.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "swic.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U147916",
+    "association": "NJCAA",
+    "host": "athletics.parkland.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-X-LINCOLN-TRAIL",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U145682",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U146685",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-X-IECC-WABASH-VALLEY",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U162779",
+    "association": "NJCAA",
+    "host": "howardccdragons.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U163426",
+    "association": "NJCAA",
+    "host": "mcraptors.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U230746",
+    "association": "NJCAA",
+    "host": "slccbruins.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-X-USU-EASTERN",
+    "association": "NJCAA",
+    "host": "utahstateaggies.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U230597",
+    "association": "NJCAA",
+    "host": "snowbadgers.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "DB_ROW_DECIDED",
+    "detail": "WRONG_INSTITUTION unitid 230597"
+   },
+   {
+    "entity": "AE-U142559",
+    "association": "NJCAA",
+    "host": "csi.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "csi.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U142559",
+    "association": "NJCAA",
+    "host": "athletics.csi.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "DB_ROW_DECIDED",
+    "detail": "WRONG_INSTITUTION unitid 142559"
+   },
+   {
+    "entity": "AE-U182500",
+    "association": "NJCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U495147",
+    "association": "NJCAA",
+    "host": "pnwcc.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "pnwcc.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U408844",
+    "association": "USCAA",
+    "host": "fnusports.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U408844",
+    "association": "USCAA",
+    "host": "fnu.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "fnu.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U102395",
+    "association": "USCAA",
+    "host": "ussu.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "ussu.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U102395",
+    "association": "USCAA",
+    "host": "ussaeagles.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "REDIRECTS",
+    "detail": "ussaeagles.com -> ussueagles.com"
+   },
+   {
+    "entity": "AE-U161235",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U156189",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U188517",
+    "association": "USCAA",
+    "host": "bryantstratton.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U234155",
+    "association": "USCAA",
+    "host": "govsutrojans.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U213774",
+    "association": "USCAA",
+    "host": "manor.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "manor.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U137962",
+    "association": "USCAA",
+    "host": "trinitycollege.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U461795",
+    "association": "USCAA",
+    "host": "stallions.na.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U461795",
+    "association": "USCAA",
+    "host": "na.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "INSTITUTION_SITE_NOT_ATHLETICS_HOST",
+    "detail": "na.edu is the institution's own site"
+   },
+   {
+    "entity": "AE-U183822",
+    "association": "USCAA",
+    "host": "montclairathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U189583",
+    "association": "USCAA",
+    "host": "bryantstratton.edu",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U227429",
+    "association": "USCAA",
+    "host": "paulquinnathletics.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U199643",
+    "association": "USCAA",
+    "host": "shawbears.com",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-U237783",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U211431",
+    "association": "USCAA",
+    "host": "athletics.carlow.edu",
+    "host_status": "VERIFIED_PRIMARY",
+    "code": "ALREADY_REGISTERED",
+    "detail": "host already trusted for this entity"
+   },
+   {
+    "entity": "AE-X-STANTON",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-X-KEAN-JERSEY-CITY",
+    "association": "USCAA",
+    "host": "keanathletics.com",
+    "host_status": "INSUFFICIENT",
+    "code": "INSUFFICIENT",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U486354",
+    "association": "USCAA",
+    "host": "uiceaglerays.com",
+    "host_status": "BLOCKED",
+    "code": "BLOCKED",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U214786",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U214810",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U214670",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U214652",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U214698",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U214768",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U214625",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U214829",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   },
+   {
+    "entity": "AE-U214795",
+    "association": "USCAA",
+    "host": null,
+    "host_status": "NO_ATHLETICS_SITE",
+    "code": "NO_ATHLETICS_SITE",
+    "detail": "no host passed the ownership chain"
+   }
+  ]
+ },
+ "simulation": {
+  "gates": {
+   "naia_freeze_exact": true,
+   "ncaa_truthful_unchanged": true,
+   "naia_eligible_unchanged": true,
+   "ncaa_eligible_unchanged": true,
+   "no_coach_eligibility_change": true,
+   "no_coach_row_change": true,
+   "no_roster_or_record_mutation": true,
+   "frozen_seasons_unchanged": true,
+   "identity_invariant": true,
+   "integrity_counters_zero": true,
+   "ncaa_naia_universe_unchanged": true,
+   "domain_changes_only_in_fixture": true,
+   "every_fixture_domain_applied": true,
+   "no_prior_trusted_domain_changed": true,
+   "only_njcaa_uscaa_entities": true,
+   "njcaa_uscaa_universe_and_membership_unchanged": true
+  },
+  "pass": true,
+  "hosts_pre": {
+   "NJCAA": {
+    "entities": 334,
+    "with_trusted_host": 22
+   },
+   "USCAA": {
+    "entities": 29,
+    "with_trusted_host": 1
+   }
+  },
+  "hosts_post": {
+   "NJCAA": {
+    "entities": 334,
+    "with_trusted_host": 124
+   },
+   "USCAA": {
+    "entities": 29,
+    "with_trusted_host": 9
+   }
+  },
+  "domains_changed": 110
+ },
+ "live": {
+  "gates": {
+   "naia_freeze_exact": true,
+   "ncaa_truthful_unchanged": true,
+   "naia_eligible_unchanged": true,
+   "ncaa_eligible_unchanged": true,
+   "no_coach_eligibility_change": true,
+   "no_coach_row_change": true,
+   "no_roster_or_record_mutation": true,
+   "frozen_seasons_unchanged": true,
+   "identity_invariant": true,
+   "integrity_counters_zero": true,
+   "ncaa_naia_universe_unchanged": true,
+   "domain_changes_only_in_fixture": true,
+   "every_fixture_domain_applied": true,
+   "no_prior_trusted_domain_changed": true,
+   "only_njcaa_uscaa_entities": true,
+   "njcaa_uscaa_universe_and_membership_unchanged": true
+  },
+  "pass": true,
+  "hosts_post": {
+   "NJCAA": {
+    "entities": 334,
+    "with_trusted_host": 124
+   },
+   "USCAA": {
+    "entities": 29,
+    "with_trusted_host": 9
+   }
+  },
+  "domains_changed": 110
+ }
+}

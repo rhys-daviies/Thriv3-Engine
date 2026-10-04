@@ -142,12 +142,23 @@ describe('movement matching', () => {
     expect(isObserved(m)).toBe(true);
   });
 
-  it('MATCH_B when the hometown does not agree but three other signals do', () => {
+  // Phase 8B.1A: graduationYear is derived from the class label, so position +
+  // classProgression + graduationYear is name + position + class — two independent
+  // facts, not three. Without a hometown it is no longer an observed destination.
+  it('name + position + class (graduation year being the class restated) is AMBIGUOUS, not MATCH_B', () => {
     const [m] = movementObservations(pair({ hometown: 'Denver, CO' }))
       .filter((x) => x.name === 'M One');
-    // position + classProgression + graduationYear
-    expect(m.status).toBe(MATCH_STATUS.MATCH_B);
+    expect(m.status).toBe(MATCH_STATUS.AMBIGUOUS);
     expect(m.signals.hometown).toBe(false);
+    expect(m.signals.graduationYear).toBe(true);
+    expect(m.signalCount).toBe(2);
+  });
+
+  it('MATCH_B when a VERIFIED prior programme joins position and class (no hometown)', () => {
+    const rows = pair({ hometown: 'Denver, CO' });
+    for (const r of rows) if (r.player_name === 'M One' && r.college_name === 'Beta') r.prior_programme = 'Alpha';
+    const [m] = movementObservations(rows).filter((x) => x.name === 'M One');
+    expect(m.status).toBe(MATCH_STATUS.MATCH_B);
     expect(m.signalCount).toBe(3);
   });
 
@@ -170,8 +181,9 @@ describe('movement matching', () => {
     const [m] = movementObservations(fy).filter((x) => x.name === 'M Two');
     expect(m.signals.classProgression).toBe(true);
     expect(m.signals.hometown).toBe(false);
-    expect(m.signalCount).toBe(3);
-    expect(m.status).toBe(MATCH_STATUS.MATCH_B);
+    // still read (the point of this case); since 8B.1A class + graduation year count once
+    expect(m.signalCount).toBe(2);
+    expect(m.status).toBe(MATCH_STATUS.AMBIGUOUS);
   });
 
   // What the promotion may NOT do. A common name is still a common name, and

@@ -190,6 +190,21 @@ const COLLEGE_COLUMNS = [
   ['conference_champion_notes', 'TEXT'],
   ['postseason_2025_round', 'TEXT'],
   ['notable_majors', "TEXT DEFAULT '[]'"],
+  // Phase 7D: the athletics entity (institution/campus) this programme row belongs
+  // to — see `athletics_entities` in schema.sql. Nullable here because an unmigrated
+  // database has none; `validateAthleticsEntityIdentity.js` requires it on every
+  // active row once the model is populated. colleges.unitid is not replaced.
+  ['athletics_entity_id', 'TEXT'],
+];
+
+/**
+ * Phase 7D: a host can belong to an athletics entity that has no federal UNITID of
+ * its own (iuccrimsonpride.com -> IU Columbus, reported under IU Indianapolis) or
+ * that shares one with a sibling campus. `unitid` stays "who the host says it is";
+ * this names the entity when that is more specific than a UNITID can be.
+ */
+const ATHLETICS_DOMAIN_COLUMNS = [
+  ['athletics_entity_id', 'TEXT'],
 ];
 
 /**
@@ -970,6 +985,38 @@ function retireProgrammeSeasonDivision(db) {
   db.exec('CREATE INDEX IF NOT EXISTS idx_programme_seasons_pool ON programme_seasons(sport, season)');
 }
 
+/**
+ * Phase 7D athletics-entity columns + indexes. Exported so the guarded identity
+ * applier (server/scripts/applyPhase7DIdentityModel.js) can add exactly these to a
+ * non-production database without running the rest of boot-time migration. The
+ * `athletics_entities` table itself is created by schema.sql. Idempotent.
+ */
+export function ensureAthleticsEntityColumns(db) {
+  const has = (t) => !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(t);
+  if (has('colleges')) {
+    addMissingColumns(db, 'colleges', [['athletics_entity_id', 'TEXT']]);
+    db.exec('CREATE INDEX IF NOT EXISTS idx_colleges_athletics_entity ON colleges(athletics_entity_id, sport)');
+  }
+  if (has('athletics_domains')) {
+    addMissingColumns(db, 'athletics_domains', ATHLETICS_DOMAIN_COLUMNS);
+    db.exec('CREATE INDEX IF NOT EXISTS idx_athletics_domains_entity ON athletics_domains(athletics_entity_id)');
+  }
+}
+
+/**
+ * Phase 7E refresh-integrity columns. Both nullable, both additive:
+ *   institution_aliases.athletics_entity_id — an alias can name a campus/branch entity that
+ *     has no UNITID of its own ("IU Columbus" cannot be said with unitid 151111 alone);
+ *   athletics_domains.ownership_class — CURRENT_PRIMARY | CURRENT_ALIAS | HISTORICAL |
+ *     SHARED_PLATFORM | UNVERIFIED | WRONG_OWNER, set by the guarded refresh promotion.
+ * The Phase 7E tables themselves are created by schema.sql. Idempotent.
+ */
+export function ensureRefreshIntegrityColumns(db) {
+  const has = (t) => !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(t);
+  if (has('institution_aliases')) addMissingColumns(db, 'institution_aliases', [['athletics_entity_id', 'TEXT']]);
+  if (has('athletics_domains')) addMissingColumns(db, 'athletics_domains', [['ownership_class', 'TEXT']]);
+}
+
 function addMissingColumns(db, table, columns) {
   const existing = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name));
   for (const [name, ddl] of columns) {
@@ -1358,6 +1405,7 @@ export function migrate(db) {
 
   addMissingColumns(db, 'roster_players', ROSTER_PLAYER_COLUMNS);
   addMissingColumns(db, 'colleges', COLLEGE_COLUMNS);
+  ensureAthleticsEntityColumns(db);
   addMissingColumns(db, 'coaches', COACH_COLUMNS);
   addMissingColumns(db, 'outreach', OUTREACH_COLUMNS);
   backfillDraftedAt(db);
@@ -1524,6 +1572,8 @@ export function migrate(db) {
   preserveMailboxIdentityAcrossOperators(db);
   retireProgrammeSeasonDivision(db);
   scopeInstitutionAliases(db);
+  // after the alias rebuild above, which copies a fixed column list
+  ensureRefreshIntegrityColumns(db);
   if (db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'programme_conference_seasons'").get().n) {
     addMissingColumns(db, 'programme_conference_seasons', PCS_COLUMNS);
   }
@@ -1536,4 +1586,38 @@ export function migrate(db) {
   if (db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'generated_reports'").get().n) {
     addMissingColumns(db, 'generated_reports', GENERATED_REPORT_COLUMNS);
   }
+  extendMembershipDivisions(db);
+}
+
+/**
+ * PHASE 8B.1 — the membership vocabulary gains CCCAA and NWAC.
+ *
+ * Twenty-nine legacy rows labelled NJCAA are California (CCCAA) or Pacific-Northwest (NWAC)
+ * programmes; both associations list them. Recording them truthfully needs the division
+ * CHECK on programme_membership_periods to accept those values, and SQLite cannot alter a
+ * CHECK: the table is rebuilt. Guarded and idempotent:
+ *   - runs only when the table exists AND its CHECK lacks 'CCCAA';
+ *   - one transaction: create the new table, copy EVERY row, verify the count, drop, rename,
+ *     recreate both indexes; any mismatch throws and rolls the whole rebuild back;
+ *   - no row, value or key changes — only the constraint widens.
+ */
+export function extendMembershipDivisions(db) {
+  const t = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'programme_membership_periods'").get();
+  if (!t || /'CCCAA'/.test(t.sql)) return false;
+  const newSql = t.sql
+    .replace(/CREATE TABLE (IF NOT EXISTS )?"?programme_membership_periods"?/, 'CREATE TABLE programme_membership_periods_8b1')
+    .replace(/CHECK \(division IN \(([^)]*)\)\)/, (m, list) => `CHECK (division IN (${list}, 'CCCAA', 'NWAC'))`);
+  if (!/'CCCAA'/.test(newSql)) throw new Error('extendMembershipDivisions: could not locate the division CHECK');
+  db.transaction(() => {
+    const before = db.prepare('SELECT COUNT(*) n FROM programme_membership_periods').get().n;
+    db.exec(newSql);
+    db.exec('INSERT INTO programme_membership_periods_8b1 SELECT * FROM programme_membership_periods');
+    const after = db.prepare('SELECT COUNT(*) n FROM programme_membership_periods_8b1').get().n;
+    if (after !== before) throw new Error(`extendMembershipDivisions: copied ${after} of ${before} rows`);
+    db.exec('DROP TABLE programme_membership_periods');
+    db.exec('ALTER TABLE programme_membership_periods_8b1 RENAME TO programme_membership_periods');
+    db.exec('CREATE INDEX IF NOT EXISTS idx_pmp_open ON programme_membership_periods(athletics_entity_id, sport, last_season)');
+    db.exec('CREATE INDEX IF NOT EXISTS idx_pmp_college ON programme_membership_periods(college_id)');
+  })();
+  return true;
 }

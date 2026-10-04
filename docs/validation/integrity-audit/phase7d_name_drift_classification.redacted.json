@@ -1,0 +1,786 @@
+{
+  "phase": "7D name-drift classification",
+  "naia_drift_unitids": 76,
+  "active_only": 75,
+  "note": "75 active (as Phase 7C) + Siena Heights (men’s row inactive)",
+  "whole_db_same_division_drift_unitids": 383,
+  "classes": {
+    "HARMLESS_DISPLAY_DRIFT": 32,
+    "CAMPUS_QUALIFIER_MISSING": 22,
+    "CANONICAL_RENAME_HISTORICAL_NAME": 21,
+    "TRUE_DUPLICATE": 1
+  },
+  "integrity_relevant": 1,
+  "cosmetic_only": 75,
+  "affects": {
+    "coach_matching": 0,
+    "roster_joins": 1,
+    "outreach": 0,
+    "same_name_collision": 0,
+    "programme_identity": 1,
+    "domain_ownership": 0
+  },
+  "decision": "no renames: 75 are cosmetic (no join miss, no same-name collision, no domain/outreach effect); the one integrity-relevant case (Calumet) is resolved at the identity layer",
+  "detail": [
+    {
+      "unitid": 156745,
+      "names": [
+        "Georgetown (KY)",
+        "Georgetown College"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 154590,
+      "names": [
+        "William Penn",
+        "William Penn University"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 157216,
+      "names": [
+        "Lindsey Wilson",
+        "Lindsey Wilson University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Lindsey Wilson College renamed Lindsey Wilson University (2023)",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 154855,
+      "names": [
+        "Central Christian",
+        "Central Christian College of Kansas"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 156541,
+      "names": [
+        "Cumberlands",
+        "University of the Cumberlands"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Cumberland College -> University of the Cumberlands",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 140252,
+      "names": [
+        "Life (GA)",
+        "Life University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 155520,
+      "names": [
+        "MidAmerica Nazarene",
+        "MidAmerica Nazarene University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 176947,
+      "names": [
+        "Central Methodist",
+        "Central Methodist University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Central Methodist College -> University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 153375,
+      "names": [
+        "Grand View",
+        "Grand View University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Grand View College -> University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 210146,
+      "names": [
+        "Southern Oregon",
+        "Southern Oregon University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 180984,
+      "names": [
+        "Concordia (NE)",
+        "Concordia University Nebraska"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 138868,
+      "names": [
+        "Point (GA)",
+        "Point University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 151801,
+      "names": [
+        "Indiana Wesleyan",
+        "Indiana Wesleyan University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 137564,
+      "names": [
+        "Southeastern University",
+        "Southeastern University (Florida)"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 107141,
+      "names": [
+        "John Brown",
+        "John Brown University"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 180106,
+      "names": [
+        "Carroll (MT)",
+        "Carroll College"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 155627,
+      "names": [
+        "Ottawa",
+        "Ottawa University"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 181330,
+      "names": [
+        "Midland",
+        "Midland University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Midland Lutheran College -> Midland University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 154004,
+      "names": [
+        "Morningside",
+        "Morningside University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Morningside College renamed Morningside University (2019)",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 154721,
+      "names": [
+        "Bethany (KS)",
+        "Bethany College (Kansas)"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 150677,
+      "names": [
+        "Grace",
+        "Grace College"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 105899,
+      "names": [
+        "Arizona Christian",
+        "Arizona Christian University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 208646,
+      "names": [
+        "Eastern Oregon",
+        "Eastern Oregon University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 219718,
+      "names": [
+        "Bethel (TN)",
+        "Bethel University (TN)"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 154688,
+      "names": [
+        "Baker",
+        "Baker University"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 155414,
+      "names": [
+        "Kansas Wesleyan",
+        "Kansas Wesleyan University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Kansas Wesleyan College -> University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 168786,
+      "names": [
+        "Aquinas",
+        "Aquinas College (Michigan)"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 154013,
+      "names": [
+        "Mount Mercy",
+        "Mount Mercy University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Mount Mercy College -> University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 220215,
+      "names": [
+        "Freed-Hardeman",
+        "Freed-Hardeman University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 172334,
+      "names": [
+        "Spring Arbor",
+        "Spring Arbor University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Spring Arbor College -> University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 229780,
+      "names": [
+        "Wayland Baptist",
+        "Wayland Baptist University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 180595,
+      "names": [
+        "Rocky Mountain",
+        "Rocky Mountain College"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 178244,
+      "names": [
+        "Missouri Baptist",
+        "Missouri Baptist University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 149505,
+      "names": [
+        "Trinity Christian",
+        "Trinity Christian College"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 147828,
+      "names": [
+        "Olivet Nazarene",
+        "Olivet Nazarene University"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 181127,
+      "names": [
+        "Hastings",
+        "Hastings College"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 153250,
+      "names": [
+        "Dordt",
+        "Dordt University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Dordt College renamed Dordt University (2019)",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 154518,
+      "names": [
+        "Waldorf",
+        "Waldorf University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Waldorf College -> University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 133979,
+      "names": [
+        "Florida Memorial",
+        "Florida Memorial University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 207722,
+      "names": [
+        "Science & Arts (OK)",
+        "University of Science and Arts of Oklahoma"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 155900,
+      "names": [
+        "Southwestern (KS)",
+        "Southwestern College (Kansas)"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 155812,
+      "names": [
+        "Saint Mary (KS)",
+        "University of Saint Mary"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Saint Mary College -> University of Saint Mary",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 138293,
+      "names": [
+        "Webber International",
+        "Webber International University"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 155973,
+      "names": [
+        "Tabor",
+        "Tabor College"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 219091,
+      "names": [
+        "Dakota Wesleyan",
+        "Dakota Wesleyan University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Dakota Wesleyan College -> University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 177339,
+      "names": [
+        "Evangel",
+        "Evangel University"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 219790,
+      "names": [
+        "Bryan",
+        "Bryan College"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 177542,
+      "names": [
+        "Hannibal-LaGrange",
+        "Hannibal-LaGrange University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Hannibal-LaGrange College -> University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 170037,
+      "names": [
+        "Cornerstone",
+        "Cornerstone University"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 157535,
+      "names": [
+        "Pikeville",
+        "University of Pikeville"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Pikeville College -> University of Pikeville",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 154235,
+      "names": [
+        "Saint Ambrose",
+        "Saint Ambrose University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 155089,
+      "names": [
+        "Friends",
+        "Friends University"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 155937,
+      "names": [
+        "Sterling",
+        "Sterling College (Kansas)"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 178721,
+      "names": [
+        "Park",
+        "Park University"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 157377,
+      "names": [
+        "Midway",
+        "Midway University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Midway College -> University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 172264,
+      "names": [
+        "Siena Heights",
+        "Siena Heights University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 150668,
+      "names": [
+        "Goshen",
+        "Goshen College"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 204194,
+      "names": [
+        "Mount Vernon Nazarene",
+        "Mount Vernon Nazarene University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 179964,
+      "names": [
+        "William Woods",
+        "William Woods University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 181020,
+      "names": [
+        "Doane",
+        "Doane University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Doane College -> University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 176628,
+      "names": [
+        "Avila",
+        "Avila University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Avila College -> University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 138275,
+      "names": [
+        "Warner",
+        "Warner University"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 157100,
+      "names": [
+        "Kentucky Christian",
+        "Kentucky Christian University"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 150145,
+      "names": [
+        "Bethel (IN)",
+        "Bethel University (IN)"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 150172,
+      "names": [
+        "Calumet College",
+        "Calumet College of St. Joseph"
+      ],
+      "class": "TRUE_DUPLICATE",
+      "rename_note": null,
+      "integrity_relevant": true
+    },
+    {
+      "unitid": 153126,
+      "names": [
+        "Clarke",
+        "Clarke University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Clarke College -> University",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 177065,
+      "names": [
+        "Columbia (MO)",
+        "Columbia College (MO)"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 154101,
+      "names": [
+        "Northwestern (IA)",
+        "Northwestern College (Iowa)"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 180258,
+      "names": [
+        "Providence (MT)",
+        "University of Providence"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "University of Great Falls renamed University of Providence (2017)",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 137476,
+      "names": [
+        "Saint Thomas (FL)",
+        "St. Thomas University (Florida)"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 152530,
+      "names": [
+        "Taylor",
+        "Taylor University"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 157863,
+      "names": [
+        "Union (KY)",
+        "Union Commonwealth University"
+      ],
+      "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+      "rename_note": "Union College (KY) renamed Union Commonwealth University (2023)",
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 160904,
+      "names": [
+        "Xavier (LA)",
+        "Xavier University of Louisiana"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 154712,
+      "names": [
+        "Benedictine College",
+        "Benedictine (KS)"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 188182,
+      "names": [
+        "University of the Southwest",
+        "University of the Southwest (New Mexico)"
+      ],
+      "class": "HARMLESS_DISPLAY_DRIFT",
+      "rename_note": null,
+      "integrity_relevant": false
+    },
+    {
+      "unitid": 150941,
+      "names": [
+        "Huntington University",
+        "Huntington"
+      ],
+      "class": "CAMPUS_QUALIFIER_MISSING",
+      "rename_note": null,
+      "integrity_relevant": false
+    }
+  ]
+}

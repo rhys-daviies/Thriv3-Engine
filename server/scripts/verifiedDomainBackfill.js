@@ -26,6 +26,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import db from '../db/client.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { utcNow } from '../lib/time.js';
 
 const argv = process.argv.slice(2);
@@ -84,6 +85,7 @@ function main() {
   }
 
   if (!APPLY) { console.log('\n  (report only — pass --apply to write)\n'); return; }
+  assertLegacyWriteAllowed(db, { script: 'verifiedDomainBackfill.js' });
 
   const cols = Object.keys(verifiedRow(seed.rows[0], checkedAt));
   const upsert = db.prepare(`INSERT INTO athletics_domains (${cols.join(', ')})

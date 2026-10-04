@@ -4,6 +4,13 @@ import {
 import express from 'express';
 import { randomUUID } from 'node:crypto';
 
+// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
+// current address — the pre-8A coach offer. It opts in to that explicitly; the default
+// runtime floor (verified address, coach not PROVEN_STALE) is tested in
+// server/lib/coachEligibility.test.js.
+process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+
+
 /**
  * Same interception as the sibling send tests: what is under test is the
  * orchestration, not whether a compose window opens on whoever runs the suite.

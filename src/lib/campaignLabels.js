@@ -462,6 +462,43 @@ export function preparationError(err) {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Sending an approved message — refusals                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * WHAT TO TELL THE OPERATOR WHEN A SEND IS REFUSED BEFORE ANYTHING HAPPENED.
+ *
+ * `POST /api/programme-messages/:id/send` answers a refusal with a 4xx and the
+ * server's own machine-readable `code`. The code is a name for a rule, never the
+ * operator's text, and nothing about HOW the rule decided (which field, which
+ * status value, which setting) belongs in the sentence.
+ *
+ * COACH_NOT_OUTREACH_ELIGIBLE: between approving the message and sending it the
+ * coach stopped meeting the verified outreach standard (their address is no
+ * longer verified, or they are known to have left). The server checks again at
+ * the moment of sending precisely because this can change in between. Nothing
+ * was claimed, nothing was sent and no sending capacity was used, so the honest
+ * response is to look at who the campaign is approaching now.
+ */
+export const SEND_ERROR = Object.freeze({
+  COACH_NOT_OUTREACH_ELIGIBLE: {
+    message: 'This coach is not currently eligible for outreach: their contact or currentness status does not meet Thriv3’s verified outreach standard. Nothing was sent and no sending capacity was used. Reloading the campaign.',
+    refresh: true,
+  },
+});
+
+/** Anything else is not something this screen can explain; it does not claim the message did or did not leave. */
+const SEND_FAILED = Object.freeze({
+  message: 'The send did not complete. Check the message status before trying again.',
+  refresh: true,
+});
+
+/** What to tell the operator, and whether to go and look again. */
+export function sendError(err) {
+  return SEND_ERROR[err?.code] ?? SEND_FAILED;
+}
+
+/* -------------------------------------------------------------------------- */
 /* Writing and reviewing the message — F10b-5                                  */
 /* -------------------------------------------------------------------------- */
 

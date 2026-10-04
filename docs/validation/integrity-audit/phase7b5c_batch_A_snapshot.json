@@ -1,0 +1,51 @@
+{
+  "milestone": "PHASE 7B.5C — Batch A applied (shared dev)",
+  "created_at": "2026-09-28T09:08:18.638Z",
+  "batch": "A",
+  "programmes": 40,
+  "fixtures_applied": {
+    "current": 11,
+    "email": 1,
+    "stale": 16,
+    "evidence": 80,
+    "name": 0,
+    "reassign": 0
+  },
+  "coverage": {
+    "CURRENT_NO_ELIGIBLE_EMAIL": 1,
+    "COVERED_AUTHORITATIVE": 37,
+    "DOMAIN_REOPEN": 2
+  },
+  "domain_reopen": [
+    {
+      "key": "224545|womens-soccer",
+      "programme": "Texas A&M University-Texarkana",
+      "sport": "womens-soccer",
+      "current_athletics_host": "tamuteagles.prestosports.com",
+      "reason": "Current official athletics site is served from tamuteagles.prestosports.com (PrestoSports shared platform, Cloudflare bot-challenged), which is NOT among the verified domains (only tamut.edu was verified). Coach identity/email confirmed via the official institution directory on the verified host tamut.edu.",
+      "verified_host_expected": null
+    },
+    {
+      "key": "239390|womens-soccer",
+      "programme": "Mount Mary University",
+      "sport": "womens-soccer",
+      "current_athletics_host": "mountmary.prestosports.com",
+      "reason": "Live official athletics platform is mountmary.prestosports.com (PrestoSports shared platform, Cloudflare bot-challenged), not in the verified set (mtmary.edu, mtmaryathletics.com); the verified mtmaryathletics.com host is CloudFront-blocked. Coach identity confirmed via official Mount Mary institution news site.",
+      "verified_host_expected": null
+    }
+  ],
+  "post_state": {
+    "global_eligible": 3968,
+    "naia_eligible": 611,
+    "naia_covered_programmes": 271,
+    "ncaa_membership_hash": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+    "ncaa_matches_baseline": true
+  },
+  "fingerprints": {
+    "domain_fp": "4d3ce59c93a4ad868b5a8acd0f13b900ee32eee1af409773ebd920650c26f18f",
+    "coach_fp": "5983298393e3e21331b46e8c9a097f3a3568962d4af2bc1d413cdf878b91b184"
+  },
+  "privacy": {
+    "note": "institutional coverage only; no coach PII in this snapshot"
+  }
+}

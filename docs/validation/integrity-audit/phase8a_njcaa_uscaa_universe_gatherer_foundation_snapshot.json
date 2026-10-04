@@ -1,0 +1,790 @@
+{
+ "milestone": "PHASE 8A — NJCAA/USCAA AUTHORITATIVE UNIVERSE + GATHERER FOUNDATION (shared dev)",
+ "created_at": "2026-09-30",
+ "db": "server/data/recruitmatch.sqlite (shared dev; production untouched)",
+ "checkpoint": {
+  "pushed": "bcace98",
+  "branch": "feature/coach-corroboration-7b",
+  "local_equals_remote": true,
+  "behind_main": 0
+ },
+ "source_authorities": "NJCAA region/conference team listings (tier B, 2026-27; prior-season tier C held), theuscaa.com (tier A) + PSUAC/MCAC conference listings; compared to Thriv3 colleges by closed name rules; third-party school lists not used",
+ "authoritative_universes": {
+  "NJCAA|mens-soccer|NAME_DRIFT|current": 60,
+  "NJCAA|mens-soccer|MISSING_PROGRAMME|current": 98,
+  "NJCAA|mens-soccer|EXACT_EXISTING|current": 10,
+  "NJCAA|womens-soccer|MISSING_PROGRAMME|current": 174,
+  "NJCAA|mens-soccer|MISSING_PROGRAMME|prior_season_only": 37,
+  "NJCAA|mens-soccer|NAME_DRIFT|prior_season_only": 24,
+  "NJCAA|womens-soccer|MISSING_PROGRAMME|prior_season_only": 62,
+  "NJCAA|mens-soccer|IDENTITY_AMBIGUOUS|prior_season_only": 1,
+  "NJCAA|mens-soccer|EXACT_EXISTING|prior_season_only": 2,
+  "NJCAA|womens-soccer|IDENTITY_AMBIGUOUS|prior_season_only": 1,
+  "NJCAA|womens-soccer|IDENTITY_AMBIGUOUS|current": 1,
+  "USCAA|mens-soccer|DIVISION_MISMATCH|current": 5,
+  "USCAA|mens-soccer|MISSING_PROGRAMME|current": 12,
+  "USCAA|mens-soccer|EXACT_EXISTING|current": 8,
+  "USCAA|mens-soccer|IDENTITY_AMBIGUOUS|current": 2,
+  "USCAA|mens-soccer|DIVISION_MISMATCH|prior_season_only": 2,
+  "USCAA|mens-soccer|MISSING_PROGRAMME|prior_season_only": 2,
+  "USCAA|womens-soccer|MISSING_PROGRAMME|current": 12,
+  "USCAA|womens-soccer|DIVISION_MISMATCH|current": 6,
+  "USCAA|womens-soccer|IDENTITY_AMBIGUOUS|current": 1,
+  "USCAA|womens-soccer|NAME_DRIFT|current": 2,
+  "USCAA|womens-soccer|DIVISION_MISMATCH|prior_season_only": 1,
+  "USCAA|mens-soccer|EXACT_EXISTING|prior_season_only": 3,
+  "USCAA|womens-soccer|EXACT_EXISTING|current": 2,
+  "USCAA|womens-soccer|EXACT_EXISTING|prior_season_only": 2
+ },
+ "comparison_to_old_db": {
+  "extra_thriv3_by_reason": {
+   "NJCAA|mens-soccer|NOT_ON_AUTHORITATIVE_LISTING": 82,
+   "NJCAA|mens-soccer|REGION_SOURCE_UNAVAILABLE_R3_R15": 14,
+   "NJCAA|mens-soccer|OTHER_ASSOCIATION_CCCAA": 21,
+   "NJCAA|mens-soccer|OTHER_ASSOCIATION_NWAC": 7,
+   "USCAA|mens-soccer|NOT_ON_AUTHORITATIVE_LISTING": 1,
+   "NJCAA|mens-soccer|REGION_SOURCE_STALE_R16": 4,
+   "USCAA|womens-soccer|REGION_SOURCE_UNAVAILABLE_R3_R15": 1,
+   "USCAA|womens-soccer|NOT_ON_AUTHORITATIVE_LISTING": 3
+  }
+ },
+ "identity_outcomes": {
+  "NJCAA|RESOLVED_EXISTING_ENTITY": 197,
+  "NJCAA|RESOLVED_NEW_ENTITY": 242,
+  "NJCAA|SHARED_PARENT_UNITID": 20,
+  "NJCAA|IDENTITY_AMBIGUOUS": 6,
+  "NJCAA|BRANCH_CAMPUS": 4,
+  "NJCAA|UNRESOLVED": 1,
+  "USCAA|RESOLVED_EXISTING_ENTITY": 33,
+  "USCAA|RESOLVED_NEW_ENTITY": 22,
+  "USCAA|UNRESOLVED": 1,
+  "USCAA|SHARED_PARENT_UNITID": 2,
+  "USCAA|NON_TITLE_IV": 1,
+  "USCAA|BRANCH_CAMPUS": 1
+ },
+ "structural_repairs": {
+  "entity_update": [
+   {
+    "label": "Lincoln Trail -> SYSTEM_CAMPUS of Illinois Eastern Community Colleges",
+    "evidence": "College Scorecard INSTNM \"Illinois Eastern Community Colleges-Lincoln Trail College\" (location 14570703, parent 145707); NJCAA Region 24 2026-27",
+    "reason": "federal identity of the Lincoln Trail NJCAA programme",
+    "blast_radius": "one entity; its row gains parent UNITID 145707"
+   }
+  ],
+  "college_repair": [
+   {
+    "label": "East Central (OK) -> East Central Community College",
+    "evidence": "NJCAA Region 23 (macccathletics.com) 2026-27 lists \"East Central Community College\"; ecccathletics.com self-identifies \"East Central CC\" / Warriors; NCES 175643 (Phase 7E)",
+    "reason": "remove the East Central University (Oklahoma) contamination: \"(OK)\" label, Tigers nickname and ECU logo",
+    "blast_radius": "display fields of one NJCAA row; records keyed by college_id are unaffected; an unacknowledged legacy import keyed on the old name would now report it unmatched (legacy importers are guarded)"
+   },
+   {
+    "label": "STLCC carrier row -> St. Louis Community College",
+    "evidence": "NJCAA Region 16 lists one \"St. Louis Community College\" (latest published 2024-25); archersathletics.com \"St. Louis Community College Archers\", MCCAC, Region 16 (Phase 7E); IPEDS 179308 is one institution",
+    "reason": "STLCC athletics are consolidated: one programme, not three campus programmes",
+    "blast_radius": "name/conference of the row that already carries the STLCC membership period; no dependents on any STLCC row"
+   },
+   {
+    "label": "Lincoln Trail unitid -> parent 145707",
+    "evidence": "as above",
+    "reason": "row carries its parent institution UNITID, like other system campuses",
+    "blast_radius": "one NJCAA row; no dependents keyed on unitid"
+   }
+  ],
+  "row_link": [
+   {
+    "label": "St. Louis Community-Florissant Valley -> STLCC (stale campus row)",
+    "evidence": "as above",
+    "reason": "stale campus row of a consolidated programme",
+    "blast_radius": "row made inactive and linked; no dependents"
+   },
+   {
+    "label": "St. Louis Community-Meramec -> STLCC (stale campus row)",
+    "evidence": "as above",
+    "reason": "stale campus row of a consolidated programme",
+    "blast_radius": "row made inactive and linked; no dependents"
+   }
+  ],
+  "deactivate": [
+   {
+    "label": "George C. Wallace [mens-soccer] — phantom",
+    "evidence": "ACCC (NJCAA Region 22) 2026-27 men's soccer teams page lists 5 programmes; of the three George C. Wallace federal institutions (Dothan 101286, Hanceville 101295, Selma 101301) only Hanceville fields soccer, and it is Thriv3's separate \"Wallace State\" row; this row has no records, rosters, coaches or coach seasons",
+    "reason": "phantom programme — no George C. Wallace soccer programme exists apart from Wallace State (Hanceville)",
+    "blast_radius": "one NJCAA row inactive (kept); its seeded membership marked DISCONTINUED"
+   }
+  ]
+ },
+ "universe_fixture": {
+  "fixture_hash": "480dd710bed817c6fe27abe4ca1ac1800a64a735831d2bd11f8e39553d447661",
+  "action_counts": {
+   "entity_create": 126,
+   "entity_update": 1,
+   "college_repair": 3,
+   "programme_create": 291,
+   "membership_verify": 81,
+   "row_link": 2,
+   "deactivate": 1,
+   "domain_register": 0
+  },
+  "held": {
+   "cross_association": [],
+   "ambiguous": [],
+   "prior_season_only": [
+    "NJCAA mens-soccer Connors State College (2025, tier C)",
+    "NJCAA mens-soccer Eastern Oklahoma State College (2025, tier C)",
+    "NJCAA mens-soccer Murray State College (2025, tier C)",
+    "NJCAA mens-soccer National Park College (2025, tier C)",
+    "NJCAA mens-soccer Northern Oklahoma College-Enid (2025, tier C)",
+    "NJCAA mens-soccer Rich Mountain (2025, tier C)",
+    "NJCAA mens-soccer University of Arkansas Cossatot (2025, tier C)",
+    "NJCAA womens-soccer Connors State College (2025, tier C)",
+    "NJCAA womens-soccer Eastern Oklahoma State College (2025, tier C)",
+    "NJCAA womens-soccer Murray State College (2025, tier C)",
+    "NJCAA womens-soccer National Park College (2025, tier C)",
+    "NJCAA womens-soccer Northeastern Oklahoma A&M College (2025, tier C)",
+    "NJCAA womens-soccer Northern Oklahoma College-Enid (2025, tier C)",
+    "NJCAA womens-soccer Redlands Community College (2025, tier C)",
+    "NJCAA womens-soccer Rich Mountain (2025, tier C)",
+    "NJCAA womens-soccer Rose State College (2025, tier C)",
+    "NJCAA womens-soccer Seminole State College (2025, tier C)",
+    "NJCAA womens-soccer University of Arkansas Cossatot (2025, tier C)",
+    "NJCAA mens-soccer Black Hawk College (2025, tier C)",
+    "NJCAA mens-soccer Blackhawk Technical College (2025, tier C)",
+    "NJCAA mens-soccer Elgin CC (2025, tier C)",
+    "NJCAA mens-soccer Harry S. Truman College (2025, tier C)",
+    "NJCAA mens-soccer Illinois Valley CC (2025, tier C)",
+    "NJCAA mens-soccer Joliet Junior College (2025, tier C)",
+    "NJCAA mens-soccer Kennedy-King College (2025, tier C)",
+    "NJCAA mens-soccer Kishwaukee College (2025, tier C)",
+    "NJCAA mens-soccer Madison College (2025, tier C)",
+    "NJCAA mens-soccer Malcolm X College (2025, tier C)",
+    "NJCAA mens-soccer McHenry County College (2025, tier C)",
+    "NJCAA mens-soccer Milwaukee Area Technical College (2025, tier C)",
+    "NJCAA mens-soccer Moraine Valley CC (2025, tier C)",
+    "NJCAA mens-soccer Morton College (2025, tier C)",
+    "NJCAA mens-soccer Oakton College (2025, tier C)",
+    "NJCAA mens-soccer South Suburban College (2025, tier C)",
+    "NJCAA mens-soccer Triton College (2025, tier C)",
+    "NJCAA mens-soccer UW-Whitewater at Rock County (2025, tier C)",
+    "NJCAA mens-soccer Waubonsee CC (2025, tier C)",
+    "NJCAA womens-soccer Black Hawk College (2025, tier C)",
+    "NJCAA womens-soccer Blackhawk Technical College (2025, tier C)",
+    "NJCAA womens-soccer Carl Sandburg College (2025, tier C)",
+    "NJCAA womens-soccer College of DuPage (2025, tier C)",
+    "NJCAA womens-soccer College of Lake County (2025, tier C)",
+    "NJCAA womens-soccer Elgin CC (2025, tier C)",
+    "NJCAA womens-soccer Harper College (2025, tier C)",
+    "NJCAA womens-soccer Harry S. Truman College (2025, tier C)",
+    "NJCAA womens-soccer Illinois Valley CC (2025, tier C)",
+    "NJCAA womens-soccer Joliet Junior College (2025, tier C)",
+    "NJCAA womens-soccer Kankakee CC (2025, tier C)",
+    "NJCAA womens-soccer Kishwaukee College (2025, tier C)",
+    "NJCAA womens-soccer Madison College (2025, tier C)",
+    "NJCAA womens-soccer Milwaukee Area Technical College (2025, tier C)",
+    "NJCAA womens-soccer Moraine Valley CC (2025, tier C)",
+    "NJCAA womens-soccer Morton College (2025, tier C)",
+    "NJCAA womens-soccer Oakton College (2025, tier C)",
+    "NJCAA womens-soccer Prairie State College (2025, tier C)",
+    "NJCAA womens-soccer Richard J. Daley College (2025, tier C)",
+    "NJCAA womens-soccer Rock Valley College (2025, tier C)",
+    "NJCAA womens-soccer South Suburban College (2025, tier C)",
+    "NJCAA womens-soccer Triton College (2025, tier C)",
+    "NJCAA womens-soccer UW-Whitewater at Rock County (2025, tier C)",
+    "NJCAA womens-soccer Waubonsee CC (2025, tier C)",
+    "NJCAA womens-soccer Wilbur Wright College (2025, tier C)",
+    "NJCAA mens-soccer Minnesota West Community & Technical College (2025, tier C)",
+    "NJCAA womens-soccer Alexandria Technical & Community College (2025, tier C)",
+    "NJCAA womens-soccer Anoka-Ramsey Community College (2025, tier C)",
+    "NJCAA womens-soccer North Dakota State College of Science (2025, tier C)",
+    "NJCAA womens-soccer Rochester Community and Technical College (2025, tier C)",
+    "NJCAA mens-soccer Metropolitan Community College (2024, tier C)",
+    "NJCAA mens-soccer State Fair Community College (2024, tier C)",
+    "NJCAA womens-soccer Crowder College (2024, tier C)",
+    "NJCAA womens-soccer East Central College (2024, tier C)",
+    "NJCAA womens-soccer Jefferson College (2024, tier C)",
+    "NJCAA womens-soccer Metropolitan Community College (2024, tier C)",
+    "NJCAA womens-soccer Mineral Area College (2024, tier C)",
+    "NJCAA womens-soccer St. Charles Community College (2024, tier C)",
+    "NJCAA womens-soccer St. Louis Community College (2024, tier C)",
+    "NJCAA womens-soccer State Fair Community College (2024, tier C)",
+    "NJCAA mens-soccer CCBC Catonsville (2025, tier C)",
+    "NJCAA mens-soccer CCBC Essex (2025, tier C)",
+    "NJCAA mens-soccer Carroll Community College (2025, tier C)",
+    "NJCAA mens-soccer College of Southern Maryland (2025, tier C)",
+    "NJCAA mens-soccer Prince George's Community College (2025, tier C)",
+    "NJCAA mens-soccer WVU Potomac State College (2025, tier C)",
+    "NJCAA womens-soccer Allegany College of Maryland (2025, tier C)",
+    "NJCAA womens-soccer Anne Arundel Community College (2025, tier C)",
+    "NJCAA womens-soccer CCBC Catonsville (2025, tier C)",
+    "NJCAA womens-soccer CCBC Essex (2025, tier C)",
+    "NJCAA womens-soccer Carroll Community College (2025, tier C)",
+    "NJCAA womens-soccer College of Southern Maryland (2025, tier C)",
+    "NJCAA womens-soccer Frederick Community College (2025, tier C)",
+    "NJCAA womens-soccer Garrett College (2025, tier C)",
+    "NJCAA womens-soccer Hagerstown Community College (2025, tier C)",
+    "NJCAA womens-soccer Harford Community College (2025, tier C)",
+    "NJCAA womens-soccer Howard Community College (2025, tier C)",
+    "NJCAA womens-soccer Montgomery College (MD) (2025, tier C)",
+    "NJCAA womens-soccer Prince George's Community College (2025, tier C)",
+    "NJCAA womens-soccer WVU Potomac State College (2025, tier C)",
+    "USCAA mens-soccer Denmark Technical College (2025, tier C)",
+    "USCAA mens-soccer Stanton (2025, tier C)"
+   ],
+   "name_collision_renamed": []
+  },
+  "simulation": {
+   "gates": {
+    "naia_freeze_exact": true,
+    "ncaa_truthful_unchanged": true,
+    "naia_eligible_unchanged": true,
+    "ncaa_eligible_unchanged": true,
+    "no_coach_eligibility_change": true,
+    "no_coach_row_change": true,
+    "no_roster_or_record_mutation": true,
+    "frozen_seasons_unchanged": true,
+    "identity_invariant": true,
+    "integrity_counters_zero": true,
+    "ncaa_naia_universe_unchanged": true
+   },
+   "pass": true
+  },
+  "live": {
+   "gates": {
+    "naia_freeze_exact": true,
+    "ncaa_truthful_unchanged": true,
+    "naia_eligible_unchanged": true,
+    "ncaa_eligible_unchanged": true,
+    "no_coach_eligibility_change": true,
+    "no_coach_row_change": true,
+    "no_roster_or_record_mutation": true,
+    "frozen_seasons_unchanged": true,
+    "identity_invariant": true,
+    "integrity_counters_zero": true,
+    "ncaa_naia_universe_unchanged": true
+   },
+   "pass": true
+  }
+ },
+ "membership_verification": {
+  "by_tier": {
+   "B": 78,
+   "A": 3
+  },
+  "verified_open_periods": {
+   "NJCAA": 336,
+   "USCAA": 37
+  }
+ },
+ "domain_verification": {
+  "fixture_hash": "c940bd93dc8013e66e15cb1e6d983e3bc3dc5d251820dc48ef48700c63e002be",
+  "registered": 110,
+  "held_by_code": {
+   "INSUFFICIENT": 53,
+   "ALREADY_REGISTERED": 19,
+   "REDIRECTS": 3,
+   "UNREACHABLE": 5,
+   "NO_ATHLETICS_SITE": 34,
+   "INSTITUTION_SITE_NOT_ATHLETICS_HOST": 38,
+   "BLOCKED": 3,
+   "NON_ATHLETICS_SUBDOMAIN": 2,
+   "DB_ROW_DECIDED": 2
+  },
+  "host_status_by_association": {
+   "NJCAA|VERIFIED_PRIMARY": 144,
+   "NJCAA|INSUFFICIENT": 48,
+   "NJCAA|UNREACHABLE": 5,
+   "NJCAA|NO_ATHLETICS_SITE": 21,
+   "NJCAA|BLOCKED": 2,
+   "USCAA|VERIFIED_PRIMARY": 15,
+   "USCAA|NO_ATHLETICS_SITE": 13,
+   "USCAA|INSUFFICIENT": 5,
+   "USCAA|BLOCKED": 1
+  },
+  "simulation_pass": true,
+  "live_pass": true
+ },
+ "adapter_architecture": {
+  "version": "p8a-gatherers-2",
+  "discovery": "region/conference member links + federal-registry institution site -> ownership chain (host_discovery)",
+  "programme": "governing-body/region listing -> PROGRAMME pages (current season only; prior season = history)",
+  "roster": "entity-owned roster page (Presto/Sidearm/custom) -> ROSTER page or REFUSAL",
+  "staff": "entity-owned staff page -> COACH page (printed email only, never inferred) or REFUSAL; never promoted in 8A",
+  "safety": "refusePage: blocked/incomplete, old season, wrong sport, staff in roster, shared root, institution mismatch, foreign redirect, zero records, count collapse",
+  "transport": "system curl (Node fetch is WAF-challenged); one retry after 60 s then BLOCKED; 1 worker, 6 s spacing",
+  "writes": "adapters write nothing; integrity:gather opens the DB read-only; integrity:refresh --stage writes refresh_batches/refresh_observations only"
+ },
+ "pilot": {
+  "slots": 7,
+  "unfilled": [
+   "branch / system campus / non-Title-IV: no such NJCAA/USCAA entity has a verified athletics host (Dallas College x6, USU Eastern, Kean Jersey City INSUFFICIENT; Lincoln Trail, Wabash Valley NO_ATHLETICS_SITE; Christendom not on the listing)"
+  ],
+  "pages_staged": 7,
+  "refusals": {
+   "BLOCKED_OR_INCOMPLETE_PAGE": 1,
+   "INSTITUTION_MISMATCH": 1
+  },
+  "refresh": {
+   "observations": 154,
+   "requires_review": 2,
+   "promoted": 0,
+   "by_dataset_classification": {
+    "COACH|NEW_RECORD": 3,
+    "ROSTER|NEW_RECORD": 151
+   }
+  },
+  "canonical_unchanged": true
+ },
+ "roster_staff_source_discovery": {
+  "roster": {
+   "NJCAA|NOT_PROBED": 114,
+   "NJCAA|CURRENT_ROSTER_FOUND": 162,
+   "NJCAA|NO_ROSTER_FOUND": 208,
+   "NJCAA|BLOCKED": 4,
+   "NJCAA|PRIOR_ROSTER_ONLY": 1,
+   "NJCAA|PROGRAMME_INACTIVE": 3,
+   "USCAA|NOT_PROBED": 4,
+   "USCAA|NO_ROSTER_FOUND": 30,
+   "USCAA|CURRENT_ROSTER_FOUND": 11,
+   "USCAA|BLOCKED": 1
+  },
+  "staff": {
+   "NJCAA|NOT_PROBED": 114,
+   "NJCAA|NO_STAFF_SOURCE_FOUND": 349,
+   "NJCAA|CURRENT_STAFF_SOURCE_FOUND": 22,
+   "NJCAA|BLOCKED": 4,
+   "NJCAA|PROGRAMME_INACTIVE": 3,
+   "USCAA|NOT_PROBED": 4,
+   "USCAA|NO_STAFF_SOURCE_FOUND": 41,
+   "USCAA|BLOCKED": 1
+  }
+ },
+ "runtime_coach_audit": {
+  "decision": "Full floor, default-on (user decision). Legacy behaviour only with THRIV3_ALLOW_LEGACY_COACHES=1 (read per call, trimmed).",
+  "pre_8a": {
+   "flag_gated_paths": [
+    "server/routes/programmeCoaches.js staffRows (USE_RECONCILED_COACHES)"
+   ],
+   "legacy_unfiltered_paths": [
+    "campaign recipient selection (pursuitPolicy)",
+    "bulk / manual composers",
+    "send route (sendOutreach)",
+    "execution claim",
+    "draftOutreach CLI"
+   ],
+   "reconciled_path_gaps": [
+    "coaches_reconciled absent on the shared dev DB — enabling the flag was a no-op",
+    "snapshot: never re-checked against live coach state",
+    "empty table blanked every coach list",
+    "campaign path checked the legacy school",
+    "strict flag regex (\" 1\" read as off)",
+    "badge read legacy email_status"
+   ]
+  },
+  "live_measure": {
+   "reconciled_eligible": 4157,
+   "hidden_by_floor": 0,
+   "floor_passing_rows": 4946,
+   "excluded_rows": 1540,
+   "byReason": {
+    "EMAIL_NOT_VERIFIED:unknown": 26,
+    "EMAIL_NOT_VERIFIED:inferred": 1118,
+    "EMAIL_NOT_VERIFIED:generic": 168,
+    "COACH_PROVEN_STALE": 228
+   },
+   "coverage": {
+    "NCAA D1": {
+     "reconciled_programmes": 473,
+     "floor_programmes": 521,
+     "reconciled_not_in_floor": 0
+    },
+    "NAIA": {
+     "reconciled_programmes": 370,
+     "floor_programmes": 372,
+     "reconciled_not_in_floor": 0
+    },
+    "NCAA D3": {
+     "reconciled_programmes": 603,
+     "floor_programmes": 685,
+     "reconciled_not_in_floor": 0
+    },
+    "NCAA D2": {
+     "reconciled_programmes": 404,
+     "floor_programmes": 443,
+     "reconciled_not_in_floor": 0
+    }
+   }
+  },
+  "proof": "no reconciled-eligible coach is hidden by the floor; no covered programme loses its last eligible coach in any division"
+ },
+ "starting_baselines_7e": {
+  "phase": "7E",
+  "measured_at": "2026-09-29",
+  "note": "Inspection only — no NJCAA/USCAA coach acquisition. Institutional identifiers only.",
+  "NJCAA": {
+   "rows": 227,
+   "active_rows": 225,
+   "inactive_rows": 2,
+   "logical_programmes": 223,
+   "by_sport_logical": {
+    "mens-soccer": 223
+   },
+   "entities": 223,
+   "entity_kinds": {
+    "SINGLE": 221,
+    "UNRESOLVED_FEDERAL": 2
+   },
+   "unresolved_federal": [
+    "AE-X-LINCOLN-TRAIL",
+    "AE-X-GEORGE-C-WALLACE"
+   ],
+   "non_title_iv": [],
+   "documented_duplicates": [
+    "AE-U179308|mens-soccer CONSOLIDATED_ATHLETICS_STALE_CAMPUS_ROWS"
+   ],
+   "entities_with_trusted_host": 22,
+   "trusted_hosts": 23,
+   "membership_open_periods": 223,
+   "membership_seed_only": 223,
+   "membership_verified": 0,
+   "roster_programmes_by_season": {},
+   "roster_rows_by_season": {},
+   "coach_rows": 0,
+   "coach_rows_verified": 0,
+   "coach_seasons_rows": 0
+  },
+  "USCAA": {
+   "rows": 22,
+   "active_rows": 22,
+   "inactive_rows": 0,
+   "logical_programmes": 22,
+   "by_sport_logical": {
+    "mens-soccer": 12,
+    "womens-soccer": 10
+   },
+   "entities": 15,
+   "entity_kinds": {
+    "SINGLE": 14,
+    "NON_TITLE_IV": 1
+   },
+   "unresolved_federal": [],
+   "non_title_iv": [
+    "AE-X-CHRISTENDOM"
+   ],
+   "documented_duplicates": [],
+   "entities_with_trusted_host": 1,
+   "trusted_hosts": 2,
+   "membership_open_periods": 22,
+   "membership_seed_only": 21,
+   "membership_verified": 1,
+   "roster_programmes_by_season": {
+    "2022": 1,
+    "2023": 2,
+    "2024": 2,
+    "2025": 21,
+    "2026": 1
+   },
+   "roster_rows_by_season": {
+    "2022": 14,
+    "2023": 35,
+    "2024": 35,
+    "2025": 384,
+    "2026": 19
+   },
+   "coach_rows": 0,
+   "coach_rows_verified": 0,
+   "coach_seasons_rows": 0
+  }
+ },
+ "final_baselines": {
+  "NJCAA": {
+   "logical_programmes": 489,
+   "mens": 318,
+   "womens": 171,
+   "active_rows": 489,
+   "entities": 334,
+   "verified_memberships": 336,
+   "unverified_memberships": 153,
+   "unresolved_identities": 0,
+   "entity_kinds": {
+    "SINGLE": 325,
+    "SYSTEM_CAMPUS": 8,
+    "BRANCH_CAMPUS": 1
+   },
+   "verified_hosts": {
+    "entities_with_trusted_host": 124,
+    "of_entities": 334
+   },
+   "roster_sources": {
+    "NOT_PROBED": 114,
+    "CURRENT_ROSTER_FOUND": 162,
+    "NO_ROSTER_FOUND": 208,
+    "BLOCKED": 4,
+    "PRIOR_ROSTER_ONLY": 1
+   },
+   "staff_sources": {
+    "NOT_PROBED": 114,
+    "NO_STAFF_SOURCE_FOUND": 349,
+    "CURRENT_STAFF_SOURCE_FOUND": 22,
+    "BLOCKED": 4
+   },
+   "rosters_rows": 0,
+   "coaches": 0,
+   "coach_seasons": 0
+  },
+  "USCAA": {
+   "logical_programmes": 46,
+   "mens": 24,
+   "womens": 22,
+   "active_rows": 46,
+   "entities": 29,
+   "verified_memberships": 37,
+   "unverified_memberships": 9,
+   "unresolved_identities": 0,
+   "entity_kinds": {
+    "SINGLE": 27,
+    "NON_TITLE_IV": 1,
+    "BRANCH_CAMPUS": 1
+   },
+   "verified_hosts": {
+    "entities_with_trusted_host": 9,
+    "of_entities": 29
+   },
+   "roster_sources": {
+    "NOT_PROBED": 4,
+    "NO_ROSTER_FOUND": 30,
+    "CURRENT_ROSTER_FOUND": 11,
+    "BLOCKED": 1
+   },
+   "staff_sources": {
+    "NOT_PROBED": 4,
+    "NO_STAFF_SOURCE_FOUND": 41,
+    "BLOCKED": 1
+   },
+   "rosters_rows": 487,
+   "coaches": 0,
+   "coach_seasons": 0
+  }
+ },
+ "naia_freeze": {
+  "universe_hash": "0f8bc0695d4ea21616e43d6a42680fd0843acacc31df54660abfd26a81eaa39a",
+  "frozen_universe_hash": "0f8bc0695d4ea21616e43d6a42680fd0843acacc31df54660abfd26a81eaa39a",
+  "covered_hash": "a4d8584bb1e203155331e4a9e163c36c262fda300a200c1e2fbf4287228f04c0",
+  "frozen_covered_hash": "a4d8584bb1e203155331e4a9e163c36c262fda300a200c1e2fbf4287228f04c0",
+  "membership_hash": "41e6db873629398a8adec1ee764af686c3697be5617123f89166e70c8a27e0bc",
+  "frozen_membership_hash": "41e6db873629398a8adec1ee764af686c3697be5617123f89166e70c8a27e0bc",
+  "exact": true,
+  "logical": 381,
+  "covered": 370,
+  "eligible": 798,
+  "strict_path": 798
+ },
+ "ncaa_membership_hash": {
+  "legacy_pre": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+  "legacy_post": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+  "truthful_pre": "f8cfef4a58d052bd07fa6f7e8dd4601c78108276b91f8906a0e34f1d5bd2ce74",
+  "truthful_post": "f8cfef4a58d052bd07fa6f7e8dd4601c78108276b91f8906a0e34f1d5bd2ce74",
+  "unchanged": true
+ },
+ "membership_delta": {
+  "NCAA D1": {
+   "eligible": "1327 -> 1327",
+   "universe_logical": "562 -> 562",
+   "hash_changed": false
+  },
+  "NCAA D2": {
+   "eligible": "810 -> 810",
+   "universe_logical": "461 -> 461",
+   "hash_changed": false
+  },
+  "NCAA D3": {
+   "eligible": "1222 -> 1222",
+   "universe_logical": "735 -> 735",
+   "hash_changed": false
+  },
+  "NAIA": {
+   "eligible": "798 -> 798",
+   "universe_logical": "381 -> 381",
+   "hash_changed": false
+  },
+  "NJCAA": {
+   "eligible": "0 -> 0",
+   "universe_logical": "223 -> 489",
+   "hash_changed": false
+  },
+  "USCAA": {
+   "eligible": "0 -> 0",
+   "universe_logical": "22 -> 46",
+   "hash_changed": false
+  },
+  "NCCAA": {
+   "eligible": "0 -> 0",
+   "universe_logical": "2 -> 2",
+   "hash_changed": false
+  }
+ },
+ "coach_eligibility": {
+  "pre": 4157,
+  "post": 4157,
+  "ids_identical": true
+ },
+ "integrity": {
+  "source_domain_conflicts": 0,
+  "wrong_institution_eligible": 0,
+  "wrong_sport_eligible": 0,
+  "stale_eligible": 0,
+  "inferred_eligible": 0,
+  "duplicate_identity": 0,
+  "canonical_round_trip": 0
+ },
+ "identity_invariant": {
+  "status": "PASS",
+  "hard": 0,
+  "documented": 7,
+  "warnings": []
+ },
+ "db_integrity_check": "ok",
+ "fingerprints": {
+  "domain_fp": "a9cc7fb846284b382cc92f5256e11c166bd3924991f730a399a0d1d5432b8f3d",
+  "coach_fp": "f17cdff6ecfb1bac2df560566031af825a1dea8e9c450741655a87488f2f7cd4",
+  "college_fp": "4c653924aed2d5e5389c4965134891a69bead5c1766211f1c82f3054c6a5b3ce",
+  "entity_fp": "3f7d19b7161dce3aa3df76ec1d8ad782af8afe45c58ae9fd99d13d70684268fc",
+  "membership_period_fp": "fb3cbb05708d468bc46f0701e700878009d6b42bb9db37b5e83fcd7868cc68ee",
+  "row_link_fp": "b992c334bb140b8300b3b962f53e5be5ff06c6132bb6e731cdc0c046f1d8537d",
+  "alias_fp": "278d338f5a4df8fa9e565902ab39fc9fd1d968de71c15240a42e5aa155003de2",
+  "canonical_all_tables": "493df9c9fc92500bf7bf9560cefac07422f0e48d31875b31d749c6d54468a165",
+  "season_freezes": [
+   {
+    "season": 2022,
+    "scope": "*",
+    "frozen_at": "2026-09-29T04:12:55.780Z",
+    "fingerprint": {
+     "roster_players": {
+      "rows": 50559,
+      "sha256": "d2aceb37082dd9394991d89a86078992313d68b1afabe36cc1689f54783955bc"
+     },
+     "coach_seasons": {
+      "rows": 1719,
+      "sha256": "6a5f202e6f1e769f9d05f006fe03ba934f3870078db553b2a0f3d41a40f8d678"
+     },
+     "programme_seasons": {
+      "rows": 2156,
+      "sha256": "e0417c26c2363f7bf52d6d6cdb2e71995953e257e22465c036d184b049674838"
+     },
+     "programme_conference_seasons": {
+      "rows": 1765,
+      "sha256": "18eac7ce0878e0972bf364c4d50f2b795e2d9213b85d3407f160c4ab50799f00"
+     }
+    }
+   },
+   {
+    "season": 2023,
+    "scope": "*",
+    "frozen_at": "2026-09-29T04:12:56.110Z",
+    "fingerprint": {
+     "roster_players": {
+      "rows": 51104,
+      "sha256": "8dc91bb66a901ba681db5598d171a69797b4bb47a3b55254d876a26d0bd43369"
+     },
+     "coach_seasons": {
+      "rows": 1719,
+      "sha256": "792455ff39b220e623e761cd8ca92dd99e3a3d6859bb70711c92ebefb0d1fae9"
+     },
+     "programme_seasons": {
+      "rows": 2153,
+      "sha256": "ccc7001ad7331a8025ab46856f46f91fb2c1a01566ab432958615391132acad5"
+     },
+     "programme_conference_seasons": {
+      "rows": 1795,
+      "sha256": "7662b82832370554c4d00638cf324e72ad7932b1aa5b88b941ecd37ccca2d402"
+     }
+    }
+   },
+   {
+    "season": 2024,
+    "scope": "*",
+    "frozen_at": "2026-09-29T04:12:56.433Z",
+    "fingerprint": {
+     "roster_players": {
+      "rows": 52539,
+      "sha256": "f828f8d1161d5063df2faa5c0db7a41ec287871f5408a5be91e51d89a66ab06d"
+     },
+     "coach_seasons": {
+      "rows": 1719,
+      "sha256": "3a3f07c58371ee9802414cf855be298d46c3e2a4829834b9d12e208054e47253"
+     },
+     "programme_seasons": {
+      "rows": 2191,
+      "sha256": "7e2b52f7c2f5eac1a29e46349b0d91b5cd3cda5c7e74dfee0bf2c2ab2bc4a643"
+     },
+     "programme_conference_seasons": {
+      "rows": 1809,
+      "sha256": "c9a4ba60f0cddb6d11ac69c472deb92e7348a4d408f7e17729b6098542f6682b"
+     }
+    }
+   },
+   {
+    "season": 2025,
+    "scope": "*",
+    "frozen_at": "2026-09-29T04:12:56.683Z",
+    "fingerprint": {
+     "roster_players": {
+      "rows": 64700,
+      "sha256": "f4640b17a2c941a00d8cd7b262a1925a8182df7b0c1ae89ae7835a226dc99bed"
+     },
+     "coach_seasons": {
+      "rows": 1719,
+      "sha256": "0fd8e6b720fcacdfc152f5e43054f408393c2c6e89e55397bcb487950a23857d"
+     },
+     "programme_seasons": {
+      "rows": 2185,
+      "sha256": "f4e672bd9b7cc91cfd884eeb89aa33c1b9d9cd5ff6ec3702ac0813926cd8ea57"
+     },
+     "programme_conference_seasons": {
+      "rows": 1850,
+      "sha256": "837c41493b4c241f87e8c09a2e495020bdb0551378d311b0f0aed62079d49612"
+     }
+    }
+   }
+  ]
+ },
+ "tests": {
+  "checkpoint": {
+   "ref": "bcace98 + pre-8A DB (isolated worktree; gitignored baseline data linked)",
+   "total": 8747,
+   "failed_ids": 41
+  },
+  "final": {
+   "total": 8819,
+   "passed": 8778,
+   "failed": 41,
+   "failed_ids": 42
+  },
+  "new_vs_checkpoint": [
+   {
+    "id": "server/db/providerExecution.test.js :: PROVIDER_RECONCILED has exactly one producer",
+    "verdict": "FLAKE — grep -r over server/ raced the live DB WAL/SHM being removed by a concurrent test process (grep: recruitmatch.sqlite-wal: No such file); passes 31/31 in isolation; no Phase 8A code involved"
+   }
+  ],
+  "fixed_during_8a": [
+   {
+    "id": "server/scripts/draftOutreach.test.js (27)",
+    "fix": "legacy-coach opt-in (THRIV3_ALLOW_LEGACY_COACHES=1) like the other 34 legacy-model files"
+   },
+   {
+    "id": "server/routes/outreachBypass.test.js :: has no mailto: built from a coach address",
+    "fix": "allowlisted the three Phase 8A staff-adapter files with stated reasons (they parse printed addresses, build no link)"
+   }
+  ],
+  "identical_to_checkpoint": "every other failure is in the checkpoint set (stale recruiting_arrivals materialisation, date-dependent campaign test, committed evidence baselines, live-ledger assertions)",
+  "new_phase8a_tests": [
+   "server/lib/coachEligibility.test.js (7)",
+   "server/lib/refresh/adapters/adapters.test.js (24)",
+   "server/scripts/phase8a.scripts.test.js (5)"
+  ],
+  "disk_mb": {
+   "before_suite": 8065,
+   "after_suite": 6988
+  }
+ },
+ "privacy": "No coach names or addresses in committed artifacts; institutional hosts, UNITIDs and entity ids only. Staged pilot observations (raw staff names/printed addresses) live only in the shared-dev staging tables; raw fixtures, manifests, discovery JSON and unredacted diff reports are untracked (server/data/generated/)."
+}
