@@ -10,6 +10,7 @@ import MatchingTabSwitch from '@/pages/player/MatchingTabSwitch.jsx';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 import { persistedRun } from '@/lib/__fixtures__/matchmakingV2Run.js';
 import { NOT_ESTABLISHED } from './GraduatingPlayers';
+import { SHOW_DETAIL } from './MatchmakingExplanation';
 
 /**
  * A11 — MATCH EXPLANATION AND OUTREACH INTELLIGENCE.
@@ -523,7 +524,17 @@ describe('A11 §7, §8. the explanation', () => {
 
   it('X2. each layer answers for itself, from its own reasons', async () => {
     stubFetch();
-    const card = await expand('Lindenwood');
+    let card = await expand('Lindenwood');
+    /**
+     * A11.2 §1E moved the three layer sections behind one disclosure. The
+     * assertion below is unchanged in substance — each layer still answers
+     * from its own reasons — it just opens the disclosure first, because the
+     * default card is now the concise read.
+     */
+    expect(card.querySelector('[data-testid="explanation-layers"]'), 'collapsed by default').toBeNull();
+    await click(buttonIn(card, SHOW_DETAIL));
+    card = cardFor('Lindenwood');
+
     for (const layer of ['recruitability', 'financial', 'opportunity']) {
       const node = card.querySelector(`[data-testid="explanation-layer-${layer}"]`);
       expect(node, layer).toBeTruthy();

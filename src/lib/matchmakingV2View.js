@@ -1,5 +1,6 @@
 import { refusalPhrase, layerLabel } from '@shared/matching/v2/explain/vocabulary.js';
 import { renderReason, CLIENT_UNSAFE } from '@shared/matching/v2/explain/render.js';
+import { plainSentence, isFinancialCaveat } from '@/lib/plainReasons';
 
 /**
  * THE VIEW MODEL FOR ONE MATCHMAKING V2 RUN — A9.3 / §U.
@@ -298,7 +299,18 @@ export function explanationView(explanation, { layer = null } = {}) {
      * drops them from the per-programme view.
      */
     .filter((r) => !r.listLevel)
-    .map((r) => ({ ...r, sentence: reasonSentence(r), operatorOnly: isOperatorOnly(r) }))
+    .map((r) => ({
+      ...r,
+      sentence: reasonSentence(r),
+      operatorOnly: isOperatorOnly(r),
+      /**
+       * A11.2 §2. The same reason said without the arithmetic, for the
+       * concise summary. Null where no plain wording exists, and the summary
+       * then prints the engine's sentence rather than dropping the reason.
+       */
+      plain: plainSentence(r),
+      financialCaveat: isFinancialCaveat(r),
+    }))
     .filter((r) => r.sentence);
 
   rows.sort((a, b) => {
@@ -312,6 +324,49 @@ export function explanationView(explanation, { layer = null } = {}) {
 }
 
 export const LAYER_KEYS = Object.freeze(['recruitability', 'financial', 'opportunity']);
+
+/** How many ranked reasons the concise summary shows before the caveats. */
+export const SUMMARY_LIMIT = 3;
+
+/**
+ * THE CONCISE ANSWER — A11.2 §1D, §2.
+ *
+ * ===========================================================================
+ * THE LEADING FEW REASONS, PLUS THE ONES THAT MUST NOT BE BURIED.
+ *
+ * Two different selections, and they are different on purpose:
+ *
+ *   THE LEADING FEW   `explanationView` has already ordered by polarity and
+ *                     band, so the first three are the strongest supported
+ *                     statements. Three, because §1D asks for roughly one to
+ *                     three and the target is a card a consultant reads in
+ *                     about ten seconds.
+ *
+ *   THE CAVEATS       A financial caveat is usually "context" polarity and
+ *                     would sit fourth or lower. "This association does not
+ *                     permit athletic scholarships" is not a footnote to a
+ *                     family budgeting for four years, so it is hoisted
+ *                     rather than ranked — §2 is explicit that financial
+ *                     caveats must remain.
+ *
+ * Caveats keep their own order and follow the leading reasons, so the summary
+ * still reads strengths-first rather than opening on a warning.
+ *
+ * Each row carries `text`, which is the plain wording where one exists and
+ * the engine's own sentence otherwise. No reason is ever dropped for having
+ * no plain version.
+ * ===========================================================================
+ */
+export function summaryView(explanation, { limit = SUMMARY_LIMIT } = {}) {
+  const rows = explanationView(explanation);
+  if (!rows) return null;
+
+  const lead = rows.slice(0, limit);
+  const taken = new Set(lead);
+  const caveats = rows.filter((r) => r.financialCaveat && !taken.has(r));
+
+  return [...lead, ...caveats].map((r) => ({ ...r, text: r.plain ?? r.sentence }));
+}
 
 /* ------------------------------------------------------------------ */
 /* Programmes                                                          */

@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Disclosure } from '@/components/ui/Disclosure';
 import ProgrammeStatusChips from './ProgrammeStatusChips';
-import GraduatingPlayers from './GraduatingPlayers';
+import ProgrammeSnapshot from './ProgrammeSnapshot';
 import MatchmakingExplanation from './MatchmakingExplanation';
 import { cn } from '@/lib/utils';
 import {
@@ -221,65 +221,18 @@ export default function MatchmakingResultCard({
         )}
 
         {/*
-          SECOND: PROGRAMME CONTEXT — §5.
+          SECOND: THE QUICK PROGRAMME SNAPSHOT — A11.2 §1C, §3.
 
-          Below the three layer readings, deliberately. These are facts about
-          the institution rather than about this athlete's fit, and the layers
-          are what the ranking is made of.
-
-          `—` where a rating was never established. NEVER 0: an unrated school
-          and a school rated zero are different claims, and only one of them
-          is one we have made. This is V1's long-standing presentation, kept.
+          Below the three layer readings and ABOVE the explanation, which is
+          the order §3 asks for and the order the first real production card
+          did not have. Programme strength, academic rating, who is leaving by
+          position, then conference and net price. Facts about the institution;
+          the layers above are what the ranking is made of, and the prose below
+          is why.
         */}
-        {context && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="programme-context">
-            {/*
-              PROGRAMME STRENGTH, RELATIVE TO ITS OWN DIVISION — A11.1 §1.
+        <ProgrammeSnapshot context={context} entryYear={entryYear} />
 
-              NOT `soccer_score / 10`. That is a national ladder on which the
-              strongest D3 programme in the country scores below the weakest
-              D1 one, so "4.1/10" on an excellent D3 programme mostly says
-              "is D3". The division is named in the sentence, so a reader can
-              check what the number is relative to.
-            */}
-            <div>
-              <p className="text-[11px] text-muted-foreground">Program Strength</p>
-              {context.programStrength ? (
-                <p className="text-sm font-medium" data-testid="program-strength">
-                  Top {context.programStrength.topPercent}%
-                  <span className="text-muted-foreground font-normal">
-                    {' '}in {context.programStrength.division}
-                  </span>
-                </p>
-              ) : (
-                <p className="text-sm font-medium text-muted-foreground" data-testid="program-strength">
-                  Not established
-                </p>
-              )}
-            </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground">Academic Rating</p>
-              <p className="text-sm font-medium" data-testid="academic-rating">
-                {context.academicRating != null ? `${context.academicRating.toFixed(1)}/10` : '—'}
-              </p>
-            </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground">Conference</p>
-              <p className="text-sm font-medium truncate">{context.conference || '—'}</p>
-            </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground">Net price</p>
-              <p className="text-sm font-medium tabular-nums">
-                {Number.isFinite(context.netPrice) ? `$${context.netPrice.toLocaleString()}` : '—'}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* THIRD: who is leaving, by position — §6. */}
-        {context && <GraduatingPlayers context={context} entryYear={entryYear} />}
-
-        {/* FOURTH: the engine's own explanation of this ranking — §7, §8. */}
+        {/* THIRD: the engine's own explanation of this ranking — §7, §8. */}
         {open && explanationState !== 'loading' && (
           <MatchmakingExplanation explanation={explanation} programme={programme} />
         )}
