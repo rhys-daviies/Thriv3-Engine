@@ -14,8 +14,9 @@
 import fs from 'node:fs';
 import { College } from '../db/entities/college.js';
 import { parseCsv } from '../lib/csv.js';
+import { requireProjectPath } from '../lib/projectRoot.js';
 
-const RANKINGS_PATH = '/Users/rhysdavies/Documents/Recruitmatch/scoring/rankings_v6_women.csv';
+const RANKINGS_PATH = requireProjectPath(['scoring', 'rankings_v6_women.csv']);
 const DIVISION_MAP = { D1: 'NCAA D1', D2: 'NCAA D2', D3: 'NCAA D3', NAIA: 'NAIA' };
 const APPLY = process.argv.includes('--apply');
 

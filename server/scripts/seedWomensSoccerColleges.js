@@ -19,9 +19,10 @@ import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js'
 import db from '../db/client.js';
 import { loadAcademicScores } from '../lib/seedData.js';
 import { matchSchoolName, rankToRating } from '../lib/schoolMatch.js';
+import { requireProjectPath } from '../lib/projectRoot.js';
 
 const SPORT = 'womens-soccer';
-const RANKINGS_PATH = '/Users/rhysdavies/Documents/Recruitmatch/scoring/rankings_v6_women.csv';
+const RANKINGS_PATH = requireProjectPath(['scoring', 'rankings_v6_women.csv']);
 
 // v6's CSVs use bare division codes; our schema spells NCAA divisions out.
 const DIVISION_MAP = { D1: 'NCAA D1', D2: 'NCAA D2', D3: 'NCAA D3', NAIA: 'NAIA' };

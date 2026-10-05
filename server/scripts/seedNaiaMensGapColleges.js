@@ -17,9 +17,10 @@ import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js'
 import db from '../db/client.js';
 import { loadAcademicScores } from '../lib/seedData.js';
 import { matchSchoolName } from '../lib/schoolMatch.js';
+import { requireProjectPath } from '../lib/projectRoot.js';
 
 const SPORT = 'mens-soccer';
-const RANKINGS_PATH = '/Users/rhysdavies/Documents/Recruitmatch/scoring/rankings_v6_men.csv';
+const RANKINGS_PATH = requireProjectPath(['scoring', 'rankings_v6_men.csv']);
 const NEW_ROWS_PATH =
   '/private/tmp/claude-501/-Users-rhysdavies-Documents-Recruitmatch-app/1e1a3c6c-a178-4361-afa1-5cda2c84e616/scratchpad/naia_new_rows.csv';
 
