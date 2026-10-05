@@ -38,9 +38,10 @@ import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { parseCsvToObjects } from '../lib/csv.js';
+import { requireProjectPath } from '../lib/projectRoot.js';
 
 const APPLY = process.argv.includes('--apply');
-const RANKINGS = '/Users/rhysdavies/Documents/Recruitmatch/scoring';
+const RANKINGS = requireProjectPath(['scoring']);
 
 /**
  * The programmes to create, and the name each is scored under.

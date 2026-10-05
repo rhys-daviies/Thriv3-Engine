@@ -26,7 +26,9 @@
  *   node server/scripts/populateIdentityBatched.js [--apply] [--batch 50] [--sport X]
  */
 import fs from 'node:fs';
+import path from 'node:path';
 import { College } from '../db/entities/college.js';
+import { requireProjectPath } from '../lib/projectRoot.js';
 import { isPluralNickname } from '../lib/nicknameGrammar.js';
 import { parseInfobox, readInfoboxFacts, matchConfidence, resolveLogoUrl, STATE_ABBR } from './populateSchoolIdentity.js';
 
@@ -199,7 +201,8 @@ async function main() {
   // wrong institution ("Miami" -> Miami University in Ohio), so they get reviewed before
   // anything is written.
   const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  fs.writeFileSync('/Users/rhysdavies/Documents/Recruitmatch/individualisation/identity_mappings.csv',
+  const outDir = requireProjectPath(['individualisation']);
+  fs.writeFileSync(path.join(outDir, 'identity_mappings.csv'),
     ['school,round,tried_title,resolved_title,nickname,mascot,primary_color,article_website',
      ...[...resolved].map(([n, r]) => [n, r.round, r.tried, r.title, r.facts.nickname,
        r.facts.mascot, r.facts.primary, r.facts.website].map(esc).join(','))].join('\n'));
@@ -208,7 +211,7 @@ async function main() {
   console.log(`\nresolved ${resolved.size}/${names.length} names (${withNickname} with a nickname), ` +
     `${written} rows written`);
   console.log('misses:', reasons);
-  fs.writeFileSync('/Users/rhysdavies/Documents/Recruitmatch/individualisation/unresolved_names.json',
+  fs.writeFileSync(path.join(outDir, 'unresolved_names.json'),
     JSON.stringify(unresolved, null, 1));
   if (!APPLY) console.log('Dry run -- re-run with --apply to write.');
 }
