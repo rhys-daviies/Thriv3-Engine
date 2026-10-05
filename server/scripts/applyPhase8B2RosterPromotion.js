@@ -69,7 +69,20 @@ const SMALL = ['colleges', 'athletics_entities', 'institution_aliases', 'athleti
 const tableHash = (db, t) => { const h = crypto.createHash('sha256'); for (const r of db.prepare(`SELECT * FROM "${t}"`).iterate()) h.update(JSON.stringify(r)).update('\n'); return h.digest('hex'); };
 const EPHEMERAL = [os.tmpdir(), fs.realpathSync(os.tmpdir()), '/tmp', '/private/tmp', '/var/folders', '/private/var/folders'];
 const isEphemeral = (f) => EPHEMERAL.some((d) => f === d || f.startsWith(`${d}${path.sep}`));
-const openDb = () => { const d = new Database(dbArg, { fileMustExist: true }); d.pragma('busy_timeout = 30000'); return d; };
+/**
+ * A DRY RUN (and a dry revert) IS OBSERVATIONAL: the source opens READ-ONLY. A writable connection that is the
+ * last to close a WAL-mode database checkpoints it, folding the -wal file into the main file and deleting it —
+ * a physical change to the shared database even though not one row moved (this happened to the shared dev
+ * database on a plain dry run). A read-only connection cannot write, begin a write transaction, checkpoint or
+ * truncate the WAL; `query_only` states that intent a second time. Only --apply opens the file writable.
+ * (SQLite may still create or refresh the `-shm` wal-index for any reader of a WAL database; it holds no data.)
+ */
+const openDb = () => {
+  const d = new Database(dbArg, { fileMustExist: true, readonly: !apply });
+  d.pragma('busy_timeout = 30000');
+  if (!apply) d.pragma('query_only = ON');
+  return d;
+};
 
 function loadFixture() {
   const fx = JSON.parse(fs.readFileSync(path.resolve(arg('fixture') || fail('Give --fixture.')), 'utf8'));
