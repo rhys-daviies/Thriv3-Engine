@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fileCorpusIfPresent, missingCorpusMessage } from '../db/corpusIdentity.js';
 import { execFileSync } from 'node:child_process';
+import { workingCorpusCopy } from '../testCorpus.js';
 
 /**
  * L7P — the six approved decisions, against the live registry.
@@ -23,7 +24,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
  * refusing, and a suite that creates the file a later suite tests for has
  * changed that suite's behaviour.
  */
-const DEFAULT_DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const DEFAULT_DB = workingCorpusCopy('programmeStatusIntegration');
 const LIVE_DB = fileCorpusIfPresent(DEFAULT_DB);
 
 const describeLive = LIVE_DB ? describe : describe.skip;

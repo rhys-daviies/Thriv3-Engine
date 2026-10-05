@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { TARGET_DIVISIONS, TARGET_SPORTS, toCsv } from './rosterTargetUniverse.js';
+import { workingCorpusCopy } from '../testCorpus.js';
 
 /**
  * L6B — the worklist must be a statement about the REGISTRY, not about what we
@@ -17,7 +18,7 @@ import { TARGET_DIVISIONS, TARGET_SPORTS, toCsv } from './rosterTargetUniverse.j
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const DB = workingCorpusCopy('rosterTargetUniverse');
 const d = fs.existsSync(DB) ? describe : describe.skip;
 
 const universe = () => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `

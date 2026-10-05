@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { workingCorpusCopy } from '../testCorpus.js';
 
 /**
  * L7 — what `athletics_domains` may be trusted for, pinned.
@@ -31,7 +32,7 @@ import { execFileSync } from 'node:child_process';
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const DB = workingCorpusCopy('athleticsDomainAuthority');
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 const d = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) console.warn(`\n  athleticsDomainAuthority.test.js SKIPPED — no database at ${DB}\n`);

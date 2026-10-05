@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { workingCorpusCopy } from '../testCorpus.js';
 
 // PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
 // current address — the pre-8A coach offer. It opts in to that explicitly; the default
@@ -346,7 +347,7 @@ describe('E. re-drafting the same coach reuses the open message', () => {
 /* -------------------------------------------------------------------------- */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const LIVE = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const LIVE = workingCorpusCopy('sendDurability');
 const HAVE_DB = fs.existsSync(LIVE) && fs.statSync(LIVE).size > 1_000_000;
 const live = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) console.warn(`\n  sendDurability.test.js F SKIPPED — no database at ${LIVE}\n`);

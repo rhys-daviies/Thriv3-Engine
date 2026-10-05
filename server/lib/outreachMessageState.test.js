@@ -19,6 +19,7 @@ import { pendingDrafts, draftSummary, confirmSent } from './confirmSends.js';
 import { findOrCreateCoach } from './coaches.js';
 import { recentSendCount } from './sendCap.js';
 import { isSuppressed, suppress } from './suppressions.js';
+import { workingCorpusCopy } from '../testCorpus.js';
 
 /**
  * B2 — what happened to one outbound message, according to what Thriv3 can
@@ -579,7 +580,7 @@ describe('nothing else moved', () => {
  * no synthetic events are written, because nobody watched these messages leave.
  */
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const LIVE_DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const LIVE_DB = workingCorpusCopy('outreachMessageState');
 const HAVE_LIVE = fs.existsSync(LIVE_DB) && fs.statSync(LIVE_DB).size > 1_000_000;
 const COPY = path.join(ROOT, 'node_modules/.tmp/message-state-live-copy.sqlite');
 const live = HAVE_LIVE ? describe : describe.skip;

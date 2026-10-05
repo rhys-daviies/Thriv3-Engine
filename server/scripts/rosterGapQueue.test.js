@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { fileCorpusIfPresent, missingCorpusMessage } from '../db/corpusIdentity.js';
+import { workingCorpusCopy } from '../testCorpus.js';
 
 /**
  * L7K — the residual queue, against the live registry.
@@ -31,7 +32,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
  * database, and `academicMajors.test.js` then stopped skipping and ran against
  * zero rows. Skip loudly instead; never create.
  */
-const DEFAULT_DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const DEFAULT_DB = workingCorpusCopy('rosterGapQueue');
 const LIVE_DB = fileCorpusIfPresent(DEFAULT_DB);
 /*
  * REFUSES rather than spawns when there is no corpus. `describe.skip` still

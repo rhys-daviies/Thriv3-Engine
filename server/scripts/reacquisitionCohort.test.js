@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { fileCorpusIfPresent, missingCorpusMessage } from '../db/corpusIdentity.js';
 import { execFileSync } from 'node:child_process';
 import { pilotSample, PILOT_SIZE } from '../../shared/roster/reacquisitionPilot.js';
+import { workingCorpusCopy } from '../testCorpus.js';
 
 /**
  * L7Q — the cohort, derived against the live registry.
@@ -28,7 +29,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
  * than refusing, and a test that creates the file a later suite tests for has
  * changed that suite's behaviour.
  */
-const DEFAULT_DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const DEFAULT_DB = workingCorpusCopy('reacquisitionCohort');
 const LIVE_DB = fileCorpusIfPresent(DEFAULT_DB);
 
 const cohort = () => {

@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fileCorpusOr } from '../db/corpusIdentity.js';
+import { workingCorpusCopy } from '../testCorpus.js';
 
 /**
  * The commands, run as commands.
@@ -29,7 +30,7 @@ import { fileCorpusOr } from '../db/corpusIdentity.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 /* L7ZO: obey an explicitly selected corpus; see `fileCorpusOr`. */
-const DB = fileCorpusOr(path.join(ROOT, 'server/data/recruitmatch.sqlite'));
+const DB = fileCorpusOr(workingCorpusCopy('operations'));
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 const d = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) {

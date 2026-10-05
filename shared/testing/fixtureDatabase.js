@@ -37,6 +37,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { workingCorpusCopy } from '../../server/testCorpus.js';
 
 const require = createRequire(import.meta.url);
 
@@ -49,13 +50,16 @@ const require = createRequire(import.meta.url);
 export function resolveFixtureDatabase({ root, requires = [] }) {
   const explicit = process.env.RECRUITMATCH_TEST_DB;
   const configured = process.env.RECRUITMATCH_DB;
-  const fallback = path.join(root, 'server/data/recruitmatch.sqlite');
 
+  // The default is a private copy of the working database, never the file
+  // itself: these suites spawn children that import client.js, which migrates
+  // whatever it opens (Phase 1.5). The working path is only the answer outside
+  // a test run, where the guard that refuses it is not installed.
   const [dbPath, source] = explicit
     ? [explicit, 'RECRUITMATCH_TEST_DB']
     : (configured && configured !== ':memory:')
       ? [configured, 'RECRUITMATCH_DB']
-      : [fallback, 'repository default'];
+      : [workingCorpusCopy('fixture') ?? path.join(root, 'server/data/recruitmatch.sqlite'), 'working-database copy'];
 
   if (!fs.existsSync(dbPath)) {
     return { path: dbPath, source, usable: false, why: `no database file at ${dbPath}` };

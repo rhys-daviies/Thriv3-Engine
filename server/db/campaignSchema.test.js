@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import Database from 'better-sqlite3';
 import db from './client.js';
+import { workingCorpusCopy } from '../testCorpus.js';
 
 /**
  * PHASE A1 — the campaign tables, and nothing but the tables.
@@ -331,7 +332,7 @@ describe('ownership cascades', () => {
  * run against a backup rather than the working file: a test must not be the
  * thing that migrates production, and it must not be able to damage it.
  */
-const LIVE_DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const LIVE_DB = workingCorpusCopy('campaignSchema');
 const HAVE_LIVE = fs.existsSync(LIVE_DB) && fs.statSync(LIVE_DB).size > 1_000_000;
 const COPY = path.join(ROOT, 'node_modules/.tmp/campaign-schema-live-copy.sqlite');
 const live = HAVE_LIVE ? describe : describe.skip;

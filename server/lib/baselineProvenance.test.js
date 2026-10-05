@@ -7,6 +7,7 @@ import {
   canonical, projectBehavioural, nonBehaviouralSites, NON_BEHAVIOURAL_FIELDS, BASELINE_NOW,
 } from './evidenceBaseline.js';
 import { rosterFreshness, FRESHNESS, FRESH_DAYS, ACCEPTABLE_DAYS } from '../../shared/evidence/freshness.js';
+import { workingCorpusCopy } from '../testCorpus.js';
 
 /**
  * L7D2 — a behavioural baseline hashes what is true, not when we looked.
@@ -29,7 +30,7 @@ import { rosterFreshness, FRESHNESS, FRESH_DAYS, ACCEPTABLE_DAYS } from '../../s
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const DB = workingCorpusCopy('baselineProvenance');
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 
 /** A programme payload shaped like the one `toWire` and the log actually emit. */

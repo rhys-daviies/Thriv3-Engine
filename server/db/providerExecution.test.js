@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -477,6 +477,13 @@ historical('migrating a database that holds the historical sends', () => {
    */
   const copy = path.join(ROOT, 'node_modules/.tmp', `d44-${randomUUID()}.sqlite`);
 
+  // In afterAll, not at the end of the test: a 220 MB copy that is only removed
+  // when every assertion passes is how seven of them were left behind. The
+  // sidecars go too — the booted child leaves -shm and -wal beside it.
+  afterAll(() => {
+    for (const suffix of ['', '-wal', '-shm']) fs.rmSync(copy + suffix, { force: true });
+  });
+
   it('adds the columns, widens the guard, and invents nothing', () => {
     fs.mkdirSync(path.dirname(copy), { recursive: true });
     fs.copyFileSync(FIXTURE, copy);
@@ -507,7 +514,5 @@ historical('migrating a database that holds the historical sends', () => {
     // Running it again changes nothing at all.
     expect(boot(copy)).toEqual(after);
     expect(boot(copy)).toEqual(after);
-
-    fs.rmSync(copy, { force: true });
   });
 });

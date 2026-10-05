@@ -7,6 +7,7 @@ import { K_EU, K_DOM, K_ASIA, K_TIGHT, VALIDATION_ATHLETES } from './__fixtures_
 import { normaliseEvidenceAthlete } from './index.js';
 import { canonicalPosition } from '../positions.js';
 import { permissionsFor, PERMISSION, EVIDENCE_KINDS } from './kinds.js';
+import { workingCorpusCopy } from '../../server/testCorpus.js';
 
 /**
  * DOES STAGE J GENERALISE?
@@ -34,7 +35,7 @@ import { permissionsFor, PERMISSION, EVIDENCE_KINDS } from './kinds.js';
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const DB = workingCorpusCopy('generalisation');
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 const d = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) console.warn(`\n  generalisation.test.js SKIPPED — no database at ${DB}\n`);

@@ -8,6 +8,7 @@ import { fileCorpusOr } from '../db/corpusIdentity.js';
 import {
   classifyRow, forInstitution, hostsForInstitution, AUTHORITY, PROFILE, LOOKUP,
 } from '../../shared/evidence/domainAuthority.js';
+import { workingCorpusCopy } from '../testCorpus.js';
 
 /**
  * L7E — hosts verified one at a time, and the discipline that let them in.
@@ -30,7 +31,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const SEED = path.join(ROOT, 'server/data/seeds/athletics_domains_verified.json');
 const seed = JSON.parse(fs.readFileSync(SEED, 'utf8'));
 /* L7ZO: obey an explicitly selected corpus; see `fileCorpusOr`. */
-const DB = fileCorpusOr(path.join(ROOT, 'server/data/recruitmatch.sqlite'));
+const DB = fileCorpusOr(workingCorpusCopy('verifiedDomainBackfill'));
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 
 const inDb = (expr) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `

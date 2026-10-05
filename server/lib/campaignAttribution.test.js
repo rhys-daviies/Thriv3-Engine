@@ -12,6 +12,7 @@ import { resolveProgrammeCampaignFor, authorisedProgrammeCampaignId } from './ca
 import { findOrCreateCoach } from './coaches.js';
 import { isSuppressed, suppress } from './suppressions.js';
 import { recentSendCount } from './sendCap.js';
+import { workingCorpusCopy } from '../testCorpus.js';
 
 /**
  * A6 — the bridge from a campaign to the messages sent under it.
@@ -562,7 +563,7 @@ describe('nothing else changed', () => {
  * guess would be indistinguishable from a record.
  */
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const LIVE_DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const LIVE_DB = workingCorpusCopy('campaignAttribution');
 const HAVE_LIVE = fs.existsSync(LIVE_DB) && fs.statSync(LIVE_DB).size > 1_000_000;
 const COPY = path.join(ROOT, 'node_modules/.tmp/campaign-attribution-live-copy.sqlite');
 const live = HAVE_LIVE ? describe : describe.skip;

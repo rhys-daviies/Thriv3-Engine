@@ -1,5 +1,19 @@
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { defineConfig } from 'vitest/config';
+import { runDirName } from './server/testScratch.js';
+
+// Scratch output gets a directory per run, which server/testScratch.js removes
+// when the run ends. See that file for why it is not one shared directory.
+const SCRATCH = path.resolve(process.cwd(), 'node_modules/.tmp');
+const RUN = runDirName();
+
+// No test may open server/data/recruitmatch.sqlite: see server/testDbGuard.js.
+// The workers load it as a setupFile; every Node child a test spawns inherits
+// it through NODE_OPTIONS.
+const DB_GUARD = './server/testDbGuard.js';
+const NODE_OPTIONS = [process.env.NODE_OPTIONS, `--import=${pathToFileURL(path.resolve(DB_GUARD)).href}`]
+  .filter(Boolean).join(' ');
 
 export default defineConfig({
   resolve: {
@@ -18,15 +32,21 @@ export default defineConfig({
     // fixtures — including a verbatim copy of a test file, which the glob above
     // happily collected and ran as a third, stale copy of that suite.
     exclude: ['**/node_modules/**', '**/dist/**', 'server/data/**'],
+    globalSetup: ['./server/testScratch.js'],
+    setupFiles: [DB_GUARD],
     // Every test file gets its own worker, and therefore its own throwaway
     // in-memory database — never the working one in server/data.
     env: {
       RECRUITMATCH_DB: ':memory:',
+      NODE_OPTIONS,
+      // Where the run's copy of the working database and each suite's clone of
+      // it live (server/testCorpus.js). Removed when the run ends.
+      THRIV3_TEST_DB_DIR: path.join(SCRATCH, 'thriv3-test-db', RUN),
       // Generated pages go to a scratch directory, never the publish directory.
-      THRIV3_BUILD_DIR: path.resolve(process.cwd(), 'node_modules/.tmp/thriv3-test-build'),
+      THRIV3_BUILD_DIR: path.join(SCRATCH, 'thriv3-test-build', RUN),
       // Same arrangement for uploaded match analyses: a test that writes a
       // fixture analysis must not leave it in the store the product reads.
-      THRIV3_UPLOADS_DIR: path.resolve(process.cwd(), 'node_modules/.tmp/thriv3-test-uploads'),
+      THRIV3_UPLOADS_DIR: path.join(SCRATCH, 'thriv3-test-uploads', RUN),
       // Sending refuses to run without these, which is the point of them. Set
       // here so every suite exercises the normal path; the suite that checks
       // the refusal clears them for itself.
