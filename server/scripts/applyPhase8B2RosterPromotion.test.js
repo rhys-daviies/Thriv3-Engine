@@ -10,6 +10,7 @@ import { buildRegressionWorld, rosterPage } from '../lib/refresh/regressionWorld
 import { stageRefresh, writeStagedBatch, loadStagedBatch, stableJson } from '../lib/refresh/staging.js';
 import { planPromotion } from '../lib/refresh/promotion.js';
 import { conformRosterRow } from '../lib/refresh/rosterRowConformance.js';
+import { walShapedCopy, physicalState } from '../../shared/testing/walShape.js';
 
 /**
  * PHASE 8B.2 — the fixture applier's safety properties, on the synthetic regression world (RFC 2606 hosts,
@@ -180,61 +181,48 @@ describe('reversal', () => {
  * the `-shm` wal-index (a rebuildable cache of where pages sit in the WAL). It carries no data and is not
  * compared. The main file and the -wal file are.
  */
-function walShapedCopy(src, name) {
-  const w = new Database(src); w.pragma('journal_mode = WAL'); w.pragma('wal_autocheckpoint = 0');
-  w.exec('CREATE TABLE IF NOT EXISTS wal_marker (x INTEGER)'); w.prepare('INSERT INTO wal_marker VALUES (?)').run(1);   // frames now sit in the WAL
-  const out = path.join(dir, name);
-  fs.copyFileSync(src, out); fs.copyFileSync(`${src}-wal`, `${out}-wal`);     // copied while the writer is still open: main + WAL, no shm, no connection
-  w.close(); return out;
-}
-const physical = () => ({
-  main: sha(fs.readFileSync(dbPath).toString('latin1')), mainBytes: fs.statSync(dbPath).size,
-  wal: fs.existsSync(`${dbPath}-wal`) ? sha(fs.readFileSync(`${dbPath}-wal`).toString('latin1')) : null,
-  walBytes: fs.existsSync(`${dbPath}-wal`) ? fs.statSync(`${dbPath}-wal`).size : null,
-});
-
 describe('a dry run is observational — the source database is not physically changed', () => {
   it('forward dry run: the main file and the WAL are byte-identical afterwards, the plan is the same', () => {
-    dbPath = walShapedCopy(dbPath, 'live.sqlite');
-    const logical = canon(); const before = physical();
+    dbPath = walShapedCopy(dbPath, path.join(dir, 'live.sqlite'));
+    const logical = canon(); const before = physicalState(dbPath);
     expect(before.walBytes).toBeGreaterThan(0);                       // the shape that exposed the defect: a non-empty WAL
 
     const r = run(['--fixture', fxPath, '--fixture-hash', fxHash]);
 
     expect(r.code).toBe(0); expect(r.out).toMatch(/roster \+2 \(noop 0\)/); expect(r.out).toMatch(/DRY RUN/);
-    expect(physical()).toEqual(before);                                // main file + WAL: same bytes, same size, WAL not folded away
+    expect(physicalState(dbPath)).toEqual(before);                                // main file + WAL: same bytes, same size, WAL not folded away
     expect(canon()).toBe(logical);
   });
 
   it('repeated dry runs print the same result and still leave the files alone', () => {
-    dbPath = walShapedCopy(dbPath, 'live.sqlite'); const before = physical();
+    dbPath = walShapedCopy(dbPath, path.join(dir, 'live.sqlite')); const before = physicalState(dbPath);
     const a = run(['--fixture', fxPath, '--fixture-hash', fxHash]); const b = run(['--fixture', fxPath, '--fixture-hash', fxHash]);
-    expect(a.code).toBe(0); expect(b.out).toBe(a.out); expect(physical()).toEqual(before);
+    expect(a.code).toBe(0); expect(b.out).toBe(a.out); expect(physicalState(dbPath)).toEqual(before);
   });
 
   it('a refused dry run (a precondition fails after the database is opened) leaves it alone too', () => {
     install({ mutate: (b) => { b.inputs.staged_batch_hash = '0'.repeat(64); } });          // refused: staged batch hash != fixture
-    dbPath = walShapedCopy(dbPath, 'live.sqlite'); const before = physical(); const logical = canon();
+    dbPath = walShapedCopy(dbPath, path.join(dir, 'live.sqlite')); const before = physicalState(dbPath); const logical = canon();
     const r = run(['--fixture', fxPath, '--fixture-hash', fxHash]);
     expect(r.code).toBe(1); expect(r.err).toMatch(/REFUSED/);
-    expect(physical()).toEqual(before); expect(canon()).toBe(logical);
+    expect(physicalState(dbPath)).toEqual(before); expect(canon()).toBe(logical);
   });
 
   it('both reversal dry runs (--revert-fixture, --revert <manifest>) are observational on an applied database', () => {
     expect(apply().code).toBe(0);                                     // a real apply on a disposable database, to have something to revert
-    dbPath = walShapedCopy(dbPath, 'live.sqlite'); const before = physical(); const logical = canon();
+    dbPath = walShapedCopy(dbPath, path.join(dir, 'live.sqlite')); const before = physicalState(dbPath); const logical = canon();
 
     const a = run(['--fixture', fxPath, '--fixture-hash', fxHash, '--revert-fixture']);
     const b = run(['--revert', manifest]);
 
     expect(a.code).toBe(0); expect(a.out).toMatch(/REVERT-FROM-FIXTURE/); expect(a.out).toMatch(/DRY RUN/);
     expect(b.code).toBe(0); expect(b.out).toMatch(/REVERT 8B\.2-roster-promotion/); expect(b.out).toMatch(/DRY RUN/);
-    expect(physical()).toEqual(before); expect(canon()).toBe(logical);
+    expect(physicalState(dbPath)).toEqual(before); expect(canon()).toBe(logical);
     expect(q('SELECT COUNT(*) n FROM roster_players WHERE id=?', ids.jordan).n).toBe(1);   // nothing was reverted
   });
 
   it('--apply still opens writable and works on the same WAL-shaped database, and is idempotent afterwards', () => {
-    dbPath = walShapedCopy(dbPath, 'live.sqlite');
+    dbPath = walShapedCopy(dbPath, path.join(dir, 'live.sqlite'));
     const dry = run(['--fixture', fxPath, '--fixture-hash', fxHash]); expect(dry.out).toMatch(/roster \+2 \(noop 0\)/);
 
     const ap = apply();
@@ -242,9 +230,9 @@ describe('a dry run is observational — the source database is not physically c
     expect(q('SELECT COUNT(*) n FROM roster_players WHERE id=?', ids.jordan).n).toBe(1);
     expect(fs.existsSync(manifest)).toBe(true);
 
-    const after = physical(); const logical = canon();
+    const after = physicalState(dbPath); const logical = canon();
     const again = run(['--fixture', fxPath, '--fixture-hash', fxHash]);          // idempotency: everything is a no-op, and observing it changes nothing
     expect(again.out).toMatch(/roster \+0 \(noop 2\)/);
-    expect(physical()).toEqual(after); expect(canon()).toBe(logical);
+    expect(physicalState(dbPath)).toEqual(after); expect(canon()).toBe(logical);
   });
 });

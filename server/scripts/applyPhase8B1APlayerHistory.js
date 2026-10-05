@@ -36,7 +36,8 @@ const FACTUAL_CLASSES = ['EXPLICIT_PRIOR_SCHOOL', 'MULTI_SIGNAL', 'REVIEWED', 'P
 
 if (arg('revert')) {
   const man = JSON.parse(fs.readFileSync(path.resolve(arg('revert')), 'utf8'));
-  const db = new Database(dbArg, { fileMustExist: true });
+  const db = new Database(dbArg, { fileMustExist: true, readonly: !apply });
+  if (!apply) db.pragma('query_only = ON');
   console.log(`REVERT ${man.phase}: ${man.manifest.length} group(s)`);
   if (!apply) { console.log('DRY RUN — add --apply.'); process.exit(0); }
   const r = revertManifest(db, man.manifest); db.close(); console.log(`REVERTED ${r.reverted} write(s).`); process.exit(0);
@@ -49,7 +50,11 @@ if (got !== fixture_hash || got !== arg('fixture-hash')) fail(`fixture hash mism
 for (const k of ['evidence_insert', 'link_insert', 'prior_set']) {
   for (const a of body[k] || []) for (const f of ['expected_old', 'proposed', 'evidence', 'reason', 'blast_radius']) if (a[f] === undefined) fail(`${k} ${a.label || ''}: missing ${f} — every action needs expected_old, proposed, evidence, reason and blast radius`);
 }
-const db = new Database(dbArg, { fileMustExist: true });
+// A DRY RUN IS OBSERVATIONAL: the source opens READ-ONLY. A writable connection that is the last to close a
+// WAL-mode database checkpoints it (the -wal file is folded into the main file and deleted) — a physical change
+// to the shared database with no row moved. Only --apply opens it writable; the simulation runs on COPIES.
+const db = new Database(dbArg, { fileMustExist: true, readonly: !apply });
+if (!apply) db.pragma('query_only = ON');
 for (const t of ['player_prior_school_evidence', 'player_observation_links']) if (!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(t)) fail(`table ${t} missing — run the schema migration (server/db/client.js) first`);
 // a link may only be FACTUAL with evidence; refuse a fixture that says otherwise
 for (const a of body.link_insert || []) if (a.proposed.decision === 'VERIFIED_SAME_PERSON' && !FACTUAL_CLASSES.includes(a.proposed.evidence_class)) fail(`${a.label}: VERIFIED with evidence class ${a.proposed.evidence_class}`);

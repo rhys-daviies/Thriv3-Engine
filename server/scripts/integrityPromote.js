@@ -38,7 +38,8 @@ if (/^\/data\//.test(path.resolve(dbPath))) fail('Refusing production /data path
 const fingerprint = (m) => JSON.stringify({ mem: Object.fromEntries(Object.entries(m.membership).map(([d, v]) => [d, v.hash])), uni: Object.fromEntries(Object.entries(m.universe).map(([d, v]) => [d, v.hash])), naia: [m.naia.logical, m.naia.covered, m.naia.eligible, m.naia.strict_path], integ: m.integrity });
 
 if (arg('revert')) {
-  const db = new Database(dbPath, { fileMustExist: true });
+  const db = new Database(dbPath, { fileMustExist: true, readonly: !apply });
+  if (!apply) db.pragma('query_only = ON');
   const ref = arg('revert');
   const rec = fs.existsSync(ref) ? { manifest_json: fs.readFileSync(ref, 'utf8'), promotion_id: null } : db.prepare('SELECT * FROM refresh_promotions WHERE promotion_id=?').get(ref);
   if (!rec) fail(`no promotion ${ref}`);
@@ -52,7 +53,11 @@ if (arg('revert')) {
 
 const batchId = arg('batch'); const wantHash = arg('batch-hash');
 if (!batchId || !wantHash) fail('Give --batch and --batch-hash (printed by integrity:refresh).');
-const db = new Database(dbPath, { fileMustExist: true });
+// A DRY RUN IS OBSERVATIONAL: the source opens READ-ONLY. A writable connection that is the last to close a
+// WAL-mode database checkpoints it (the -wal file is folded into the main file and deleted) — a physical change
+// to the shared database with no row moved. Only --apply opens it writable; the simulation runs on COPIES.
+const db = new Database(dbPath, { fileMustExist: true, readonly: !apply });
+if (!apply) db.pragma('query_only = ON');
 const staged = loadStagedBatch(db, batchId);
 if (!staged) fail(`batch ${batchId} is not staged`);
 const recomputed = batchHash(staged.observations);

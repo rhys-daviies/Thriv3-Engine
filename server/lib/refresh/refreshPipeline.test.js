@@ -12,6 +12,7 @@ import { planPromotion, applyPromotion, revertManifest } from './promotion.js';
 import { buildDiffReport } from './diffReport.js';
 import { seasonFingerprint } from './temporal.js';
 import { validateEntityIdentity } from '../../scripts/validateAthleticsEntityIdentity.js';
+import { walShapedCopy, physicalState } from '../../../shared/testing/walShape.js';
 
 /**
  * PHASE 7E — the staging -> review -> promotion pipeline on the regression world.
@@ -164,5 +165,25 @@ describe('end-to-end CLI: stage -> gate -> promote -> re-measure', () => {
     expect(db.prepare("SELECT status FROM refresh_batches WHERE batch_id=?").get(id).status).toBe('PROMOTED');
     db.close();
     expect(() => execFileSync(process.execPath, ['server/scripts/integrityPromote.js', '--db', dbPath, '--batch', id, '--batch-hash', '0'.repeat(64)], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' })).toThrow();
+  }, 120000);
+  it('the dry run, and a dry revert, leave the source database physically unchanged (main file and WAL byte-identical)', () => {
+    const inp = path.join(dir, 'in.json'); fs.writeFileSync(inp, JSON.stringify(input([staffPage({ source_complete: false, people: [published(PEOPLE.HEAD), published({ full_name: 'Robin Coach', role: 'Assistant Coach', email: 'robin.coach@concordiatx.example' })] })])));
+    const o1 = execFileSync(process.execPath, ['server/scripts/integrityRefresh.js', '--db', dbPath, '--input', inp, '--stage', '--report-out', path.join(dir, 'r.md')], { cwd: ROOT, encoding: 'utf8' });
+    const id = o1.match(/REFRESH (RB-\S+)/)[1]; const h = o1.match(/batch hash ([0-9a-f]{64})/)[1];
+    const promote = (...args) => execFileSync(process.execPath, ['server/scripts/integrityPromote.js', '--db', ...args], { cwd: ROOT, encoding: 'utf8' });
+
+    // 1. the dry run, against a database whose WAL holds frames and which no connection has open
+    const live = walShapedCopy(dbPath, path.join(dir, 'live.sqlite')); const before = physicalState(live);
+    expect(before.walBytes).toBeGreaterThan(0);
+    expect(promote(live, '--batch', id, '--batch-hash', h)).toMatch(/GATE PASS\. DRY RUN/);
+    expect(physicalState(live)).toEqual(before);                                   // WAL not folded, main file untouched
+
+    // 2. promote for real on the original (apply is unchanged), then dry-revert a WAL-shaped copy of the promoted database
+    expect(promote(dbPath, '--batch', id, '--batch-hash', h, '--apply')).toMatch(/Live re-measure == simulation/);
+    const pdb = new Database(dbPath, { readonly: true }); const pid = pdb.prepare('SELECT promotion_id FROM refresh_promotions').get().promotion_id; pdb.close();
+    const live2 = walShapedCopy(dbPath, path.join(dir, 'live2.sqlite')); const before2 = physicalState(live2);
+    expect(promote(live2, '--revert', pid)).toMatch(/DRY RUN — re-run with --apply to revert/);
+    expect(physicalState(live2)).toEqual(before2);
+    const after = new Database(live2, { readonly: true }); expect(after.prepare('SELECT status FROM refresh_promotions WHERE promotion_id=?').get(pid).status).not.toBe('REVERTED'); after.close();
   }, 120000);
 });

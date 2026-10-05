@@ -15,20 +15,37 @@
  * transition counts at the end are what a later phase will gate on.
  */
 import 'dotenv/config';
-import db, { dbPath } from '../db/client.js';
-import { assertCanonicalWrite } from '../db/corpusIdentity.js';
+import Database from 'better-sqlite3';
+import { assertCanonicalWrite, resolveDbPath } from '../db/corpusIdentity.js';
 import { utcNow } from '../lib/time.js';
 import {
   arrivalsFor, buildPriorIndex, ARRIVAL_TRANSITIONS,
   ENTRY_TYPE, PRIOR_CONFIDENCE, COACH_ATTRIBUTION,
 } from '../../shared/recruiting/arrivals.js';
-import { effectiveInputDigest, recordBuild } from '../lib/recruitingMaterialisation.js';
 import { trustedRosterPredicate } from '../../shared/roster/seasonTrust.js';
 
 const argv = process.argv.slice(2);
 const arg = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
 const REPORT_ONLY = argv.includes('--report');
 const SPORTS = arg('sport') ? [arg('sport')] : ['mens-soccer', 'womens-soccer'];
+
+/*
+ * `--report` FROM THE COMMAND LINE IS OBSERVATIONAL ("REPORT ONLY — nothing written"), so it must not touch the
+ * database at all. Importing `db/client.js` is not a read: it runs schema.sql and migrate() and sets WAL mode, so
+ * a report moved `corpus_revision` and could change the file. This run therefore opens its own READ-ONLY
+ * connection and never loads client.js (nor recruitingMaterialisation.js, which imports it). Every other use is
+ * unchanged: a CLI write run, and the server importing `buildSport`, load the client exactly as before.
+ */
+const OBSERVE_ONLY = REPORT_ONLY && import.meta.url === `file://${process.argv[1]}`;
+let db; let dbPath; let effectiveInputDigest; let recordBuild;
+if (OBSERVE_ONLY) {
+  dbPath = resolveDbPath();
+  db = new Database(dbPath, { readonly: true, fileMustExist: true });
+  db.pragma('query_only = ON');
+} else {
+  ({ default: db, dbPath } = await import('../db/client.js'));
+  ({ effectiveInputDigest, recordBuild } = await import('../lib/recruitingMaterialisation.js'));
+}
 
 const insert = db.prepare(`
   INSERT INTO recruiting_arrivals (
