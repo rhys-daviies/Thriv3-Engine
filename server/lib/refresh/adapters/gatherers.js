@@ -23,7 +23,7 @@
 import { fetchPage } from './fetchPage.js';
 import { parseRosterTable, parseStaffTable, SPORT_PRESTO, pageTitle } from './presto.js';
 import { detectPlatform, parseSidearmRosterStrict, parseSidearmStaff } from './sidearm.js';
-import { parseRosterTableStrict, STRUCTURE, prestoListViewHref, prestoCardNames, crossCheckCards } from './rosterStructure.js';
+import { parseRosterTableStrict, STRUCTURE, prestoListViewHref, prestoCardNames, crossCheckCards, parsePrestoCardsStrict } from './rosterStructure.js';
 import { refusePage, pageEvidence, REFUSAL } from './adapterSafety.js';
 import { nameKey, coreKey, wordsContained } from './institutionNames.js';
 
@@ -108,6 +108,12 @@ export async function rosterAdapter(target, { ownsHost, ownsSource, fetch = fetc
     const lp = await fetch(href);
     if (!lp.block && (lp.final_host || lp.host) === (p.final_host || p.host)) { parsed = crossCheckCards(parseRosterTableStrict(lp.body), prestoCardNames(p.body)); listView = { url: lp.final_url || href, sha256: lp.sha256 }; }
   }
+  // Phase 8C.3D: a Presto card theme that declares NO list view is read from the cards themselves (fail closed).
+  // A page that declares a list view never falls back to its cards — a list/card disagreement stays a refusal.
+  let cardsOnly = false;
+  if (!p.block && platform === 'PRESTO' && parsed.structure.code === STRUCTURE.UNKNOWN && !prestoListViewHref(p.body)) {
+    const cp = parsePrestoCardsStrict(p.body); if (cp.structure.code !== STRUCTURE.NONE) { parsed = cp; cardsOnly = true; }
+  }
   const players = parsed.structure.code === STRUCTURE.OK ? parsed.records : [];
   const intent = { kind: 'ROSTER', sport: target.sport, season: target.season };
   const pre = refusePage(p, { ...intent, entityOwnsHost: ownsHost ? (h) => ownsHost(h, target.athletics_entity_id) : null, entityOwnsUrl: ownsSource ? (u) => ownsSource(u, target.athletics_entity_id, target.sport) : null }, players, target.prior_count ? { count: target.prior_count } : null);
@@ -121,9 +127,9 @@ export async function rosterAdapter(target, { ownsHost, ownsSource, fetch = fetc
   return { page: {
     dataset: 'ROSTER', source_kind: 'OFFICIAL_ROSTER', source_url: meta.source_url, fetched_at: meta.fetched_at, page_season: ev.season.season,
     observed_season: target.season, institution_label: target.institution_label, raw_programme: `${target.institution_label} ${target.sport}`, sport: target.sport,
-    athletics_entity_id: target.athletics_entity_id, source_complete: true, parser_version: platform === 'SIDEARM' ? 'sidearm-roster-2' : listView ? 'presto-cards-listview-1' : `${platform.toLowerCase()}-roster-3`, adapter_version: ADAPTER_VERSION,
+    athletics_entity_id: target.athletics_entity_id, source_complete: true, parser_version: platform === 'SIDEARM' ? 'sidearm-roster-2' : listView ? 'presto-cards-listview-1' : cardsOnly ? 'presto-cards-1' : `${platform.toLowerCase()}-roster-3`, adapter_version: ADAPTER_VERSION,
     adapter_evidence: { platform, title: meta.title, sha256: meta.sha256, records: players.length,
-      sport_evidence: { status: ev.sport.status, detail: ev.sport.detail }, season_evidence: { status: ev.season.status, season: ev.season.season, evidence_class: ev.season.evidence_class, detail: ev.season.detail }, ...(listView ? { list_view: listView, parse: 'presto card theme -> declared list view, cross-checked against the cards' } : {}) },
+      sport_evidence: { status: ev.sport.status, detail: ev.sport.detail }, season_evidence: { status: ev.season.status, season: ev.season.season, evidence_class: ev.season.evidence_class, detail: ev.season.detail }, ...(listView ? { list_view: listView, parse: 'presto card theme -> declared list view, cross-checked against the cards' } : {}), ...(cardsOnly ? { parse: 'presto card theme with no list view -> cards (label/card-back name, labelled bio fields)' } : {}) },
     players: players.map((r) => ({ player_name: r.player_name, position: r.position || null, class_year_label: r.class_year_label || null, hometown: r.hometown || null, ...(r.nationality ? { nationality: r.nationality } : {}) })),
   } };
 }

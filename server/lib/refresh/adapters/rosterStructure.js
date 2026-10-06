@@ -41,6 +41,8 @@ export const STRUCTURE = Object.freeze({ OK: 'OK', EMPTY: 'EMPTY_ROSTER', UNKNOW
 export function headerRole(h) {
   const t = String(h || '').toLowerCase().replace(/[^a-z#/ .]/g, '').trim();
   if (/^(name|player|full name|player name|athlete)$/.test(t)) return 'name';
+  if (/^(first name|first|firstname)$/.test(t)) return 'first_name';
+  if (/^(last name|last|lastname|surname)$/.test(t)) return 'last_name';
   if (/^(no\.?|#|number|jersey|num\.?)$/.test(t)) return 'number';
   if (/^(pos\.?|position)$/.test(t)) return 'position';
   if (/^(cl\.?|class|yr\.?|year|academic year|elig\.?|eligibility|grade)$/.test(t)) return 'class';
@@ -89,14 +91,17 @@ function tablesOf(html) {
 export function parseRosterTableStrict(html) {
   const tables = tablesOf(html);
   const roleSets = tables.map((t) => t.headers.map(headerRole));
-  const idx = roleSets.findIndex((roles) => roles.includes('name') && roles.some((r) => ['number', 'position', 'class', 'height', 'hometown'].includes(r)));
+  // a name is one "Name" column, or (Phase 8C.3D) a "First Name" + "Last Name" pair — never both forms at once
+  const hasName = (roles) => roles.includes('name') || (roles.includes('first_name') && roles.includes('last_name'));
+  const idx = roleSets.findIndex((roles) => hasName(roles) && roles.some((r) => ['number', 'position', 'class', 'height', 'hometown'].includes(r)));
   const rosterish = /class="[^"]*\b(roster|sidearm-roster|s-person-card|player-card|roster-card)\b/i.test(String(html));
   if (idx < 0) {
     if (tables.some((t, i) => roleSets[i].includes('name')) || rosterish) return { records: [], structure: { code: STRUCTURE.UNKNOWN, detail: 'roster markup present but no table with a name column and a supporting roster column' } };
     return { records: [], structure: { code: STRUCTURE.NONE, detail: 'no roster markup on the page' } };
   }
   const { headers, rows } = tables[idx]; const roles = roleSets[idx];
-  if (roles.filter((r) => r === 'name').length !== 1) return { records: [], structure: { code: STRUCTURE.UNKNOWN, detail: 'more than one name column' } };
+  const split = !roles.includes('name');
+  if (split ? roles.filter((r) => r === 'first_name').length !== 1 || roles.filter((r) => r === 'last_name').length !== 1 : roles.filter((r) => r === 'name').length !== 1 || roles.includes('first_name') || roles.includes('last_name')) return { records: [], structure: { code: STRUCTURE.UNKNOWN, detail: 'name columns are ambiguous (more than one name column, or a full name beside first/last)' } };
   const records = []; const problems = [];
   for (const [i, raw] of rows.entries()) {
     // responsive duplicates: mobile-only cells appear only when the row is wider than the header
@@ -104,7 +109,8 @@ export function parseRosterTableStrict(html) {
     if (cells.length === 1 && /colspan/i.test(cells[0].attrs)) continue; // a group/section heading row
     if (cells.length !== headers.length) { problems.push(`row ${i + 1}: ${cells.length} cells for ${headers.length} headers`); continue; }
     const get = (role) => { const k = roles.indexOf(role); return k < 0 ? null : (cells[k].text || null); };
-    const name = (get('name') || '').replace(/\s+#?\d+$/, '').trim();
+    // split names: BOTH halves must be printed — a missing half is a blank name, never completed
+    const name = split ? (get('first_name') && get('last_name') ? `${get('first_name')} ${get('last_name')}` : '') : (get('name') || '').replace(/\s+#?\d+$/, '').trim();
     const why = implausibleName(name);
     if (why) { problems.push(`row ${i + 1}: name is ${why}`); continue; }
     records.push({ player_name: name, position: get('position'), class_year_label: get('class'), hometown: get('hometown'), nationality: get('nationality') });
@@ -134,20 +140,63 @@ export function prestoListViewHref(html) {
   const m = String(html || '').match(/<a\b[^>]*class="[^"]*\broster-view\b[^"]*"[^>]*data-view="list"[^>]*href="([^"]+)"|<a\b[^>]*data-view="list"[^>]*class="[^"]*\broster-view\b[^"]*"[^>]*href="([^"]+)"/i);
   return m ? decodeEntities(m[1] || m[2]) : null;
 }
-/** Names printed on the player cards (first + last name spans), for cross-checking only. */
+/**
+ * One block per Presto player card (`.player-card-wrapper`), split at each wrapper.
+ * Phase 8C.3D: themes measured on 6 NJCAA/USCAA hosts print the class INSIDE the front lastname span
+ * ("Keeper - So."), so the front spans are not a name. The card states the name cleanly in two places:
+ * its accessible label (`aria-label="Alex Keeper: jersey number 0: full bio"`) and the card back's
+ * `.pl-name` first/last spans. Those are read first; the front spans only when neither exists.
+ */
+function cardBlocks(html) {
+  const h = String(html || ''); const starts = [...h.matchAll(/<div\b[^>]*class="[^"]*\bplayer-card-wrapper\b[^"]*"/gi)].map((m) => m.index);
+  return starts.map((s, i) => h.slice(s, starts[i + 1] ?? h.length));
+}
+const spanText = (b, cls) => { const m = b.match(new RegExp(`class="[^"]*\\b${cls}\\b[^"]*"[^>]*>([\\s\\S]*?)<\\/span>`, 'i')); return m ? decodeEntities(m[1].replace(/<[^>]+>/g, ' ')) : null; };
+function cardName(b) {
+  const aria = (b.match(/aria-label="([^"]+?)(?::\s*jersey number[^":]*)?:\s*full bio"/i) || [])[1];
+  const back = b.match(/class="[^"]*\bpl-name\b[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
+  const backName = back ? [spanText(back[1], 'firstname'), spanText(back[1], 'lastname')].filter(Boolean).join(' ') : null;
+  const front = [spanText(b, 'firstname'), spanText(b, 'lastname')].filter(Boolean).join(' ');
+  return { aria: aria ? decodeEntities(aria) : null, back: backName || null, front: front || null };
+}
+/** Names printed on the player cards, for cross-checking only. */
 export function prestoCardNames(html) {
-  const out = [];
-  for (const m of String(html || '').matchAll(/class="[^"]*\bplayer-card-wrapper\b[\s\S]*?class="[^"]*\bfirstname\b[^"]*"[^>]*>([\s\S]*?)<\/span>[\s\S]*?class="[^"]*\blastname\b[^"]*"[^>]*>([\s\S]*?)<\/span>/gi)) {
-    out.push(decodeEntities(`${m[1].replace(/<[^>]+>/g, ' ')} ${m[2].replace(/<[^>]+>/g, ' ')}`));
+  return cardBlocks(html).map((b) => { const n = cardName(b); return n.aria || n.back || n.front || ''; });
+}
+const lettersKey = (s) => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]/g, '');
+const NOT_GIVEN = /^(n\/a|na|none|tbd|tba|-+|—)$/i;
+/**
+ * PRESTO CARD THEME WITHOUT A LIST VIEW (Phase 8C.3D) — fail closed. Used only when the page renders
+ * player cards, has no roster table, and declares no list view. Every card must yield a name from its
+ * accessible label or its card-back name, and when both exist they must agree; one unreadable card
+ * makes the whole page PARSER_STRUCTURE_UNKNOWN. Fields come ONLY from the card's labelled bio list
+ * (`<li><span>Class:</span> Fr</li>`), mapped by label meaning (headerRole); "N/A" is no value.
+ */
+export function parsePrestoCardsStrict(html) {
+  const blocks = cardBlocks(html);
+  if (!blocks.length) return { records: [], structure: { code: STRUCTURE.NONE, detail: 'no player cards' } };
+  const records = []; const problems = [];
+  for (const [i, b] of blocks.entries()) {
+    const n = cardName(b);
+    if (n.aria && n.back && lettersKey(n.aria) !== lettersKey(n.back)) { problems.push(`card ${i + 1}: label "${n.aria}" and card-back name "${n.back}" disagree`); continue; }
+    const name = n.aria || n.back || '';
+    const why = implausibleName(name); if (why) { problems.push(`card ${i + 1}: name is ${why}${!n.aria && !n.back ? ' (no label or card-back name)' : ''}`); continue; }
+    const fields = {};
+    for (const m of b.matchAll(/<li>\s*<span>([^<]{1,40}?):?<\/span>([\s\S]*?)<\/li>/gi)) {
+      const role = headerRole(decodeEntities(m[1]).replace(/:$/, '')); const v = decodeEntities(m[2].replace(/<[^>]+>/g, ' '));
+      if (role && !(role in fields) && v && !NOT_GIVEN.test(v)) fields[role] = v;
+    }
+    records.push({ player_name: name, position: fields.position ?? null, class_year_label: fields.class ?? null, hometown: fields.hometown ?? null, nationality: fields.nationality ?? null });
   }
-  return out;
+  if (problems.length) return { records: [], structure: { code: STRUCTURE.UNKNOWN, detail: `${problems.length} card(s) failed structural validation — ${problems.slice(0, 3).join('; ')}` } };
+  return { records, structure: { code: STRUCTURE.OK, detail: `${records.length} player cards (name from label/card back; fields from labelled bio list)` } };
 }
 /** Cross-check a list-view table parse against the card view it came from. */
 export function crossCheckCards(listParse, cardNames) {
   if (listParse.structure.code !== STRUCTURE.OK) return listParse;
   if (!cardNames.length) return listParse;
   // order-insensitive letters (cards print first + last; a list may print "Last, First"): a cross-check, never an identity
-  const key = (s) => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]/g, '').split('').sort().join('');
+  const key = (s) => lettersKey(s).split('').sort().join('');
   const listed = new Set(listParse.records.map((r) => key(r.player_name)));
   const missing = cardNames.filter((n) => !listed.has(key(n)));
   if (cardNames.length !== listParse.records.length || missing.length) return { records: [], structure: { code: STRUCTURE.UNKNOWN, detail: `list view (${listParse.records.length}) disagrees with the card view (${cardNames.length}); ${missing.length} card name(s) not in the list` } };
