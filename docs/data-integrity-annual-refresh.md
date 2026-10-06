@@ -188,6 +188,26 @@ A page's declared kind is a claim. Its tier is computed from where it actually l
 If two of these disagree (the page is on Concordia Texas's site but names "Texas"), the record
 is a **contradiction**, never a quiet choice.
 
+**Who owns a host (Phase 8C.2C).** One function (`ownerOfHost`) answers this for every caller:
+the gather gate, source tiers, `resolve()`, `entityHosts` and the monitor. The answer is
+built in this order:
+1. **Normalise the host.** Lower-case it, drop a trailing dot and drop a leading `www.`. The
+   `www.` row and the bare row are both kept, so they can be judged together.
+2. **The host's own row decides first.** A held, untrusted or `WRONG_INSTITUTION` row means
+   the host is owned by nobody, even when the parent domain is owned. A trusted subdomain row
+   is owned even when its parent domain has no record (`athletics.parkland.edu`).
+3. **The bare row is the canonical record; a `www.` row can only back it up.**
+   - A `www.` row recording "insufficient evidence" or "unreachable" does not veto a trusted
+     bare row.
+   - A trusted `www.` row can never override an untrusted bare row. That pair is
+     `CONFLICTING_TWINS`, owned by nobody until a person adjudicates it. The monitor lists
+     these as INFO.
+4. **Otherwise the registrable domain decides**, under the same rules. A parent domain never
+   takes a campus host that has its own row.
+
+The monitor's HARD check `host_ownership_consistency` fails if `entityHosts` and
+`hostOwnedBy` ever disagree.
+
 ## Freshness (how old evidence may be)
 
 Cycles run 1 July – 30 June. A check is **CURRENT** if made this cycle, **AGING** last cycle,

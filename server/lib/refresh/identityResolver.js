@@ -29,11 +29,12 @@ import { matchSchoolName } from '../coachingImport.js';
 export const RESOLUTION = Object.freeze({ RESOLVED: 'RESOLVED', REVIEW: 'REVIEW', WITHHOLD: 'WITHHOLD' });
 export const SHARED_PLATFORM_ROOT = /(^|\.)(prestosports\.com|sidearmsports\.com|sidearmstats\.com|wixsite\.com|squarespace\.com|weebly\.com|godaddysites\.com|wordpress\.com|leaguelineup\.com)$/i;
 const TRUSTED = new Set(['VERIFIED', 'VERIFIED_ALIAS']);
+/** Canonical host key: lower case, no trailing dot, no leading "www.". */
+export const normHost = (h) => String(h || '').trim().toLowerCase().replace(/\.$/, '').replace(/^www\./, '');
 const CONF = { KNOWN_ENTITY: 1, AUTHORITATIVE_HOST: 0.99, AUTHORITATIVE_DOMAIN: 0.97, ALIAS_ENTITY: 0.95, FEDERAL_UNITID: 0.95, PARENT_PLUS_EXACT_NAME: 0.85, EXACT_PROGRAMME_NAME: 0.8 };
 
 export function createIdentityResolver({ entities = [], colleges = [], domains = [], aliases = [], rowLinks = [], locations = [] } = {}) {
   const eidx = buildEntityIndex({ entities, colleges, domains });
-  const domBy = new Map(domains.map((d) => [String(d.domain).toLowerCase(), d]));
   const linkOf = new Map(rowLinks.map((l) => [l.college_id, l]));
   const collById = new Map(colleges.map((c) => [c.id, c]));
   const campusesOf = new Map(); // parent unitid -> [campus entity ids]
@@ -101,17 +102,10 @@ export function createIdentityResolver({ entities = [], colleges = [], domains =
     // 2 authoritative host / domain
     const host = hostOf(obs.source_url);
     if (host && !SHARED_PLATFORM_ROOT.test(host)) {
-      const he = eidx.entityForHost(host);
-      if (he) take('AUTHORITATIVE_HOST', he, `host ${host} owned by ${he}`);
-      else {
-        const rd = registrableDomain(obs.source_url); const d = rd && domBy.get(rd);
-        if (d && (d.status === 'WRONG_INSTITUTION' || d.status === 'AMBIGUOUS' || isHeldDomain(d.domain))) contradictions.push(`source domain ${rd} is ${isHeldDomain(d.domain) ? 'held for adjudication' : d.status}`);
-        else if (d && TRUSTED.has(d.status)) {
-          const de = domainEntity(d);
-          if (de?.entity) take('AUTHORITATIVE_DOMAIN', de.entity, `${rd} -> ${de.entity}${d.unitid != null ? ` (UNITID ${d.unitid})` : ''}`);
-          else if (de?.parentOnly) { parentOnly = parentOnly || de.parentOnly; evidence.push({ method: 'PARENT_ONLY_DOMAIN', entity: null, detail: `${rd} -> parent UNITID ${d.unitid}: ${de.parentOnly.join(', ')}` }); }
-        }
-      }
+      const o = ownerOfHost(host);
+      if (o.entity) take(o.via === 'EXACT_HOST' ? 'AUTHORITATIVE_HOST' : 'AUTHORITATIVE_DOMAIN', o.entity, `${o.via === 'EXACT_HOST' ? 'host' : 'registrable domain of'} ${host} owned by ${o.entity}`);
+      else if (o.parentOnly) { parentOnly = parentOnly || o.parentOnly; evidence.push({ method: 'PARENT_ONLY_DOMAIN', entity: null, detail: `${host} -> parent UNITID: ${o.parentOnly.join(', ')}` }); }
+      else if (['WRONG_INSTITUTION', 'AMBIGUOUS', 'HELD', 'CONFLICTING_TWINS'].includes(o.status)) contradictions.push(`source host ${host}: ${o.reason}`);
     } else if (host) evidence.push({ method: 'SHARED_PLATFORM', entity: null, detail: `${host} is a shared hosting root, not an institution` });
     // 3 alias tied to an entity
     const key = normaliseInstitution(obs.raw_name);
@@ -156,31 +150,93 @@ export function createIdentityResolver({ entities = [], colleges = [], domains =
     return { ...base, decision: RESOLUTION.RESOLVED, entity_id: first.entity, college_id: prog.row?.id || null, programme_reason: prog.row ? null : prog.reason, programme_candidates: prog.candidates || [], method: first.method, confidence: CONF[first.method] ?? 0.5, contradictions: [], candidates: [] };
   }
 
-  /** Hosts an entity owns: host-level rows plus trusted registrable domains mapped to it. */
-  function entityHosts(entityId) {
-    const s = new Set();
-    for (const d of domains) {
-      if (!TRUSTED.has(d.status) || SHARED_PLATFORM_ROOT.test(d.domain)) continue;
-      const own = domainEntity(d)?.entity === entityId;
-      if (own) s.add(String(d.domain).toLowerCase());
+  /**
+   * THE host-ownership primitive (Phase 8C.2C). Every ownership answer — hostOwnedBy,
+   * entityHosts, sourceOwnedBy and the host step of resolve() — derives from this one
+   * function, so they cannot disagree about the same host.
+   *
+   *   1 normalise: lower case, no trailing dot, no leading "www." — but the rows of BOTH
+   *     spellings are kept, so a "www." row and its bare twin are judged together
+   *   2 the exact host's own rows decide first (gilbert.parkathletics.com is Park
+   *     Gilbert's, never Park's): held, untrusted, or a "www." twin that contradicts
+   *     the canonical bare record -> nobody (see judgeRows)
+   *   3 only when the exact host has no row of its own does its registrable domain
+   *     decide, under the same rules
+   *
+   * Returns { entity, parentOnly, via, status, reason }: `entity` is set only when one
+   * trusted record names exactly one entity. Shared platform roots are owned by nobody.
+   */
+  const domRows = new Map();
+  for (const d of domains) { const k = normHost(d.domain); if (k) (domRows.get(k) || domRows.set(k, []).get(k)).push(d); }
+  /** A row's own verdict: who it names when trusted, else the decision it records. */
+  const verdictOf = (d) => {
+    if (!TRUSTED.has(d.status)) return `UNTRUSTED:${d.status}`;
+    const de = domainEntity(d);
+    return de?.entity ? `ENTITY:${de.entity}` : de?.parentOnly ? `PARENT:${de.parentOnly.join(',')}` : 'UNRESOLVED';
+  };
+  /** Statuses that record no claim about the host at all (we could not tell), as opposed to a contrary decision. */
+  const NO_CLAIM = new Set(['UNTRUSTED:INSUFFICIENT_EVIDENCE', 'UNTRUSTED:UNREACHABLE']);
+  /**
+   * Judge the rows of one normalised host. The bare-host row is the canonical record (every
+   * writer and every lookup uses bare hosts); a "www." row may only corroborate it:
+   *   bare trusted   + www row with no claim                -> the bare row decides
+   *   bare trusted   + www row naming anything else         -> CONFLICTING_TWINS (nobody)
+   *   bare untrusted + a trusted www row                    -> CONFLICTING_TWINS (nobody):
+   *                    an alias spelling never overrides the canonical decision
+   *   only a www row                                        -> it is the record
+   * Normalisation therefore never turns two disagreeing records into an approval.
+   */
+  function judgeRows(key, rows, via) {
+    const none = (status, reason) => ({ entity: null, parentOnly: null, via, status, reason });
+    if (isHeldDomain(key)) return none('HELD', `${key} is held for adjudication`);
+    const bare = rows.find((d) => !/^www\./i.test(String(d.domain).trim()));
+    const twins = rows.filter((d) => d !== bare);
+    const conflict = () => none('CONFLICTING_TWINS', `${rows.map((d) => `${d.domain} ${d.status}`).join(' vs ')} disagree`);
+    let v;
+    if (!bare) {
+      if (new Set(twins.map(verdictOf)).size > 1) return conflict();
+      v = verdictOf(twins[0]);
+    } else {
+      v = verdictOf(bare);
+      const others = twins.map(verdictOf);
+      if (v.startsWith('UNTRUSTED:') ? others.some((o) => !o.startsWith('UNTRUSTED:')) : others.some((o) => o !== v && !NO_CLAIM.has(o))) return conflict();
     }
-    return s;
+    const rec = bare || twins[0];
+    if (v.startsWith('UNTRUSTED:')) return none(v.slice(10), `${rec.domain} is ${v.slice(10)}`);
+    if (v.startsWith('ENTITY:')) return { entity: v.slice(7), parentOnly: null, via, status: rec.status, reason: null };
+    if (v.startsWith('PARENT:')) return { entity: null, parentOnly: v.slice(7).split(','), via, status: rec.status, reason: 'parent UNITID — cannot pick a campus' };
+    return none('UNRESOLVED', `${rec.domain} names no entity`);
+  }
+  const ownerMemo = new Map();
+  function ownerOfHost(host) {
+    const h = normHost(host);
+    if (!ownerMemo.has(h)) ownerMemo.set(h, decideOwner(h));
+    return ownerMemo.get(h);
+  }
+  function decideOwner(h) {
+    if (!h) return { entity: null, parentOnly: null, via: null, status: 'NO_HOST', reason: 'no host' };
+    if (SHARED_PLATFORM_ROOT.test(h)) return { entity: null, parentOnly: null, via: null, status: 'SHARED_PLATFORM', reason: `${h} is a shared hosting root` };
+    if (domRows.has(h)) return judgeRows(h, domRows.get(h), 'EXACT_HOST');
+    if (isHeldDomain(h)) return { entity: null, parentOnly: null, via: 'EXACT_HOST', status: 'HELD', reason: `${h} is held for adjudication` };
+    const rd = registrableDomain(`https://${h}/`);
+    if (rd && rd !== h && domRows.has(rd)) return judgeRows(rd, domRows.get(rd), 'REGISTRABLE_DOMAIN');
+    if (rd && rd !== h && isHeldDomain(rd)) return { entity: null, parentOnly: null, via: 'REGISTRABLE_DOMAIN', status: 'HELD', reason: `${rd} is held for adjudication` };
+    return { entity: null, parentOnly: null, via: null, status: 'NO_RECORD', reason: `no record for ${h}` };
   }
 
-  /**
-   * Does this entity own this exact host? A host-level row decides first (so
-   * gilbert.parkathletics.com is Park Gilbert's, never Park's); otherwise the trusted
-   * registrable domain decides. Shared platform roots are owned by nobody.
-   */
+  /** Hosts (normalised) an entity owns, by ownerOfHost — the same answer hostOwnedBy gives. */
+  let hostsByEntity = null;
+  function entityHosts(entityId) {
+    if (!hostsByEntity) {
+      hostsByEntity = new Map();
+      for (const k of domRows.keys()) { const e = ownerOfHost(k).entity; if (e) (hostsByEntity.get(e) || hostsByEntity.set(e, new Set()).get(e)).add(k); }
+    }
+    return new Set(hostsByEntity.get(entityId) || []);
+  }
+
+  /** Does this entity own this host? Exactly ownerOfHost(host).entity === entityId. */
   function hostOwnedBy(host, entityId) {
-    if (!host || !entityId || SHARED_PLATFORM_ROOT.test(host)) return false;
-    const he = eidx.entityForHost(host);
-    if (he) return he === entityId;
-    const hostRow = domBy.get(host);
-    if (hostRow && !TRUSTED.has(hostRow.status)) return false;
-    const rd = registrableDomain(`https://${host}/`); const d = rd && domBy.get(rd);
-    if (!d || !TRUSTED.has(d.status) || isHeldDomain(d.domain)) return false;
-    return domainEntity(d)?.entity === entityId;
+    return !!entityId && ownerOfHost(host).entity === entityId;
   }
 
   /**
@@ -202,5 +258,30 @@ export function createIdentityResolver({ entities = [], colleges = [], domains =
   }
   function entityLocations(entityId) { return locations.filter((l) => l.athletics_entity_id === entityId && l.status === 'VERIFIED'); }
 
-  return { resolve, programmeRow, canonicalRow, entityHosts, hostOwnedBy, sourceOwnedBy, entityLocations, unitidEntity, index: eidx };
+  return { resolve, programmeRow, canonicalRow, ownerOfHost, entityHosts, hostOwnedBy, sourceOwnedBy, entityLocations, unitidEntity, index: eidx };
+}
+
+/**
+ * HOST-OWNERSHIP INVARIANT (Phase 8C.2C). For every entity a trusted or held athletics_domains
+ * row could name (its athletics_entity_id, the entity owning its UNITID, and the campuses under
+ * that UNITID) and every host entityHosts reports, the two canonical ownership APIs must agree:
+ *   entityHosts(entity).has(host)  <=>  hostOwnedBy(host, entity)
+ * Returns the disagreeing "entity host" pairs; the monitor fails HARD on any. Pure.
+ */
+export function hostOwnershipDisagreements({ resolver, domains = [], entities = [] }) {
+  const campuses = new Map();
+  for (const e of entities) if (e.parent_unitid != null) (campuses.get(Number(e.parent_unitid)) || campuses.set(Number(e.parent_unitid), []).get(Number(e.parent_unitid))).push(e.athletics_entity_id);
+  const pairs = new Set();
+  for (const d of domains) {
+    if (!TRUSTED.has(d.status) && !isHeldDomain(d.domain)) continue;
+    for (const e of [d.athletics_entity_id, resolver.index.entityForUnitid(d.unitid), ...(campuses.get(Number(d.unitid)) || [])]) if (e) pairs.add(`${e}\t${normHost(d.domain)}`);
+  }
+  for (const e of entities) for (const h of resolver.entityHosts(e.athletics_entity_id)) pairs.add(`${e.athletics_entity_id}\t${h}`);
+  const out = [];
+  for (const p of pairs) {
+    const [e, h] = p.split('\t');
+    const listed = resolver.entityHosts(e).has(h); const owned = resolver.hostOwnedBy(h, e);
+    if (listed !== owned) out.push(`${h} ${e} (entityHosts ${listed}, hostOwnedBy ${owned})`);
+  }
+  return out.sort();
 }
