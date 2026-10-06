@@ -1,14 +1,105 @@
 {
- "_doc": "Phase 8B.1 NJCAA/USCAA programme-universe baseline (entity|sport of active carrier rows), re-baselined after the guarded Phase 8B.1 structural fixture (39f1e556…: 28 programmes re-labelled CCCAA/NWAC, 51 retired with two independent sources). integrity:monitor reports drift from it as WARN; these divisions are still being established — no coverage freeze.",
- "created_at": "2026-10-01",
+ "_doc": "Phase 8C.2 NJCAA/USCAA programme-universe baseline (entity|sport of active carrier rows), re-baselined after the guarded Phase 8C.2B apply of universe fixture A (50369d36ac0a…): 13 NJCAA men's programmes retired (INACTIVE / DISCONTINUED / WRONG_SEX), each with two independent authoritative sources; never deleted, history rows kept. This certifies that intentional change only; any other drift remains a WARN. integrity:monitor reports drift from it as WARN; these divisions are still being established — no coverage freeze.",
+ "created_at": "2026-10-06T05:01:34.476Z",
  "season": 2026,
+ "phase": "8C.2B (adjudicated 8C.2 / readiness 8C.2A)",
+ "reason": "13 NJCAA men's programmes adjudicated INACTIVE/DISCONTINUED/WRONG_SEX with two independent authoritative sources (complete 2026-27 region/conference listing omission + the institution's own official athletics site, or two listing seasons + official site). Held, not retired: Butler County, Reading Area (fail the two-source rule), Christendom (membership verify held).",
  "previous": {
-  "phase": "8A",
-  "NJCAA": 489,
-  "USCAA": 46
+  "phase": "8B.1",
+  "created_at": "2026-10-01",
+  "NJCAA": 410,
+  "USCAA": 46,
+  "baseline_sha256": "379409248aff1e47f0715b54b9567b0f98e067d178601ee2dcbdb3c9c2641a02"
+ },
+ "change": {
+  "fixture": "integrity_artifacts/phase8c2/groups/A_universe.fixture.json",
+  "fixture_hash": "50369d36ac0a7a83bba9b98766c30bd62c1dfe5f8a25ace4f5077449c349d42c",
+  "apply_manifest_sha256": "992f54194a783f408e5cf9a75aace8e0d8f160a3e571bf68972f35cd82381291",
+  "evidence_manifest": "integrity_artifacts/phase8c2/deactivation_verification.json",
+  "removed": [
+   {
+    "college_id": "edb928d1-eac5-4232-bb1f-fecdc6afc339",
+    "key": "AE-U240596|mens-soccer",
+    "programme": "Eastern Wyoming",
+    "decision": "INACTIVE"
+   },
+   {
+    "college_id": "813e10b1-39ed-4321-aa0b-482e2ab37223",
+    "key": "AE-U153214|mens-soccer",
+    "programme": "Des Moines Area",
+    "decision": "INACTIVE"
+   },
+   {
+    "college_id": "9dd6d801-deea-4b0e-8438-317a061e9375",
+    "key": "AE-U153296|mens-soccer",
+    "programme": "Ellsworth",
+    "decision": "INACTIVE"
+   },
+   {
+    "college_id": "8a8b10a1-8fce-4d12-b347-330189099433",
+    "key": "AE-U127200|mens-soccer",
+    "programme": "Front Range",
+    "decision": "INACTIVE"
+   },
+   {
+    "college_id": "710a9cff-7535-463c-b1d3-c0b053bde320",
+    "key": "AE-U153737|mens-soccer",
+    "programme": "Kirkwood",
+    "decision": "INACTIVE"
+   },
+   {
+    "college_id": "7126cd0c-9d04-4914-8f64-bd48f9834f16",
+    "key": "AE-U146506|mens-soccer",
+    "programme": "Lake Land",
+    "decision": "INACTIVE"
+   },
+   {
+    "college_id": "9b55308c-d3f2-48cc-ad7f-d05168f6e960",
+    "key": "AE-U148256|mens-soccer",
+    "programme": "Rend Lake",
+    "decision": "INACTIVE"
+   },
+   {
+    "college_id": "ba6f08d1-eddd-4cee-bbf4-d8845cdedb79",
+    "key": "AE-U221397|mens-soccer",
+    "programme": "Roane State",
+    "decision": "WRONG_SEX"
+   },
+   {
+    "college_id": "3985fe5f-53dd-4f0f-8308-6914a71fcadb",
+    "key": "AE-U148821|mens-soccer",
+    "programme": "Shawnee Community",
+    "decision": "INACTIVE"
+   },
+   {
+    "college_id": "68789865-bbd9-4361-8e96-986be1a5dcb0",
+    "key": "AE-U152637|mens-soccer",
+    "programme": "Vincennes",
+    "decision": "INACTIVE"
+   },
+   {
+    "college_id": "be4a904e-2758-48cc-9947-b5bc640d7dd5",
+    "key": "AE-U222053|mens-soccer",
+    "programme": "Volunteer State",
+    "decision": "WRONG_SEX"
+   },
+   {
+    "college_id": "7fb30447-a391-4a88-8854-9d48f3304663",
+    "key": "AE-U222062|mens-soccer",
+    "programme": "Walters State",
+    "decision": "INACTIVE"
+   },
+   {
+    "college_id": "c4ad7b59-4acf-4433-8783-79740be3a085",
+    "key": "AE-U240693|mens-soccer",
+    "programme": "Western Wyoming",
+    "decision": "DISCONTINUED"
+   }
+  ],
+  "added": []
  },
  "NJCAA": {
-  "logical": 410,
+  "logical": 397,
   "keys": [
    "AE-U101143|mens-soccer",
    "AE-U101295|mens-soccer",
@@ -43,7 +134,6 @@
    "AE-U107549|mens-soccer",
    "AE-U126748|mens-soccer",
    "AE-U126748|womens-soccer",
-   "AE-U127200|mens-soccer",
    "AE-U127389|mens-soccer",
    "AE-U127389|womens-soccer",
    "AE-U127732|mens-soccer",
@@ -86,20 +176,14 @@
    "AE-U146366|mens-soccer",
    "AE-U146366|womens-soccer",
    "AE-U146472|mens-soccer",
-   "AE-U146506|mens-soccer",
    "AE-U146603|womens-soccer",
    "AE-U146685|womens-soccer",
    "AE-U147916|mens-soccer",
    "AE-U147916|womens-soccer",
    "AE-U148007|mens-soccer",
-   "AE-U148256|mens-soccer",
    "AE-U148292|mens-soccer",
    "AE-U148380|mens-soccer",
-   "AE-U148821|mens-soccer",
    "AE-U149842|mens-soccer",
-   "AE-U152637|mens-soccer",
-   "AE-U153214|mens-soccer",
-   "AE-U153296|mens-soccer",
    "AE-U153445|mens-soccer",
    "AE-U153445|womens-soccer",
    "AE-U153472|mens-soccer",
@@ -110,7 +194,6 @@
    "AE-U153533|womens-soccer",
    "AE-U153630|mens-soccer",
    "AE-U153630|womens-soccer",
-   "AE-U153737|mens-soccer",
    "AE-U153922|mens-soccer",
    "AE-U154059|mens-soccer",
    "AE-U154059|womens-soccer",
@@ -324,14 +407,11 @@
    "AE-U220057|mens-soccer",
    "AE-U220057|womens-soccer",
    "AE-U221096|womens-soccer",
-   "AE-U221397|mens-soccer",
    "AE-U221397|womens-soccer",
    "AE-U221485|womens-soccer",
    "AE-U221643|mens-soccer",
    "AE-U221643|womens-soccer",
-   "AE-U222053|mens-soccer",
    "AE-U222053|womens-soccer",
-   "AE-U222062|mens-soccer",
    "AE-U222822|mens-soccer",
    "AE-U222822|womens-soccer",
    "AE-U223320|mens-soccer",
@@ -376,14 +456,12 @@
    "AE-U240505|womens-soccer",
    "AE-U240514|mens-soccer",
    "AE-U240514|womens-soccer",
-   "AE-U240596|mens-soccer",
    "AE-U240620|mens-soccer",
    "AE-U240620|womens-soccer",
    "AE-U240657|mens-soccer",
    "AE-U240657|womens-soccer",
    "AE-U240666|mens-soccer",
    "AE-U240666|womens-soccer",
-   "AE-U240693|mens-soccer",
    "AE-U240693|womens-soccer",
    "AE-U247603|mens-soccer",
    "AE-U247603|womens-soccer",

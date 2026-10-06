@@ -1,0 +1,374 @@
+{
+ "milestone": "Phase 8C.2B \u2014 NJCAA/USCAA adjudication + source identity canonical apply (shared dev)",
+ "created_at": "2026-10-06T05:05:42Z",
+ "checkpoints": {
+  "pre": {
+   "label": "PRE_PHASE_8C2_APPLY",
+   "checkpoint_file": "recruitmatch.sqlite.snapshot-PRE_PHASE_8C2_APPLY-2026-10-06T04-59-28-869Z",
+   "checkpoint_sha256": "d0a8ab10f6d842989dea93b74176fbd9814ab95a2b2a1339a86758abbdae5aa3",
+   "checkpoint_bytes": 313954304
+  },
+  "post": {
+   "label": "POST_PHASE_8C2",
+   "checkpoint_file": "recruitmatch.sqlite.snapshot-POST_PHASE_8C2-2026-10-06T05-05-42-505Z",
+   "checkpoint_sha256": "bcabfd6cf9d7f73b183457aa4cd9e8963dc9e7ded6c6c5563e696fa847496f4a",
+   "checkpoint_bytes": 314077184,
+   "live_db_sha256_at_checkpoint": "bc24cfb5aabb010452b7d20188e2ab8ae739d8d36cf49c203d99c165ca02ede2",
+   "content_equivalence_to_live": "all 55 tables content-identical (0 differences); schema identical; file SHAs differ because VACUUM INTO rewrites pages"
+  }
+ },
+ "git": {
+  "main_sha": "1578de7218a5d0890e308f816cff16b9aeeb91e4",
+  "baseline_commit": "135e1e4 (branch data/phase-8c2-universe-baseline, not pushed at checkpoint time)"
+ },
+ "universe_baseline": {
+  "file": "shared/njcaaUscaaBaseline.json",
+  "previous_sha256": "379409248aff1e47f0715b54b9567b0f98e067d178601ee2dcbdb3c9c2641a02",
+  "new_sha256": "2646a4f6b82acb50f8d1e7bee8fba662776a8d1ffbe3a7057ad69ab1f834c0aa",
+  "NJCAA": 397,
+  "USCAA": 46
+ },
+ "fixtures": {
+  "A": "50369d36ac0a7a83bba9b98766c30bd62c1dfe5f8a25ace4f5077449c349d42c",
+  "B": "9dfceadc268d57ab519cc10616400ddfe1421fef5c5a806dd896872f9e88d335",
+  "C_batch": "RB-2026-NJCAA-a275a9ccf933 e5533c986a16be8010624052ef702e23cba2b2c25810d10e3a8ab198538172b9",
+  "D_batch": "RB-2026-NJCAA-c6987dd3097a 8740e59d557ba82ba9824456c03066881c6da035e355d1889ea3a3e18583c222 + groups/D_reviews.json"
+ },
+ "apply_manifests": {
+  "A_universe": {
+   "sha256": "23f6c65e9fec1089c87598a39d00bd711b133353d8dd92460e58491c7d0c1741",
+   "stored": "integrity_artifacts/phase8c2/apply/A_live_manifest.json"
+  },
+  "B_source_identity": {
+   "sha256": "478d736476a0d11551bebb181078fe41e2c25f535fc109b2375f50562ca23641",
+   "stored": "integrity_artifacts/phase8c2/apply/B_live_manifest.json"
+  },
+  "C_northwest (local_only: player names)": {
+   "sha256": "6482d26a1e767ae83e2b7b7488ae6a1967793fddcf49078f16c5d0bfd3809acd",
+   "stored": "integrity_artifacts/phase8c2/local_only/apply/C_live_manifest.json"
+  },
+  "D_revalidation (local_only: player names)": {
+   "sha256": "0b0cac02691bed1116955910db7821589ae1b422a5d32fab79d68d02a6ee2203",
+   "stored": "integrity_artifacts/phase8c2/local_only/apply/D_live_manifest.json"
+  }
+ },
+ "promotion_audit_rows": [
+  "RP-48e9e25a2e7d6dd7 (C, 52 ops)",
+  "D: 1 op (FILL_ROSTER_FIELDS), 1 withheld (REJECTED in review)"
+ ],
+ "table_deltas": {
+  "athletics_domains": [
+   2818,
+   2845
+  ],
+  "athletics_source_locations": [
+   0,
+   11
+  ],
+  "colleges": [
+   2700,
+   2700
+  ],
+  "corpus_revision": [
+   1,
+   1
+  ],
+  "programme_membership_periods": [
+   2681,
+   2681
+  ],
+  "refresh_batches": [
+   5,
+   5
+  ],
+  "refresh_observations": [
+   10186,
+   10186
+  ],
+  "refresh_promotions": [
+   1,
+   3
+  ],
+  "roster_players": [
+   286002,
+   286054
+  ]
+ },
+ "schema": {
+  "schema_object_count": 166,
+  "table_count": 55,
+  "schema_sha256": "4d429c0403253a5b58ecf3d65c0e7cbdc8eaa28e57f4fa5a519060f6f4e835fc"
+ },
+ "corpus_revision": {
+  "pre": [
+   {
+    "id": 1,
+    "revision": 3472
+   }
+  ],
+  "post": [
+   {
+    "id": 1,
+    "revision": 3538
+   }
+  ],
+  "note": "+66 = trigger bumps for 13 college updates + 52 roster inserts + 1 roster update"
+ },
+ "integrity_pre": {
+  "pragma_integrity_check": "ok",
+  "monitor": "PASS",
+  "monitor_by_severity": {
+   "OK": 36,
+   "INFO": 18,
+   "WARN": 3
+  },
+  "hard_findings": 0,
+  "player_checks": {
+   "factual_prior_from_name_only": 0,
+   "factual_continuation_without_link": 0,
+   "contradicted_hometown_on_factual_link": 0,
+   "simultaneous_conflicting_programmes": 0,
+   "factual_link_without_provenance": 0,
+   "invalid_temporal_sequence": 0,
+   "ambiguous_link_consumed_as_verified": 0,
+   "candidate_transfer_presented_as_factual": 0,
+   "observation_overwritten_by_identity_merge": 0
+  },
+  "entity_identity_validator": "PASS",
+  "coach_eligible": 4157,
+  "coach_eligible_ids_sha256_prefix": "1b7846104393bf19",
+  "naia_freeze_exact": true,
+  "naia": {
+   "logical": 381,
+   "covered": 370
+  },
+  "njcaa_uscaa_coverage": {
+   "NJCAA|Men": {
+    "programmes": 239,
+    "covered": 101,
+    "rows2026": 2812
+   },
+   "USCAA|Men": {
+    "programmes": 24,
+    "covered": 7,
+    "rows2026": 192
+   },
+   "USCAA|Women": {
+    "programmes": 22,
+    "covered": 7,
+    "rows2026": 113
+   },
+   "NJCAA|Women": {
+    "programmes": 171,
+    "covered": 83,
+    "rows2026": 1751
+   }
+  },
+  "membership": {
+   "NJCAA": {
+    "active": 410,
+    "verified_AB": 336,
+    "seed": 74,
+    "no_period": 0,
+    "discontinued": 52
+   },
+   "USCAA": {
+    "active": 46,
+    "verified_AB": 38,
+    "seed": 8,
+    "no_period": 0,
+    "discontinued": 0
+   }
+  },
+  "hosts": {
+   "NJCAA": {
+    "entities": 264,
+    "with_entityHosts": 132,
+    "with_usable_host": 130,
+    "with_location": 0
+   },
+   "USCAA": {
+    "entities": 29,
+    "with_entityHosts": 9,
+    "with_usable_host": 9,
+    "with_location": 0
+   }
+  },
+  "roster_total": 286002,
+  "roster_2026": 67100,
+  "duplicate_player_season": 7,
+  "recruiting_arrivals": 88847,
+  "matchmaking_v2_corpus_digest": {
+   "SUPPORTED": "adf924962496cfa1",
+   "UNSUPPORTED": "9817fdaf70dd855c"
+  },
+  "recruiting_materialisation": {
+   "mens-soccer": "FRESH",
+   "womens-soccer": "FRESH"
+  }
+ },
+ "integrity_post": {
+  "pragma_integrity_check": "ok",
+  "monitor": "PASS",
+  "monitor_by_severity": {
+   "OK": 37,
+   "INFO": 18,
+   "WARN": 3
+  },
+  "hard_findings": 0,
+  "player_checks": {
+   "factual_prior_from_name_only": 0,
+   "factual_continuation_without_link": 0,
+   "contradicted_hometown_on_factual_link": 0,
+   "simultaneous_conflicting_programmes": 0,
+   "factual_link_without_provenance": 0,
+   "invalid_temporal_sequence": 0,
+   "ambiguous_link_consumed_as_verified": 0,
+   "candidate_transfer_presented_as_factual": 0,
+   "observation_overwritten_by_identity_merge": 0
+  },
+  "entity_identity_validator": "PASS",
+  "coach_eligible": 4157,
+  "coach_eligible_ids_sha256_prefix": "1b7846104393bf19",
+  "naia_freeze_exact": true,
+  "naia": {
+   "logical": 381,
+   "covered": 370
+  },
+  "njcaa_uscaa_coverage": {
+   "NJCAA|Men": {
+    "programmes": 226,
+    "covered": 102,
+    "rows2026": 2845
+   },
+   "USCAA|Men": {
+    "programmes": 24,
+    "covered": 7,
+    "rows2026": 192
+   },
+   "USCAA|Women": {
+    "programmes": 22,
+    "covered": 7,
+    "rows2026": 113
+   },
+   "NJCAA|Women": {
+    "programmes": 171,
+    "covered": 84,
+    "rows2026": 1770
+   }
+  },
+  "membership": {
+   "NJCAA": {
+    "active": 397,
+    "verified_AB": 336,
+    "seed": 61,
+    "no_period": 0,
+    "discontinued": 65
+   },
+   "USCAA": {
+    "active": 46,
+    "verified_AB": 38,
+    "seed": 8,
+    "no_period": 0,
+    "discontinued": 0
+   }
+  },
+  "hosts": {
+   "NJCAA": {
+    "entities": 254,
+    "with_entityHosts": 166,
+    "with_usable_host": 164,
+    "with_location": 11
+   },
+   "USCAA": {
+    "entities": 29,
+    "with_entityHosts": 9,
+    "with_usable_host": 9,
+    "with_location": 0
+   }
+  },
+  "roster_total": 286054,
+  "roster_2026": 67152,
+  "duplicate_player_season": 7,
+  "recruiting_arrivals": 88847,
+  "matchmaking_v2_corpus_digest": {
+   "SUPPORTED": "adf924962496cfa1",
+   "UNSUPPORTED": "06014fc20a24b433"
+  },
+  "recruiting_materialisation": {
+   "mens-soccer": "STALE",
+   "womens-soccer": "STALE"
+  }
+ },
+ "held_verification": {
+  "Butler County [mens-soccer]": true,
+  "Reading Area [mens-soccer]": true,
+  "Christendom College [womens-soccer]": true,
+  "Angelina College [mens-soccer]": true,
+  "Angelina College [womens-soccer]": true,
+  "Parkland [mens-soccer]": true,
+  "Parkland College [womens-soccer]": true,
+  "Mercer (AE-U185509) no location, domains unchanged": true,
+  "protected snowbadgers.com": true,
+  "protected athletics.csi.edu": true,
+  "protected nassaulions.com": true,
+  "8C.2 programme decisions not in A (by action): rows+periods unchanged": {
+   "MERGE/REMOVE": {
+    "n": 1,
+    "unchanged": 1
+   },
+   "KEEP": {
+    "n": 31,
+    "unchanged": 31
+   },
+   "UNRESOLVED": {
+    "n": 27,
+    "unchanged": 27
+   },
+   "REASSIGN": {
+    "n": 1,
+    "unchanged": 1
+   },
+   "STATUS_CHANGE": {
+    "n": 5,
+    "unchanged": 5
+   },
+   "REMOVE": {
+    "n": 2,
+    "unchanged": 2
+   },
+   "KEEP + VERIFY": {
+    "n": 1,
+    "unchanged": 1
+   }
+  },
+  "Pellissippi probable duplicate: REJECTED, not promoted, no roster row": true,
+  "Pellissippi disappeared row retained unchanged": true,
+  "12 POSSIBLE_CHANGE target rows unchanged (2 ambiguous + 10 verified-unapplied)": "12/12"
+ },
+ "held_item_counts": {
+  "deactivations_held": 2,
+  "membership_verify_held": 1,
+  "location_held": 1,
+  "protected_domain_corrections": 3,
+  "programme_decisions_unresolved": 27,
+  "status_change_held": 5,
+  "reassign_held": 1,
+  "duplicate_merge_held": 1,
+  "angelina": 2,
+  "parkland": 2,
+  "pellissippi_probable_duplicate": 1,
+  "ambiguous_field_changes": 2,
+  "verified_unapplied_field_changes": 10
+ },
+ "not_done": [
+  "Parkland resolver repair",
+  "59-programme gather",
+  "parser work (8C.3)",
+  "staging cleanup",
+  "coach promotion",
+  "materialisation rebuild",
+  "deploy"
+ ],
+ "privacy": "No player or coach names. C/D promotion manifests (player names) remain in integrity_artifacts/phase8c2/local_only/ and are never committed."
+}

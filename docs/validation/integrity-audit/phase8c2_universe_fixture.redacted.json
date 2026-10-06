@@ -1,0 +1,224 @@
+{
+ "phase": "8C.2A-A-universe",
+ "created_at": "2026-10-06T00:00:00Z",
+ "fixture_hash": "50369d36ac0a7a83bba9b98766c30bd62c1dfe5f8a25ace4f5077449c349d42c",
+ "entity_create": [],
+ "entity_update": [],
+ "college_repair": [],
+ "programme_create": [],
+ "membership_verify": [],
+ "row_link": [],
+ "deactivate": [
+  {
+   "label": "Eastern Wyoming [mens-soccer] INACTIVE",
+   "college_id": "edb928d1-eac5-4232-bb1f-fecdc6afc339",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://region9athletics.com/sports/msoc/2026-27/teams [B 2026-10-06] Complete current Region 9 men's listing (10 teams) omits Eastern Wyoming. || https://www.ewcathletics.com/ [A 2026-10-06T03:29:05Z] Official EWC athletics site sports: esports, mbkb, mgolf, mrodeo, wbkb, wgolf, wrodeo, wvball. No soccer of either sex.",
+   "reason": "8C.2 INACTIVE (HIGH, TWO_SOURCE_ABSENCE): No soccer programme exists. The 2025-26 Region 9 listing did not parse, so the second source is the official site.",
+   "blast_radius": "colleges row edb928d1-eac5-4232-bb1f-fecdc6afc339 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  },
+  {
+   "label": "Des Moines Area [mens-soccer] INACTIVE",
+   "college_id": "813e10b1-39ed-4321-aa0b-482e2ab37223",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://www.iccac.org/sports/msoc/2026-27/teams [B 2026-10-06] Current ICCAC men's soccer listing names only Iowa Western and Indian Hills (2025-26 listing identical). || https://www.dmaccbears.com/landing/index [A 2026-10-06T03:35:58Z] Official DMACC athletics sports: bsb, dance, esports, mbkb, mgolf, mtrack, mxc, sball, wbkb, wgolf, wtrack, wvball, wxc. No soccer.",
+   "reason": "8C.2 INACTIVE (MEDIUM, TWO_SOURCE_ABSENCE): The ICCAC page lists only two teams, so it may not be a complete Region 11 listing. The official site, which shows no soccer programme of either sex, is the decisive second source.",
+   "blast_radius": "colleges row 813e10b1-39ed-4321-aa0b-482e2ab37223 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  },
+  {
+   "label": "Ellsworth [mens-soccer] INACTIVE",
+   "college_id": "9dd6d801-deea-4b0e-8438-317a061e9375",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://www.iccac.org/sports/msoc/2026-27/teams [B 2026-10-06] Current ICCAC men's soccer listing names only Iowa Western and Indian Hills (2025-26 listing identical). || https://www.eccathletics.com/landing/index [A 2026-10-06T03:38:12Z] Official Ellsworth athletics sports: bsb, esports, fball, mbkb, sball, shooting, wbkb, wrest, wvball, wwrest. No soccer.",
+   "reason": "8C.2 INACTIVE (MEDIUM, TWO_SOURCE_ABSENCE): The ICCAC page lists only two teams, so it may not be a complete Region 11 listing. The official site, which shows no soccer programme of either sex, is the decisive second source.",
+   "blast_radius": "colleges row 9dd6d801-deea-4b0e-8438-317a061e9375 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  },
+  {
+   "label": "Front Range [mens-soccer] INACTIVE",
+   "college_id": "8a8b10a1-8fce-4d12-b347-330189099433",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://region9athletics.com/sports/msoc/2026-27/teams [B 2026-10-06] Complete current Region 9 men's listing omits Front Range. || https://www.frontrange.edu/about/faqs.html [A 2026-10-06T03:32:28Z] Official FAQ: \"FRCC does not offer varsity or intramural sports.\"",
+   "reason": "8C.2 INACTIVE (HIGH, TWO_SOURCE_ABSENCE): This institution has no intercollegiate athletics at all. The row was seeded in error.",
+   "blast_radius": "colleges row 8a8b10a1-8fce-4d12-b347-330189099433 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  },
+  {
+   "label": "Kirkwood [mens-soccer] INACTIVE",
+   "college_id": "710a9cff-7535-463c-b1d3-c0b053bde320",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://www.iccac.org/sports/msoc/2026-27/teams [B 2026-10-06] Current ICCAC men's soccer listing names only Iowa Western and Indian Hills (2025-26 listing identical). || https://www.kirkwoodeagles.com/landing/index [A 2026-10-06T03:38:25Z] Official Kirkwood athletics sports: bsb, cheer, dance, mbkb, mgolf, sball, wbkb, wvball. No soccer.",
+   "reason": "8C.2 INACTIVE (MEDIUM, TWO_SOURCE_ABSENCE): The ICCAC page lists only two teams, so it may not be a complete Region 11 listing. The official site, which shows no soccer programme of either sex, is the decisive second source.",
+   "blast_radius": "colleges row 710a9cff-7535-463c-b1d3-c0b053bde320 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  },
+  {
+   "label": "Lake Land [mens-soccer] INACTIVE",
+   "college_id": "7126cd0c-9d04-4914-8f64-bd48f9834f16",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://www.njcaaregion24.com/sports/msoc/2026-27/teams [B 2026-10-06] Complete current Region 24 men's listing (9) omits Lake Land. || https://www.njcaaregion24.com/sports/msoc/2025-26/teams [C 2026-10-01 (8B.1)] The 2025-26 Region 24 listing (7) also omits Lake Land.",
+   "reason": "8C.2 INACTIVE (MEDIUM, TWO_SOURCE_ABSENCE): Two listing seasons omit it; no 2025 record. The official site was not fetched (search lead: Lake Land sponsors no soccer).",
+   "blast_radius": "colleges row 7126cd0c-9d04-4914-8f64-bd48f9834f16 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  },
+  {
+   "label": "Rend Lake [mens-soccer] INACTIVE",
+   "college_id": "9b55308c-d3f2-48cc-ad7f-d05168f6e960",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://www.njcaaregion24.com/sports/msoc/2026-27/teams [B 2026-10-06] Complete current Region 24 listing omits Rend Lake; 2025-26 also omits it. || https://www.rendlakewarriors.com/navbar-sports [A 2026-10-06T03:31:56Z] Official sports: archery, bsb, mbkb, mgolf, sball, trapskeet, wbkb, wgolf, wvball. No soccer.",
+   "reason": "8C.2 INACTIVE (HIGH, TWO_SOURCE_ABSENCE): ",
+   "blast_radius": "colleges row 9b55308c-d3f2-48cc-ad7f-d05168f6e960 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  },
+  {
+   "label": "Roane State [mens-soccer] WRONG_SEX",
+   "college_id": "ba6f08d1-eddd-4cee-bbf4-d8845cdedb79",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://www.tjccaa.com/sports/msoc/2026-27/teams [B 2026-10-06] Current TCCAA men's listing (Dyersburg, Pellissippi) omits Roane State. || https://www.tjccaa.com/sports/wsoc/2026-27/teams [B 2026-10-06] Current TCCAA women's listing names Roane State CC. || https://rsccathletics.com/landing/index [A 2026-10-06T03:28:17Z] Official athletics sports: bsb, cheer, dance, mbkb, mgolf, mxc, sball, wbkb, wgolf, wsoc, wvball, wxc. Women's soccer only; women's games Sep 2026. || https://roanestate.edu/athletics [A 2026-10-06T03:20:41Z] Institution athletics page: Soccer appears only under Women's Sports.",
+   "reason": "8C.2 WRONG_SEX (HIGH, LISTING): Women's programme only.",
+   "blast_radius": "colleges row ba6f08d1-eddd-4cee-bbf4-d8845cdedb79 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  },
+  {
+   "label": "Shawnee Community [mens-soccer] INACTIVE",
+   "college_id": "3985fe5f-53dd-4f0f-8308-6914a71fcadb",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://www.njcaaregion24.com/sports/msoc/2026-27/teams [B 2026-10-06] Complete current Region 24 listing omits Shawnee; 2025-26 also omits it. || https://www.shawneecc.edu/athletics/ [A 2026-10-06T03:31:44Z] Official athletics page: Baseball, Softball, Men's Basketball, Women's Basketball, Volleyball; GRAC. No soccer. (pfetch flagged the host as challenged after the",
+   "reason": "8C.2 INACTIVE (HIGH, TWO_SOURCE_ABSENCE): ",
+   "blast_radius": "colleges row 3985fe5f-53dd-4f0f-8308-6914a71fcadb active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  },
+  {
+   "label": "Vincennes [mens-soccer] INACTIVE",
+   "college_id": "68789865-bbd9-4361-8e96-986be1a5dcb0",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://www.njcaaregion24.com/sports/msoc/2026-27/teams [B 2026-10-06] Complete current Region 24 listing omits Vincennes; 2025-26 also omits it (Region 12 listings also omit it). || https://govutrailblazers.com/sports/msoc/2026-27/schedule [A 2026-10-06T03:14:24Z] 404. Site sports nav: bsb, cheer, mbkb, mbowl, mgolf, mtrack, mxc, wbkb, wrest, wtrack, wvball, wwrest, wxc. No soccer.",
+   "reason": "8C.2 INACTIVE (MEDIUM, TWO_SOURCE_ABSENCE): No soccer programme exists. The search hit \"2026 Trailblazers Men's Soccer Preview\" is Lewis & Clark CC (lc.edu), not Vincennes.",
+   "blast_radius": "colleges row 68789865-bbd9-4361-8e96-986be1a5dcb0 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  },
+  {
+   "label": "Volunteer State [mens-soccer] WRONG_SEX",
+   "college_id": "be4a904e-2758-48cc-9947-b5bc640d7dd5",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://www.tjccaa.com/sports/msoc/2026-27/teams [B 2026-10-06] Current men's listing omits Vol State. || https://www.tjccaa.com/sports/wsoc/2026-27/teams [B 2026-10-06] Current women's listing names Volunteer State CC. || https://www.volstatepioneers.com/landing/index [A 2026-10-06T03:27:19Z] Trusted host sports: bsb, mbkb, sball, wbkb, wsoc, wvball. No men's soccer. || https://www.volstatepioneers.com/sports/msoc/index [A 2026-10-06T03:23:46Z] 404 Not Found; nav shows Soccer only under Women's Sports.",
+   "reason": "8C.2 WRONG_SEX (HIGH, LISTING): Women's programme only (the OTHER_SEX_PROGRAMME_COVERED flag is consistent).",
+   "blast_radius": "colleges row be4a904e-2758-48cc-9947-b5bc640d7dd5 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  },
+  {
+   "label": "Walters State [mens-soccer] INACTIVE",
+   "college_id": "7fb30447-a391-4a88-8854-9d48f3304663",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://www.tjccaa.com/sports/msoc/2026-27/teams [B 2026-10-06] Current TCCAA men's listing (2 teams) omits Walters State. || https://wsccathletics.com/ [A 2026-10-06T03:29:18Z] Official sports: bsb, esports, mbkb, mgolf, mxc, sball, wbkb, wvball, wxc. No soccer of either sex.",
+   "reason": "8C.2 INACTIVE (MEDIUM, TWO_SOURCE_ABSENCE): The 2025-26 TCCAA page did not parse. The official site is the second source.",
+   "blast_radius": "colleges row 7fb30447-a391-4a88-8854-9d48f3304663 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  },
+  {
+   "label": "Western Wyoming [mens-soccer] DISCONTINUED",
+   "college_id": "c4ad7b59-4acf-4433-8783-79740be3a085",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://region9athletics.com/sports/msoc/2026-27/teams [B 2026-10-06] Complete current Region 9 men's listing omits Western Wyoming. || https://region9athletics.com/sports/wsoc/2026-27/teams [B 2026-10-06] The women's listing names Western Wyoming College. || https://www.westernwyoming.edu/about/media/press-releases/soccer-statement.php [A 2026-10-06T03:26:22Z] Official statement: the college \"decided to suspend the Men's Soccer Program effective end of Spring 2020.\" || https://www.westernwyoming.edu/mustang-athletics/index.php [A 2026-10-06T03:21:14Z] Athletics include Men's and Women's Basketball, Women's Soccer, Men's Wrestling... \"Proud Member of NJCAA and Region 9.\"",
+   "reason": "8C.2 DISCONTINUED (HIGH, TWO_SOURCE_ABSENCE): ",
+   "blast_radius": "colleges row c4ad7b59-4acf-4433-8783-79740be3a085 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0"
+  }
+ ],
+ "domain_register": [],
+ "association_correct": [],
+ "location_register": []
+}

@@ -1,0 +1,83 @@
+{
+ "deactivate_held": [
+  {
+   "label": "Butler County [mens-soccer] INACTIVE",
+   "college_id": "b3e8d023-5ad8-466f-bd21-c5e726153ddb",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://bc3pioneers.com/ [A 2026-10-06T03:13:38Z] Butler County CC (PA) official athletics (Region 20): sports are mbkb, mgolf, wbkb, wgolf, wvball. No soccer. || https://www.kjccc.org/sports/msoc/2026-27/teams [B 2026-10-06] Complete current KJCCC (Region 6) men's listing (11) omits Butler; 2025-26 also omits it. Butler CC (KS) appears only on the women's listing.",
+   "reason": "8C.2 INACTIVE (MEDIUM, TWO_SOURCE_ABSENCE): No men's soccer at either candidate institution. The Region 20 current listing is unavailable, but the KJCCC listing covers the KS reading and the official BC3 site covers the PA reading.",
+   "blast_radius": "colleges row b3e8d023-5ad8-466f-bd21-c5e726153ddb active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0",
+   "hold_reason": "only one authoritative source for the actual (PA) institution: own site; Region 20 listing unreachable; KJCCC evidence concerns a different institution (Butler CC, KS)"
+  },
+  {
+   "label": "Reading Area [mens-soccer] INACTIVE",
+   "college_id": "84358d48-6b7f-4e01-a7e5-bc94d6437833",
+   "expected_old": {
+    "active": 1,
+    "division": "NJCAA",
+    "sport": "mens-soccer"
+   },
+   "proposed": {
+    "active": 0,
+    "membership_status": "DISCONTINUED"
+   },
+   "evidence": "https://www.region19.org/sports/msoc/2026-27/teams [B 2026-10-06] Complete current Region 19 listing (20) omits Reading Area CC. || https://www.region19.org/sports/msoc/2025-26/teams [C 2026-10-01 (8B.1)] The 2025-26 Region 19 listing (21) also omits it.",
+   "reason": "8C.2 INACTIVE (MEDIUM, TWO_SOURCE_ABSENCE): Search leads say RACC has no intercollegiate athletics; not fetched.",
+   "blast_radius": "colleges row 84358d48-6b7f-4e01-a7e5-bc94d6437833 active 1->0; its open SEED period -> DISCONTINUED (never deleted); dependents roster 0 / coaches 0 / programme_seasons 0",
+   "hold_reason": "RACC own site shows no athletics section but no affirmative statement; aggregator leads claim men's soccer; remaining evidence is two seasons of one region listing"
+  }
+ ],
+ "location_held": [
+  {
+   "label": "AE-U185509 mccc.edu/athletics",
+   "proposed": {
+    "location_id": "c161fa31c32e88cc820d4460",
+    "athletics_entity_id": "AE-U185509",
+    "host": "mccc.edu",
+    "path_prefix": "/athletics",
+    "source_type": "INSTITUTION_ATHLETICS_PATH",
+    "sport": null,
+    "status": "VERIFIED",
+    "evidence_url": "https://www.mccc.edu/athletics_home.shtml",
+    "provenance": "8C.2 B4: federal-registry institution site mccc.edu serves its athletics section under /athletics; h1 'MCCC Athletics'; navbar-brand athletics_home.shtml; Soccer links athletics_men_soccer.shtml / athletics_women_soccer.shtml; 2026 men's soccer news under /athletics/news/",
+    "first_seen_season": 2026,
+    "last_verified_at": "2026-10-06T00:00:00Z"
+   },
+   "evidence": "https://www.mccc.edu/athletics_home.shtml [ 2026-10-06T03:26:00Z] h1 'MCCC Athletics'; navbar-brand athletics_home.shtml; Soccer links athletics_men_soccer.shtml / athletics_women_soccer.shtml; 2026 men's soccer news under /at",
+   "reason": "athletics pages live under the institution's own site (mccc.edu/athletics); no athletics domain manufactured",
+   "blast_radius": "one athletics_source_locations row; no athletics_domains change; only URLs under the prefix become an official source of this entity",
+   "hold_reason": "Mercer pages live at /athletics_*.shtml; a /athletics scope (segment boundary) covers none of them — needs SPORT_PAGE/exact-path locations, a design decision"
+  }
+ ],
+ "membership_verify_held": [
+  {
+   "label": "Christendom College [womens-soccer] membership",
+   "key": {
+    "athletics_entity_id": "AE-X-CHRISTENDOM",
+    "sport": "womens-soccer",
+    "first_season": 2026
+   },
+   "expected_old": {
+    "source_tier": "SEED",
+    "division": "USCAA"
+   },
+   "proposed": {
+    "source_tier": "A",
+    "source_url": "https://theuscaa.com/sports/wsoc-2/2026-27/teams",
+    "provenance": "8C.2: current 2026-27 listing uscaa-d2|wsoc|2026-27 names \"Christendom College\" (fetched 2026-10-06)"
+   },
+   "evidence": "https://theuscaa.com/sports/wsoc-2/2026-27/teams lists Christendom College; https://theuscaa.com/sports/wsoc-2/2026-27/teams [A 2026-10-06] USCAA Women's Soccer D2 2026-27 team-stats table: Mont Alto (8 gp), Schuylkill (9), Christendom College (9), Greater Allegheny (4), Beaver (7), Penn State Hazle || raw/uscaa_members_2026-09-29.html (theuscaa.com members page) [A 2026-09-29] USCAA member institutions include Penn State Beaver, DuBois, Fayette, Greater Allegheny, Hazleton, Lehigh Valley, Mont Alto, Schuylkill, Scranton, Shenango, Yor || https://www.christendomathletics.com/sports/wsoc/2026-27/roster [A 2026-10-06] 2026 Christendom Women's Soccer Roster, 19 player bios (PrestoSports); site nav links 'USCAA Sports Network'. || https://www.christendomathletics.com/sports/wsoc/2026-27/releases/20260702heew3a [A 2026-10-06] July 2, 2026 Front Royal, Va.: 2026 schedule; last season 10-4 ending in a USCAA Division II National Tournament appearance; renews USCAA rivalries (Mont Alto,  || https://www.christendom.edu/2026/08/12/christendom-athletics-announces-2026-fall-sports-schedule/ [A 2026-10-06] Institution site (Aug 12, 2026) links christendomathletics.com; 'competition across the USCAA and National Collegiate Rugby'; men's soccer chasing 'first ESAC t",
+   "reason": "8C.2 A1/A2 membership verified by a current listing",
+   "blast_radius": "tier/url/provenance of one open period; division/conference untouched",
+   "hold_reason": "USCAA D2 2026-27 listing (tier A) proves membership, but tier-A verification certifies the whole open period incl. conference \"Eastern States Athletic Conference\", which is evidenced only for Christendom men; needs women's conference evidence (or a period-level conference correction) first"
+  }
+ ]
+}
