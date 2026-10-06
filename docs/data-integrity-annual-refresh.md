@@ -356,6 +356,15 @@ Roster parsers map columns by header meaning, never by position. The whole page 
 - the parser does not recognise the roster markup.
 
 An empty roster table is a ZERO refusal. Neither refusal is ever evidence that a player left.
+
+**Presto card themes and split names (Phase 8C.3D).** A card-theme page that declares a list view is
+read from that list, cross-checked against the card names. The card name comes from the card's
+accessible label or its card-back name block, never from the front name spans, which some themes
+print with the class appended ("Keeper - So."). A card page that declares **no** list view is read
+from the cards themselves (`presto-cards-1`): every card must yield a name, the label and card back
+must agree, and fields come only from the card's labelled bio list ("N/A" is no value). A page that
+declares a list view never falls back to its cards. A table with separate "First Name" / "Last Name"
+columns is read as one name; a missing half is a blank name and fails the page.
 When a batch shows many `ROSTER_PAGE_UNPARSED` sources on one platform, build an adapter for that
 layout. Never loosen the checks.
 
