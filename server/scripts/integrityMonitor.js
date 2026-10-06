@@ -24,6 +24,7 @@ import crypto from 'node:crypto';
 import Database from 'better-sqlite3';
 import { validateEntityIdentity } from './validateAthleticsEntityIdentity.js';
 import { loadRefreshContext } from '../lib/refresh/context.js';
+import { hostOwnershipDisagreements, normHost } from '../lib/refresh/identityResolver.js';
 import { seasonFingerprint } from '../lib/refresh/temporal.js';
 import { freshnessOf, cycleOf } from '../lib/refresh/freshness.js';
 import { measureDatabase } from '../lib/refresh/integrityMeasure.js';
@@ -131,6 +132,9 @@ export function runMonitor(dbPath, { now = new Date(), season, reconcile = true 
     const selfBad = ctx.domains.filter((d) => d.athletics_entity_id && ['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) && d.evidence_text).filter((d) => !selfIdentifies(ctx, d.athletics_entity_id, d.evidence_text).ok).map((d) => `${d.domain} (${d.athletics_entity_id})`);
     add('DOMAIN', 'entity_host_no_longer_self_identifies', 'WARN', selfBad);
     add('DOMAIN', 'domain_verification_stale', 'WARN', ctx.domains.filter((d) => ['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) && freshnessOf('domain', d, { now }).state === 'STALE').map((d) => d.domain));
+    // one ownership answer (Phase 8C.2C): entityHosts and hostOwnedBy must agree for every relevant entity/host
+    add('DOMAIN', 'host_ownership_consistency', 'HARD', hostOwnershipDisagreements(ctx), 'entityHosts(entity) and hostOwnedBy(host, entity) disagree for the same relationship');
+    add('DOMAIN', 'host_ownership_conflicting_twins', 'INFO', [...new Set(ctx.domains.map((d) => normHost(d.domain)))].filter((h) => ctx.resolver.ownerOfHost(h).status === 'CONFLICTING_TWINS').sort(), 'a "www." row contradicts its canonical bare-host record: owned by nobody until a person adjudicates');
 
     // COACH (reconciles a temp copy)
     if (reconcile) {

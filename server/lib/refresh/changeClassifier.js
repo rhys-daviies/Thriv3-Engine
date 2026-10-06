@@ -365,12 +365,14 @@ export function classifyDomainObservation(page, ctx) {
   if (SHARED_PLATFORM_ROOT.test(host)) return [obs(b, 'SOURCE_UNTRUSTED', null, { proposed_json: { ownership_class: 'SHARED_PLATFORM' }, evidence_json: { why: [`${host} is a shared hosting platform root; it can never identify an institution`] } })];
   if (res.decision !== 'RESOLVED') return [obs(b, res.method === 'CONTRADICTION' ? 'CONTRADICTION' : 'IDENTITY_AMBIGUOUS', null, { evidence_json: { why: res.contradictions } })];
   const entity = res.entity_id;
-  const ownerNow = ctx.resolver.index.entityForHost(host) || (() => { const d = ctx.domains.find((x) => x.domain === host); return d && ['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) ? (d.athletics_entity_id || ctx.resolver.unitidEntity(d.unitid)?.entity || null) : null; })();
+  // who owns this exact host now: the resolver's one ownership primitive, host-level records only
+  const exactOwner = ctx.resolver.ownerOfHost(host);
+  const ownerNow = exactOwner.via === 'EXACT_HOST' ? exactOwner.entity : null;
   const heldRow = ctx.domains.find((x) => x.domain === host);
   if (page.http_status && Number(page.http_status) >= 400) return [obs(b, 'DISAPPEARED_FROM_SOURCE', 'INVESTIGATE_DOMAIN', { requires_review: 1, proposed_json: { ownership_class: 'HISTORICAL' }, evidence_json: { why: [`host returned HTTP ${page.http_status}; a trusted host that disappears becomes HISTORICAL only after review — nothing is rewritten automatically`] } })];
   if (page.redirect_to) {
     const rh = hostOf(page.redirect_to);
-    if (rh && rh !== host && !ctx.resolver.hostOwnedBy(rh, entity) && (ctx.resolver.index.entityForHost(rh) || ctx.domains.some((x) => x.domain === rh && ['VERIFIED', 'VERIFIED_ALIAS'].includes(x.status)))) return [obs(b, 'CONTRADICTION', null, { evidence_json: { why: [`${host} now redirects to ${rh}, which another institution owns`] } })];
+    if (rh && rh !== host && !ctx.resolver.hostOwnedBy(rh, entity) && ctx.resolver.ownerOfHost(rh).entity) return [obs(b, 'CONTRADICTION', null, { evidence_json: { why: [`${host} now redirects to ${rh}, which another institution owns`] } })];
   }
   const link = hostOf(page.institution_link_url);
   const chainLink = !!(link && ctx.resolver.hostOwnedBy(link, entity) && link !== host);
