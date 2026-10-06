@@ -126,7 +126,10 @@ describe('the roster adapter refuses what the parser cannot validate', () => {
   it('an empty roster is a ZERO refusal; a prior-season page is OLD_SEASON; embedded staff are refused', async () => {
     expect((await rosterAdapter(target, { ownsHost, fetch: fetchOf(table(['No.', 'Name', 'Pos.'], [])) })).refusal.code).toBe(REFUSAL.ZERO);
     const old = async (url) => capturedPage({ url, fetched_at: '2026-10-01T00:00:00Z', body: `<title>2025-26 Men's Soccer Roster</title>${DESKTOP}${'x'.repeat(900)}` });
-    expect((await rosterAdapter(target, { ownsHost, fetch: old })).refusal.code).toBe(REFUSAL.OLD_SEASON);
+    // Phase 8C.3C: the target URL carries a 2026-27 season token, so a 2025-26 title DISAGREES with it — a contradiction
+    // held for a person, not silently read as "old"; the same title at a seasonless URL is OLD_SEASON
+    expect((await rosterAdapter(target, { ownsHost, fetch: old })).refusal.code).toBe(REFUSAL.SEASON_CONTRADICTION);
+    expect((await rosterAdapter({ ...target, platform: 'SIDEARM' }, { ownsHost, fetch: old, url: `https://${target.host}/sports/mens-soccer/roster` })).refusal.code).toBe(REFUSAL.OLD_SEASON);
     const withStaff = [{ player_name: 'Alex Keeper', position: 'GK' }, { player_name: 'Pat Lead', position: 'Head Coach' }, { player_name: 'Bo Help', position: 'Assistant Coach' }];
     expect(refusePage(capturedPage({ url: 'https://casper.example/r', fetched_at: 'x', body: `<title>2026-27 Men's Soccer Roster</title>${'x'.repeat(900)}` }), { kind: 'ROSTER', sport: 'mens-soccer', season: 2026 }, withStaff).code).toBe(REFUSAL.STAFF_IN_ROSTER);
   });

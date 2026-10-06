@@ -30,14 +30,16 @@ export function prestoPath(url) {
   const code = m[1].toLowerCase();
   return { sport: PRESTO_SPORT[code] || code, season: seasonFromToken(m[3]), season_token: m[3], division: divisionToken(m[2] || m[4]), page: m[5] || null };
 }
-/** The season a page SAYS it is (title), independent of the URL it was fetched from. */
+/** The season a page's TITLE names, independent of the URL. A raw reader for listings — the roster
+ *  acquisition gate decides with sourceEvidence.seasonEvidence (Phase 8C.3C), never with this alone. */
 export function pageSeason(html) {
   const t = (String(html).match(/<title>([^<]*)<\/title>/i) || [])[1] || '';
   const range = t.match(/\b(20\d\d)-(\d\d)\b/); if (range) return Number(range[1]);
   const single = t.match(/\b(20\d\d)\b/); return single ? Number(single[1]) : null;
 }
 export function pageTitle(html) { return decode((String(html).match(/<title>([^<]*)<\/title>/i) || [])[1] || ''); }
-/** Sport a page's own title names (Men's / Women's Soccer), or null. */
+/** Sport a page's own title names (Men's / Women's Soccer), or null. A raw reader: null is NOT "soccer" —
+ *  the acquisition gate decides with sourceEvidence.sportEvidence (Phase 8C.3C). */
 export function pageSportFromTitle(html) {
   const t = pageTitle(html);
   if (/women'?s soccer|wsoc/i.test(t)) return 'womens-soccer';

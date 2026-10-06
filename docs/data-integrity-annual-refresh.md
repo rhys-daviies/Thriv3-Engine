@@ -233,6 +233,7 @@ region/conference team listings. They never write the database.
 A page is **refused**, and written to the report instead of the gathered file, when it is:
 - blocked (403 / 429 / 503, a 202 or AWS-WAF bot challenge, Cloudflare, a tiny body);
 - for an older season, or a different sport;
+- unable to prove its sport or its season (these are **held**, not refused — see below);
 - mostly staff when a roster was expected;
 - on a shared platform root, or it redirects to a foreign host;
 - on a host the entity does not own;
@@ -241,6 +242,31 @@ A page is **refused**, and written to the report instead of the gathered file, w
 - or much shorter than last year (a collapse).
 
 **A refusal is never evidence that a programme, player or coach disappeared.**
+
+**Gate order and evidence (Phase 8C.3C).** A roster page is checked in this order, and is staged
+only when every step passes: fetch block → **source ownership** → **sport** → **season** → parser
+(structure, zero records, staff rows, collapse) → at staging, programme identity and each player.
+Every refusal carries a `disposition`: `REFUSED` (not this programme's current source) or `HELD`
+(it may be, but the page does not prove it — a person decides).
+
+- **Sport.** The page must positively name the requested programme (`sourceEvidence.js`). The
+  platform sport slot (`/sports/<slot>/`, `roster.aspx?path=`) identifies the sport outright: any
+  slot other than this programme's soccer code is another sport, so `/sports/bsb/` is baseball
+  without needing a list of codes. A title or `<h1>` naming the sport also confirms it. "Soccer"
+  without a sex confirms neither programme. Another sport or the other sex anywhere →
+  `WRONG_SPORT` (refused). Nothing naming the sport → `SPORT_UNRESOLVED` (held).
+- **Season.** The requested season is **never** evidence. The season is confirmed only by the
+  title (`TITLE_EXPLICIT`), the Presto season selector's selected option (`PROVIDER_METADATA`),
+  or the page's `<h1>` (`PAGE_CONTENT_EXPLICIT`); agreeing signals of different classes are
+  `MULTI_SIGNAL`. A URL season token (`/2026-27/`, `/roster/2026`, `?season=`) is recorded and can
+  contradict, but never confirms on its own: hosts measurably serve another season at a season
+  path (Angelina serves "Roster 2027" at `/2026-27/`). No signal → `SEASON_UNRESOLVED` (held).
+  Two signals naming different seasons → `SEASON_CONTRADICTION` (held; never pick one). An older
+  proven season → `OLD_SEASON` (refused).
+- A staged page carries the season it proved (`page_season`) and the evidence it used
+  (`adapter_evidence.sport_evidence` / `season_evidence`). Staging re-checks both from the URL and
+  recorded title (`rosterPageProof`), and promotion refuses any roster insert whose
+  `source_page_season` is missing or differs from the row's season.
 
 Some Presto hosts challenge every non-browser request. Others challenge once the request rate
 across Presto rises. Gather serially, one request every ≥ 6 s. A host still challenged after one
@@ -376,7 +402,16 @@ tests that model it. Never set it in a deployed environment.
 | `GATE FAIL G10` | A membership change isn't explained by an op in the batch. Find what else changed the division or coverage. |
 | `GATE FAIL G9` / monitor `frozen_season_changed` | A finished season was altered. If it was a deliberate correction, re-freeze with `--refreeze --reason`. Otherwise restore it. |
 | `integrity-managed` refusal from an old script | Use refresh → promote. Force it only with `--legacy-write-ack --reason "…"`, then run the monitor. |
+| `SPORT_UNRESOLVED` / `SEASON_UNRESOLVED` / `SEASON_CONTRADICTION` (held) | The page did not prove its sport or season. Find the evidence on the page itself (title, heading, provider season selector), or leave it held. Never stage it as the requested season. |
 | `POST-APPLY MISMATCH … reverting` | The live result differed from the simulation. It was reverted automatically. Investigate concurrent writers (the dev database is shared by several checkouts). |
+
+## Known technical debt
+
+- **`corpus_revision` moves with logically-unchanged rebuilds.** Its triggers count every row
+  written. A materialisation rebuild deletes and re-inserts every `recruiting_arrivals` row, so it
+  moves the counter by about twice the table size (Phase 8C.3B: +177,722 for content that was
+  identical). Compare content hashes, not the counter, to decide whether anything changed. Not
+  redesigned yet.
 
 ## Files
 

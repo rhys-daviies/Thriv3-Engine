@@ -16,6 +16,7 @@
  * observation); output is one staged observation per record on it plus one per held record
  * the page should have listed and did not. Pure: nothing here writes.
  */
+import { sportEvidence, seasonEvidence, SPORT_STATUS, SEASON_STATUS } from './adapters/sourceEvidence.js';
 import { classifySource, mayEstablish } from './sourceAuthority.js';
 import { authorizeAction } from './destructivePolicy.js';
 import { planTransition, openPeriod } from './temporal.js';
@@ -192,6 +193,25 @@ export function classifyCoachPage(page, ctx, { season, now }) {
  * ctx.roster: roster rows for the programme's names (any season)
  */
 const ROSTER_FIELDS = ['class_year_label', 'position', 'nationality', 'hometown'];
+/**
+ * Phase 8C.3C — staging's own check that a ROSTER page proves its sport and season (defence in depth
+ * behind the gatherer gate, and the only check for an input built elsewhere). Re-derived from the
+ * page's URL and recorded title, and accepted from the adapter's recorded evidence when that was
+ * read from the full page. The requested (observed) season is never proof. Returns null or a stop.
+ */
+export function rosterPageProof(page) {
+  const ae = page.adapter_evidence || {}; const title = ae.title ?? null;
+  const sp = sportEvidence({ url: page.source_url, title, sport: page.sport });
+  if (sp.status === SPORT_STATUS.CONTRADICTED) return { cls: 'CONTRADICTION', why: `wrong-sport source: ${sp.detail}` };
+  if (sp.status !== SPORT_STATUS.CONFIRMED && ae.sport_evidence?.status !== SPORT_STATUS.CONFIRMED) return { cls: 'SOURCE_UNTRUSTED', why: `the page does not establish ${page.sport} (${sp.detail})` };
+  if (page.page_season == null) return { cls: 'SOURCE_UNTRUSTED', why: `no season evidence on the page; ${page.observed_season} was requested, which is not evidence` };
+  const se = seasonEvidence({ url: page.source_url, title });
+  const named = [...new Set(se.signals.filter((x) => x.season != null).map((x) => x.season))];
+  if (se.status === SEASON_STATUS.CONTRADICTION || named.some((y) => y !== Number(page.page_season))) return { cls: 'CONTRADICTION', why: `season evidence disagrees with page_season ${page.page_season}: ${se.detail}` };
+  const recorded = ae.season_evidence?.status === SEASON_STATUS.CONFIRMED && Number(ae.season_evidence.season) === Number(page.page_season);
+  if (se.status !== SEASON_STATUS.CONFIRMED && !recorded) return { cls: 'SOURCE_UNTRUSTED', why: `page_season ${page.page_season} is not proven by the page (${se.detail})` };
+  return null;
+}
 export function classifyRosterPage(page, ctx, { season, frozen = new Set() }) {
   const out = []; const players = page.players || [];
   const tSeason = Number(page.observed_season);
@@ -200,6 +220,7 @@ export function classifyRosterPage(page, ctx, { season, frozen = new Set() }) {
   const key = (p) => personKey(p.player_name);
   const stopAll = (cls, why) => players.map((p) => obs(base(page, 'ROSTER', g.res, g.src, { target_table: 'roster_players', target_key: `${g.res.college_id || page.institution_label}|${tSeason}|${key(p)}`, evidence_json: { why } }), cls, null, {}));
   if (page.page_season != null && Number(page.page_season) !== tSeason) return stopAll('CONTRADICTION', [`page is the ${page.page_season} roster, claimed as ${tSeason} — an old roster is never the current one`]);
+  const proof = rosterPageProof(page); if (proof) return stopAll(proof.cls, [proof.why]);
   if (g.stop && !(g.stop === 'SOURCE_UNTRUSTED' && field === 'roster_history' && g.src.tier === 'C' && !g.res.name_only)) return stopAll(g.stop, g.why);
   if (frozen.has(tSeason)) return stopAll('SOURCE_UNTRUSTED', [`season ${tSeason} is frozen: history is read-only to a refresh`]);
   const programme = ctx.colleges.find((c) => c.id === g.res.college_id);
@@ -261,7 +282,7 @@ export function classifyRosterPage(page, ctx, { season, frozen = new Set() }) {
     if ((otherCur.get(k) || []).length) notes.push(`SAME NAME ELSEWHERE THIS SEASON: ${[...new Set(otherCur.get(k).map((r) => r.college_name))].join(', ')} ${tSeason} — a separate observation; identity not linked`);
     const row = { college_name: rosterName, sport: page.sport, division: programme.division, season: String(tSeason), conference: programme.conference ?? null, player_name: p.player_name,
       class_year_label: p.class_year_label ?? null, position: p.position ?? null, nationality: p.nationality ?? null, hometown: p.hometown ?? null,
-      source_roster_url: page.source_url, source_page_season: page.page_season ?? tSeason, source_fetched_at: page.fetched_at ?? null, source_parser: page.parser_version ?? null, data_confidence: 'High' };
+      source_roster_url: page.source_url, source_page_season: page.page_season, source_fetched_at: page.fetched_at ?? null, source_parser: page.parser_version ?? null, data_confidence: 'High' };
     out.push(obs(b, cls, cls === 'NEW_RECORD' ? 'INSERT_ROSTER_ROW' : null, { requires_review: review, proposed_json: row, expected_old_json: { absent: true, college_names: names, sport: page.sport, season: String(tSeason), name_key: k }, evidence_json: { notes } }));
   }
   if (page.source_complete) {

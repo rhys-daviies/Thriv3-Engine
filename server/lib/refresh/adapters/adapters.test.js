@@ -88,7 +88,11 @@ describe('adapter safety — refusals, never empty observations', () => {
   const players = Array.from({ length: 20 }, (_, i) => ({ player_name: `Player ${i}`, position: 'MF' }));
   it('accepts a good current page', () => { expect(refusePage(page(), intent, players)).toBeNull(); });
   it('zero parsed records is a refusal, not "everyone left"', () => { expect(refusePage(page(), intent, []).code).toBe(REFUSAL.ZERO); });
-  it('old season page claimed as current', () => { expect(refusePage(page({ body: `<title>2025 Women's Soccer Roster</title>${'x'.repeat(900)}` }), intent, players).code).toBe(REFUSAL.OLD_SEASON); });
+  it('old season page claimed as current', () => {
+    // Phase 8C.3C: at a seasonless URL the title's 2025 is the page's season; at a /2026-27/ URL the two disagree (contradiction, held)
+    expect(refusePage(page({ final_url: 'https://team.example/sports/womens-soccer/roster', body: `<title>2025 Women's Soccer Roster</title>${'x'.repeat(900)}` }), intent, players).code).toBe(REFUSAL.OLD_SEASON);
+    expect(refusePage(page({ body: `<title>2025 Women's Soccer Roster</title>${'x'.repeat(900)}` }), intent, players).code).toBe(REFUSAL.SEASON_CONTRADICTION);
+  });
   it('wrong sport (URL or title)', () => {
     expect(refusePage(page({ final_url: 'https://team.example/sports/msoc/2026-27/roster' }), intent, players).code).toBe(REFUSAL.WRONG_SPORT);
     expect(refusePage(page({ body: `<title>2026-27 Men's Soccer Roster</title>${'x'.repeat(900)}` }), intent, players).code).toBe(REFUSAL.WRONG_SPORT);
