@@ -43,6 +43,8 @@ export function planPromotion({ batch, observations }, { frozen = new Set() } = 
     const p = J(o.proposed_json) || {}; const exp = J(o.expected_old_json) || {};
     const season = o.dataset === 'ROSTER' ? Number(p.season ?? o.observed_season) : null;
     if (season != null && frozen.has(season)) { refused.push({ id: o.observation_id, why: `season ${season} is frozen` }); continue; }
+    // Phase 8C.3C: a roster row is written only with the season its page proved, equal to the row's season
+    if (o.proposed_action === 'INSERT_ROSTER_ROW' && (p.source_page_season == null || Number(p.source_page_season) !== Number(p.season))) { refused.push({ id: o.observation_id, why: `roster row season ${p.season} is not proven by its page (source_page_season ${p.source_page_season ?? 'none'})` }); continue; }
     ops.push({ observation_id: o.observation_id, dataset: o.dataset, action: o.proposed_action || (o.classification === 'CONFIRMED_UNCHANGED' ? 'NOOP' : null), target_key: o.target_key, proposed: p, expected: exp, insert_id: insertId(o) });
   }
   return { ops: ops.filter((x) => x.action && x.action !== 'NOOP'), refused, skipped, batch_id: batch.batch_id };

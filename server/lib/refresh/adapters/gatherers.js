@@ -21,10 +21,10 @@
  * raw name, role, and an email ONLY when printed on the page (email_origin PUBLISHED_ON_SOURCE).
  */
 import { fetchPage } from './fetchPage.js';
-import { parseRosterTable, parseStaffTable, pageSeason, SPORT_PRESTO, pageTitle } from './presto.js';
+import { parseRosterTable, parseStaffTable, SPORT_PRESTO, pageTitle } from './presto.js';
 import { detectPlatform, parseSidearmRosterStrict, parseSidearmStaff } from './sidearm.js';
 import { parseRosterTableStrict, STRUCTURE, prestoListViewHref, prestoCardNames, crossCheckCards } from './rosterStructure.js';
-import { refusePage, REFUSAL } from './adapterSafety.js';
+import { refusePage, pageEvidence, REFUSAL } from './adapterSafety.js';
 import { nameKey, coreKey, wordsContained } from './institutionNames.js';
 
 // -2: responsive Presto roster tables (mobile-only cells / hidden labels) parsed correctly (Phase 8A pilot)
@@ -109,16 +109,21 @@ export async function rosterAdapter(target, { ownsHost, ownsSource, fetch = fetc
     if (!lp.block && (lp.final_host || lp.host) === (p.final_host || p.host)) { parsed = crossCheckCards(parseRosterTableStrict(lp.body), prestoCardNames(p.body)); listView = { url: lp.final_url || href, sha256: lp.sha256 }; }
   }
   const players = parsed.structure.code === STRUCTURE.OK ? parsed.records : [];
-  const pre = refusePage(p, { kind: 'ROSTER', sport: target.sport, season: target.season, entityOwnsHost: ownsHost ? (h) => ownsHost(h, target.athletics_entity_id) : null, entityOwnsUrl: ownsSource ? (u) => ownsSource(u, target.athletics_entity_id, target.sport) : null }, players, target.prior_count ? { count: target.prior_count } : null);
+  const intent = { kind: 'ROSTER', sport: target.sport, season: target.season };
+  const pre = refusePage(p, { ...intent, entityOwnsHost: ownsHost ? (h) => ownsHost(h, target.athletics_entity_id) : null, entityOwnsUrl: ownsSource ? (u) => ownsSource(u, target.athletics_entity_id, target.sport) : null }, players, target.prior_count ? { count: target.prior_count } : null);
   // an unreadable layout is named as such: it outranks "zero records" / "count collapse", which it causes
-  const refusal = parsed.structure.code === STRUCTURE.UNKNOWN && (!pre || [REFUSAL.ZERO, REFUSAL.COLLAPSE].includes(pre.code)) ? { code: REFUSAL.STRUCTURE, detail: parsed.structure.detail } : pre;
+  const refusal = parsed.structure.code === STRUCTURE.UNKNOWN && (!pre || [REFUSAL.ZERO, REFUSAL.COLLAPSE].includes(pre.code)) ? { code: REFUSAL.STRUCTURE, detail: parsed.structure.detail, disposition: 'REFUSED' } : pre;
   const meta = { source_url: p.final_url || u, fetched_at: p.fetched_at, http: p.status, platform, title: p.block ? null : pageTitle(p.body).slice(0, 120), sha256: p.sha256 };
   if (refusal) return { refusal: { ...refusal, target: { entity: target.athletics_entity_id, sport: target.sport }, ...meta } };
+  // Phase 8C.3C: page_season is the season the PAGE proves (refusePage holds any page that proves none);
+  // the requested target.season stays observed_season and is never copied into page_season
+  const ev = pageEvidence(p, intent);
   return { page: {
-    dataset: 'ROSTER', source_kind: 'OFFICIAL_ROSTER', source_url: meta.source_url, fetched_at: meta.fetched_at, page_season: pageSeason(p.body) ?? target.season,
+    dataset: 'ROSTER', source_kind: 'OFFICIAL_ROSTER', source_url: meta.source_url, fetched_at: meta.fetched_at, page_season: ev.season.season,
     observed_season: target.season, institution_label: target.institution_label, raw_programme: `${target.institution_label} ${target.sport}`, sport: target.sport,
     athletics_entity_id: target.athletics_entity_id, source_complete: true, parser_version: platform === 'SIDEARM' ? 'sidearm-roster-2' : listView ? 'presto-cards-listview-1' : `${platform.toLowerCase()}-roster-3`, adapter_version: ADAPTER_VERSION,
-    adapter_evidence: { platform, title: meta.title, sha256: meta.sha256, records: players.length, ...(listView ? { list_view: listView, parse: 'presto card theme -> declared list view, cross-checked against the cards' } : {}) },
+    adapter_evidence: { platform, title: meta.title, sha256: meta.sha256, records: players.length,
+      sport_evidence: { status: ev.sport.status, detail: ev.sport.detail }, season_evidence: { status: ev.season.status, season: ev.season.season, evidence_class: ev.season.evidence_class, detail: ev.season.detail }, ...(listView ? { list_view: listView, parse: 'presto card theme -> declared list view, cross-checked against the cards' } : {}) },
     players: players.map((r) => ({ player_name: r.player_name, position: r.position || null, class_year_label: r.class_year_label || null, hometown: r.hometown || null, ...(r.nationality ? { nationality: r.nationality } : {}) })),
   } };
 }

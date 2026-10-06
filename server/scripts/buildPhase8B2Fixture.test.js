@@ -21,7 +21,7 @@ const read = (out) => JSON.parse(fs.readFileSync(path.join(out, 'fixture.json'),
 
 beforeEach(() => {
   dir = fs.mkdtempSync(path.join(ROOT, 'server/data/generated/_test_p8b2_builder_')); dbPath = path.join(dir, 'w.sqlite'); inputPath = path.join(dir, 'in.json'); buildRegressionWorld(dbPath);
-  const input = { season: 2026, scope: 'NAIA', parser_version: 'test-1', gathered_at: '2026-09-20T00:00:00Z', pages: [rosterPage({ source_url: 'https://concordiatx.example/sports/mens-soccer/roster/2026', fetched_at: '2026-09-20T00:00:00.000Z', page_season: 2026, observed_season: 2026, adapter_evidence: { platform: 'TEST', sha256: 'abc', records: 3 }, currentness_check: { status: 'BLOCKED_NOW', checked_at: '2026-09-21', note: 'preserved' }, players: [
+  const input = { season: 2026, scope: 'NAIA', parser_version: 'test-1', gathered_at: '2026-09-20T00:00:00Z', pages: [rosterPage({ source_url: 'https://concordiatx.example/sports/mens-soccer/roster/2026', fetched_at: '2026-09-20T00:00:00.000Z', page_season: 2026, observed_season: 2026, adapter_evidence: { platform: 'TEST', title: "2026 Men's Soccer Roster - Concordia University Texas", sha256: 'abc', records: 3 }, currentness_check: { status: 'BLOCKED_NOW', checked_at: '2026-09-21', note: 'preserved' }, players: [
     { player_name: 'Robin Rookie', class_year_label: 'Fr.', nationality: 'Denmark' }, { player_name: 'Jordan Joiner', class_year_label: 'So.', position: 'DF' }, { player_name: 'Coach Carter', position: 'Head Coach' }] })] };
   fs.writeFileSync(inputPath, JSON.stringify(input));
   // the real database has its existing links materialised; give the synthetic world the same baseline (the builder refuses to invent links for existing rows)

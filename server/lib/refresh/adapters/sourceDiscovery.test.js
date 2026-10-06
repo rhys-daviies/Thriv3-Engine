@@ -46,7 +46,9 @@ describe('judging a roster page (structure-validated)', () => {
     expect(judgeRosterPage(page("2026-27 Men's Soccer Roster", table(five)), 'mens-soccer')).toMatchObject({ status: SOURCE_STATUS.CURRENT, players: 5 });
   });
   it('a prior-season roster is PRIOR_ROSTER_ONLY; a wrong-sport page is refused', () => {
-    expect(judgeRosterPage(page("2025-26 Men's Soccer Roster", table(five)), 'mens-soccer').status).toBe(SOURCE_STATUS.PRIOR);
+    expect(judgeRosterPage(page("2025-26 Men's Soccer Roster", table(five), { url: 'https://x.edu/sports/mens-soccer/roster' }), 'mens-soccer').status).toBe(SOURCE_STATUS.PRIOR);
+    // Phase 8C.3C: the same title at a /2026-27/ URL disagrees with the URL's token — a contradiction, never "prior"
+    expect(judgeRosterPage(page("2025-26 Men's Soccer Roster", table(five)), 'mens-soccer').status).toBe(SOURCE_STATUS.SEASON_CONTRADICTION);
     expect(judgeRosterPage(page("2026-27 Women's Soccer Roster", table(five)), 'mens-soccer').status).toBe('WRONG_SPORT_PAGE');
   });
   it('a roster page whose layout the parser cannot validate is ROSTER_PAGE_UNPARSED — an adapter gap, not "no roster"', () => {
