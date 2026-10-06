@@ -1,0 +1,1002 @@
+{
+ "phase": "8C.2A-B-source-identity",
+ "created_at": "2026-10-06T00:00:00Z",
+ "fixture_hash": "9dfceadc268d57ab519cc10616400ddfe1421fef5c5a806dd896872f9e88d335",
+ "entity_create": [],
+ "entity_update": [],
+ "college_repair": [],
+ "programme_create": [],
+ "membership_verify": [],
+ "row_link": [],
+ "deactivate": [],
+ "domain_register": [
+  {
+   "label": "AE-U101295 athletics.wallacestate.edu",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "proposed": {
+    "domain": "athletics.wallacestate.edu",
+    "athletics_entity_id": "AE-U101295",
+    "unitid": 101295,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Wallace State Community College'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://athletics.wallacestate.edu/"
+   },
+   "evidence": "institution https://www.wallacestate.edu/athletics -> athletics.wallacestate.edu (redirect https://www.wallacestate.edu/athletics -> https://athletics.wallacestate.edu/landing/index); host self-identifies: og:site_name 'Wallace State Community College'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Wallace State verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes athletics.wallacestate.edu trusted for AE-U101295 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U170055 grccraiders.com",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "proposed": {
+    "domain": "grccraiders.com",
+    "athletics_entity_id": "AE-U170055",
+    "unitid": 170055,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'GRCC Athletics'; h1 'The Official Athletic Website of Grand Rapids Community College'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://grccraiders.com/"
+   },
+   "evidence": "institution https://www.grcc.edu/athletics -> grccraiders.com (redirect https://www.grcc.edu/athletics -> https://grccraiders.com/); host self-identifies: og:site_name 'GRCC Athletics'; h1 'The Official Athletic Website of Grand Rapids Community College'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Grand Rapids Community verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes grccraiders.com trusted for AE-U170055 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U199856 waketechsports.com",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "proposed": {
+    "domain": "waketechsports.com",
+    "athletics_entity_id": "AE-U199856",
+    "unitid": 199856,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'The Official Website of Wake Tech Athletics'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://waketechsports.com/"
+   },
+   "evidence": "institution https://www.waketech.edu/athletics -> waketechsports.com (nav link on institution page); host self-identifies: og:site_name 'The Official Website of Wake Tech Athletics'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Wake Technical verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes waketechsports.com trusted for AE-U199856 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U175652 emccathletics.com",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "proposed": {
+    "domain": "emccathletics.com",
+    "athletics_entity_id": "AE-U175652",
+    "unitid": 175652,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'East Mississippi Athletics'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://emccathletics.com/"
+   },
+   "evidence": "institution https://www.eastms.edu/athletics/index.html -> emccathletics.com (href on https://www.eastms.edu/athletics/index.html); host self-identifies: og:site_name 'East Mississippi Athletics'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B4: separate athletics host for East Mississippi verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes emccathletics.com trusted for AE-U175652 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U184791 rcroadrunners.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "rcroadrunners.com",
+    "athletics_entity_id": "AE-U184791",
+    "unitid": 184791,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Rowan College South Jersey Gloucester'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://rcroadrunners.com/"
+   },
+   "evidence": "institution https://www.rcsj.edu/student-services/athletics/ -> rcroadrunners.com (href on https://www.rcsj.edu/student-services/athletics/); host self-identifies: og:site_name 'Rowan College South Jersey Gloucester'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Gloucester County verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes rcroadrunners.com trusted for AE-U184791 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U166133 hcccougars.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "hcccougars.com",
+    "athletics_entity_id": "AE-U166133",
+    "unitid": 166133,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Holyoke Community College'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://hcccougars.com/"
+   },
+   "evidence": "institution https://www.hcc.edu/student-life/athletics-and-fitness/new-athletics-website -> hcccougars.com (href on https://www.hcc.edu/student-life/athletics-and-fitness/new-athletics-website); host self-identifies: og:site_name 'Holyoke Community College'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Holyoke verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes hcccougars.com trusted for AE-U166133 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U105525 pimaaztecs.com",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "proposed": {
+    "domain": "pimaaztecs.com",
+    "athletics_entity_id": "AE-U105525",
+    "unitid": 105525,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Pima Community College'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://pimaaztecs.com/"
+   },
+   "evidence": "institution https://www.pima.edu/athletics -> pimaaztecs.com (redirect https://www.pima.edu/athletics -> https://www.pimaaztecs.com/landing/index); host self-identifies: og:site_name 'Pima Community College'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Pima verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes pimaaztecs.com trusted for AE-U105525 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U221397 rsccathletics.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "rsccathletics.com",
+    "athletics_entity_id": "AE-U221397",
+    "unitid": 221397,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Roane State Community College'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://rsccathletics.com/"
+   },
+   "evidence": "institution https://roanestate.edu/athletics -> rsccathletics.com (redirect https://roanestate.edu/athletics -> https://rsccathletics.com/landing/index); host self-identifies: og:site_name 'Roane State Community College'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B4: separate athletics host for Roane State verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes rsccathletics.com trusted for AE-U221397 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U187198 unionowls.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "unionowls.com",
+    "athletics_entity_id": "AE-U187198",
+    "unitid": 187198,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'UCNJ OWLS ATHLETICS'; page text 'Union College of Union County, NJ'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://unionowls.com/"
+   },
+   "evidence": "institution https://www.ucc.edu/athletics -> unionowls.com (redirect https://www.ucc.edu/athletics -> https://www.unionowls.com/landing/index); host self-identifies: og:site_name 'UCNJ OWLS ATHLETICS'; page text 'Union College of Union County, NJ'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Union County verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes unionowls.com trusted for AE-U187198 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U105428 pcbearsathletics.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "pcbearsathletics.com",
+    "athletics_entity_id": "AE-U105428",
+    "unitid": 105428,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "title 'Phoenix College Athletics'; og:site_name 'Phoenix College'; footer '(c) 2026 PC Athletics'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://pcbearsathletics.com/"
+   },
+   "evidence": "institution https://athletics.phoenixcollege.edu/ -> pcbearsathletics.com (redirect https://athletics.phoenixcollege.edu/ -> https://pcbearsathletics.com:443/landing/index); host self-identifies: title 'Phoenix College Athletics'; og:site_name 'Phoenix College'; footer '(c) 2026 PC Athletics'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B1: separate athletics host for Phoenix College verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes pcbearsathletics.com trusted for AE-U105428 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-X-DALLAS-COLLEGE-CEDAR-VALLEY cvcsuns.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "cvcsuns.com",
+    "athletics_entity_id": "AE-X-DALLAS-COLLEGE-CEDAR-VALLEY",
+    "unitid": null,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Dallas College Cedar Valley'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://cvcsuns.com/"
+   },
+   "evidence": "institution https://www.dallascollege.edu/slife/athletics/ -> cvcsuns.com (href on https://www.dallascollege.edu/slife/athletics/); host self-identifies: og:site_name 'Dallas College Cedar Valley'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Dallas College Cedar Valley verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes cvcsuns.com trusted for AE-X-DALLAS-COLLEGE-CEDAR-VALLEY only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-X-DALLAS-COLLEGE-MOUNTAIN-VIEW mvclions.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "mvclions.com",
+    "athletics_entity_id": "AE-X-DALLAS-COLLEGE-MOUNTAIN-VIEW",
+    "unitid": null,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Dallas College Mountain View'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://mvclions.com/"
+   },
+   "evidence": "institution https://www.dallascollege.edu/slife/athletics/ -> mvclions.com (href on https://www.dallascollege.edu/slife/athletics/); host self-identifies: og:site_name 'Dallas College Mountain View'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Dallas College Mountain View verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes mvclions.com trusted for AE-X-DALLAS-COLLEGE-MOUNTAIN-VIEW only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-X-DALLAS-COLLEGE-RICHLAND rlcsports.com",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "proposed": {
+    "domain": "rlcsports.com",
+    "athletics_entity_id": "AE-X-DALLAS-COLLEGE-RICHLAND",
+    "unitid": null,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Dallas College Richland'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://rlcsports.com/"
+   },
+   "evidence": "institution https://www.dallascollege.edu/slife/athletics/ -> rlcsports.com (href on https://www.dallascollege.edu/slife/athletics/); host self-identifies: og:site_name 'Dallas College Richland'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Dallas College Richland verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes rlcsports.com trusted for AE-X-DALLAS-COLLEGE-RICHLAND only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-X-DALLAS-COLLEGE-BROOKHAVEN brookhavenathletics.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "brookhavenathletics.com",
+    "athletics_entity_id": "AE-X-DALLAS-COLLEGE-BROOKHAVEN",
+    "unitid": null,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Dallas College Brookhaven'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://brookhavenathletics.com/"
+   },
+   "evidence": "institution https://www.dallascollege.edu/slife/athletics/ -> brookhavenathletics.com (href on https://www.dallascollege.edu/slife/athletics/); host self-identifies: og:site_name 'Dallas College Brookhaven'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Dallas College Brookhaven verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes brookhavenathletics.com trusted for AE-X-DALLAS-COLLEGE-BROOKHAVEN only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-X-DALLAS-COLLEGE-EASTFIELD eastfieldathletics.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "eastfieldathletics.com",
+    "athletics_entity_id": "AE-X-DALLAS-COLLEGE-EASTFIELD",
+    "unitid": null,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Dallas College Eastfield'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://eastfieldathletics.com/"
+   },
+   "evidence": "institution https://www.dallascollege.edu/slife/athletics/ -> eastfieldathletics.com (href on https://www.dallascollege.edu/slife/athletics/); host self-identifies: og:site_name 'Dallas College Eastfield'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Dallas College Eastfield verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes eastfieldathletics.com trusted for AE-X-DALLAS-COLLEGE-EASTFIELD only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-X-DALLAS-COLLEGE-NORTH-LAKE northlakecollegeathletics.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "northlakecollegeathletics.com",
+    "athletics_entity_id": "AE-X-DALLAS-COLLEGE-NORTH-LAKE",
+    "unitid": null,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Dallas College North Lake'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://northlakecollegeathletics.com/"
+   },
+   "evidence": "institution https://www.dallascollege.edu/slife/athletics/ -> northlakecollegeathletics.com (href on https://www.dallascollege.edu/slife/athletics/); host self-identifies: og:site_name 'Dallas College North Lake'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Dallas College North Lake verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes northlakecollegeathletics.com trusted for AE-X-DALLAS-COLLEGE-NORTH-LAKE only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U219888 athletics.columbiastate.edu",
+   "expected_old": null,
+   "proposed": {
+    "domain": "athletics.columbiastate.edu",
+    "athletics_entity_id": "AE-U219888",
+    "unitid": 219888,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Columbia State Community College'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://athletics.columbiastate.edu/"
+   },
+   "evidence": "institution https://www.columbiastate.edu/athletics/womens-soccer/index.html -> athletics.columbiastate.edu (redirect https://www.columbiastate.edu/athletics/womens-soccer/index.html -> https://athletics.columbiastate.edu/sports/wsoc/index); host self-identifies: og:site_name 'Columbia State Community College'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B1: separate athletics host for Columbia State Community College verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes athletics.columbiastate.edu trusted for AE-U219888 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U135717 mdcathletics.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "mdcathletics.com",
+    "athletics_entity_id": "AE-U135717",
+    "unitid": 135717,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Miami Dade College'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://mdcathletics.com/"
+   },
+   "evidence": "institution https://www.mdc.edu/athletics/ -> mdcathletics.com (redirect https://www.mdc.edu/athletics/ -> https://www.mdcathletics.com/landing/index); host self-identifies: og:site_name 'Miami Dade College'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B4: separate athletics host for Miami Dade College verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes mdcathletics.com trusted for AE-U135717 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U136400 bobcats.phsc.edu",
+   "expected_old": null,
+   "proposed": {
+    "domain": "bobcats.phsc.edu",
+    "athletics_entity_id": "AE-U136400",
+    "unitid": 136400,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "title 'PHSC Athletics | Athletics'; footer '(c) 2026 Pasco-Hernando State College'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "CUSTOM (Drupal)",
+    "http_status": 200,
+    "final_url": "https://bobcats.phsc.edu/"
+   },
+   "evidence": "institution https://www.phsc.edu/athletics -> bobcats.phsc.edu (nav link on institution page); host self-identifies: title 'PHSC Athletics | Athletics'; footer '(c) 2026 Pasco-Hernando State College'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Pasco-Hernando State College verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes bobcats.phsc.edu trusted for AE-U136400 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U218672 usclathletics.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "usclathletics.com",
+    "athletics_entity_id": "AE-U218672",
+    "unitid": 218672,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'University of South Carolina Lancaster'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://usclathletics.com/"
+   },
+   "evidence": "institution https://www.sc.edu/about/system_and_campuses/lancaster/athletics/index.php -> usclathletics.com (href on https://www.sc.edu/about/system_and_campuses/lancaster/athletics/index.php); host self-identifies: og:site_name 'University of South Carolina Lancaster'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for University of South Carolina-Lancaster verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes usclathletics.com trusted for AE-U218672 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U218681 uscsalkathletics.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "uscsalkathletics.com",
+    "athletics_entity_id": "AE-U218681",
+    "unitid": 218681,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'USC Salk Athletics'; events 'USC Salkehatchie Men's Soccer ...'; 'Salkehatchie Gymnasium, Walterboro'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "WIX",
+    "http_status": 200,
+    "final_url": "https://uscsalkathletics.com/"
+   },
+   "evidence": "institution https://www.sc.edu/about/system_and_campuses/salkehatchie/athletics/index.php -> uscsalkathletics.com (href on https://www.sc.edu/about/system_and_campuses/salkehatchie/athletics/index.php); host self-identifies: og:site_name 'USC Salk Athletics'; events 'USC Salkehatchie Men's Soccer ...'; 'Salkehatchie Gymnasium, Walterboro'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for University of South Carolina-Salkehatchie verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes uscsalkathletics.com trusted for AE-U218681 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U218690 uscfireants.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "uscfireants.com",
+    "athletics_entity_id": "AE-U218690",
+    "unitid": 218690,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'University of South Carolina Sumter'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://uscfireants.com/"
+   },
+   "evidence": "institution https://www.sc.edu/about/system_and_campuses/sumter/athletics/index.php -> uscfireants.com (href on https://www.sc.edu/about/system_and_campuses/sumter/athletics/index.php); host self-identifies: og:site_name 'University of South Carolina Sumter'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for University of South Carolina-Sumter verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes uscfireants.com trusted for AE-U218690 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U218706 uscunionathletics.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "uscunionathletics.com",
+    "athletics_entity_id": "AE-U218706",
+    "unitid": 218706,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'USC Union'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://uscunionathletics.com/"
+   },
+   "evidence": "institution https://www.sc.edu/about/system_and_campuses/union/athletics/index.php -> uscunionathletics.com (href on https://www.sc.edu/about/system_and_campuses/union/athletics/index.php); host self-identifies: og:site_name 'USC Union'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for University of South Carolina-Union verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes uscunionathletics.com trusted for AE-U218706 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U233754 vpccgators.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "vpccgators.com",
+    "athletics_entity_id": "AE-U233754",
+    "unitid": 233754,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Virginia Peninsula Community College'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://vpccgators.com/"
+   },
+   "evidence": "institution https://www.vpcc.edu/life-on-campus/athletics/ -> vpccgators.com (href on https://www.vpcc.edu/life-on-campus/athletics/); host self-identifies: og:site_name 'Virginia Peninsula Community College'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Virginia Peninsula Community College verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes vpccgators.com trusted for AE-U233754 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U154059 niacctrojans.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "niacctrojans.com",
+    "athletics_entity_id": "AE-U154059",
+    "unitid": 154059,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Official Home of NIACC Trojan Athletics'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://niacctrojans.com/"
+   },
+   "evidence": "institution https://www.niacc.edu/athletics -> niacctrojans.com (redirect https://www.niacc.edu/athletics -> https://www.niacctrojans.com/landing/index); host self-identifies: og:site_name 'Official Home of NIACC Trojan Athletics'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for North Iowa Area Community College verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes niacctrojans.com trusted for AE-U154059 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U154129 thunder.nwicc.edu",
+   "expected_old": null,
+   "proposed": {
+    "domain": "thunder.nwicc.edu",
+    "athletics_entity_id": "AE-U154129",
+    "unitid": 154129,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Northwest Iowa Community College'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://thunder.nwicc.edu/"
+   },
+   "evidence": "institution https://nwicc.edu/athletics/ -> thunder.nwicc.edu (redirect https://nwicc.edu/athletics/ -> https://thunder.nwicc.edu/landing/index); host self-identifies: og:site_name 'Northwest Iowa Community College'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Northwest Iowa Community College verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes thunder.nwicc.edu trusted for AE-U154129 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U172200 schoolcraftocelots.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "schoolcraftocelots.com",
+    "athletics_entity_id": "AE-U172200",
+    "unitid": 172200,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Schoolcraft College'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://schoolcraftocelots.com/"
+   },
+   "evidence": "institution https://www.schoolcraft.edu/athletics/ -> schoolcraftocelots.com (href on https://www.schoolcraft.edu/athletics); host self-identifies: og:site_name 'Schoolcraft College'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Schoolcraft Community College District verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes schoolcraftocelots.com trusted for AE-U172200 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U169521 deltacollegeducks.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "deltacollegeducks.com",
+    "athletics_entity_id": "AE-U169521",
+    "unitid": 169521,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Delta College'; address University Center, MI 48710",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://deltacollegeducks.com/"
+   },
+   "evidence": "institution https://www.delta.edu/life-at-delta/athletics/index.html -> deltacollegeducks.com (href on https://www.delta.edu/life-at-delta/athletics/index.html); host self-identifies: og:site_name 'Delta College'; address University Center, MI 48710; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Delta College (MI) verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes deltacollegeducks.com trusted for AE-U169521 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U139968 gscathletics.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "gscathletics.com",
+    "athletics_entity_id": "AE-U139968",
+    "unitid": 139968,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Gordon State College Athletics'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://gscathletics.com/"
+   },
+   "evidence": "institution https://www.gordonstate.edu/athletics/ -> gscathletics.com (href on https://www.gordonstate.edu/athletics/); host self-identifies: og:site_name 'Gordon State College Athletics'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B4: separate athletics host for Gordon State College verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes gscathletics.com trusted for AE-U139968 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U184180 ccmathletics.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "ccmathletics.com",
+    "athletics_entity_id": "AE-U184180",
+    "unitid": 184180,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'County College of Morris'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://ccmathletics.com/"
+   },
+   "evidence": "institution https://www.ccm.edu/athletics -> ccmathletics.com (redirect https://www.ccm.edu/athletics -> https://www.ccmathletics.com/landing/index); host self-identifies: og:site_name 'County College of Morris'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for County College of Morris verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes ccmathletics.com trusted for AE-U184180 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U184205 dukesathletics.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "dukesathletics.com",
+    "athletics_entity_id": "AE-U184205",
+    "unitid": 184205,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Rowan College of South Jersey - Cumberland'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://dukesathletics.com/"
+   },
+   "evidence": "institution https://www.rcsj.edu/student-services/athletics/ -> dukesathletics.com (href on https://www.rcsj.edu/student-services/athletics/); host self-identifies: og:site_name 'Rowan College of South Jersey - Cumberland'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Rowan College of South Jersey-Cumberland Campus verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes dukesathletics.com trusted for AE-U184205 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U165033 bristolccbayhawks.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "bristolccbayhawks.com",
+    "athletics_entity_id": "AE-U165033",
+    "unitid": 165033,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Bristol Community College'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://bristolccbayhawks.com/"
+   },
+   "evidence": "institution https://www.bristolcc.edu/studentservices/activities/athletics/ -> bristolccbayhawks.com (href on https://www.bristolcc.edu/athletics); host self-identifies: og:site_name 'Bristol Community College'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Bristol Community College verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes bristolccbayhawks.com trusted for AE-U165033 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-U217475 ccriknights.com",
+   "expected_old": null,
+   "proposed": {
+    "domain": "ccriknights.com",
+    "athletics_entity_id": "AE-U217475",
+    "unitid": 217475,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'Community College of Rhode Island'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "PRESTO",
+    "http_status": 200,
+    "final_url": "https://ccriknights.com/"
+   },
+   "evidence": "institution https://www.ccri.edu/athl/ -> ccriknights.com (redirect https://www.ccri.edu/athl/ -> https://ccriknights.com/landing/index); host self-identifies: og:site_name 'Community College of Rhode Island'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B4: separate athletics host for Community College of Rhode Island verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes ccriknights.com trusted for AE-U217475 only; no coach, roster, programme or membership change"
+  },
+  {
+   "label": "AE-X-USU-EASTERN usueasternathletics.com",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "athletics_entity_id": null,
+    "unitid": null
+   },
+   "proposed": {
+    "domain": "usueasternathletics.com",
+    "athletics_entity_id": "AE-X-USU-EASTERN",
+    "unitid": null,
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "ownership_class": "ENTITY_OWNED",
+    "evidence_kind": "OWNERSHIP_CHAIN",
+    "evidence_text": "og:site_name 'USU Eastern Athletics'",
+    "identity_method": "SELF_IDENTIFIES_AND_INSTITUTION_LINKS",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://usueasternathletics.com/"
+   },
+   "evidence": "institution https://eastern.usu.edu/athletics/ -> usueasternathletics.com (redirect https://eastern.usu.edu/athletics/ -> https://usueasternathletics.com/); host self-identifies: og:site_name 'USU Eastern Athletics'; collision audit clean (domains, colleges, coaches, roster sources); re-checked 2026-10-06",
+   "reason": "8C.2 B3: separate athletics host for Utah State Eastern verified by the ownership chain",
+   "blast_radius": "1 athletics_domains row; makes usueasternathletics.com trusted for AE-X-USU-EASTERN only; no coach, roster, programme or membership change"
+  }
+ ],
+ "association_correct": [],
+ "location_register": [
+  {
+   "label": "AE-U143215 swic.edu/students/services/student-life/athletics",
+   "proposed": {
+    "location_id": "c3ed2674f79865973ebbef73",
+    "athletics_entity_id": "AE-U143215",
+    "host": "swic.edu",
+    "path_prefix": "/students/services/student-life/athletics",
+    "source_type": "INSTITUTION_ATHLETICS_PATH",
+    "sport": null,
+    "status": "VERIFIED",
+    "evidence_url": "https://www.swic.edu/students/services/student-life/athletics/",
+    "provenance": "8C.2 B4: federal-registry institution site swic.edu serves its athletics section under /students/services/student-life/athletics; og:site_name 'Southwestern Illinois College', h1 'Athletics', mega-menu Athletics item; sub-pages mens-soccer/ and womens-soccer/ under the prefix; GRAC/NJCAA links",
+    "first_seen_season": 2026,
+    "last_verified_at": "2026-10-06T00:00:00Z"
+   },
+   "evidence": "https://www.swic.edu/students/services/student-life/athletics/ [ 2026-10-06T03:18:10Z] og:site_name 'Southwestern Illinois College', h1 'Athletics', mega-menu Athletics item; sub-pages mens-soccer/ and womens-soccer/ under the prefix; GRAC/NJCAA l",
+   "reason": "athletics pages live under the institution's own site (swic.edu/students/services/student-life/athletics); no athletics domain manufactured",
+   "blast_radius": "one athletics_source_locations row; no athletics_domains change; only URLs under the prefix become an official source of this entity"
+  },
+  {
+   "label": "AE-U183655 atlanticcape.edu/athletics",
+   "proposed": {
+    "location_id": "877e4edd6839a10e0ac3d57c",
+    "athletics_entity_id": "AE-U183655",
+    "host": "atlanticcape.edu",
+    "path_prefix": "/athletics",
+    "source_type": "INSTITUTION_ATHLETICS_PATH",
+    "sport": null,
+    "status": "VERIFIED",
+    "evidence_url": "https://www.atlanticcape.edu/athletics",
+    "provenance": "8C.2 B4: federal-registry institution site atlanticcape.edu serves its athletics section under /athletics; redirects to https://atlanticcape.edu/athletics/; h1 'Athletics'; nav /athletics/index.php; text: men's and women's soccer play on the Mays Landing campus field; schedules at events.atlanticcape.edu/a",
+    "first_seen_season": 2026,
+    "last_verified_at": "2026-10-06T00:00:00Z"
+   },
+   "evidence": "https://www.atlanticcape.edu/athletics [ 2026-10-06T03:53:13Z] redirects to https://atlanticcape.edu/athletics/; h1 'Athletics'; nav /athletics/index.php; text: men's and women's soccer play on the Mays Landing campus field",
+   "reason": "athletics pages live under the institution's own site (atlanticcape.edu/athletics); no athletics domain manufactured",
+   "blast_radius": "one athletics_source_locations row; no athletics_domains change; only URLs under the prefix become an official source of this entity"
+  },
+  {
+   "label": "AE-U198233 cvcc.edu/athletics",
+   "proposed": {
+    "location_id": "a55df715aa749423a3ba77df",
+    "athletics_entity_id": "AE-U198233",
+    "host": "cvcc.edu",
+    "path_prefix": "/athletics",
+    "source_type": "INSTITUTION_ATHLETICS_PATH",
+    "sport": null,
+    "status": "VERIFIED",
+    "evidence_url": "https://www.cvcc.edu/athletics",
+    "provenance": "8C.2 B4: federal-registry institution site cvcc.edu serves its athletics section under /athletics; redirects to https://cvcc.edu/athletics/; og:site_name 'Catawba Valley Community College'; 'CVCC participates in 6 intercollegiate sports': Baseball, Men's Basketball, Softball, Women's Basketball (+ ",
+    "first_seen_season": 2026,
+    "last_verified_at": "2026-10-06T00:00:00Z"
+   },
+   "evidence": "https://www.cvcc.edu/athletics [ 2026-10-06T03:35:12Z] redirects to https://cvcc.edu/athletics/; og:site_name 'Catawba Valley Community College'; 'CVCC participates in 6 intercollegiate sports': Baseball, Men's Bask",
+   "reason": "athletics pages live under the institution's own site (cvcc.edu/athletics); no athletics domain manufactured",
+   "blast_radius": "one athletics_source_locations row; no athletics_domains change; only URLs under the prefix become an official source of this entity"
+  },
+  {
+   "label": "AE-U233037 pdc.edu/athletics",
+   "proposed": {
+    "location_id": "34387a4afc3999e03ff4fed1",
+    "athletics_entity_id": "AE-U233037",
+    "host": "pdc.edu",
+    "path_prefix": "/athletics",
+    "source_type": "INSTITUTION_ATHLETICS_PATH",
+    "sport": null,
+    "status": "VERIFIED",
+    "evidence_url": "https://www.pdc.edu/athletics/",
+    "provenance": "8C.2 B4: federal-registry institution site pdc.edu serves its athletics section under /athletics; og:site_name 'Paul D. Camp Community College', h1 'Athletics', site nav /athletics/; sport links /athletics/soccer/, baseball, basketball, softball",
+    "first_seen_season": 2026,
+    "last_verified_at": "2026-10-06T00:00:00Z"
+   },
+   "evidence": "https://www.pdc.edu/athletics/ [ 2026-10-06T03:20:27Z] og:site_name 'Paul D. Camp Community College', h1 'Athletics', site nav /athletics/; sport links /athletics/soccer/, baseball, basketball, softball",
+   "reason": "athletics pages live under the institution's own site (pdc.edu/athletics); no athletics domain manufactured",
+   "blast_radius": "one athletics_source_locations row; no athletics_domains change; only URLs under the prefix become an official source of this entity"
+  },
+  {
+   "label": "AE-U240693 westernwyoming.edu/mustang-athletics",
+   "proposed": {
+    "location_id": "1a3e075481e41dfd02d7be47",
+    "athletics_entity_id": "AE-U240693",
+    "host": "westernwyoming.edu",
+    "path_prefix": "/mustang-athletics",
+    "source_type": "INSTITUTION_ATHLETICS_PATH",
+    "sport": null,
+    "status": "VERIFIED",
+    "evidence_url": "https://www.westernwyoming.edu/mustang-athletics/index.php",
+    "provenance": "8C.2 B4: federal-registry institution site westernwyoming.edu serves its athletics section under /mustang-athletics; title 'Mustang Athletics | Western Wyoming College'; global nav item /mustang-athletics/; text lists Men's and Women's Basketball, Women's Soccer, Men's Wrestling, club cross country - Men's Soccer NO",
+    "first_seen_season": 2026,
+    "last_verified_at": "2026-10-06T00:00:00Z"
+   },
+   "evidence": "https://www.westernwyoming.edu/mustang-athletics/index.php [ 2026-10-06T03:21:14Z] title 'Mustang Athletics | Western Wyoming College'; global nav item /mustang-athletics/; text lists Men's and Women's Basketball, Women's Soccer, Men's Wrestli",
+   "reason": "athletics pages live under the institution's own site (westernwyoming.edu/mustang-athletics); no athletics domain manufactured",
+   "blast_radius": "one athletics_source_locations row; no athletics_domains change; only URLs under the prefix become an official source of this entity"
+  },
+  {
+   "label": "AE-U198251 cccc.edu/student-life/athletics",
+   "proposed": {
+    "location_id": "587f95aa9843843b5c5a87a1",
+    "athletics_entity_id": "AE-U198251",
+    "host": "cccc.edu",
+    "path_prefix": "/student-life/athletics",
+    "source_type": "INSTITUTION_ATHLETICS_PATH",
+    "sport": null,
+    "status": "VERIFIED",
+    "evidence_url": "https://www.cccc.edu/student-life/athletics",
+    "provenance": "8C.2 B4: federal-registry institution site cccc.edu serves its athletics section under /student-life/athletics; title 'Athletics | CCCC'; Cougars athletics; team cards /student-life/athletics/inside-cccc-athletics/our-teams/mens-soccer-team and .../inside-athletics/our-teams/womens-soccer-team; news 'CCCC's new",
+    "first_seen_season": 2026,
+    "last_verified_at": "2026-10-06T00:00:00Z"
+   },
+   "evidence": "https://www.cccc.edu/student-life/athletics [ 2026-10-06T03:21:49Z] title 'Athletics | CCCC'; Cougars athletics; team cards /student-life/athletics/inside-cccc-athletics/our-teams/mens-soccer-team and .../inside-athletics/our-te",
+   "reason": "athletics pages live under the institution's own site (cccc.edu/student-life/athletics); no athletics domain manufactured",
+   "blast_radius": "one athletics_source_locations row; no athletics_domains change; only URLs under the prefix become an official source of this entity"
+  },
+  {
+   "label": "AE-U217989 denmarktech.edu/athletics",
+   "proposed": {
+    "location_id": "46ade53102a16e02069c861d",
+    "athletics_entity_id": "AE-U217989",
+    "host": "denmarktech.edu",
+    "path_prefix": "/athletics",
+    "source_type": "INSTITUTION_ATHLETICS_PATH",
+    "sport": null,
+    "status": "VERIFIED",
+    "evidence_url": "https://www.denmarktech.edu/athletics/",
+    "provenance": "8C.2 B4: federal-registry institution site denmarktech.edu serves its athletics section under /athletics; og:site_name 'Denmark Technical College', title 'Athletics - Denmark Technical College'; sports listed: Baseball, Women's Basketball, Spirit, Men's Basketball, Men's Soccer, Track/Field/XC; Men's Socc",
+    "first_seen_season": 2026,
+    "last_verified_at": "2026-10-06T00:00:00Z"
+   },
+   "evidence": "https://www.denmarktech.edu/athletics/ [ 2026-10-06T03:22:59Z] og:site_name 'Denmark Technical College', title 'Athletics - Denmark Technical College'; sports listed: Baseball, Women's Basketball, Spirit, Men's Basketball, ",
+   "reason": "athletics pages live under the institution's own site (denmarktech.edu/athletics); no athletics domain manufactured",
+   "blast_radius": "one athletics_source_locations row; no athletics_domains change; only URLs under the prefix become an official source of this entity"
+  },
+  {
+   "label": "AE-U198817 lenoircc.edu/athletics",
+   "proposed": {
+    "location_id": "4df144a0a63c73e196bd74cd",
+    "athletics_entity_id": "AE-U198817",
+    "host": "lenoircc.edu",
+    "path_prefix": "/athletics",
+    "source_type": "INSTITUTION_ATHLETICS_PATH",
+    "sport": null,
+    "status": "VERIFIED",
+    "evidence_url": "https://www.lenoircc.edu/athletics/",
+    "provenance": "8C.2 B4: federal-registry institution site lenoircc.edu serves its athletics section under /athletics; og:site_name 'Lenoir Community College', h1 'Lancer Athletics'; sport links only /lancers-baseball and /volleyball; the word 'soccer' does not appear anywhere on the page",
+    "first_seen_season": 2026,
+    "last_verified_at": "2026-10-06T00:00:00Z"
+   },
+   "evidence": "https://www.lenoircc.edu/athletics/ [ 2026-10-06T03:23:11Z] og:site_name 'Lenoir Community College', h1 'Lancer Athletics'; sport links only /lancers-baseball and /volleyball; the word 'soccer' does not appear anywhere o",
+   "reason": "athletics pages live under the institution's own site (lenoircc.edu/athletics); no athletics domain manufactured",
+   "blast_radius": "one athletics_source_locations row; no athletics_domains change; only URLs under the prefix become an official source of this entity"
+  },
+  {
+   "label": "AE-U139986 sctech.edu/athletics",
+   "proposed": {
+    "location_id": "665829858b6091a1b7d4906e",
+    "athletics_entity_id": "AE-U139986",
+    "host": "sctech.edu",
+    "path_prefix": "/athletics",
+    "source_type": "INSTITUTION_ATHLETICS_PATH",
+    "sport": null,
+    "status": "VERIFIED",
+    "evidence_url": "https://www.sctech.edu/athletics/",
+    "provenance": "8C.2 B4: federal-registry institution site sctech.edu serves its athletics section under /athletics; og:site_name 'Southern Crescent Technical College', h1 'Athletics'; nav: Men's Soccer Schedule /athletics/mens-soccer-schedule/, Women's Soccer Schedule /athletics/womens-soccer-schedule/, SCTC Soccer",
+    "first_seen_season": 2026,
+    "last_verified_at": "2026-10-06T00:00:00Z"
+   },
+   "evidence": "https://www.sctech.edu/athletics/ [ 2026-10-06T03:23:35Z] og:site_name 'Southern Crescent Technical College', h1 'Athletics'; nav: Men's Soccer Schedule /athletics/mens-soccer-schedule/, Women's Soccer Schedule /athlet",
+   "reason": "athletics pages live under the institution's own site (sctech.edu/athletics); no athletics domain manufactured",
+   "blast_radius": "one athletics_source_locations row; no athletics_domains change; only URLs under the prefix become an official source of this entity"
+  },
+  {
+   "label": "AE-U167525 quincycollege.edu/athletics",
+   "proposed": {
+    "location_id": "b9c304d8e107735f8106eb18",
+    "athletics_entity_id": "AE-U167525",
+    "host": "quincycollege.edu",
+    "path_prefix": "/athletics",
+    "source_type": "INSTITUTION_ATHLETICS_PATH",
+    "sport": null,
+    "status": "VERIFIED",
+    "evidence_url": "https://quincycollege.edu/athletics/",
+    "provenance": "8C.2 B4: federal-registry institution site quincycollege.edu serves its athletics section under /athletics; og:site_name 'Quincy College', h1 'Athletics'; links https://quincycollege.edu/soccer/ and soccer venue; EADA report",
+    "first_seen_season": 2026,
+    "last_verified_at": "2026-10-06T00:00:00Z"
+   },
+   "evidence": "https://quincycollege.edu/athletics/ [ 2026-10-06T03:32:05Z] og:site_name 'Quincy College', h1 'Athletics'; links https://quincycollege.edu/soccer/ and soccer venue; EADA report",
+   "reason": "athletics pages live under the institution's own site (quincycollege.edu/athletics); no athletics domain manufactured",
+   "blast_radius": "one athletics_source_locations row; no athletics_domains change; only URLs under the prefix become an official source of this entity"
+  },
+  {
+   "label": "AE-U167905 stcc.edu/campus-life/athletics",
+   "proposed": {
+    "location_id": "c53b182774c7fa9370280bd9",
+    "athletics_entity_id": "AE-U167905",
+    "host": "stcc.edu",
+    "path_prefix": "/campus-life/athletics",
+    "source_type": "INSTITUTION_ATHLETICS_PATH",
+    "sport": null,
+    "status": "VERIFIED",
+    "evidence_url": "https://www.stcc.edu/athletics",
+    "provenance": "8C.2 B4: federal-registry institution site stcc.edu serves its athletics section under /campus-life/athletics; 404; STCC site nav 'Athletics' -> /campus-life/athletics/",
+    "first_seen_season": 2026,
+    "last_verified_at": "2026-10-06T00:00:00Z"
+   },
+   "evidence": "https://www.stcc.edu/athletics [ 2026-10-06T03:54:24Z] 404; STCC site nav 'Athletics' -> /campus-life/athletics/ || https://www.stcc.edu/campus-life/athletics/ [ 2026-10-06T03:55:23Z] 'Athletics | STCC'; sport pages /campus-life/athletics/mens-soccer/ and /womens-soccer/",
+   "reason": "athletics pages live under the institution's own site (stcc.edu/campus-life/athletics); no athletics domain manufactured",
+   "blast_radius": "one athletics_source_locations row; no athletics_domains change; only URLs under the prefix become an official source of this entity"
+  }
+ ]
+}

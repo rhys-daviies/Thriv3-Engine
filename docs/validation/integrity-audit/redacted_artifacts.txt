@@ -125,3 +125,9 @@ docs/validation/integrity-audit/phase8b1_source_recovery.redacted.json
 docs/validation/integrity-audit/phase8b1_staging_quality.redacted.json
 docs/validation/integrity-audit/phase8b1_structural_fixture.redacted.json
 docs/validation/integrity-audit/phase8b1_universe_closure_roster_source_recovery_snapshot.json
+docs/validation/integrity-audit/phase8c2_universe_fixture.redacted.json
+docs/validation/integrity-audit/phase8c2_source_identity_fixture.redacted.json
+docs/validation/integrity-audit/phase8c2_deactivation_verification.redacted.json
+docs/validation/integrity-audit/phase8c2_held_from_safe_set.redacted.json
+docs/validation/integrity-audit/phase8c2_revalidation_reviews.redacted.json
+docs/validation/integrity-audit/phase8c2_canonical_apply_snapshot.json
