@@ -3,6 +3,7 @@ import { suppress } from './suppressions.js';
 import { utcNow } from './time.js';
 import { EDGE_BASE_URL, SYNC_SECRET } from './config.js';
 import { scheduleRollup, rebuildRollup } from './engagementRollup.js';
+import { recipientForOutreachToken } from './recipient.js';
 
 /**
  * Moves data between the local database and the edge collector.
@@ -262,12 +263,12 @@ export async function pullSuppressions() {
   const unresolved = [];
 
   for (const row of rows) {
-    const link = db
-      .prepare('SELECT o.token, c.email FROM outreach o JOIN coaches c ON c.id = o.coach_id WHERE o.token = ?')
-      .get(row.token);
-    if (!link?.email) { unresolved.push(row.token); continue; }
+    // token -> relationship -> its RECIPIENT's address, whatever kind of recipient that is:
+    // an opt-out suppresses the address that was actually written to (recipient.js)
+    const recipient = recipientForOutreachToken(row.token);
+    if (!recipient?.email) { unresolved.push(row.token); continue; }
     const result = suppress({
-      email: link.email,
+      email: recipient.email,
       reason: 'unsubscribed',
       source: 'edge',
       outreachToken: row.token,

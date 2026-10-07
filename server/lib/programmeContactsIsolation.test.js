@@ -45,6 +45,9 @@ const ALLOWED = new Set([
   'server/scripts/integrityPromote.js',
   'server/scripts/validateProgrammeContacts.js',
   'server/scripts/programmeContactLeads.js',
+  // Phase 1C: resolves a PROGRAMME_INBOX reference by id. No outreach row can produce one —
+  // its SQL fragments join coaches only (recipient.test.js pins that) — so no send path reaches it.
+  'server/lib/recipient.js',
 ]);
 
 function sourceFiles(dir) {

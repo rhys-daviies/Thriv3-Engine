@@ -53,6 +53,7 @@ const parse = (row) => (row ? { ...row, payload: safeParse(row.payload) } : null
  * `outreachProvenance.js` and `sendPathEngineIsolation.test.js`.
  */
 import { assertSelectionMatchesSend } from './v2/outreachProvenance.js';
+import { sendRecipientSql } from './recipient.js';
 
 const insertSend = db.prepare(`
   INSERT INTO outreach_send (
@@ -719,11 +720,12 @@ export function sendEvents(sendId) {
  * rather than an accident.
  */
 export function confirmedSends({ policyVersion = null, athleteId = null, sport = null } = {}) {
+  const r = sendRecipientSql({ send: 's', as: 'c' });
   return db.prepare(`
-    SELECT s.*, o.token, o.match_id, c.email AS coach_email, c.position_title AS coach_title
+    SELECT s.*, o.token, o.match_id, ${r.email} AS coach_email, ${r.coachTitle} AS coach_title
     FROM outreach_send s
     JOIN outreach o ON o.id = s.outreach_id
-    LEFT JOIN coaches c ON c.id = s.coach_id
+    ${r.join}
     WHERE s.sent_at IS NOT NULL
       AND (@policyVersion IS NULL OR s.policy_version = @policyVersion)
       AND (@athleteId IS NULL OR s.athlete_id = @athleteId)

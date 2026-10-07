@@ -686,7 +686,9 @@ describe('the recipient cap and the sender budget are different things', () => {
 
   it('leaves sendCap saying exactly what it said before', () => {
     const src = fs.readFileSync(new URL('./sendCap.js', import.meta.url), 'utf8');
-    expect(src).toContain('lower(c.email) = ?');
+    // Phase 1C: the address is the relationship's RECIPIENT's (recipient.js), still compared
+    // lower-cased; recipient.test.js pins that the count is identical to the old JOIN coaches.
+    expect(src).toContain('lower(${r.email}) = ?');
     expect(src).toContain('o.sent_at IS NOT NULL');
     // It has not learned about the sender at all, which is the point.
     expect(src).not.toMatch(/sending_identity|outbound_send_attempt|mailbox/i);

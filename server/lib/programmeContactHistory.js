@@ -1,5 +1,6 @@
 import db from '../db/client.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
+import { outreachRecipientSql } from './recipient.js';
 
 /**
  * WHAT HAS ALREADY BEEN SENT TO THIS PROGRAMME FOR THIS ATHLETE.
@@ -49,12 +50,20 @@ import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
  * not. See the note on coach identity in docs terms: collapsing them safely
  * needs a coach identity model this does not have.
  */
+/**
+ * THE RECIPIENT, NOT A JOIN OF ITS OWN (recipient.js, Phase 1C). Every relationship today is
+ * addressed to a coach, so these lines are coach lines and keep the coach_* names their callers
+ * read. A programme inbox (Step 1D) is a recipient with no name and no title; when it can appear
+ * here it is reported as what it is, never filled in with a person's fields.
+ */
+const R = outreachRecipientSql({ as: 'c' });
+
 const HISTORY = db.prepare(`
   SELECT
-    c.id                AS coach_id,
-    c.full_name         AS coach_name,
-    c.email             AS coach_email,
-    c.position_title,
+    ${R.id}             AS coach_id,
+    ${R.coachName}      AS coach_name,
+    ${R.email}          AS coach_email,
+    ${R.coachTitle}     AS position_title,
     o.created_at        AS relationship_opened_at,
     o.drafted_at        AS last_drafted_at,
     -- NAMED FOR WHAT IT IS. First-wins, by design in markOutreachSent.
@@ -69,9 +78,9 @@ const HISTORY = db.prepare(`
     (SELECT MAX(s.sent_at) FROM outreach_send s
       WHERE s.outreach_id = o.id AND s.state = @accepted)          AS last_confirmed_send_at
   FROM outreach o
-  JOIN coaches c ON c.id = o.coach_id
-  WHERE o.athlete_id = @athleteId AND c.school = @collegeName AND c.sport = @sport
-  ORDER BY COALESCE(o.sent_at, o.drafted_at, o.created_at) DESC, c.id
+  ${R.join}
+  WHERE o.athlete_id = @athleteId AND ${R.programmeName} = @collegeName AND ${R.sport} = @sport
+  ORDER BY COALESCE(o.sent_at, o.drafted_at, o.created_at) DESC, ${R.id}
 `);
 
 /**
@@ -88,9 +97,9 @@ const ORIGINS = db.prepare(`
 `);
 
 const OUTREACH_IDS = db.prepare(`
-  SELECT o.id, o.coach_id FROM outreach o
-    JOIN coaches c ON c.id = o.coach_id
-   WHERE o.athlete_id = @athleteId AND c.school = @collegeName AND c.sport = @sport
+  SELECT o.id, ${R.id} AS coach_id FROM outreach o
+    ${R.join}
+   WHERE o.athlete_id = @athleteId AND ${R.programmeName} = @collegeName AND ${R.sport} = @sport
 `);
 
 /**

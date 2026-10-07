@@ -1,5 +1,6 @@
 import db from '../db/client.js';
 import { collapseSessions } from './engagementRollup.js';
+import { outreachRecipientSql } from './recipient.js';
 
 /**
  * Read models for Tab 3.
@@ -55,14 +56,16 @@ export function outreachFunnel(athleteId) {
 
 /** One row per coach, default sorted by score descending. */
 export function coachEngagement(athleteId) {
+  // the relationship's recipient (recipient.js); today always a coach, so these are coach rows
+  const r = outreachRecipientSql({ as: 'c' });
   return db.prepare(`
     SELECT
       o.id                              AS outreach_id,
-      c.id                              AS coach_id,
-      c.full_name                       AS coach_name,
-      c.school,
-      c.division,
-      c.position_title,
+      ${r.id}                           AS coach_id,
+      ${r.coachName}                    AS coach_name,
+      ${r.programmeName}                AS school,
+      ${r.coachDivision}                AS division,
+      ${r.coachTitle}                   AS position_title,
       -- Both, because they are different events: drafted_at is when the
       -- message went into Outlook, sent_at only when the send was confirmed.
       -- A row with a draft and no confirmation is a message we cannot say was
@@ -79,10 +82,10 @@ export function coachEngagement(athleteId) {
       r.last_qualified_at,
       r.responded_at
     FROM outreach o
-    JOIN coaches c ON c.id = o.coach_id
+    ${r.join}
     LEFT JOIN engagement_rollup r ON r.outreach_id = o.id
     WHERE o.athlete_id = ? AND o.revoked_at IS NULL
-    ORDER BY r.engagement_score DESC NULLS LAST, c.full_name ASC
+    ORDER BY r.engagement_score DESC NULLS LAST, ${r.coachName} ASC
   `).all(athleteId);
 }
 

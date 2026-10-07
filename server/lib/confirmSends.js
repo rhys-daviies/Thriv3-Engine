@@ -27,6 +27,7 @@ import { acceptSend } from './outreachSend.js';
 import { recordManualOutboundAttempt } from './outboundBudget.js';
 import { establishManualOnlyForConfirmedSend } from './manualContactStance.js';
 import { MESSAGE_STATE, OPEN_STATES, ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
+import { outreachRecipientSql } from './recipient.js';
 
 const OPEN_LIST = OPEN_STATES.map((s) => `'${s}'`).join(', ');
 
@@ -50,6 +51,9 @@ const MINUTE = 60_000;
  * and must not later be confirmed as delivered.
  */
 export function pendingDrafts({ athleteId = null } = {}) {
+  // who each draft is to comes from the relationship's recipient (recipient.js), not a
+  // JOIN coaches of its own; the column names are the ones this list has always returned
+  const r = outreachRecipientSql({ as: 'c' });
   return db.prepare(`
     SELECT o.id, o.athlete_id, o.created_at,
            s.id           AS send_id,
@@ -60,11 +64,11 @@ export function pendingDrafts({ athleteId = null } = {}) {
            -- the relationship was last touched.
            COALESCE(s.drafted_at, o.drafted_at) AS drafted_at,
            p.full_name AS athlete_name,
-           c.full_name AS coach_name, c.email, c.school,
+           ${r.coachName} AS coach_name, ${r.email} AS email, ${r.programmeName} AS school,
            e.structure, e.selected_kinds, e.evidence_count
     FROM outreach o
     JOIN players p ON p.id = o.athlete_id
-    JOIN coaches c ON c.id = o.coach_id
+    ${r.join}
     LEFT JOIN outreach_evidence e ON e.outreach_id = o.id
     LEFT JOIN outreach_send s
            ON s.outreach_id = o.id AND s.state IN (${OPEN_LIST})

@@ -33,6 +33,7 @@
  */
 import db from '../db/client.js';
 import { PER_COACH_WINDOW_DAYS, PER_COACH_MAX_SENDS } from './config.js';
+import { outreachRecipientSql } from './recipient.js';
 
 const norm = (email) => (email || '').trim().toLowerCase();
 
@@ -40,15 +41,24 @@ function windowStart(days = PER_COACH_WINDOW_DAYS, now = Date.now()) {
   return new Date(now - days * 86_400_000).toISOString();
 }
 
-/** Distinct athletes who have sent to this address inside the window. */
+/**
+ * Distinct athletes who have sent to this address inside the window.
+ *
+ * The address comes from the RECIPIENT of each relationship (recipient.js), not from a
+ * JOIN coaches written here: when an outreach row can address a programme inbox (Step 1D),
+ * that fragment is the one place that learns to read it, and the cap counts the inbox's
+ * sends without this query changing. Today every recipient is a coach, so this is the
+ * same count it always was.
+ */
 export function recentSendCount(email, { days = PER_COACH_WINDOW_DAYS, now = Date.now() } = {}) {
   const address = norm(email);
   if (!address) return 0;
+  const r = outreachRecipientSql();
   const row = db.prepare(`
     SELECT COUNT(*) AS n
     FROM outreach o
-    JOIN coaches c ON c.id = o.coach_id
-    WHERE lower(c.email) = ? AND o.sent_at IS NOT NULL AND o.sent_at >= ?
+    ${r.join}
+    WHERE lower(${r.email}) = ? AND o.sent_at IS NOT NULL AND o.sent_at >= ?
   `).get(address, windowStart(days, now));
   return row?.n || 0;
 }

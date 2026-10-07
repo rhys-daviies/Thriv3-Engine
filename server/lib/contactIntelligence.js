@@ -1,6 +1,7 @@
 import db from '../db/client.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
 import { contactIntelligenceKey } from '../../shared/contactIntelligenceKey.js';
+import { outreachRecipientSql } from './recipient.js';
 
 /**
  * WHAT AN OPERATOR SHOULD KNOW BEFORE WRITING TO A PROGRAMME AGAIN.
@@ -63,13 +64,16 @@ import { contactIntelligenceKey } from '../../shared/contactIntelligenceKey.js';
  * women's programme with different staff and different history, so the name
  * alone is not an identity.
  */
+/** The relationship's recipient (recipient.js) — see programmeContactHistory for why. */
+const R = outreachRecipientSql({ as: 'c' });
+
 const ROWS = db.prepare(`
   SELECT
-    c.school                          AS college_name,
-    c.sport                           AS sport,
-    c.id                              AS coach_id,
-    c.full_name                       AS coach_name,
-    c.position_title,
+    ${R.programmeName}                AS college_name,
+    ${R.sport}                        AS sport,
+    ${R.id}                           AS coach_id,
+    ${R.coachName}                    AS coach_name,
+    ${R.coachTitle}                   AS position_title,
     o.id                              AS outreach_id,
     o.drafted_at,
     o.sent_at,
@@ -83,9 +87,9 @@ const ROWS = db.prepare(`
     r.last_qualified_at,
     r.responded_at
   FROM outreach o
-  JOIN coaches c ON c.id = o.coach_id
+  ${R.join}
   LEFT JOIN engagement_rollup r ON r.outreach_id = o.id
-  WHERE o.athlete_id = @athleteId AND c.school IS NOT NULL
+  WHERE o.athlete_id = @athleteId AND ${R.programmeName} IS NOT NULL
 `);
 
 /**
