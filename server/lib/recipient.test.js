@@ -109,14 +109,24 @@ describe('B. invalid recipients fail closed — no fallback, no conversion', () 
   });
 });
 
-describe('I/J. in this build the SQL recipient of an outreach row can only be a coach', () => {
-  it('the fragments join coaches only, and name no programme contact', () => {
+describe('I/J. the SQL recipient reads both columns, by kind, and never across kinds', () => {
+  it('every kind-dependent expression is a CASE on which column is set — no COALESCE across the two', () => {
     for (const f of [outreachRecipientSql(), outreachRecipientSql({ left: true }), sendRecipientSql(), sendRecipientSql({ left: false })]) {
-      expect(f.kind).toBe(`'${RECIPIENT_KIND.COACH}'`);
-      expect(f.join).toMatch(/^(LEFT )?JOIN coaches \w+ ON \w+\.id = \w+\.coach_id$/);
-      expect(JSON.stringify(f)).not.toMatch(/programme_contact/);
+      expect(f.join).toMatch(/LEFT JOIN coaches \w+ ON \w+\.id = \w+\.coach_id/);
+      expect(f.join).toMatch(/LEFT JOIN programme_contacts \w+ ON \w+\.contact_id = \w+\.programme_contact_id/);
+      for (const k of ['kind', 'id', 'email', 'label', 'programmeName', 'sport', 'programmeDivision']) {
+        expect(f[k], k).toMatch(/^\(CASE WHEN \w+\.coach_id IS NOT NULL THEN .* WHEN \w+\.programme_contact_id IS NOT NULL THEN .* END\)$/);
+        expect(f[k], k).not.toMatch(/COALESCE/i);
+      }
+      for (const k of ['coachName', 'coachTitle', 'coachEmail', 'coachDivision']) expect(f[k], k).toMatch(/^\w+\.(full_name|position_title|email|division)$/);
     }
+    expect(outreachRecipientSql().join).toMatch(/JOIN \(SELECT 1\) \w+_present ON/);        // INNER: unreadable recipient excluded
+    expect(outreachRecipientSql({ left: true }).join).not.toMatch(/_present/);
     expect(() => outreachRecipientSql({ as: 'c; DROP TABLE x' })).toThrow();
+    expect(() => outreachRecipientSql({ outreach: 'o)--' })).toThrow();
+  });
+  it('every existing (coach) relationship still resolves as a COACH', () => {
+    for (const row of db.prepare('SELECT * FROM outreach').all()) expect(recipientRefOfOutreach(row)).toEqual({ kind: RECIPIENT_KIND.COACH, id: row.coach_id });
   });
 });
 

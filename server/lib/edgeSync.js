@@ -3,7 +3,7 @@ import { suppress } from './suppressions.js';
 import { utcNow } from './time.js';
 import { EDGE_BASE_URL, SYNC_SECRET } from './config.js';
 import { scheduleRollup, rebuildRollup } from './engagementRollup.js';
-import { recipientForOutreachToken } from './recipient.js';
+import { recipientForOutreachToken, RecipientError } from './recipient.js';
 
 /**
  * Moves data between the local database and the edge collector.
@@ -265,7 +265,8 @@ export async function pullSuppressions() {
   for (const row of rows) {
     // token -> relationship -> its RECIPIENT's address, whatever kind of recipient that is:
     // an opt-out suppresses the address that was actually written to (recipient.js)
-    const recipient = recipientForOutreachToken(row.token);
+    let recipient = null;
+    try { recipient = recipientForOutreachToken(row.token); } catch (err) { if (!(err instanceof RecipientError)) throw err; }
     if (!recipient?.email) { unresolved.push(row.token); continue; }
     const result = suppress({
       email: recipient.email,

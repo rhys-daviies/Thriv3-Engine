@@ -56,16 +56,19 @@ export function outreachFunnel(athleteId) {
 
 /** One row per coach, default sorted by score descending. */
 export function coachEngagement(athleteId) {
-  // the relationship's recipient (recipient.js); today always a coach, so these are coach rows
+  // the relationship's recipient (recipient.js): coach_* are COACH facts (NULL for an inbox)
   const r = outreachRecipientSql({ as: 'c' });
   return db.prepare(`
     SELECT
       o.id                              AS outreach_id,
-      ${r.id}                           AS coach_id,
+      ${r.coachId}                      AS coach_id,
       ${r.coachName}                    AS coach_name,
       ${r.programmeName}                AS school,
-      ${r.coachDivision}                AS division,
+      ${r.programmeDivision}            AS division,
       ${r.coachTitle}                   AS position_title,
+      ${r.kind}                         AS recipient_kind,
+      ${r.id}                           AS recipient_id,
+      ${r.label}                        AS recipient_label,
       -- Both, because they are different events: drafted_at is when the
       -- message went into Outlook, sent_at only when the send was confirmed.
       -- A row with a draft and no confirmation is a message we cannot say was

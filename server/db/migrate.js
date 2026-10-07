@@ -1589,6 +1589,7 @@ export function migrate(db) {
   }
   extendMembershipDivisions(db);
   extendRefreshObservationDatasets(db);
+  extendOutreachRecipients(db);
 }
 
 /**
@@ -1664,3 +1665,140 @@ export function extendRefreshObservationDatasets(db) {
   })();
   return true;
 }
+
+/* =========================================================================== *
+ * PHASE 1D — AN OUTREACH ROW ADDRESSES A COACH OR A PROGRAMME INBOX, NEVER BOTH.
+ *
+ * The five tables that carry a recipient held it as `coach_id NOT NULL REFERENCES coaches`.
+ * They gain `programme_contact_id REFERENCES programme_contacts(contact_id)`, coach_id loses
+ * NOT NULL, and a CHECK requires exactly one of the two. SQLite cannot drop a NOT NULL or add
+ * a table CHECK in place, so each table is rebuilt (the SQLite "12-step" procedure):
+ *
+ *   - foreign keys OFF for the rebuild (they cannot change inside a transaction, which is
+ *     why this refuses to run inside one): with them ON, DROP TABLE outreach would act as a
+ *     DELETE and cascade or refuse through eleven referencing foreign keys
+ *   - ONE transaction for all five tables; for each: create the new table from the LIVE
+ *     definition (so every column a past migration appended is carried, with its comments),
+ *     copy every row WITH ITS ROWID, drop, rename, recreate every named index exactly as it
+ *     was; then verify the row count, a digest of every original column of every row in
+ *     rowid order, and that every new programme_contact_id is NULL
+ *   - foreign_key_check afterwards must report nothing the database did not already report;
+ *     any failure throws and rolls the whole rebuild back; foreign keys are restored
+ *
+ * Existing rows keep their id, rowid, coach_id and every other value: a coach relationship
+ * stays a coach relationship (the legacy Vermont team-inbox send included). Only the
+ * constraint and one NULL column are new.
+ *
+ * Then, idempotently, what the old UNIQUE(.., coach_id) meant for a coach is restated for a
+ * programme contact as a partial unique index (SQLite treats NULLs as distinct, so the old
+ * constraint alone would let one inbox be pursued twice). Nothing else changes: no trigger is
+ * added, so every existing write — and every existing refusal — behaves exactly as before.
+ * =========================================================================== */
+export const RECIPIENT_TABLES = Object.freeze(['outreach', 'outreach_send', 'programme_contact_attempts', 'campaign_first_touch_approvals', 'programme_messages']);
+const COACH_COLUMN = /coach_id\s+TEXT\s+NOT\s+NULL\s+REFERENCES\s+coaches\s*\(\s*id\s*\)/i;
+const PROGRAMME_CONTACT_COLUMN = 'programme_contact_id TEXT REFERENCES programme_contacts(contact_id)';
+const ONE_RECIPIENT_CHECK = 'CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL))';
+
+/**
+ * Split a CREATE TABLE body into its top-level items (columns and table constraints), keeping
+ * each item's text — comments included — verbatim. Respects parentheses, quotes and comments.
+ */
+export function splitTableItems(sql) {
+  const open = sql.indexOf('(');
+  const items = []; let depth = 0; let start = open + 1; let end = -1;
+  for (let i = open; i < sql.length; i++) {
+    const ch = sql[i]; const two = sql.slice(i, i + 2);
+    if (two === '--') { const nl = sql.indexOf('\n', i); i = nl === -1 ? sql.length : nl; continue; }
+    if (two === '/*') { const close = sql.indexOf('*/', i + 2); if (close === -1) throw new Error('splitTableItems: unterminated comment'); i = close + 1; continue; }
+    if (ch === "'" || ch === '"' || ch === '`') { const close = sql.indexOf(ch, i + 1); if (close === -1) throw new Error('splitTableItems: unterminated quote'); i = close; continue; }
+    if (ch === '(') { depth++; continue; }
+    if (ch === ')') { depth--; if (depth === 0) { items.push(sql.slice(start, i)); end = i; break; } continue; }
+    if (ch === ',' && depth === 1) { items.push(sql.slice(start, i)); start = i + 1; }
+  }
+  if (end === -1) throw new Error('splitTableItems: unbalanced definition');
+  return { head: sql.slice(0, open + 1), items, tail: sql.slice(end) };
+}
+const stripComments = (s) => s.replace(/--[^\n]*/g, ' ').replace(/\/\*[\s\S]*?\*\//g, ' ').trim();
+const isTableConstraint = (item) => /^(CONSTRAINT|UNIQUE|CHECK|PRIMARY\s+KEY|FOREIGN\s+KEY)\b/i.test(stripComments(item));
+
+/** The Phase 1D definition of one recipient table, derived from its current definition. */
+export function recipientTableSql(sql, newName) {
+  if ((sql.match(new RegExp(COACH_COLUMN.source, 'gi')) || []).length !== 1) throw new Error('recipientTableSql: expected exactly one coach_id NOT NULL REFERENCES coaches(id) column');
+  const { head, items, tail } = splitTableItems(sql.replace(COACH_COLUMN, 'coach_id TEXT REFERENCES coaches(id)'));
+  const firstConstraint = items.findIndex(isTableConstraint);
+  const cols = firstConstraint === -1 ? items : items.slice(0, firstConstraint);
+  const cons = firstConstraint === -1 ? [] : items.slice(firstConstraint);
+  if (cons.some((c) => !isTableConstraint(c))) throw new Error('recipientTableSql: a column follows a table constraint');
+  const body = [...cols, `\n  ${PROGRAMME_CONTACT_COLUMN}`, ...cons, `\n  ${ONE_RECIPIENT_CHECK}\n`].join(',');
+  return (head + body + tail).replace(/^CREATE TABLE\s+(IF NOT EXISTS\s+)?"?\w+"?/i, `CREATE TABLE ${newName}`);
+}
+
+function tableDigest(db, table, cols) {
+  const h = crypto.createHash('sha256');
+  for (const row of db.prepare(`SELECT rowid, ${cols.map((c) => `"${c}"`).join(', ')} FROM ${table} ORDER BY rowid`).raw().iterate()) h.update(JSON.stringify(row)).update('\n');
+  return h.digest('hex');
+}
+
+export function extendOutreachRecipients(db) {
+  const exists = (t) => !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(t);
+  const colsOf = (t) => db.prepare(`PRAGMA table_info(${t})`).all().map((c) => c.name);
+  const pending = RECIPIENT_TABLES.filter((t) => exists(t) && !colsOf(t).includes('programme_contact_id'));
+  let rebuilt = [];
+  if (pending.length) {
+    if (db.inTransaction) throw new Error('extendOutreachRecipients: must run outside a transaction (foreign keys are switched off for the rebuild)');
+    const fkWas = db.pragma('foreign_keys', { simple: true });
+    const fkBefore = JSON.stringify(db.pragma('foreign_key_check'));
+    db.pragma('foreign_keys = OFF');
+    try {
+      db.transaction(() => {
+        for (const t of pending) {
+          const cols = colsOf(t);
+          const def = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").get(t).sql;
+          const indexes = db.prepare("SELECT name, sql FROM sqlite_master WHERE type='index' AND tbl_name=? AND sql IS NOT NULL ORDER BY name").all(t);
+          const triggers = db.prepare("SELECT name, sql FROM sqlite_master WHERE type='trigger' AND tbl_name=? ORDER BY name").all(t);
+          const count = db.prepare(`SELECT COUNT(*) n FROM ${t}`).get().n;
+          const digest = tableDigest(db, t, cols);
+          const tmp = `${t}__1d`;
+          db.exec(recipientTableSql(def, tmp));
+          const list = cols.map((c) => `"${c}"`).join(', ');
+          db.exec(`INSERT INTO ${tmp} (rowid, ${list}) SELECT rowid, ${list} FROM ${t}`);
+          db.exec(`DROP TABLE ${t}`);
+          db.exec(`ALTER TABLE ${tmp} RENAME TO ${t}`);
+          for (const x of [...indexes, ...triggers]) db.exec(x.sql);
+          if (db.prepare(`SELECT COUNT(*) n FROM ${t}`).get().n !== count) throw new Error(`extendOutreachRecipients: ${t} row count changed`);
+          if (tableDigest(db, t, cols) !== digest) throw new Error(`extendOutreachRecipients: ${t} rows differ from the originals`);
+          if (db.prepare(`SELECT COUNT(*) n FROM ${t} WHERE programme_contact_id IS NOT NULL`).get().n) throw new Error(`extendOutreachRecipients: ${t} has a non-NULL programme_contact_id`);
+          const after = db.prepare("SELECT name, sql FROM sqlite_master WHERE type IN ('index','trigger') AND tbl_name=? AND sql IS NOT NULL ORDER BY type, name").all(t).map((x) => x.name);
+          for (const x of [...indexes, ...triggers]) if (!after.includes(x.name)) throw new Error(`extendOutreachRecipients: ${x.name} was not recreated`);
+        }
+        if (JSON.stringify(db.pragma('foreign_key_check')) !== fkBefore) throw new Error('extendOutreachRecipients: foreign_key_check changed');
+      })();
+      rebuilt = pending;
+    } finally {
+      db.pragma(`foreign_keys = ${fkWas ? 'ON' : 'OFF'}`);
+    }
+  }
+  if (RECIPIENT_TABLES.every(exists)) ensureRecipientConstraints(db);
+  return rebuilt;
+}
+
+/** Idempotent: the programme-contact half of each old coach uniqueness rule. */
+function ensureRecipientConstraints(db) {
+  db.exec(`
+    -- one relationship per athlete per programme inbox (the inbox half of UNIQUE(athlete_id, coach_id))
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_outreach_athlete_programme_contact
+      ON outreach(athlete_id, programme_contact_id) WHERE programme_contact_id IS NOT NULL;
+    -- one attempt per inbox per programme campaign (the inbox half of UNIQUE(programme_campaign_id, coach_id))
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_contact_attempts_campaign_programme_contact
+      ON programme_contact_attempts(programme_campaign_id, programme_contact_id) WHERE programme_contact_id IS NOT NULL;
+    -- one first-touch approval per inbox per programme campaign (the inbox half of its UNIQUE)
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_first_touch_campaign_programme_contact
+      ON campaign_first_touch_approvals(programme_campaign_id, programme_contact_id) WHERE programme_contact_id IS NOT NULL;
+    CREATE INDEX IF NOT EXISTS idx_outreach_send_programme_contact
+      ON outreach_send(programme_contact_id) WHERE programme_contact_id IS NOT NULL;
+    CREATE INDEX IF NOT EXISTS idx_programme_messages_programme_contact
+      ON programme_messages(programme_contact_id) WHERE programme_contact_id IS NOT NULL;
+
+  `);
+}
+

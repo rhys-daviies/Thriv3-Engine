@@ -91,9 +91,13 @@ describe('the schema', () => {
     const cols = db.prepare('PRAGMA table_info(programme_contact_attempts)').all();
     expect(cols.map((c) => c.name).sort()).toEqual([
       'coach_id', 'created_at', 'id', 'next_action_at', 'outreach_id',
-      'programme_campaign_id', 'state', 'state_changed_at', 'state_reason', 'step', 'updated_at',
+      'programme_campaign_id', 'programme_contact_id', 'state', 'state_changed_at', 'state_reason', 'step', 'updated_at',
     ]);
     expect(cols.find((c) => c.name === 'outreach_id').notnull).toBe(0);
+    // Phase 1D: the recipient is a coach OR a programme inbox — exactly one, enforced by a CHECK
+    expect(cols.find((c) => c.name === 'coach_id').notnull).toBe(0);
+    expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'programme_contact_attempts'").get().sql)
+      .toContain('CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL))');
     expect(cols.find((c) => c.name === 'state').dflt_value).toBe("'planned'");
     expect(cols.find((c) => c.name === 'step').dflt_value).toBe('1');
   });

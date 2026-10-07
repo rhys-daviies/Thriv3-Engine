@@ -722,7 +722,10 @@ export function sendEvents(sendId) {
 export function confirmedSends({ policyVersion = null, athleteId = null, sport = null } = {}) {
   const r = sendRecipientSql({ send: 's', as: 'c' });
   return db.prepare(`
-    SELECT s.*, o.token, o.match_id, ${r.email} AS coach_email, ${r.coachTitle} AS coach_title
+    SELECT s.*, o.token, o.match_id, ${r.coachEmail} AS coach_email, ${r.coachTitle} AS coach_title,
+           -- recipient_ADDRESS, not recipient_email: the working database's outreach_send carries a
+           -- recipient_email column of its own (another branch's), which s.* already returns
+           ${r.kind} AS recipient_kind, ${r.email} AS recipient_address, ${r.label} AS recipient_label
     FROM outreach_send s
     JOIN outreach o ON o.id = s.outreach_id
     ${r.join}

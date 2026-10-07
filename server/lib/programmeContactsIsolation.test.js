@@ -48,6 +48,8 @@ const ALLOWED = new Set([
   // Phase 1C: resolves a PROGRAMME_INBOX reference by id. No outreach row can produce one —
   // its SQL fragments join coaches only (recipient.test.js pins that) — so no send path reaches it.
   'server/lib/recipient.js',
+  // Phase 1D: the recipient tables' foreign key to programme_contacts(contact_id)
+  'server/db/migrate.js',
 ]);
 
 function sourceFiles(dir) {
@@ -81,14 +83,28 @@ describe('no send path can consume programme contacts', () => {
     for (const f of sendPath) expect(TOKEN.test(fs.readFileSync(path.join(ROOT, f), 'utf8')), f).toBe(false);
   });
 
-  it('every outreach table still addresses a COACH: coach_id NOT NULL REFERENCES coaches, and no programme-contact column', () => {
+  it('every outreach table can address a coach OR a programme contact — exactly one, both foreign keys enforced', () => {
     for (const t of ['outreach', 'outreach_send', 'programme_contact_attempts', 'campaign_first_touch_approvals', 'programme_messages']) {
       const cols = db.prepare(`PRAGMA table_info(${t})`).all();
-      expect(cols.find((c) => c.name === 'coach_id')?.notnull, t).toBe(1);
-      expect(cols.filter((c) => /programme_contact(_id|s)?$|contact_kind|recipient_kind/.test(c.name)).map((c) => c.name), t).toEqual([]);
-      expect(db.prepare(`PRAGMA foreign_key_list(${t})`).all().some((f) => f.from === 'coach_id' && f.table === 'coaches'), t).toBe(true);
-      expect(db.prepare(`PRAGMA foreign_key_list(${t})`).all().some((f) => f.table === 'programme_contacts'), t).toBe(false);
+      expect(cols.find((c) => c.name === 'coach_id')?.notnull, t).toBe(0);
+      expect(cols.find((c) => c.name === 'programme_contact_id')?.notnull, t).toBe(0);
+      const fks = db.prepare(`PRAGMA foreign_key_list(${t})`).all();
+      expect(fks.some((f) => f.from === 'coach_id' && f.table === 'coaches' && f.to === 'id'), t).toBe(true);
+      expect(fks.some((f) => f.from === 'programme_contact_id' && f.table === 'programme_contacts' && f.to === 'contact_id'), t).toBe(true);
+      expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = ?").get(t).sql, t).toContain('CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL))');
     }
+  });
+
+  it('29. no selection, composition or send entry point can WRITE a programme-inbox relationship', () => {
+    // the column is named only by the schema, its migration and the recipient READER
+    const COLUMN = /\bprogramme_contact_id\b/;
+    const naming = ['server', 'shared', 'src', 'worker']
+      .flatMap((d) => sourceFiles(path.join(ROOT, d)))
+      .map((f) => path.relative(ROOT, f).split(path.sep).join('/'))
+      .filter((rel) => COLUMN.test(fs.readFileSync(path.join(ROOT, rel), 'utf8')));
+    expect(naming.sort()).toEqual(['server/db/migrate.js', 'server/db/schema.sql', 'server/lib/recipient.js']);
+    // and the reader never writes it
+    expect(fs.readFileSync(path.join(ROOT, 'server/lib/recipient.js'), 'utf8')).not.toMatch(/\b(INSERT|UPDATE)\b[\s\S]{0,80}programme_contact_id/i);
   });
 });
 

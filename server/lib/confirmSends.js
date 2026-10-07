@@ -65,6 +65,7 @@ export function pendingDrafts({ athleteId = null } = {}) {
            COALESCE(s.drafted_at, o.drafted_at) AS drafted_at,
            p.full_name AS athlete_name,
            ${r.coachName} AS coach_name, ${r.email} AS email, ${r.programmeName} AS school,
+           ${r.kind} AS recipient_kind, ${r.id} AS recipient_id, ${r.label} AS recipient_label,
            e.structure, e.selected_kinds, e.evidence_count
     FROM outreach o
     JOIN players p ON p.id = o.athlete_id

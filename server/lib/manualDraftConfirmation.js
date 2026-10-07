@@ -306,7 +306,10 @@ const PENDING = db.prepare(`
     s.state,
     s.origin,
     ${PR.coachName} AS coach_name,
-    ${PR.coachTitle} AS position_title
+    ${PR.coachTitle} AS position_title,
+    ${PR.kind} AS recipient_kind,
+    ${PR.id} AS recipient_id,
+    ${PR.label} AS recipient_label
   FROM outreach_send s
   JOIN outreach o ON o.id = s.outreach_id
   ${PR.join}

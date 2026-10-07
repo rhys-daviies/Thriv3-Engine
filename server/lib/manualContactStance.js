@@ -3,7 +3,7 @@ import {
   findRelationship, updateAthleteProgramme, upsertAthleteProgramme,
 } from './athleteProgrammes.js';
 import { OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
-import { recipientForOutreach } from './recipient.js';
+import { recipientForOutreach, RecipientError } from './recipient.js';
 
 /**
  * A HUMAN WROTE TO THIS SCHOOL, SO THE CAMPAIGN STOPS WRITING TO IT — F5b.
@@ -265,7 +265,8 @@ export function manualRelationshipForConfirmedSend({ outreachId, outreachSendId 
   const origin = SEND_ORIGIN.get(outreachSendId)?.origin ?? null;
   if (origin !== OUTREACH_ORIGIN.MANUAL) return null;
 
-  const rel = recipientForOutreach(outreachId);
+  let rel = null;
+  try { rel = recipientForOutreach(outreachId); } catch (err) { if (!(err instanceof RecipientError)) throw err; }
   const athleteId = rel?.athleteId; const { name: collegeName, sport } = rel?.recipient.programme ?? {};
   if (!athleteId || !collegeName || !sport) return null;
   return { athleteId, collegeName, sport };

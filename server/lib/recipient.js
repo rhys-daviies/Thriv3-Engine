@@ -19,16 +19,20 @@
  * back to the other kind, and nothing converts one kind into the other.
  *
  * ---------------------------------------------------------------------------
- * STEP 1C: EVERY OUTREACH ROW'S RECIPIENT IS STILL ITS COACH.
+ * STEP 1D: AN OUTREACH ROW NAMES EXACTLY ONE OF coach_id / programme_contact_id.
  *
- * `outreach.coach_id` and `outreach_send.coach_id` are NOT NULL REFERENCES coaches, and no
- * outreach table can name a programme contact. So `recipientRefOfOutreach` can only ever
- * produce a COACH reference, and the SQL fragments below join `coaches` only — with the same
- * INNER / LEFT semantics each caller had before, so every converted query returns exactly what
- * it returned. Step 1D adds programme_contact_id (exactly one of the two set) and these
- * fragments become the ONE place that learns to read it: a send cap, an opt-out, a confirm
- * list or a stance resolution written against them cannot quietly skip an inbox recipient,
- * which a hand-written JOIN coaches would have done.
+ * The five recipient tables carry both columns and a CHECK that exactly one is set
+ * (migrate.js extendOutreachRecipients). The SQL fragments below are the ONE place that reads
+ * them: every safety and read path written against a fragment — the send cap, opt-out
+ * resolution, the confirm lists, contact stance, history, intelligence, engagement — sees a
+ * programme-inbox relationship as what it is, and sees a coach relationship exactly as it did
+ * when the fragment was a plain JOIN coaches. Every kind-dependent expression is a CASE on
+ * which column is set, never a COALESCE across the two, so nothing of one kind is ever read
+ * as the other's.
+ *
+ * Nothing in this build CREATES a programme-inbox relationship: no selection or send entry
+ * point produces one (programmeContactsIsolation.test.js). The schema and these readers can
+ * represent it; choosing one is Step 1E.
  * ---------------------------------------------------------------------------
  */
 import db from '../db/client.js';
@@ -45,6 +49,7 @@ export const RECIPIENT_ERROR = Object.freeze({
   NOT_FOUND: 'RECIPIENT_NOT_FOUND',
   PROGRAMME_MISMATCH: 'RECIPIENT_PROGRAMME_MISMATCH',
   OUTREACH_UNADDRESSED: 'RECIPIENT_OUTREACH_UNADDRESSED',
+  OUTREACH_DOUBLY_ADDRESSED: 'RECIPIENT_OUTREACH_DOUBLY_ADDRESSED',
 });
 
 /* -------------------------------------------------------------------------- */
@@ -52,39 +57,55 @@ export const RECIPIENT_ERROR = Object.freeze({
 /* -------------------------------------------------------------------------- */
 
 /**
- * Expressions for the recipient of the outreach row aliased `outreach`, joined as `as`.
+ * Expressions for the recipient of the outreach row aliased `outreach`, joined under `as`.
  *
- *   join           the clause to put after FROM (INNER by default: a relationship whose
- *                  recipient cannot be read is excluded, exactly as JOIN coaches did)
- *   kind, id       the typed reference
+ *   join           the clause to put after FROM. Default INNER: a relationship whose recipient
+ *                  record cannot be read is excluded, exactly as JOIN coaches excluded one.
+ *                  `left: true` keeps it, as the LEFT JOIN coaches callers did.
+ *   kind, id       the typed reference ('COACH' | 'PROGRAMME_INBOX', and its id)
+ *   coachId, programmeContactId   the two raw columns (one is NULL)
  *   email          the address the relationship writes to
- *   programmeName  the programme name the recipient is filed under (coaches.school today)
- *   sport
- *   coachName, coachTitle, coachDivision
- *                  COACH-ONLY facts. Today every row is a coach; from 1D they are NULL for a
- *                  programme inbox rather than borrowed from somewhere else.
+ *   label          the coach's full name, or the inbox's label ("Cornell Men's Soccer")
+ *   programmeName  the programme the recipient is filed under (coaches.school for a coach;
+ *                  the inbox's canonical colleges row for an inbox)
+ *   sport, programmeDivision
+ *   coachName, coachTitle, coachEmail, coachDivision
+ *                  COACH-ONLY facts: NULL for a programme inbox, never borrowed from it
  */
 export function outreachRecipientSql({ outreach = 'o', as = 'rcp', left = false } = {}) {
-  return recipientColumns({ fk: `${outreach}.coach_id`, as, left });
+  return recipientColumns({ row: outreach, as, left });
 }
 
-/** The same, for an `outreach_send` row (which carries its own coach_id). */
+/** The same, for an `outreach_send` row (which carries its own recipient columns). */
 export function sendRecipientSql({ send = 's', as = 'rcp', left = true } = {}) {
-  return recipientColumns({ fk: `${send}.coach_id`, as, left });
+  return recipientColumns({ row: send, as, left });
 }
 
-function recipientColumns({ fk, as, left }) {
-  if (!/^[a-z_][a-z0-9_]*$/i.test(as)) throw new Error(`recipient SQL: bad alias ${as}`);
+function recipientColumns({ row, as, left }) {
+  for (const a of [row, as]) if (!/^[a-z_][a-z0-9_]*$/i.test(a)) throw new Error(`recipient SQL: bad alias ${a}`);
+  const rc = as; const rp = `${as}_pc`; const rpc = `${as}_pcc`;
+  const isCoach = `${row}.coach_id IS NOT NULL`;
+  const byKind = (coachExpr, inboxExpr) => `(CASE WHEN ${isCoach} THEN ${coachExpr} WHEN ${row}.programme_contact_id IS NOT NULL THEN ${inboxExpr} END)`;
   return {
-    join: `${left ? 'LEFT JOIN' : 'JOIN'} coaches ${as} ON ${as}.id = ${fk}`,
-    kind: `'${RECIPIENT_KIND.COACH}'`,
-    id: fk,
-    email: `${as}.email`,
-    programmeName: `${as}.school`,
-    sport: `${as}.sport`,
-    coachName: `${as}.full_name`,
-    coachTitle: `${as}.position_title`,
-    coachDivision: `${as}.division`,
+    join: [
+      `LEFT JOIN coaches ${rc} ON ${rc}.id = ${row}.coach_id`,
+      `LEFT JOIN programme_contacts ${rp} ON ${rp}.contact_id = ${row}.programme_contact_id`,
+      `LEFT JOIN colleges ${rpc} ON ${rpc}.id = ${rp}.college_id`,
+      ...(left ? [] : [`JOIN (SELECT 1) ${as}_present ON (${rc}.id IS NOT NULL OR ${rp}.contact_id IS NOT NULL)`]),
+    ].join('\n    '),
+    kind: byKind(`'${RECIPIENT_KIND.COACH}'`, `'${RECIPIENT_KIND.PROGRAMME_INBOX}'`),
+    id: byKind(`${row}.coach_id`, `${row}.programme_contact_id`),
+    coachId: `${row}.coach_id`,
+    programmeContactId: `${row}.programme_contact_id`,
+    email: byKind(`${rc}.email`, `${rp}.email`),
+    label: byKind(`${rc}.full_name`, `${rp}.label`),
+    programmeName: byKind(`${rc}.school`, `${rpc}.name`),
+    sport: byKind(`${rc}.sport`, `${rp}.sport`),
+    programmeDivision: byKind(`${rc}.division`, `${rpc}.division`),
+    coachName: `${rc}.full_name`,
+    coachTitle: `${rc}.position_title`,
+    coachEmail: `${rc}.email`,
+    coachDivision: `${rc}.division`,
   };
 }
 
@@ -92,15 +113,18 @@ function recipientColumns({ fk, as, left }) {
 /* Typed references and resolution                                             */
 /* -------------------------------------------------------------------------- */
 
+const present = (v) => v != null && String(v).trim() !== '';
+
 /**
- * The typed reference an outreach (or outreach_send) row addresses. Step 1C: COACH, from
- * coach_id, always — and a row without one is refused rather than guessed at.
+ * The typed reference an outreach / outreach_send / attempt / message row addresses: COACH from
+ * coach_id or PROGRAMME_INBOX from programme_contact_id. A row naming both, or neither, is
+ * refused — the schema forbids both, and a row read without the columns is not guessed at.
  */
 export function recipientRefOfOutreach(row) {
-  if (!row || row.coach_id == null || String(row.coach_id).trim() === '') {
-    throw new RecipientError(RECIPIENT_ERROR.OUTREACH_UNADDRESSED, 'outreach row has no recipient reference');
-  }
-  return Object.freeze({ kind: RECIPIENT_KIND.COACH, id: String(row.coach_id) });
+  const coach = present(row?.coach_id); const inbox = present(row?.programme_contact_id);
+  if (coach && inbox) throw new RecipientError(RECIPIENT_ERROR.OUTREACH_DOUBLY_ADDRESSED, 'row names both a coach and a programme contact');
+  if (!coach && !inbox) throw new RecipientError(RECIPIENT_ERROR.OUTREACH_UNADDRESSED, 'row has no recipient reference');
+  return Object.freeze(coach ? { kind: RECIPIENT_KIND.COACH, id: String(row.coach_id) } : { kind: RECIPIENT_KIND.PROGRAMME_INBOX, id: String(row.programme_contact_id) });
 }
 
 function coachRecipient(row) {
@@ -152,19 +176,35 @@ export function resolveRecipient(ref, { handle = db, expectProgramme = null } = 
 }
 
 /**
- * The recipient of the outreach relationship a tracking token belongs to, or null when the
- * token names no relationship (or names one whose recipient record is gone). For opt-outs:
- * the caller suppresses `email`, whatever the kind.
+ * The recipient of the outreach relationship a tracking token belongs to, or null when the token
+ * names no relationship. For opt-outs: the caller suppresses `email`, whatever the kind. A
+ * relationship whose recipient record is missing raises NOT_FOUND (the caller reports the token
+ * as unresolved); it is never resolved to some other record.
  */
 export function recipientForOutreachToken(token, { handle = db } = {}) {
-  const r = outreachRecipientSql();
-  const row = handle.prepare(`SELECT ${r.kind} AS kind, ${r.id} AS id FROM outreach o ${r.join} WHERE o.token = ?`).get(token);
-  return row ? resolveRecipient({ kind: row.kind, id: row.id }, { handle }) : null;
+  const row = handle.prepare('SELECT coach_id, programme_contact_id FROM outreach WHERE token = ?').get(token);
+  return row ? resolveRecipient(recipientRefOfOutreach(row), { handle }) : null;
 }
 
 /** The athlete and recipient of one outreach relationship, or null when it does not exist. */
 export function recipientForOutreach(outreachId, { handle = db } = {}) {
-  const r = outreachRecipientSql();
-  const row = handle.prepare(`SELECT o.athlete_id, ${r.kind} AS kind, ${r.id} AS id FROM outreach o ${r.join} WHERE o.id = ?`).get(outreachId);
-  return row ? { athleteId: row.athlete_id, recipient: resolveRecipient({ kind: row.kind, id: row.id }, { handle }) } : null;
+  const row = handle.prepare('SELECT athlete_id, coach_id, programme_contact_id FROM outreach WHERE id = ?').get(outreachId);
+  return row ? { athleteId: row.athlete_id, recipient: resolveRecipient(recipientRefOfOutreach(row), { handle }) } : null;
+}
+
+/**
+ * Every programme name an address is a PROGRAMME INBOX for — for do-not-contact. Every spelling
+ * of the inbox's logical programme (athletics entity + sport), whatever the contact's status or
+ * the programme row's: for a rule whose whole job is to stop a message, an address that is or
+ * was a programme's inbox reaches that programme. `sport` null means any sport.
+ */
+export function programmeNamesForInboxAddress({ email, sport = null }, { handle = db } = {}) {
+  const address = String(email ?? '').trim().toLowerCase();
+  if (!address) return [];
+  return handle.prepare(`
+    SELECT DISTINCT c.name FROM programme_contacts pc
+      JOIN colleges c ON c.athletics_entity_id = pc.athletics_entity_id AND c.sport = pc.sport
+     WHERE pc.email = @address AND (@sport IS NULL OR pc.sport = @sport)
+     ORDER BY c.name
+  `).pluck().all({ address, sport });
 }

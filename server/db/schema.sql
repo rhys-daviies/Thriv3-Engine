@@ -216,7 +216,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_coaches_identity ON coaches(email, school,
 CREATE TABLE IF NOT EXISTS outreach (
   id TEXT PRIMARY KEY,
   athlete_id TEXT NOT NULL REFERENCES players(id),
-  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  coach_id TEXT REFERENCES coaches(id),
+  -- Phase 1D: OR a programme's own inbox — never both, never neither (CHECK below). The
+  -- inbox half of each coach uniqueness rule lives in migrate.js (extendOutreachRecipients).
+  programme_contact_id TEXT REFERENCES programme_contacts(contact_id),
   token TEXT NOT NULL UNIQUE,
   match_id TEXT,          -- links back to the Tab 2 recommendation; Phase 5 reads it
 
@@ -238,6 +241,7 @@ CREATE TABLE IF NOT EXISTS outreach (
   revoked_at TEXT,
   created_at TEXT NOT NULL,
 
+  CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL)),
   UNIQUE (athlete_id, coach_id)
 );
 
@@ -350,7 +354,10 @@ CREATE TABLE IF NOT EXISTS outreach_send (
   -- Denormalised from the relationship so a snapshot reads without a join and
   -- survives a coach row being merged or a programme renamed.
   athlete_id TEXT NOT NULL REFERENCES players(id),
-  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  coach_id TEXT REFERENCES coaches(id),
+  -- Phase 1D: OR a programme's own inbox — never both, never neither (CHECK below). The
+  -- inbox half of each coach uniqueness rule lives in migrate.js (extendOutreachRecipients).
+  programme_contact_id TEXT REFERENCES programme_contacts(contact_id),
   college_name TEXT,
   sport TEXT,
 
@@ -378,6 +385,7 @@ CREATE TABLE IF NOT EXISTS outreach_send (
 
   created_at TEXT NOT NULL,
 
+  CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL)),
   -- Repeated execution must not silently create a second send.
   UNIQUE (outreach_id, sequence)
 );
@@ -955,7 +963,10 @@ CREATE TABLE IF NOT EXISTS programme_contact_attempts (
   -- means the delete is refused — matching every other reference to `coaches`
   -- in this schema (outreach.coach_id, outreach_send.coach_id). Deleting a
   -- coach out from under live campaign state should fail loudly.
-  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  coach_id TEXT REFERENCES coaches(id),
+  -- Phase 1D: OR a programme's own inbox — never both, never neither (CHECK below). The
+  -- inbox half of each coach uniqueness rule lives in migrate.js (extendOutreachRecipients).
+  programme_contact_id TEXT REFERENCES programme_contacts(contact_id),
 
   /**
    * The lifetime relationship this attempt executes through, once it has one.
@@ -1023,6 +1034,7 @@ CREATE TABLE IF NOT EXISTS programme_contact_attempts (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
 
+  CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL)),
   /**
    * ONE ATTEMPT PER COACH PER CAMPAIGN.
    *
@@ -2601,7 +2613,10 @@ CREATE TABLE IF NOT EXISTS campaign_first_touch_approvals (
   -- REFERENCED, not owned, and with no ON DELETE clause — so deleting a coach
   -- out from under a live approval is refused, matching every other reference
   -- to `coaches` in this schema.
-  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  coach_id TEXT REFERENCES coaches(id),
+  -- Phase 1D: OR a programme's own inbox — never both, never neither (CHECK below). The
+  -- inbox half of each coach uniqueness rule lives in migrate.js (extendOutreachRecipients).
+  programme_contact_id TEXT REFERENCES programme_contacts(contact_id),
 
   -- WHO decided. The authenticated operator, never a name a request supplied.
   -- No ON DELETE: an approval whose approver vanished is an unattributable
@@ -2625,6 +2640,7 @@ CREATE TABLE IF NOT EXISTS campaign_first_touch_approvals (
   -- ONE CURRENT APPROVAL PER COACH PER CAMPAIGN. Re-approving replaces it
   -- rather than appending: this slice records the decision in force, and an
   -- audit trail of superseded reviews is a separate question.
+  CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL)),
   UNIQUE (programme_campaign_id, coach_id)
 );
 
@@ -2720,7 +2736,10 @@ CREATE TABLE IF NOT EXISTS programme_messages (
    * this column that way. The writer reads the address from the `coaches` row
    * the ATTEMPT names, and refuses a composition made for anybody else.
    */
-  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  coach_id TEXT REFERENCES coaches(id),
+  -- Phase 1D: OR a programme's own inbox — never both, never neither (CHECK below). The
+  -- inbox half of each coach uniqueness rule lives in migrate.js (extendOutreachRecipients).
+  programme_contact_id TEXT REFERENCES programme_contacts(contact_id),
   recipient_email TEXT NOT NULL,
 
   /**
@@ -2838,6 +2857,7 @@ CREATE TABLE IF NOT EXISTS programme_messages (
    * refused, because the stored row is durable evidence of what was composed
    * first and overwriting it would erase the thing it exists to prove.
    */
+  CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL)),
   UNIQUE (programme_contact_attempt_id, step)
 );
 
