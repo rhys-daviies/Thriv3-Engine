@@ -76,9 +76,13 @@ export const FIELD_AUTHORITY = Object.freeze({
 
 /**
  * Effective tier of one fetched source.
- *   ctx.ownsHost(host): true iff the RESOLVED entity owns this exact host (identityResolver
- *                       .hostOwnedBy — host-level rows first, so a campus subdomain is never
- *                       its parent's); ctx.entityHosts (exact-match Set) is the fallback
+ *   ctx.ownsSource(url): true iff this exact URL is an official source of the RESOLVED entity for
+ *                       the page's sport (identityResolver.sourceOwnedBy: an owned host, or a
+ *                       VERIFIED path-scoped location). Preferred: it is the question the
+ *                       gatherer asked, so the two layers cannot disagree (Phase 8C.7D)
+ *   ctx.ownsHost(host): host ownership only (identityResolver.hostOwnedBy — host-level rows
+ *                       first, so a campus subdomain is never its parent's); used when no
+ *                       ownsSource is given. ctx.entityHosts (exact-match Set) is the last fallback
  *   ctx.conferenceHosts: Set of known conference hosts
  *   ctx.currentSeason: the refresh season
  * Returns { tier, kind, reasons[] }. Downgrades are explicit and explain themselves.
@@ -94,8 +98,12 @@ export function classifySource({ url, kind, observedSeason, pageSeason } = {}, c
   const archived = /web\.archive\.org/i.test(url);
   if (archived && tier !== 'D') { tier = 'C'; reasons.push('archived copy (Wayback) is history, never current'); }
   if (!archived && ENTITY_HOSTED.has(kind)) {
-    const owned = typeof ctx.ownsHost === 'function' ? ctx.ownsHost(host) : !!(ctx.entityHosts && ctx.entityHosts.has(host));
-    if (!owned) { tier = 'D'; reasons.push(`host ${host} is not owned by the resolved athletics entity`); }
+    if (typeof ctx.ownsSource === 'function') {
+      if (!ctx.ownsSource(url)) { tier = 'D'; reasons.push(`${url} is not inside a source owned by the resolved athletics entity`); }
+    } else {
+      const owned = typeof ctx.ownsHost === 'function' ? ctx.ownsHost(host) : !!(ctx.entityHosts && ctx.entityHosts.has(host));
+      if (!owned) { tier = 'D'; reasons.push(`host ${host} is not owned by the resolved athletics entity`); }
+    }
   }
   if (kind === 'OFFICIAL_MEMBERSHIP' && !hostMatches(host, AUTHORITY_HOSTS.OFFICIAL_MEMBERSHIP)) { tier = 'D'; reasons.push(`${host} is not a governing-body host`); }
   if (kind === 'FEDERAL_REGISTRY' && !hostMatches(host, AUTHORITY_HOSTS.FEDERAL_REGISTRY)) { tier = 'D'; reasons.push(`${host} is not a federal registry host`); }

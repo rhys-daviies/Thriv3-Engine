@@ -42,8 +42,19 @@ export const isGenericEmail = (e) => /^(soccer|msoc|wsoc|athletics|info|sports?i
 const NON_PLAYER = /\b(coach|coaches|manager|trainer|staff|director|coordinator|analyst|operations|student assistant|volunteer)\b/i;
 const HEAD = /\bhead coach\b/i;
 
-function srcCtx(ctx, entityId, season) {
-  return { ownsHost: (h) => ctx.resolver.hostOwnedBy(h, entityId), conferenceHosts: ctx.conferenceHosts, currentSeason: season };
+/**
+ * Source-authority context for one resolved entity. Source ownership is the resolver's
+ * sourceOwnedBy — the same question the gatherer asks — so a registered path-scoped location
+ * trusts exactly what it trusted at gather time and nothing more. It needs the sport: without
+ * one a sport-scoped location could match any sport, so a sportless page falls back to host
+ * ownership only.
+ */
+export function sourceContext(ctx, entityId, season, sport) {
+  return {
+    ownsHost: (h) => ctx.resolver.hostOwnedBy(h, entityId),
+    ownsSource: sport ? (u) => ctx.resolver.sourceOwnedBy(u, entityId, { sport }) : null,
+    conferenceHosts: ctx.conferenceHosts, currentSeason: season,
+  };
 }
 /** colleges rows (names) that carry or link to a programme row. */
 function programmeNames(ctx, collegeId) {
@@ -87,7 +98,7 @@ function pageGate(page, ctx, season, field) {
   const res = ctx.resolver.resolve({ athletics_entity_id: page.athletics_entity_id, source_url: page.source_url, raw_name: page.institution_label, sport: page.sport, unitid: page.unitid });
   const urlSport = sportOfUrl(page.source_url);
   if (urlSport && page.sport && urlSport !== page.sport) return { res, src: { tier: 'D', reasons: [] }, stop: 'CONTRADICTION', why: [`wrong-sport source: the page is a ${urlSport} page, staged for ${page.sport}`] };
-  const src = res.entity_id ? classifySource({ url: page.source_url, kind: page.source_kind, observedSeason: page.observed_season, pageSeason: page.page_season }, srcCtx(ctx, res.entity_id, season)) : classifySource({ url: page.source_url, kind: page.source_kind }, {});
+  const src = res.entity_id ? classifySource({ url: page.source_url, kind: page.source_kind, observedSeason: page.observed_season, pageSeason: page.page_season }, sourceContext(ctx, res.entity_id, season, page.sport)) : classifySource({ url: page.source_url, kind: page.source_kind }, {});
   const why = [];
   if (res.decision !== 'RESOLVED') return { res, src, stop: res.method === 'CONTRADICTION' ? 'CONTRADICTION' : 'IDENTITY_AMBIGUOUS', why: [...(res.contradictions || []), ...(res.candidates || []).map((c) => `candidate ${c.name} (${Math.round(c.confidence * 100)}%)`)] };
   if (!res.college_id) return { res, src, stop: 'IDENTITY_AMBIGUOUS', why: [`entity ${res.entity_id} has no single active ${page.sport} programme (${res.programme_reason})`] };
@@ -309,7 +320,7 @@ export function classifyRosterPage(page, ctx, { season, frozen = new Set() }) {
 export function classifyProgrammeObservation(page, ctx, { season }) {
   const res = ctx.resolver.resolve({ athletics_entity_id: page.athletics_entity_id, source_url: null, raw_name: page.institution_label, sport: page.sport, unitid: page.unitid });
   const eff = Number(page.season ?? season);
-  const srcs = (page.sources || []).map((s) => classifySource({ url: s.url, kind: s.kind }, srcCtx(ctx, res.entity_id, null)));
+  const srcs = (page.sources || []).map((s) => classifySource({ url: s.url, kind: s.kind }, sourceContext(ctx, res.entity_id, null, page.sport)));
   const b = base({ ...page, source_url: page.sources?.[0]?.url, source_kind: page.sources?.[0]?.kind, observed_season: eff }, 'PROGRAMME', res, srcs[0], { target_table: 'programme_membership_periods', target_key: `${res.entity_id || page.institution_label}|${page.sport}` });
   b.source_tier = srcs.map((s) => s.tier).sort()[0] || null;
   const evidence = { sources: srcs.map((s) => ({ host: s.host, kind: s.kind, tier: s.tier, reasons: s.reasons })) };
