@@ -1,105 +1,249 @@
 {
- "_doc": "Phase 8C.2 NJCAA/USCAA programme-universe baseline (entity|sport of active carrier rows), re-baselined after the guarded Phase 8C.2B apply of universe fixture A (50369d36ac0a…): 13 NJCAA men's programmes retired (INACTIVE / DISCONTINUED / WRONG_SEX), each with two independent authoritative sources; never deleted, history rows kept. This certifies that intentional change only; any other drift remains a WARN. integrity:monitor reports drift from it as WARN; these divisions are still being established — no coverage freeze.",
- "created_at": "2026-10-06T05:01:34.476Z",
+ "_doc": "Phase 8D.2B NJCAA/USCAA programme-universe baseline (entity|sport of active carrier rows), re-baselined after the guarded Phase 8D.2B apply of the Region 4 universe fixture (3336280c0163…): 37 current 2026-27 NJCAA Region 4 soccer programmes added (16 new federal-UNITID entities, 7 opposite-sex reuses) from the Phase 8D.1 independent reconstruction, revalidated on official 2026 pages in 8D.2A. This certifies that intentional change only; any other drift remains a WARN. integrity:monitor reports drift from it as WARN; these divisions are still being established — no coverage freeze. 435 is NOT the complete NJCAA universe (8D.1 lower bound 497).",
+ "created_at": "2026-10-07T09:57:37.171Z",
  "season": 2026,
- "phase": "8C.2B (adjudicated 8C.2 / readiness 8C.2A)",
- "reason": "13 NJCAA men's programmes adjudicated INACTIVE/DISCONTINUED/WRONG_SEX with two independent authoritative sources (complete 2026-27 region/conference listing omission + the institution's own official athletics site, or two listing seasons + official site). Held, not retired: Butler County, Reading Area (fail the two-source rule), Christendom (membership verify held).",
+ "phase": "8D.2B (fixture 8D.2A, reconstruction 8D.1)",
+ "reason": "37 NJCAA programmes added (Region 4: men +16, women +21); current 2026-27 activity on official schedules, Region 4 identity from the official 2025-26 Region 4 listing, institution identity from the federal registry. No programme removed. Held: Bryant & Stratton–Milwaukee M/W (identity), Wright W (status).",
  "previous": {
-  "phase": "8B.1",
-  "created_at": "2026-10-01",
-  "NJCAA": 410,
+  "phase": "8C.7B (adjudicated 8C.6 / 8C.7A)",
+  "created_at": "2026-10-07T07:32:09.893Z",
+  "NJCAA": 398,
   "USCAA": 46,
-  "baseline_sha256": "379409248aff1e47f0715b54b9567b0f98e067d178601ee2dcbdb3c9c2641a02"
+  "baseline_sha256": "3f82d63ad0105608d4578fb2883fdd7d3c7a12575f0f684d7f96d108aca79909"
  },
  "change": {
-  "fixture": "integrity_artifacts/phase8c2/groups/A_universe.fixture.json",
-  "fixture_hash": "50369d36ac0a7a83bba9b98766c30bd62c1dfe5f8a25ace4f5077449c349d42c",
-  "apply_manifest_sha256": "992f54194a783f408e5cf9a75aace8e0d8f160a3e571bf68972f35cd82381291",
-  "evidence_manifest": "integrity_artifacts/phase8c2/deactivation_verification.json",
-  "removed": [
+  "fixture": "integrity_artifacts/phase8d2a/fixture_R4_region4_universe.json",
+  "fixture_hash": "3336280c01631306e522be4ae72cbf02ada005ee5c86806799e91a0bb6a06313",
+  "apply_manifest_sha256": "874757aecd9cf30fb5a995a04ec29e7ce611c676f5523802911f9b34233cefe0",
+  "evidence": "integrity_artifacts/phase8d2a/revalidation.json",
+  "added": [
    {
-    "college_id": "edb928d1-eac5-4232-bb1f-fecdc6afc339",
-    "key": "AE-U240596|mens-soccer",
-    "programme": "Eastern Wyoming",
-    "decision": "INACTIVE"
+    "college_id": "5b318cbd-722a-4dca-8825-f64a5b64b257",
+    "key": "AE-U143279|mens-soccer",
+    "programme": "Black Hawk College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    },
    {
-    "college_id": "813e10b1-39ed-4321-aa0b-482e2ab37223",
-    "key": "AE-U153214|mens-soccer",
-    "programme": "Des Moines Area",
-    "decision": "INACTIVE"
+    "college_id": "db128e82-c54d-4a38-80c3-b70f45191295",
+    "key": "AE-U143279|womens-soccer",
+    "programme": "Black Hawk College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    },
    {
-    "college_id": "9dd6d801-deea-4b0e-8438-317a061e9375",
-    "key": "AE-U153296|mens-soccer",
-    "programme": "Ellsworth",
-    "decision": "INACTIVE"
+    "college_id": "8cc4945e-38e1-459b-878d-dc370918c5f3",
+    "key": "AE-U144166|mens-soccer",
+    "programme": "City Colleges Chicago-Malcolm X",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    },
    {
-    "college_id": "8a8b10a1-8fce-4d12-b347-330189099433",
-    "key": "AE-U127200|mens-soccer",
-    "programme": "Front Range",
-    "decision": "INACTIVE"
+    "college_id": "7fcb8242-8cb6-4567-870d-cfa45b1242ae",
+    "key": "AE-U144184|mens-soccer",
+    "programme": "City Colleges Chicago-Truman",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    },
    {
-    "college_id": "710a9cff-7535-463c-b1d3-c0b053bde320",
-    "key": "AE-U153737|mens-soccer",
-    "programme": "Kirkwood",
-    "decision": "INACTIVE"
+    "college_id": "1ccfdaf6-5528-4a43-8968-c6deb353e77c",
+    "key": "AE-U144184|womens-soccer",
+    "programme": "City Colleges Chicago-Truman",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    },
    {
-    "college_id": "7126cd0c-9d04-4914-8f64-bd48f9834f16",
-    "key": "AE-U146506|mens-soccer",
-    "programme": "Lake Land",
-    "decision": "INACTIVE"
+    "college_id": "5adc2418-8467-4cce-8085-a13adedf1ebc",
+    "key": "AE-U144193|womens-soccer",
+    "programme": "City Colleges Chicago-Richard Daley",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    },
    {
-    "college_id": "9b55308c-d3f2-48cc-ad7f-d05168f6e960",
-    "key": "AE-U148256|mens-soccer",
-    "programme": "Rend Lake",
-    "decision": "INACTIVE"
+    "college_id": "f6465b7c-6f5c-49ef-8553-6ab2e5856c30",
+    "key": "AE-U144865|womens-soccer",
+    "programme": "College of DuPage",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    },
    {
-    "college_id": "ba6f08d1-eddd-4cee-bbf4-d8845cdedb79",
-    "key": "AE-U221397|mens-soccer",
-    "programme": "Roane State",
-    "decision": "WRONG_SEX"
+    "college_id": "f5492393-f854-4f6f-8271-8c54c052b5fd",
+    "key": "AE-U144944|mens-soccer",
+    "programme": "Elgin Community College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    },
    {
-    "college_id": "3985fe5f-53dd-4f0f-8308-6914a71fcadb",
-    "key": "AE-U148821|mens-soccer",
-    "programme": "Shawnee Community",
-    "decision": "INACTIVE"
+    "college_id": "81890e09-1c73-42d6-80a3-8c87d370e6fb",
+    "key": "AE-U144944|womens-soccer",
+    "programme": "Elgin Community College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    },
    {
-    "college_id": "68789865-bbd9-4361-8e96-986be1a5dcb0",
-    "key": "AE-U152637|mens-soccer",
-    "programme": "Vincennes",
-    "decision": "INACTIVE"
+    "college_id": "8b0375f9-c9ed-47bb-8aa9-872676bc6ca4",
+    "key": "AE-U145831|mens-soccer",
+    "programme": "Illinois Valley Community College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    },
    {
-    "college_id": "be4a904e-2758-48cc-9947-b5bc640d7dd5",
-    "key": "AE-U222053|mens-soccer",
-    "programme": "Volunteer State",
-    "decision": "WRONG_SEX"
+    "college_id": "15cb30b2-b545-4612-869e-74694edad896",
+    "key": "AE-U145831|womens-soccer",
+    "programme": "Illinois Valley Community College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    },
    {
-    "college_id": "7fb30447-a391-4a88-8854-9d48f3304663",
-    "key": "AE-U222062|mens-soccer",
-    "programme": "Walters State",
-    "decision": "INACTIVE"
+    "college_id": "b98982ae-a934-4e8a-8bac-69409d62b53b",
+    "key": "AE-U146296|mens-soccer",
+    "programme": "Joliet Junior College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    },
    {
-    "college_id": "c4ad7b59-4acf-4433-8783-79740be3a085",
-    "key": "AE-U240693|mens-soccer",
-    "programme": "Western Wyoming",
-    "decision": "DISCONTINUED"
+    "college_id": "6d8873d1-5c08-48f4-85fe-ac2cda2b93cb",
+    "key": "AE-U146296|womens-soccer",
+    "programme": "Joliet Junior College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "895b7486-294b-40db-84a2-2a01d0dbe3d5",
+    "key": "AE-U146348|womens-soccer",
+    "programme": "Kankakee Community College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "dab09b85-ea3b-41e3-8986-53a6cc2f0258",
+    "key": "AE-U146418|mens-soccer",
+    "programme": "Kishwaukee College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "574cfd7d-c04f-420b-8427-01e3a695841e",
+    "key": "AE-U146418|womens-soccer",
+    "programme": "Kishwaukee College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "5443531a-8ad4-42f5-8771-2301de808d63",
+    "key": "AE-U146472|womens-soccer",
+    "programme": "College of Lake County",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "b4f59a5c-6081-49d5-84b2-dbf4bdbaedd3",
+    "key": "AE-U147004|mens-soccer",
+    "programme": "McHenry County College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "5c70e7d2-0cbd-4181-8a29-9de557996882",
+    "key": "AE-U147378|mens-soccer",
+    "programme": "Moraine Valley Community College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "0e551712-3d7a-4730-8345-8acb2cc87430",
+    "key": "AE-U147378|womens-soccer",
+    "programme": "Moraine Valley Community College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "4a59aa2d-87d7-4cdd-8612-c90f6504b40f",
+    "key": "AE-U147411|mens-soccer",
+    "programme": "Morton College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "50f68eca-a1bd-4571-89ba-32efad055aec",
+    "key": "AE-U147411|womens-soccer",
+    "programme": "Morton College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "21556bfd-9671-4b6b-889d-5f4a2683789f",
+    "key": "AE-U147800|mens-soccer",
+    "programme": "Oakton College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "f6436004-3d9e-4d03-87e3-14979eb850e3",
+    "key": "AE-U147800|womens-soccer",
+    "programme": "Oakton College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "145d9ceb-fd5d-4459-80cd-3c9127d1dfae",
+    "key": "AE-U148007|womens-soccer",
+    "programme": "Prairie State College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "94d3693c-40b5-4a1f-8319-005c3455e722",
+    "key": "AE-U148380|womens-soccer",
+    "programme": "Rock Valley College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "07d3ea50-5569-4e57-83a7-db0cc3199983",
+    "key": "AE-U149365|mens-soccer",
+    "programme": "South Suburban College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "6fd98229-8ebd-4e07-8488-eddd69a7bb83",
+    "key": "AE-U149365|womens-soccer",
+    "programme": "South Suburban College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "230bade0-e541-4f37-8f8b-e97a964ffd38",
+    "key": "AE-U149532|mens-soccer",
+    "programme": "Triton College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "0c1d110b-6936-472e-83c6-cc0881928a33",
+    "key": "AE-U149532|womens-soccer",
+    "programme": "Triton College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "b1254d56-299b-4ac0-8220-7b54da5986e6",
+    "key": "AE-U149727|mens-soccer",
+    "programme": "Waubonsee Community College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "f712ccc8-5ccf-4992-8aa7-955fd605abd1",
+    "key": "AE-U149727|womens-soccer",
+    "programme": "Waubonsee Community College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "38e5ee04-99af-4e41-8545-1f8013998518",
+    "key": "AE-U149842|womens-soccer",
+    "programme": "Harper College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "85ddb947-3fd2-470e-83ea-8d055cf651a5",
+    "key": "AE-U238263|mens-soccer",
+    "programme": "Madison College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "4c5fd7c9-d6e7-49e8-805e-fecd6160eb33",
+    "key": "AE-U238263|womens-soccer",
+    "programme": "Madison College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "de6a28d1-ff78-4927-8ae6-1e13a0853442",
+    "key": "AE-U239248|mens-soccer",
+    "programme": "Milwaukee Area Technical College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
+   },
+   {
+    "college_id": "a5557c63-d5b5-4441-8682-5d0be8ab50c0",
+    "key": "AE-U239248|womens-soccer",
+    "programme": "Milwaukee Area Technical College",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    }
   ],
-  "added": []
+  "removed": []
  },
  "NJCAA": {
-  "logical": 397,
+  "logical": 435,
   "keys": [
    "AE-U101143|mens-soccer",
    "AE-U101295|mens-soccer",
@@ -161,29 +305,63 @@
    "AE-U142559|womens-soccer",
    "AE-U143215|mens-soccer",
    "AE-U143215|womens-soccer",
+   "AE-U143279|mens-soccer",
+   "AE-U143279|womens-soccer",
    "AE-U143613|mens-soccer",
+   "AE-U144157|mens-soccer",
+   "AE-U144166|mens-soccer",
    "AE-U144175|mens-soccer",
+   "AE-U144184|mens-soccer",
+   "AE-U144184|womens-soccer",
    "AE-U144193|mens-soccer",
+   "AE-U144193|womens-soccer",
    "AE-U144209|mens-soccer",
    "AE-U144218|mens-soccer",
    "AE-U144564|mens-soccer",
    "AE-U144865|mens-soccer",
+   "AE-U144865|womens-soccer",
+   "AE-U144944|mens-soccer",
+   "AE-U144944|womens-soccer",
    "AE-U145682|mens-soccer",
    "AE-U145682|womens-soccer",
+   "AE-U145831|mens-soccer",
+   "AE-U145831|womens-soccer",
    "AE-U146278|mens-soccer",
    "AE-U146278|womens-soccer",
+   "AE-U146296|mens-soccer",
+   "AE-U146296|womens-soccer",
    "AE-U146348|mens-soccer",
+   "AE-U146348|womens-soccer",
    "AE-U146366|mens-soccer",
    "AE-U146366|womens-soccer",
+   "AE-U146418|mens-soccer",
+   "AE-U146418|womens-soccer",
    "AE-U146472|mens-soccer",
+   "AE-U146472|womens-soccer",
    "AE-U146603|womens-soccer",
    "AE-U146685|womens-soccer",
+   "AE-U147004|mens-soccer",
+   "AE-U147378|mens-soccer",
+   "AE-U147378|womens-soccer",
+   "AE-U147411|mens-soccer",
+   "AE-U147411|womens-soccer",
+   "AE-U147800|mens-soccer",
+   "AE-U147800|womens-soccer",
    "AE-U147916|mens-soccer",
    "AE-U147916|womens-soccer",
    "AE-U148007|mens-soccer",
+   "AE-U148007|womens-soccer",
    "AE-U148292|mens-soccer",
    "AE-U148380|mens-soccer",
+   "AE-U148380|womens-soccer",
+   "AE-U149365|mens-soccer",
+   "AE-U149365|womens-soccer",
+   "AE-U149532|mens-soccer",
+   "AE-U149532|womens-soccer",
+   "AE-U149727|mens-soccer",
+   "AE-U149727|womens-soccer",
    "AE-U149842|mens-soccer",
+   "AE-U149842|womens-soccer",
    "AE-U153445|mens-soccer",
    "AE-U153445|womens-soccer",
    "AE-U153472|mens-soccer",
@@ -452,6 +630,10 @@
    "AE-U233648|womens-soccer",
    "AE-U233754|mens-soccer",
    "AE-U233772|mens-soccer",
+   "AE-U238263|mens-soccer",
+   "AE-U238263|womens-soccer",
+   "AE-U239248|mens-soccer",
+   "AE-U239248|womens-soccer",
    "AE-U240505|mens-soccer",
    "AE-U240505|womens-soccer",
    "AE-U240514|mens-soccer",
