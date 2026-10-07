@@ -76,6 +76,7 @@
     "validate:institution-integrity": "node server/scripts/validateInstitutionIntegrity.js",
     "integrity:refresh": "node server/scripts/integrityRefresh.js",
     "integrity:promote": "node server/scripts/integrityPromote.js",
+    "integrity:protected-correct": "node server/scripts/applyProtectedSourceCorrection.js",
     "integrity:monitor": "node server/scripts/integrityMonitor.js",
     "integrity:freeze": "node server/scripts/integrityFreezeSeason.js",
     "integrity:identity": "node server/scripts/validateAthleticsEntityIdentity.js",

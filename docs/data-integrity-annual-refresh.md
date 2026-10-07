@@ -347,6 +347,27 @@ the exact host, the path prefix (`/athletics`), the source type and, optionally,
 - adapters check ownership on the URL, so an institution-path roster stages and the same page
   anywhere else on that host is refused.
 
+## Reversing a decided host (protected source correction)
+
+`applyPhase8AUniverse` registers a host only when no decision exists. It refuses any row already
+marked VERIFIED, VERIFIED_ALIAS or WRONG_INSTITUTION, and that refusal stays. Some decided rows are
+still wrong. The legacy verifier (`verifyAthleticsDomains.js`, 2026-09-01) marked a whole host
+WRONG_INSTITUTION whenever any mapping claim was refuted, even when the host named the row's own
+UNITID. For example, `athletics.csi.edu` belongs to College of Southern Idaho and was refuted only for
+Eastern Wyoming.
+
+Such a reversal goes through `npm run integrity:protected-correct` (`applyProtectedSourceCorrection.js`,
+rules in `server/lib/refresh/protectedCorrection.js`). It only runs with:
+- a `PROTECTED_SOURCE_CORRECTION` fixture with a matching hash, and an approval record that names
+  each host;
+- the complete stored row as `expected_old`;
+- an allowed transition (today only WRONG_INSTITUTION -> VERIFIED);
+- an owner that is the row's own UNITID, held by one SINGLE entity with no campuses.
+
+The refuted claimants stay in `wrong_mappings` and remain refused. Only `status`,
+`athletics_entity_id`, `ownership_class` and `notes` change. The identity validator and an ownership
+round trip run inside the transaction, and the manifest reverts with `--revert`.
+
 ## Parsers fail closed
 
 Roster parsers map columns by header meaning, never by position. The whole page is refused as
