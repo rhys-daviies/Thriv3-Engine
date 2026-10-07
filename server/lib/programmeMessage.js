@@ -1,4 +1,6 @@
 import db from '../db/client.js';
+import { RECIPIENT_KIND, inboxSubject, InboxCompositionError } from '../../shared/recipientPresentation.js';
+import { assertProgrammeInbox } from './recipientSelection.js';
 import { evidenceFor } from './evidenceQueries.js';
 import { buildSendSnapshot } from '../../shared/evidence/sendSnapshot.js';
 import { templateVariant } from '../../shared/evidence/templateVariant.js';
@@ -77,8 +79,11 @@ import {
  */
 export function composeMessage({
   athlete, college, coachName, evidence = null, step = null, composedFor = null,
+  recipientKind = RECIPIENT_KIND.COACH,
 } = {}) {
-  const composed = emailBodyFor(athlete, college, coachName, { evidence });
+  // Phase 1F: a programme inbox is composed with no name and greeted "Hi Coach," (see
+  // shared/recipientPresentation.js); a coach exactly as before.
+  const composed = emailBodyFor(athlete, college, coachName, { evidence, recipientKind });
 
   /**
    * THE SAME SUBJECT THE BROWSER AND THE CLI COMPOSE, from the same context.
@@ -88,8 +93,10 @@ export function composeMessage({
    * the body was filled from. It sees no evidence and no step, which is a
    * known gap and deliberately not this slice's.
    */
+  const subjectTemplate = athlete?.email_subject || DEFAULT_EMAIL_SUBJECT;
   const subject = fillTemplate(
-    athlete?.email_subject || DEFAULT_EMAIL_SUBJECT, composed.context,
+    recipientKind === RECIPIENT_KIND.PROGRAMME_INBOX ? inboxSubject(subjectTemplate) : subjectTemplate,
+    composed.context,
   );
 
   /**
@@ -185,6 +192,34 @@ export function composeMessage({
   };
 }
 
+/**
+ * Phase 1F. The same composition for a PROGRAMME INBOX: proved to be this programme's and
+ * eligible NOW (the 1B floor), sequenced by its own campaign-local history, composed with no
+ * name and greeted "Hi Coach,". Never a coach row, never a borrowed name.
+ */
+function composeForProgrammeInbox(pc, programmeContactId) {
+  try {
+    assertProgrammeInbox(programmeContactId, { collegeName: pc.college_name, sport: pc.sport });
+  } catch (err) { throw fail(err.code, err.message); }
+  const athlete = ATHLETE.get(pc.athlete_id);
+  if (!athlete) throw fail('ATHLETE_NOT_FOUND', `No athlete ${pc.athlete_id}`);
+  const evidence = evidenceFor(athlete, pc.college_name, {
+    sport: pc.sport, programmeCampaignId: pc.id, programmeContactId,
+  });
+  const college = COLLEGE.get(pc.college_name, pc.sport) ?? { name: pc.college_name, division: null };
+  try {
+    return composeMessage({
+      athlete, college, coachName: null, evidence,
+      step: evidence.sequence?.step ?? null,
+      recipientKind: RECIPIENT_KIND.PROGRAMME_INBOX,
+      composedFor: Object.freeze({ programmeCampaignId: pc.id, coachId: null, programmeContactId }),
+    });
+  } catch (err) {
+    if (err instanceof InboxCompositionError) throw fail(err.code, err.message);
+    throw err;
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 /* The campaign resolver — identifiers in, value out                           */
 /* -------------------------------------------------------------------------- */
@@ -249,11 +284,13 @@ function fail(code, message) {
  * @throws when identity does not resolve, or when the campaign's sequence
  *   policy has nothing left to say — see below.
  */
-export function composeProgrammeMessage({ programmeCampaignId, coachId } = {}) {
+export function composeProgrammeMessage({ programmeCampaignId, coachId = null, programmeContactId = null } = {}) {
   const pc = PROGRAMME_CAMPAIGN.get(programmeCampaignId);
   if (!pc) {
     throw fail('PROGRAMME_CAMPAIGN_NOT_FOUND', `No programme campaign ${programmeCampaignId}`);
   }
+  if (coachId && programmeContactId) throw fail('RECIPIENT_OUTREACH_DOUBLY_ADDRESSED', 'A message is composed for one recipient.');
+  if (!coachId && programmeContactId) return composeForProgrammeInbox(pc, programmeContactId);
 
   const coach = COACH.get(coachId);
   if (!coach) throw fail('COACH_NOT_FOUND', `No coach ${coachId}`);

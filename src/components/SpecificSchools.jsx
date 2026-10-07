@@ -17,6 +17,7 @@ import SpecificSchoolDetail from '@/components/SpecificSchoolDetail';
 import MatchmakingProgrammeStanding from '@/components/matchmaking/MatchmakingProgrammeStanding';
 import { useProgrammeEvidence } from '@/lib/useProgrammeEvidence';
 import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
+import { presentRecipientRow, recipientRowKey } from '@shared/recipientPresentation.js';
 
 /**
  * The schools this athlete asked for, kept apart from the ones we ranked.
@@ -102,8 +103,8 @@ function PendingDrafts({ drafts, busy, error, onConfirm, onDiscard }) {
             <div className="flex items-start justify-between gap-2 flex-wrap">
               <p className="text-xs text-muted-foreground min-w-0">
                 <span className="text-foreground font-medium">{AWAITING_CONFIRMATION}</span>
-                {d.coach_name ? ` — ${d.coach_name}` : ''}
-                {d.position_title ? ` (${d.position_title})` : ''}
+                {presentRecipientRow(d).primary ? ` — ${presentRecipientRow(d).primary}` : ''}
+                {presentRecipientRow(d).secondary ? ` (${presentRecipientRow(d).secondary})` : ''}
                 {/*
                   AGE, NOT URGENCY. Stated as flatly at nine days as at nine
                   minutes — Thriv3 does not know whether the message was sent,
@@ -189,10 +190,10 @@ function ContactedCoaches({ summary }) {
     <p className="text-xs text-muted-foreground" data-testid="contacted-coaches">
       <span className="uppercase tracking-wide text-[10px] font-semibold">Contacted </span>
       {shown.map((c, i) => (
-        <span key={c.coach_id}>
+        <span key={recipientRowKey(c)}>
           {i > 0 && ', '}
-          <span className="text-foreground">{c.coach_name}</span>
-          {c.position_title ? ` — ${c.position_title}` : ''}
+          <span className="text-foreground">{presentRecipientRow(c).primary}</span>
+          {presentRecipientRow(c).secondary ? ` — ${presentRecipientRow(c).secondary}` : ''}
         </span>
       ))}
       {remainder > 0 && <span> · {moreCoaches(remainder)}</span>}

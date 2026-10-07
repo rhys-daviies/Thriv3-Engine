@@ -4,6 +4,7 @@ import { utcNow } from './time.js';
 import { generateToken, generateUnique } from './tokens.js';
 import { authorisedProgrammeCampaignId } from './campaignAttribution.js';
 import { assertFirstTouchReviewed } from './campaignFirstTouchGate.js';
+import { recipientEqualsSql, recipientParams } from './recipient.js';
 
 const tokenTaken = (candidate) => !!db.prepare('SELECT 1 FROM outreach WHERE token = ?').get(candidate);
 
@@ -67,7 +68,7 @@ function assertAthleteActive(athleteId) {
  * ---------------------------------------------------------------------------
  */
 export function createOutreach({
-  athleteId, coachId, matchId = null, programmeCampaignId = null, onDate = undefined,
+  athleteId, coachId = null, programmeContactId = null, matchId = null, programmeCampaignId = null, onDate = undefined,
 }) {
   // BEFORE EVERYTHING, INCLUDING THE EXISTING-ROW SHORTCUT. An archived
   // athlete must not be handed a relationship at all — neither a new one nor
@@ -77,9 +78,24 @@ export function createOutreach({
 
   // READ FIRST, so the gate can see a relationship that already exists. It is
   // only a read; nothing is written until the authorisation below has passed.
+  /*
+   * Phase 1F: the relationship is with a RECIPIENT — a coach (unchanged) or a programme inbox,
+   * exactly one. An inbox must be a VERIFIED programme_contacts row: this primitive never turns
+   * an address into a recipient; its callers (the claim, sendOutreach) prove the inbox is the
+   * programme's eligible fallback before they get here.
+   */
+  const who = recipientParams({ coachId, programmeContactId });
+  if (who.programmeContactId) {
+    const inbox = db.prepare('SELECT status FROM programme_contacts WHERE contact_id = ?').get(who.programmeContactId);
+    if (!inbox || inbox.status !== 'VERIFIED') {
+      const err = new Error(`No verified programme contact ${who.programmeContactId}.`);
+      err.code = 'PROGRAMME_CONTACT_NOT_ELIGIBLE';
+      throw err;
+    }
+  }
   const existing = db
-    .prepare('SELECT * FROM outreach WHERE athlete_id = ? AND coach_id = ?')
-    .get(athleteId, coachId);
+    .prepare(`SELECT * FROM outreach o WHERE o.athlete_id = @athleteId AND ${recipientEqualsSql('o')}`)
+    .get({ athleteId, ...who });
 
   /**
    * B3: identity AND permission, before anything is written and BEFORE the
@@ -91,7 +107,7 @@ export function createOutreach({
    * Null campaign means legacy or manual outreach and is not gated at all.
    */
   const verified = authorisedProgrammeCampaignId({
-    programmeCampaignId, athleteId, coachId, outreachId: existing?.id ?? null, onDate,
+    programmeCampaignId, athleteId, ...who, outreachId: existing?.id ?? null, onDate,
   });
 
   /**
@@ -101,7 +117,7 @@ export function createOutreach({
    * invoke the rule or clear it. Null means the manual paths, which are not
    * gated at all.
    */
-  assertFirstTouchReviewed({ programmeCampaignId: verified, coachId });
+  assertFirstTouchReviewed({ programmeCampaignId: verified, ...who });
 
   // Returned UNCHANGED, including a NULL provenance. This is the line that
   // keeps "first created under" true.
@@ -110,7 +126,8 @@ export function createOutreach({
   const row = {
     id: randomUUID(),
     athlete_id: athleteId,
-    coach_id: coachId,
+    coach_id: who.coachId,
+    programme_contact_id: who.programmeContactId,
     token: generateUnique(generateToken, tokenTaken),
     match_id: matchId,
     programme_campaign_id: verified,
@@ -120,9 +137,9 @@ export function createOutreach({
     created_at: utcNow(),
   };
   db.prepare(`
-    INSERT INTO outreach (id, athlete_id, coach_id, token, match_id, programme_campaign_id,
+    INSERT INTO outreach (id, athlete_id, coach_id, programme_contact_id, token, match_id, programme_campaign_id,
                           drafted_at, sent_at, revoked_at, created_at)
-    VALUES (@id, @athlete_id, @coach_id, @token, @match_id, @programme_campaign_id,
+    VALUES (@id, @athlete_id, @coach_id, @programme_contact_id, @token, @match_id, @programme_campaign_id,
             @drafted_at, @sent_at, @revoked_at, @created_at)
   `).run(row);
   return row;

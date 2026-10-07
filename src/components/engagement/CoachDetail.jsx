@@ -3,6 +3,7 @@ import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { engagement } from '@/api/client';
+import { presentRecipientRow } from '@shared/recipientPresentation.js';
 
 function duration(seconds) {
   if (!seconds) return '—';
@@ -35,9 +36,10 @@ export default function CoachDetail({ coach, onBack }) {
       <Card className="p-5">
         <div className="flex items-baseline justify-between gap-3 flex-wrap">
           <div>
-            <h3 className="font-heading text-lg font-semibold">{coach.coach_name || 'Coach'}</h3>
+            {/* Phase 1F: a programme inbox is "Programme Contact", never a coach called "Coach". */}
+            <h3 className="font-heading text-lg font-semibold">{presentRecipientRow(coach).primary || 'Coach'}</h3>
             <p className="text-sm text-muted-foreground">
-              {[coach.position_title, coach.school, coach.division].filter(Boolean).join(' · ')}
+              {[presentRecipientRow(coach).secondary, coach.school, coach.division].filter(Boolean).join(' · ')}
             </p>
           </div>
           <div className="text-right">

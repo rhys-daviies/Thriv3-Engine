@@ -2,6 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { presentRecipientRow } from '@shared/recipientPresentation.js';
 
 // Gold is reserved for Priority and Responded, and for the return-visit
 // indicator. Everything else stays charcoal.
@@ -62,7 +63,7 @@ export default function CoachTable({ coaches, onSelect, onToggleResponded, busyI
                   onClick={() => onSelect(c)}
                   className="border-t border-border/60 cursor-pointer hover:bg-muted/30"
                 >
-                  <td className="py-2.5 pr-3 font-medium whitespace-nowrap">{c.coach_name || '—'}</td>
+                  <td className="py-2.5 pr-3 font-medium whitespace-nowrap">{presentRecipientRow(c).primary || '—'}</td>
                   <td className="py-2.5 pr-3 text-muted-foreground whitespace-nowrap">{c.school || '—'}</td>
                   <td className="py-2.5 pr-3 text-muted-foreground whitespace-nowrap text-xs">
                     {(c.division || '').replace('NCAA Division ', 'D') || '—'}

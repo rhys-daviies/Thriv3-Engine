@@ -215,6 +215,25 @@ function Failed({ error, onRetry }) {
 
 /* -------------------------------------------------------------------------- */
 
+
+/**
+ * Phase 1F: who the programme's current approach is to — the server's typed `currentRecipient`
+ * (a coach, or "Programme Contact" for the programme's inbox), or, from a payload that predates
+ * it, the current coach. Never null-dereferenced: no recipient means nothing to act on.
+ */
+function currentRecipientOf(programme) {
+  if (programme?.currentRecipient) return programme.currentRecipient;
+  if (programme?.currentCoach) return { kind: 'COACH', id: programme.currentCoach.id, primary: programme.currentCoach.name };
+  return null;
+}
+
+/** The (programmeCampaignId, coachId, options) a campaigns client call takes for this recipient. */
+function recipientArgs(programmeCampaignId, who) {
+  return who.kind === 'PROGRAMME_INBOX'
+    ? [programmeCampaignId, null, { programmeContactId: who.id }]
+    : [programmeCampaignId, who.id];
+}
+
 export default function CampaignTab() {
   const { player } = usePlayerWorkspace();
   const {
@@ -269,19 +288,21 @@ export default function CampaignTab() {
    * snapshot and the timestamp are the server's to derive.
    */
   const approve = useCallback(async (programme) => {
-    const key = `${programme.programmeCampaignId}:${programme.currentCoach.id}`;
+    const who = currentRecipientOf(programme);
+    if (!who) return;
+    const key = `${programme.programmeCampaignId}:${who.kind}:${who.id}`;
     if (inFlight.current.has(key)) return;
     inFlight.current.add(key);
     try {
       setNotice(null);
-      await campaigns.approveFirstTouch(programme.programmeCampaignId, programme.currentCoach.id);
+      await campaigns.approveFirstTouch(...recipientArgs(programme.programmeCampaignId, who));
       /**
        * SAID, NOT ASSUMED. The sentence reports what was RECORDED — a review —
        * and never what it achieved: the reload decides whether this programme
        * is now ready, still waiting on a setting, or refused by something the
        * approval had no bearing on.
        */
-      setNotice(`Review recorded for ${programme.currentCoach.name} at ${programme.collegeName}. `
+      setNotice(`Review recorded for ${who.primary} at ${programme.collegeName}. `
         + 'The campaign has been reloaded.');
       reload();
     } catch (err) {
@@ -337,7 +358,7 @@ export default function CampaignTab() {
        * sentence must not imply either — and the reload is what decides how the
        * card reads afterwards.
        */
-      setNotice(`Attempt prepared for ${programme.currentCoach?.name ?? 'the current coach'} at `
+      setNotice(`Attempt prepared for ${currentRecipientOf(programme)?.primary ?? 'the current coach'} at `
         + `${programme.collegeName}. Nothing has been sent. The campaign has been reloaded.`);
       reload();
     } catch (err) {
@@ -426,9 +447,9 @@ export default function CampaignTab() {
     inFlight.current.add(key);
     try {
       setNotice(null);
-      const message = await campaigns.generateMessage(
-        programme.programmeCampaignId, programme.currentCoach.id,
-      );
+      const who = currentRecipientOf(programme);
+      if (!who) return;
+      const message = await campaigns.generateMessage(...recipientArgs(programme.programmeCampaignId, who));
       returnTo.current = programme.programmeCampaignId;
       setSelected({
         programmeCampaignId: programme.programmeCampaignId,
@@ -636,7 +657,7 @@ export default function CampaignTab() {
     if (!q) return grouped;
     const by = new Map();
     for (const [key, list] of grouped) {
-      by.set(key, list.filter((p) => `${p.collegeName} ${p.currentCoach?.name ?? ''}`
+      by.set(key, list.filter((p) => `${p.collegeName} ${currentRecipientOf(p)?.primary ?? ''}`
         .toLowerCase().includes(q)));
     }
     return by;

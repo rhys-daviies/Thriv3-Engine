@@ -11,6 +11,7 @@ import {
   ENGAGEMENT_HINT,
 } from '@/lib/outreachLabels';
 import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
+import { presentRecipientRow, recipientRowKey } from '@shared/recipientPresentation.js';
 
 /**
  * WRITING TO ONE PROGRAMME, BY HAND, BECAUSE THIS ONE IS DIFFERENT.
@@ -113,14 +114,18 @@ function PriorContact({ rows, engagement }) {
         Previous outreach
       </p>
       <ul className="space-y-0.5 mt-0.5">
-        {rows.map((r) => (
-          <li key={r.coach_id} className="text-xs">
-            <span className="font-medium">{r.coach_name}</span>
-            {r.position_title ? <span className="text-muted-foreground"> — {r.position_title}</span> : null}
-            <span className="text-muted-foreground">{activity(r)}</span>
-            <CoachEngagement e={engagement?.get(r.coach_id)} />
-          </li>
-        ))}
+        {rows.map((r) => {
+          // Phase 1F: a programme inbox reads "Programme Contact — <programme>", never as a person.
+          const who = presentRecipientRow(r);
+          return (
+            <li key={recipientRowKey(r)} className="text-xs">
+              <span className="font-medium">{who.primary}</span>
+              {who.secondary ? <span className="text-muted-foreground"> — {who.secondary}</span> : null}
+              <span className="text-muted-foreground">{activity(r)}</span>
+              <CoachEngagement e={engagement?.get(recipientRowKey(r))} />
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -130,7 +135,7 @@ function PriorContact({ rows, engagement }) {
 function RelationshipContext({ relationship, priorContact, intelligence }) {
   /** Per coach, from the one summary the server already computed. */
   const engagementByCoach = new Map(
-    (intelligence?.coaches ?? []).map((c) => [c.coach_id, c.engagement]),
+    (intelligence?.coaches ?? []).map((c) => [recipientRowKey(c), c.engagement]),
   );
   /**
    * EACH FACT KEPT AS ITS OWN FACT. A school can be requested AND flagged AND
@@ -263,6 +268,7 @@ export default function ManualOutreachDialog({ player, relationshipId, open, onO
 
   const {
     relationship, college, coaches, contact: decision, priorContact, contactIntelligence,
+    programmeContact = null,
   } = context;
 
   if (!decision.allowed) {
@@ -342,12 +348,19 @@ export default function ManualOutreachDialog({ player, relationshipId, open, onO
        * changed on their behalf.
        */
       allowImmediateSend={false}
-      onSend={({ coaches: chosen, ...composed }) => manualOutreach.send(player.id, relationshipId, {
-        ...composed,
-        coachIds: chosen
-          .map((c) => coaches.find((k) => k.email === c.email)?.coach_id)
-          .filter(Boolean),
-      })}
+      /*
+        PHASE 1F — the server offers a programme contact only when no eligible named coach
+        exists; the composer then writes to it alone, by id.
+      */
+      programmeContact={programmeContact}
+      onSend={({ coaches: chosen, programmeContactId, ...composed }) => manualOutreach.send(player.id, relationshipId, programmeContactId
+        ? { ...composed, programmeContactId }
+        : {
+          ...composed,
+          coachIds: chosen
+            .map((c) => coaches.find((k) => k.email === c.email)?.coach_id)
+            .filter(Boolean),
+        })}
     />
   );
 }

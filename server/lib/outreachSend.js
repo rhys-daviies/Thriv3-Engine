@@ -53,12 +53,12 @@ const parse = (row) => (row ? { ...row, payload: safeParse(row.payload) } : null
  * `outreachProvenance.js` and `sendPathEngineIsolation.test.js`.
  */
 import { assertSelectionMatchesSend } from './v2/outreachProvenance.js';
-import { sendRecipientSql } from './recipient.js';
+import { sendRecipientSql, recipientParams } from './recipient.js';
 
 const insertSend = db.prepare(`
   INSERT INTO outreach_send (
     id, outreach_id, sequence, drafted_at, sent_at,
-    athlete_id, coach_id, college_name, sport, programme_campaign_id,
+    athlete_id, coach_id, programme_contact_id, college_name, sport, programme_campaign_id,
     matchmaking_selection_id, origin, policy_version,
     programme_message_id, connected_mailbox_id, sending_identity, provider,
     state, accepted_source,
@@ -68,7 +68,7 @@ const insertSend = db.prepare(`
     subject, body_hash, body, wire_body_sha256, payload, created_at
   ) VALUES (
     @id, @outreach_id, @sequence, @drafted_at, @sent_at,
-    @athlete_id, @coach_id, @college_name, @sport, @programme_campaign_id,
+    @athlete_id, @coach_id, @programme_contact_id, @college_name, @sport, @programme_campaign_id,
     @matchmaking_selection_id, @origin, @policy_version,
     @programme_message_id, @connected_mailbox_id, @sending_identity, @provider,
     @state, @accepted_source,
@@ -167,7 +167,7 @@ export function nextSequence(outreachId) {
  * @returns {{id, sequence}} the send this draft belongs to.
  */
 export function recordDraft({
-  outreachId, athleteId, coachId, collegeName = null, sport = null,
+  outreachId, athleteId, coachId = null, programmeContactId = null, collegeName = null, sport = null,
   programmeCampaignId = null, onDate = undefined,
   /**
    * WHICH MATCHMAKING SELECTION CAUSED THIS MESSAGE — A9.7.
@@ -251,8 +251,11 @@ export function recordDraft({
    * stopped programme must not go on accumulating drafts that somebody can
    * send later. Nothing is written when it refuses.
    */
+  // Phase 1F: a draft is for a RECIPIENT — a coach, or a programme inbox — exactly one, and the
+  // recipient-agreement trigger holds it to its outreach's.
+  const who = recipientParams({ coachId, programmeContactId });
   const verifiedCampaign = authorisedProgrammeCampaignId({
-    programmeCampaignId, athleteId, coachId, outreachId, onDate,
+    programmeCampaignId, athleteId, ...who, outreachId, onDate,
   });
 
   /**
@@ -260,7 +263,7 @@ export function recordDraft({
    * snapshot is built and before any row is written, so a held first touch
    * leaves no draft for somebody to send later.
    */
-  assertFirstTouchReviewed({ programmeCampaignId: verifiedCampaign, coachId });
+  assertFirstTouchReviewed({ programmeCampaignId: verifiedCampaign, ...who });
   const snapshot = buildSendSnapshot({
     evidence, body, subject, bodySource, templateVariant, renderedKinds,
   });
@@ -273,7 +276,7 @@ export function recordDraft({
   if (matchmakingSelectionId) {
     assertSelectionMatchesSend(db, {
       selectionId: matchmakingSelectionId,
-      athleteId, coachId, collegeName, sport,
+      athleteId, ...who, collegeName, sport,
     });
   }
 
@@ -285,7 +288,8 @@ export function recordDraft({
     drafted_at: at,
     sent_at: null,
     athlete_id: athleteId,
-    coach_id: coachId,
+    coach_id: who.coachId,
+    programme_contact_id: who.programmeContactId,
     college_name: collegeName,
     sport,
     programme_campaign_id: verifiedCampaign,

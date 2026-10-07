@@ -18,6 +18,7 @@ import {
   PROGRAMME_EVIDENCE_NONE, PROGRAMME_EVIDENCE_FAILED, PROGRAMME_EVIDENCE_RETRY,
   PROGRAMME_EVIDENCE_ALSO_KNOWN,
 } from '@/lib/outreachLabels';
+import { presentRecipientRow, recipientRowKey } from '@shared/recipientPresentation.js';
 
 /**
  * EVERYTHING THE COLLAPSED ROW DELIBERATELY DOES NOT SAY — F8b.
@@ -170,9 +171,9 @@ function ContactedCoachDetail({ summary }) {
           if (e?.reply_recorded) did.push('reply recorded');
 
           return (
-            <li key={c.coach_id} className="text-xs">
-              <span className="font-medium">{c.coach_name}</span>
-              {c.position_title && <span className="text-muted-foreground"> — {c.position_title}</span>}
+            <li key={recipientRowKey(c)} className="text-xs">
+              <span className="font-medium">{presentRecipientRow(c).primary}</span>
+              {presentRecipientRow(c).secondary && <span className="text-muted-foreground"> — {presentRecipientRow(c).secondary}</span>}
               <span className="text-muted-foreground"> · {parts.join(' · ')}</span>
               {/*
                 SEPARATE FROM THE LINE BEFORE IT, because they are different

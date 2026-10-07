@@ -20,13 +20,15 @@ export const PROGRAMME_INBOX = 'PROGRAMME_INBOX';
 
 /**
  * The context is the whole registry (colleges, domains, entities, aliases, links), so it is
- * built once per DATA VERSION of this connection rather than per request. `data_version`
- * changes whenever another connection commits — a promotion, a refresh — which is exactly
- * when ownership evidence can have moved; this connection itself never writes these tables.
+ * built once per DATA VERSION rather than per request. `data_version` changes when ANOTHER
+ * connection commits (a promotion, a refresh — exactly when ownership evidence can move), but
+ * NOT when this connection writes; Phase 1F adds `total_changes()`, which does. Without it a
+ * write through this same connection (a domain verified, a programme row deactivated) left the
+ * cached verdicts standing. Both are O(1) reads, so an unchanged database still builds once.
  */
 let cached = null;
 function context(handle) {
-  const version = `${handle.pragma('data_version', { simple: true })}`;
+  const version = `${handle.pragma('data_version', { simple: true })}:${handle.prepare('SELECT total_changes() n').get().n}`;
   if (!cached || cached.handle !== handle || cached.version !== version) cached = { handle, version, ctx: buildProgrammeContactContext(handle) };
   return cached.ctx;
 }

@@ -1,4 +1,5 @@
 import db from '../db/client.js';
+import { recipientEqualsSql } from './recipient.js';
 import { MESSAGE_STATE, OPEN_STATES } from '../../shared/outreachMessageState.js';
 import { identityOf } from '../../shared/evidence/sequenceStrategy.js';
 
@@ -51,11 +52,16 @@ import { identityOf } from '../../shared/evidence/sequenceStrategy.js';
  * is the correct answer rather than a lucky one: they were not sent under any
  * campaign, and guessing one for them is what A6 forbids.
  */
+// Phase 1F: the conversation is with a RECIPIENT — a coach or a programme inbox. For a coach
+// this reads `coach_id = @coachId` exactly as before (the inbox arm is false).
 const SCOPE = `
   programme_campaign_id = @programmeCampaignId
   AND athlete_id = @athleteId
-  AND coach_id = @coachId
+  AND ${recipientEqualsSql('outreach_send')}
 `;
+const scopeArgs = ({ programmeCampaignId, athleteId, coachId = null, programmeContactId = null }) => ({
+  programmeCampaignId, athleteId, coachId: coachId ?? null, programmeContactId: coachId ? null : (programmeContactId ?? null),
+});
 
 const OPEN_LIST = OPEN_STATES.map((s) => `'${s}'`).join(', ');
 
@@ -92,15 +98,15 @@ const kindsOf = (rows) => {
  *
  * @returns {string[]} evidence kinds, in the order they were rendered.
  */
-export function sentEvidenceForContact({ programmeCampaignId, athleteId, coachId } = {}) {
-  if (!programmeCampaignId || !athleteId || !coachId) return [];
+export function sentEvidenceForContact({ programmeCampaignId, athleteId, coachId = null, programmeContactId = null } = {}) {
+  if (!programmeCampaignId || !athleteId || (!coachId && !programmeContactId)) return [];
   return kindsOf(db.prepare(`
     SELECT rendered_kinds FROM outreach_send
     WHERE ${SCOPE}
       AND state = '${MESSAGE_STATE.ACCEPTED}'
       AND rendered_kinds IS NOT NULL
     ORDER BY COALESCE(sent_at, drafted_at, created_at), id
-  `).all({ programmeCampaignId, athleteId, coachId }));
+  `).all(scopeArgs({ programmeCampaignId, athleteId, coachId, programmeContactId })));
 }
 
 /**
@@ -116,15 +122,15 @@ export function sentEvidenceForContact({ programmeCampaignId, athleteId, coachId
  * At most one open message per relationship — B2 made that a database
  * guarantee — so this reads one row in practice.
  */
-export function openDraftEvidenceForContact({ programmeCampaignId, athleteId, coachId } = {}) {
-  if (!programmeCampaignId || !athleteId || !coachId) return [];
+export function openDraftEvidenceForContact({ programmeCampaignId, athleteId, coachId = null, programmeContactId = null } = {}) {
+  if (!programmeCampaignId || !athleteId || (!coachId && !programmeContactId)) return [];
   return kindsOf(db.prepare(`
     SELECT rendered_kinds FROM outreach_send
     WHERE ${SCOPE}
       AND state IN (${OPEN_LIST})
       AND rendered_kinds IS NOT NULL
     ORDER BY sequence, id
-  `).all({ programmeCampaignId, athleteId, coachId }));
+  `).all(scopeArgs({ programmeCampaignId, athleteId, coachId, programmeContactId })));
 }
 
 /**
@@ -150,12 +156,12 @@ export function openDraftEvidenceForContact({ programmeCampaignId, athleteId, co
  * same ACCEPTED state. They are two readings of one fact rather than two
  * policies, and if they ever disagree B7's dry run reports it as step drift.
  */
-export function campaignLocalStep({ programmeCampaignId, athleteId, coachId } = {}) {
-  if (!programmeCampaignId || !athleteId || !coachId) return null;
+export function campaignLocalStep({ programmeCampaignId, athleteId, coachId = null, programmeContactId = null } = {}) {
+  if (!programmeCampaignId || !athleteId || (!coachId && !programmeContactId)) return null;
   const { n } = db.prepare(`
     SELECT COUNT(*) AS n FROM outreach_send
     WHERE ${SCOPE} AND state = '${MESSAGE_STATE.ACCEPTED}'
-  `).get({ programmeCampaignId, athleteId, coachId });
+  `).get(scopeArgs({ programmeCampaignId, athleteId, coachId, programmeContactId }));
   return n + 1;
 }
 

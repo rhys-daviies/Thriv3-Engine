@@ -974,9 +974,7 @@ function safetyAndBudget({ pc, coach, onDate, sendingIdentity, window }) {
     safety,
     budget,
     prohibition: prohibitionFrom(safety, { pc, coach, outreachId: relationshipForSafety?.id ?? null }),
-    // Phase 1E: a programme inbox can be planned and prepared, never executed yet (1F).
-    executableNow: safety.allowed && budget.allowed === true
-      && coach.recipientKind !== RECIPIENT_KIND.PROGRAMME_INBOX,
+    executableNow: safety.allowed && budget.allowed === true,
   };
 }
 
@@ -1286,4 +1284,5 @@ export { utcToday };
  * (campaignExecution's dry run) takes it from the module it already reads plans from.
  */
 export { RECIPIENT_KIND };
-export { PROGRAMME_INBOX_DELIVERY_DISABLED } from './recipientSelection.js';
+/** Phase 1F: the one recipient presentation model, for the same read-only consumers. */
+export { presentRecipient } from '../../shared/recipientPresentation.js';

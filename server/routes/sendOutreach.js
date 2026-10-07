@@ -24,7 +24,8 @@ import { bodyHash } from '../../shared/evidence/sendSnapshot.js';
 import { PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS, complianceGaps, SENDER_IDENTITY, SENDER_POSTAL_ADDRESS } from '../lib/config.js';
 import { checkRequiredCore } from '../export/renderProfile.js';
 import { exportAthlete, OUTPUT_DIR } from '../export/exportProfiles.js';
-import { isProgrammeInboxAddress, PROGRAMME_INBOX_DELIVERY_DISABLED } from '../lib/recipientSelection.js';
+import { isProgrammeInboxAddress, assertManualProgrammeInbox, PROGRAMME_INBOX_ADDRESS_NOT_TYPED } from '../lib/recipientSelection.js';
+import { assertInboxBody, PROGRAMME_CONTACT_LABEL, RECIPIENT_KIND } from '../../shared/recipientPresentation.js';
 
 /**
  * Creates outreach and hands one message per coach to Outlook.
@@ -307,15 +308,27 @@ export async function sendOutreach({
    * they differ per coach.
    */
   if (programmeCampaignId) {
-    const first = coaches.find((c) => c && c.email);
+    /*
+     * Phase 1F: a programme inbox entry is asked about by its id, and an untyped inbox address is
+     * skipped — findOrCreateCoach must never mint a coach row for an inbox, here any more than in
+     * the loop (which refuses it).
+     */
+    const first = coaches.find((c) => c && (c.programmeContactId || (c.email && !isProgrammeInboxAddress(c.email))));
     if (first) {
-      const record = findOrCreateCoach({
+      const record = first.programmeContactId ? null : findOrCreateCoach({
         full_name: first.name, email: first.email, school: collegeName,
         division, sport: athlete.sport, position_title: first.title,
       });
-      const decision = campaignContactDecision({
-        programmeCampaignId, athleteId, coachId: record.id,
-      });
+      let decision;
+      try {
+        decision = campaignContactDecision({
+          programmeCampaignId, athleteId,
+          ...(record ? { coachId: record.id } : { programmeContactId: first.programmeContactId }),
+        });
+      } catch (err) {
+        if (record) throw err;
+        decision = { allowed: false, reason: err.code };   // an inbox not at this programme: the loop reports it
+      }
       if (!decision.allowed && decision.reason !== 'SUPPRESSED') {
         const err = new Error(
           `Cannot send for this campaign: ${decision.reason}. `
@@ -404,8 +417,37 @@ export async function sendOutreach({
   let actualFrom = null;
   let fromMismatch = false;
 
-  for (const coach of coaches) {
+  for (const requested of coaches) {
+    /**
+     * PHASE 1F — WHO THIS ENTRY IS. A coach entry is an address (unchanged). A PROGRAMME INBOX
+     * entry names its programme_contacts row BY ID, and is proved here — before any write — to be
+     * this programme's selected fallback NOW (filed under it, eligible under the 1B floor, no
+     * eligible named coach, no named-coach opt-out). Its address is then the contact's own, its
+     * name is "Programme Contact", and it never becomes a coaches row. An address that merely
+     * happens to be an inbox is refused below: it must be addressed as one or not at all.
+     */
+    let coach = requested;
+    let inbox = null;
     try {
+      if (requested?.programmeContactId) {
+        try {
+          inbox = assertManualProgrammeInbox({
+            programmeContactId: requested.programmeContactId, collegeName, sport: athlete.sport, email: requested.email ?? null,
+          });
+          assertInboxBody(body, { personName: greetingName });
+          if (greetingName && !/^coach$/i.test(String(greetingName).trim()) && String(subject ?? '').toLowerCase().includes(String(greetingName).trim().toLowerCase())) {
+            const err = new Error('This subject names a person, but it is addressed to a shared programme inbox.'); err.code = 'INBOX_BODY_NAMES_A_PERSON'; throw err;
+          }
+        } catch (err) {
+          results.push({
+            email: requested.email ?? null, name: PROGRAMME_CONTACT_LABEL, recipientKind: RECIPIENT_KIND.PROGRAMME_INBOX,
+            status: err.code === 'SUPPRESSED' ? 'suppressed' : 'not-eligible', reason: err.code ?? 'PROGRAMME_INBOX_NOT_FALLBACK', error: err.message,
+          });
+          continue;
+        }
+        coach = { email: inbox.email, name: PROGRAMME_CONTACT_LABEL, title: null, recipientKind: RECIPIENT_KIND.PROGRAMME_INBOX };
+      }
+
       // The one check that must not be skippable. Enforced here rather than
       // where the list is built, because every path to a send goes through
       // this loop and only some of them go through a list builder.
@@ -414,11 +456,11 @@ export async function sendOutreach({
         continue;
       }
 
-      // PHASE 1E — a programme's inbox is not a coach and is not written to yet. Refused before
-      // the coach floor and before findOrCreateCoach, so no path through this loop (including
-      // the legacy opt-in) can mint a coach row for an inbox or draft to one.
-      if (isProgrammeInboxAddress(coach.email)) {
-        results.push({ email: coach.email, name: coach.name, status: 'not-eligible', reason: PROGRAMME_INBOX_DELIVERY_DISABLED });
+      // PHASE 1E/1F — an inbox address that was NOT addressed as a programme inbox (by id) is
+      // refused before the coach floor and before findOrCreateCoach, so no path through this
+      // loop (including the legacy opt-in) can mint a coach row for an inbox or draft to one.
+      if (!inbox && isProgrammeInboxAddress(coach.email)) {
+        results.push({ email: coach.email, name: coach.name, status: 'not-eligible', reason: PROGRAMME_INBOX_ADDRESS_NOT_TYPED });
         continue;
       }
 
@@ -427,7 +469,7 @@ export async function sendOutreach({
       // recommendation blob or a client body rather than the coaches table. The address must
       // belong to a VERIFIED, not-PROVEN_STALE coach of this programme. Explicit opt-out
       // only: THRIV3_ALLOW_LEGACY_COACHES=1 (server/lib/coachEligibility.js).
-      const notEligible = recipientIneligibility({ email: coach.email, collegeName, sport: athlete.sport });
+      const notEligible = inbox ? null : recipientIneligibility({ email: coach.email, collegeName, sport: athlete.sport });
       if (notEligible) {
         results.push({ email: coach.email, name: coach.name, status: 'not-eligible', reason: notEligible });
         continue;
@@ -444,7 +486,8 @@ export async function sendOutreach({
         continue;
       }
 
-      const record = findOrCreateCoach({
+      // A programme inbox has no coaches row and never gets one.
+      const record = inbox ? null : findOrCreateCoach({
         full_name: coach.name,
         email: coach.email,
         school: collegeName,
@@ -452,8 +495,9 @@ export async function sendOutreach({
         sport: athlete.sport,
         position_title: coach.title,
       });
+      const who = inbox ? { programmeContactId: inbox.contact_id } : { coachId: record.id };
 
-      const outreach = createOutreach({ athleteId, coachId: record.id, matchId, programmeCampaignId });
+      const outreach = createOutreach({ athleteId, ...who, matchId, programmeCampaignId });
 
       /**
        * A REVOKED OUTREACH RECORD IS NOT WRITEABLE THROUGH, on any path.
@@ -518,7 +562,7 @@ export async function sendOutreach({
             prefer: Array.isArray(evidenceSelection) ? evidenceSelection : null,
             preferStructure: typeof evidenceStructure === 'string' ? evidenceStructure : null,
             programmeCampaignId,
-            coachId: record.id,
+            ...who,
           });
         } catch (err) {
           console.warn(`  could not derive the sequence for ${coach.email}: ${err.message}`);
@@ -568,13 +612,13 @@ export async function sendOutreach({
       const url = `${PUBLIC_BASE_URL}/p/${athlete.public_slug}.html?ref=${outreach.token}`;
 
       const personalisedBody = ensureProfileLink(
-        personalise(body, greetingName, coach.name || 'Coach'),
+        inbox ? body : personalise(body, greetingName, coach.name || 'Coach'),
         url
       ) + complianceFooter({ athleteName: athlete.full_name });
       // Worked out once. It is written to the row, handed to Outlook and put
       // in the handoff, and three separate `personalise` calls would be three
       // chances for them to differ.
-      const personalisedSubject = personalise(subject, greetingName, coach.name || 'Coach');
+      const personalisedSubject = inbox ? subject : personalise(subject, greetingName, coach.name || 'Coach');
 
       /**
        * Everything `recordDraft` needs, worked out once.
@@ -587,7 +631,7 @@ export async function sendOutreach({
       const draftArgs = {
         outreachId: outreach.id,
         athleteId,
-        coachId: record.id,
+        ...who,
         collegeName,
         sport: athlete.sport,
         // Per message, and never read back off the relationship: see the
@@ -809,12 +853,12 @@ export async function sendOutreach({
             const stored = sendById(draft.id);
             const candidate = buildHandoff({
               sendId: draft.id,
-              coachId: record.id,
+              coachId: record?.id ?? null,
               // From the canonical coaches row, never from the request body.
               // `outreach_send.recipient_email` is a campaign-execution column
               // that `recordDraft` does not write, so the address comes from
               // the row `outreach_send.coach_id` points at.
-              to: record.email,
+              to: inbox ? inbox.email : record.email,
               subject: personalisedSubject,
               body: personalisedBody,
             });

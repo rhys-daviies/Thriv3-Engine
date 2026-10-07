@@ -7,6 +7,7 @@ import { unresolvedSendFor } from './outreachSend.js';
 import { mailbox, hasStoredCredential, MAILBOX_STATUS, MAILBOX_PROVIDER } from './connectedMailboxes.js';
 import { isSendCapped } from './sendCap.js';
 import { productionTransport } from './productionTransport.js';
+import { recipientEqualsSql, recipientParams } from './recipient.js';
 
 /**
  * WOULD THIS MESSAGE GO, IF SOMEBODY PRESSED SEND NOW? — D4.9.
@@ -78,9 +79,11 @@ export const READINESS_BLOCKER = Object.freeze({
 const EXECUTION_FOR_MESSAGE = db.prepare(
   'SELECT id, state FROM outreach_send WHERE programme_message_id = ?',
 );
-const OUTREACH_FOR = db.prepare(
-  'SELECT id FROM outreach WHERE athlete_id = ? AND coach_id = ?',
+// Phase 1F: the relationship with the message's RECIPIENT (coach or programme inbox).
+const OUTREACH_FOR_STMT = db.prepare(
+  `SELECT id FROM outreach o WHERE o.athlete_id = @athleteId AND ${recipientEqualsSql('o')}`,
 );
+const OUTREACH_FOR = { get: (athleteId, message) => OUTREACH_FOR_STMT.get({ athleteId, ...recipientParams(message) }) };
 
 /**
  * @param {string} args.programmeMessageId
@@ -111,7 +114,7 @@ export function executionReadiness({
   if (prior) add(READINESS_BLOCKER.MESSAGE_ALREADY_EXECUTED, { state: prior.state });
 
   /* ---- the relationship --------------------------------------------------- */
-  const relationship = OUTREACH_FOR.get(context.athleteId, message.coach_id);
+  const relationship = OUTREACH_FOR.get(context.athleteId, message);
   if (unresolvedSendFor(relationship?.id ?? null)) {
     add(READINESS_BLOCKER.RELATIONSHIP_HAS_UNRESOLVED_SEND);
   }
@@ -125,7 +128,8 @@ export function executionReadiness({
   let timing = null;
   if (!plan.current) {
     add(READINESS_BLOCKER.NO_ACTION_TO_EXECUTE, { reason: plan.reason ?? null });
-  } else if (plan.current.coachId !== message.coach_id) {
+  } else if ((plan.current.coachId ?? null) !== (message.coach_id ?? null)
+    || (plan.current.programmeContactId ?? null) !== (message.programme_contact_id ?? null)) {
     add(READINESS_BLOCKER.MESSAGE_NOT_CURRENT, { reason: plan.reason ?? null });
   } else if (plan.nextAction === PURSUIT_ACTION.AWAITING_OPERATOR) {
     add(READINESS_BLOCKER.CAMPAIGN_BLOCKED, { reason: plan.reason ?? null });
@@ -197,6 +201,8 @@ export function executionReadiness({
     programmeMessageId: message.id,
     step: message.step,
     coachId: message.coach_id,
+    programmeContactId: message.programme_contact_id ?? null,
+    recipientKind: message.programme_contact_id ? 'PROGRAMME_INBOX' : 'COACH',
     recipientEmail: message.recipient_email,
     reviewed: message.state === CONTENT_STATE.REVIEWED,
     /** So a client can send the precondition it was actually shown. */

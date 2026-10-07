@@ -28,6 +28,8 @@ import db from '../db/client.js';
 import { buildProgrammeContactContext, programmeContactProblems } from './programmeContactEligibility.js';
 import { isSuppressed } from './suppressions.js';
 import { RECIPIENT_KIND } from './recipient.js';
+import { coachIneligibility, legacyCoachesAllowed } from './coachEligibility.js';
+import { classifyRole, hasUsableEmail } from '../../shared/coachRoles.js';
 
 export const RECIPIENT_SELECTION = Object.freeze({
   COACH: RECIPIENT_KIND.COACH,
@@ -47,8 +49,12 @@ export const INBOX_NOT_SELECTED = Object.freeze({
 /** The reason a legacy team-inbox coach row is not pursued when a verified inbox exists. */
 export const TEAM_ROW_SUPERSEDED = 'TEAM_INBOX_SUPERSEDED_BY_PROGRAMME_INBOX';
 
-/** The refusal every delivery boundary raises for a programme inbox until composition (1F). */
-export const PROGRAMME_INBOX_DELIVERY_DISABLED = 'PROGRAMME_INBOX_DELIVERY_DISABLED';
+/**
+ * Phase 1F: an address that is a programme's inbox, reached WITHOUT being addressed as one (by
+ * its programme_contacts id). Every delivery boundary refuses it: an inbox is written to as what
+ * it is — selected, typed, greeted "Hi Coach," — or not at all, and never as a coach.
+ */
+export const PROGRAMME_INBOX_ADDRESS_NOT_TYPED = 'PROGRAMME_INBOX_ADDRESS_NOT_TYPED';
 
 export class RecipientSelectionError extends Error {
   constructor(code, message) { super(message); this.name = 'RecipientSelectionError'; this.code = code; }
@@ -191,4 +197,48 @@ export function isProgrammeInboxAddress(email, { handle = db } = {}) {
   const address = String(email ?? '').trim().toLowerCase();
   if (!address || !has(handle, 'programme_contacts')) return false;
   return !!handle.prepare('SELECT 1 FROM programme_contacts WHERE email = ? LIMIT 1').get(address);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1F: the same hierarchy for MANUAL outreach                            */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The manual path's answer to "who may be written to at this programme": the named coaches the
+ * floor allows (the manual picker's own list), and — only when there are none — the one
+ * programme inbox the hierarchy selects. The inbox is never an alternative offered beside a
+ * coach. A named coach's opt-out blocks it exactly as it does for a campaign (Q1).
+ */
+export function manualRecipientChoice({ collegeName, sport }, { handle = db, now = new Date(), env = process.env } = {}) {
+  const staff = handle.prepare('SELECT * FROM coaches WHERE school = ? AND sport = ? ORDER BY id').all(collegeName, sport);
+  const legacy = legacyCoachesAllowed(env);
+  const named = staff.filter((c) => String(c.full_name ?? '').trim() !== '' && classifyRole(c.position_title) !== 'team-email'
+    && (legacy ? hasUsableEmail(c) : coachIneligibility(c) === null) && !isSuppressed(c.email));
+  return chooseRecipients({ collegeName, sport, named, teamRows: [], staff }, { handle, now });
+}
+
+/**
+ * THE MANUAL DELIVERY CHECK for a programme inbox, asked at send time by sendOutreach. Throws
+ * RecipientSelectionError unless this exact contact is the programme's selected fallback NOW:
+ * it is filed under the programme, passes the 1B floor, no eligible named coach exists, no named
+ * coach there has opted out, and (when given) the address is the contact's own. An arbitrary
+ * address never becomes an inbox: the caller must name the contact by id.
+ */
+export function assertManualProgrammeInbox({ programmeContactId, collegeName, sport, email = null }, opts = {}) {
+  const row = assertProgrammeInbox(programmeContactId, { collegeName, sport }, opts);
+  // An opted-out inbox is reported as what it is, before the hierarchy (which would also drop it).
+  if (isSuppressed(row.email)) throw new RecipientSelectionError('SUPPRESSED', 'This programme inbox has opted out of Thriv3.');
+  const choice = manualRecipientChoice({ collegeName, sport }, opts);
+  if (choice.kind !== RECIPIENT_SELECTION.PROGRAMME_INBOX || choice.recipients[0]?.programmeContactId !== programmeContactId) {
+    const why = choice.kind === RECIPIENT_SELECTION.COACH ? 'a named coach at this programme can be written to instead'
+      : choice.inbox?.blockedBy === INBOX_NOT_SELECTED.COACH_OPTED_OUT_AT_PROGRAMME ? 'a coach at this programme has opted out'
+        : 'it is not this programme\'s selected programme contact';
+    throw new RecipientSelectionError(
+      choice.inbox?.blockedBy === INBOX_NOT_SELECTED.COACH_OPTED_OUT_AT_PROGRAMME ? INBOX_NOT_SELECTED.COACH_OPTED_OUT_AT_PROGRAMME : 'PROGRAMME_INBOX_NOT_FALLBACK',
+      `This programme inbox cannot be written to: ${why}.`);
+  }
+  if (email != null && String(email).trim().toLowerCase() !== row.email) {
+    throw new RecipientSelectionError('RECIPIENT_EMAIL_CHANGED', 'That address is not this programme contact\'s address.');
+  }
+  return row;
 }

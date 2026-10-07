@@ -20,7 +20,7 @@ const {
   PREPARATION_REFUSAL, FIRST_TOUCH_REVIEW,
 } = await import('./pursuitPolicy.js');
 const {
-  RECIPIENT_SELECTION, INBOX_NOT_SELECTED, TEAM_ROW_SUPERSEDED, PROGRAMME_INBOX_DELIVERY_DISABLED,
+  RECIPIENT_SELECTION, INBOX_NOT_SELECTED, TEAM_ROW_SUPERSEDED,
   assertProgrammeInbox, programmeInboxesFor, isProgrammeInboxAddress,
 } = await import('./recipientSelection.js');
 const { createContactAttempt, attemptForRecipient } = await import('./contactAttempts.js');
@@ -336,7 +336,7 @@ describe('M–O. recipient agreement and the exactly-one rule', () => {
   });
 });
 
-describe('R–T. an inbox moves through planning, and is refused at every delivery boundary', () => {
+describe('R–T. an inbox moves through planning and the typed delivery boundaries', () => {
   let pc; let attempt; let RA;
   it('R. plan -> preparation -> attempt -> approval -> campaign gate, typed all the way', () => {
     // a new athlete with prior (stale) coach contact at romeo, so the first touch is reviewed first
@@ -371,21 +371,25 @@ describe('R–T. an inbox moves through planning, and is refused at every delive
       expect(campaignContactDecision({ programmeCampaignId: pc, athleteId: RA, programmeContactId: P.r.pcs[0] }).reason).toBe(CONTACT_REFUSAL.RELATIONSHIP_DO_NOT_CONTACT);
     } finally { db.prepare("DELETE FROM athlete_programmes WHERE id = 'r-ap'").run(); }
   });
-  it('S. composition refuses an inbox: generation and persistence both name the reason', () => {
-    expect(code(() => generateProgrammeMessage({ programmeCampaignId: pc, programmeContactId: P.r.pcs[0] }))).toBe(PROGRAMME_INBOX_DELIVERY_DISABLED);
-    expect(code(() => createProgrammeMessage({ programmeContactAttemptId: attempt.id, composition: { composedFor: { programmeCampaignId: pc, coachId: null }, step: 1 } }))).toBe(PROGRAMME_INBOX_DELIVERY_DISABLED);
+  // Phase 1F: the five delivery boundaries are typed, so S now proves the inbox is HANDLED (and
+  // greeted "Hi Coach,") rather than refused. The full workflow is programmeInboxEndToEnd.test.js.
+  it('S. generation composes for the inbox: typed row, no coach, greeted "Hi Coach,"', () => {
+    const { message } = generateProgrammeMessage({ programmeCampaignId: pc, programmeContactId: P.r.pcs[0] });
+    expect(message).toMatchObject({ coach_id: null, programme_contact_id: P.r.pcs[0], recipient_email: `msoccer@${P.r.host}` });
+    expect(message.body.split('\n')[0]).toBe('Hi Coach,');
+    expect(code(() => createProgrammeMessage({ programmeContactAttemptId: attempt.id, composition: { composedFor: { programmeCampaignId: pc, coachId: null, programmeContactId: P.r.pcs[0] }, step: 1, body: 'Hi Sam,\n\nx', subject: 's' } })))
+      .toBe('INBOX_BODY_GREETING_NOT_NEUTRAL');
   });
-  it('S. the execution claim refuses a message addressed to an inbox, by its column or by its attempt', () => {
-    expect(code(() => assertExecutionSafety({ message: { programme_contact_id: P.r.pcs[0] }, context: { athleteId: ATH } }))).toBe(PROGRAMME_INBOX_DELIVERY_DISABLED);
-    expect(code(() => assertExecutionSafety({ message: { coach_id: null, programme_contact_attempt_id: attempt.id }, context: { athleteId: ATH } }))).toBe(PROGRAMME_INBOX_DELIVERY_DISABLED);
+  it('S. the execution claim reaches the inbox\'s own checks (an unreviewed message stops at review, not at a refusal of the kind)', () => {
+    const msg = db.prepare('SELECT * FROM programme_messages WHERE programme_contact_attempt_id = ?').get(attempt.id);
+    expect(code(() => assertExecutionSafety({ message: msg, context: { athleteId: RA, programmeCampaignId: pc, collegeName: P.r.name, sport: 'mens-soccer', attemptStep: 1 } }))).toBe('MESSAGE_NOT_REVIEWED');
   });
-  it('S. the execution read model shows an inbox plan as blocked, never as a coach, never executable', () => {
+  it('S. the execution read model shows the inbox as "Programme Contact", never as a coach', () => {
     const c = db.prepare('SELECT campaign_id FROM programme_campaigns WHERE id = ?').get(pc).campaign_id;
     const entry = campaignExecutionPlan(c, { sendingIdentity: 'sender@example.com' }).programmes.find((p) => p.programmeCampaignId === pc);
     expect(entry.currentCoach).toBeNull();
     expect(entry.recipientKind).toBe('PROGRAMME_INBOX');
-    expect(entry.blockers.map((b) => b.code)).toContain(PROGRAMME_INBOX_DELIVERY_DISABLED);
-    expect(programmePursuitPlan({ programmeCampaignId: pc, sendingIdentity: 'sender@example.com' }).executableNow).toBe(false);
+    expect(entry.currentRecipient).toMatchObject({ kind: 'PROGRAMME_INBOX', id: P.r.pcs[0], primary: 'Programme Contact', secondary: "romeo College Men's Soccer", isPerson: false });
   });
   it('T. no outreach writer accepts an inbox: createOutreach takes a coach only', () => {
     expect(() => createOutreach({ athleteId: ATH, coachId: P.r.pcs[0] })).toThrow(/FOREIGN KEY|COACH|coach/i);

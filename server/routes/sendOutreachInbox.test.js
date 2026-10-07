@@ -20,7 +20,7 @@ vi.mock('../lib/outlook.js', () => ({
 const db = (await import('../db/client.js')).default;
 const { sendOutreach } = await import('./sendOutreach.js');
 const { programmeContactId } = await import('../lib/programmeContactEligibility.js');
-const { PROGRAMME_INBOX_DELIVERY_DISABLED } = await import('../lib/recipientSelection.js');
+const { PROGRAMME_INBOX_ADDRESS_NOT_TYPED } = await import('../lib/recipientSelection.js');
 
 const T = '2026-09-20T10:00:00.000Z';
 const INBOX = 'msoccer@butlerathletics.example';
@@ -52,7 +52,9 @@ describe('T. sendOutreach refuses a programme inbox, whatever mode the floor is 
     });
 
     const refused = results.find((r) => r.email.toLowerCase() === INBOX);
-    expect(refused).toMatchObject({ status: 'not-eligible', reason: PROGRAMME_INBOX_DELIVERY_DISABLED });
+    // Phase 1F: an inbox reached as a bare ADDRESS (not addressed as a programme contact by id)
+    // is still refused — an address never becomes an inbox, and never a coach.
+    expect(refused).toMatchObject({ status: 'not-eligible', reason: PROGRAMME_INBOX_ADDRESS_NOT_TYPED });
     expect(composed.map((m) => m.to)).toEqual(['awhitfield@example.edu']);
     expect(db.prepare('SELECT COUNT(*) n FROM coaches WHERE lower(email) = ?').get(INBOX).n).toBe(0);
     expect(db.prepare('SELECT COUNT(*) n FROM outreach WHERE programme_contact_id IS NOT NULL').get().n).toBe(0);

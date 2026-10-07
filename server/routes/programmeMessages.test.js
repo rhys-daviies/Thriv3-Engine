@@ -211,6 +211,9 @@ const RESOURCE_KEYS = [
   'generatedBodyHash', 'generatedSubject', 'id', 'policyVersion', 'programmeContactAttemptId',
   'recipientEmail', 'reviewedAt', 'reviewedByOperatorId', 'sequencePolicyVersion', 'state',
   'step', 'structure', 'subject', 'updatedAt',
+  // Phase 1F: which kind of recipient the message is addressed to (a coach or the programme's
+  // inbox), and the inbox's id when it is one — NULL for every coach message.
+  'programmeContactId', 'recipientKind',
 ].sort();
 
 /* ========================================================================== */

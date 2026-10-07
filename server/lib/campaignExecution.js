@@ -1,7 +1,7 @@
 import { getCampaign, listProgrammeCampaigns } from './campaigns.js';
 import {
   programmePursuitPlan, PURSUIT_ACTION, PURSUIT_REASON,
-  contactAttemptPreparation, RECIPIENT_KIND, PROGRAMME_INBOX_DELIVERY_DISABLED,
+  contactAttemptPreparation, RECIPIENT_KIND, presentRecipient,
 } from './pursuitPolicy.js';
 /**
  * MOVED OUT IN D4.8 and imported rather than kept here: the execution claim now
@@ -178,16 +178,11 @@ function programmeEntry(plan, { onDate, currentMessage = null }) {
   const steps = stepReconciliation(coach, plan.step);
 
   /**
-   * ---- a programme inbox is planned, not executable — Phase 1E ----
-   *
-   * The plan may name a programme's inbox (no eligible named coach). It is reported as a
-   * blocker and NEVER as `currentCoach`: an inbox is not a person, and this screen does not
-   * show inbox addresses until composition and the UI exist (Steps 1F/1G).
+   * A programme inbox is the plan's recipient only when no named coach is eligible (Phase 1E).
+   * It is NEVER `currentCoach` — an inbox is not a person — and is described by
+   * `currentRecipient` instead, as "Programme Contact" with its programme as context (1F).
    */
   const inboxCurrent = coach?.recipientKind === RECIPIENT_KIND.PROGRAMME_INBOX;
-  if (inboxCurrent) {
-    blockers.push({ source: BLOCKER_SOURCE.POLICY, code: PROGRAMME_INBOX_DELIVERY_DISABLED });
-  }
 
   // ---- policy has nothing to propose ----
   if (plan.nextAction === PURSUIT_ACTION.NO_FURTHER_COLD_OUTREACH) {
@@ -266,6 +261,21 @@ function programmeEntry(plan, { onDate, currentMessage = null }) {
     coachDepth: plan.coachDepth,
 
     recipientKind: plan.recipientSelection?.kind ?? null,
+    /**
+     * Phase 1F: WHO the current approach is to, for either kind, in the one presentation model
+     * (shared/recipientPresentation.js): a coach by name and title, a programme inbox as
+     * "Programme Contact" with its programme as secondary context — never as a person. The
+     * address is detail, never the primary identity.
+     */
+    currentRecipient: coach ? {
+      kind: coach.recipientKind,
+      id: inboxCurrent ? coach.programmeContactId : coach.coachId,
+      ...presentRecipient({ kind: coach.recipientKind, name: coach.name, title: coach.title, label: coach.label }),
+      email: coach.email,
+      order: coach.order,
+      priorContact: coach.priorContact,
+      reviewContact: coach.reviewContact ?? coach.priorContact,
+    } : null,
     currentCoach: coach && !inboxCurrent ? {
       id: coach.coachId,
       name: coach.name,
@@ -587,6 +597,7 @@ export function campaignExecutionPlan(campaignId, {
     attemptId: plan.current?.attemptId ?? null,
     step: plan.step,
     coachId: plan.current?.coachId ?? null,
+    programmeContactId: plan.current?.programmeContactId ?? null,
   })));
 
   const programmes = plans.map((plan) => programmeEntry(plan, {

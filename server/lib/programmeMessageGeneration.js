@@ -3,12 +3,11 @@ import {
   programmePursuitPlan, contactAttemptPreparation, PREPARATION_REFUSAL,
 } from './pursuitPolicy.js';
 import { BLOCKER_CODE } from './campaignExecution.js';
-import { attemptForCoach, ATTEMPT_STATE } from './contactAttempts.js';
+import { attemptForRecipient, ATTEMPT_STATE } from './contactAttempts.js';
 import { unresolvedSendFor } from './outreachSend.js';
 import { composeProgrammeMessage } from './programmeMessage.js';
 import { createProgrammeMessage, messageForStep } from './programmeMessages.js';
 import { utcNow } from './time.js';
-import { PROGRAMME_INBOX_DELIVERY_DISABLED } from './recipientSelection.js';
 
 /**
  * TURN A PREPARED INTENT INTO A DURABLE MESSAGE — F10b-3.
@@ -220,19 +219,19 @@ export function generateProgrammeMessage({ programmeCampaignId, coachId, program
   }
 
   /**
-   * ---- 0. a programme inbox is not composed for yet — Phase 1E ----
+   * ---- 0. one recipient: a coach, or (Phase 1F) a programme inbox ----
    *
-   * The pursuit plan can name a programme inbox and an intent can be recorded for one, but
-   * what a message to a programme's inbox SAYS (no person's name, its own greeting) is Step
-   * 1F. Until then generation refuses, before anything is composed or written, rather than
-   * reaching a composer that would greet a coach who does not exist.
+   * Everything below is asked of the RECIPIENT — its prepared attempt, whether the campaign
+   * still names it, its step — so a programme inbox generates through exactly the same checks a
+   * coach does, keyed on its programme_contact_id. Composition greets it "Hi Coach," and never
+   * a name (programmeMessage.composeForProgrammeInbox).
    */
-  if (programmeContactId) {
-    throw fail(PROGRAMME_INBOX_DELIVERY_DISABLED,
-      'Messages to a programme inbox are not composed or sent yet. Nothing was written.');
+  const recipient = { coachId: coachId ?? null, programmeContactId: coachId ? null : (programmeContactId ?? null) };
+  if (coachId && programmeContactId) {
+    throw fail('RECIPIENT_OUTREACH_DOUBLY_ADDRESSED', 'A message is generated for one recipient.');
   }
 
-  const attempt = attemptForCoach(programmeCampaignId, coachId);
+  const attempt = (recipient.coachId || recipient.programmeContactId) ? attemptForRecipient(programmeCampaignId, recipient) : null;
   if (!attempt) {
     throw fail(
       GENERATION_REFUSAL.CONTACT_ATTEMPT_REQUIRED,
@@ -283,7 +282,9 @@ export function generateProgrammeMessage({ programmeCampaignId, coachId, program
    * and unhelpful, where NO_ELIGIBLE_COACH says what actually happened. So the
    * absence is handed to the decision below rather than answered here.
    */
-  if (plan.current && plan.current.coachId !== coachId) {
+  if (plan.current && (
+    (plan.current.coachId ?? null) !== recipient.coachId
+    || (plan.current.programmeContactId ?? null) !== recipient.programmeContactId)) {
     throw fail(
       GENERATION_REFUSAL.COACH_NO_LONGER_CURRENT,
       'This campaign is no longer approaching that coach at this programme. The prepared '
@@ -350,7 +351,7 @@ export function generateProgrammeMessage({ programmeCampaignId, coachId, program
   if (existing) return { created: false, message: existing };
 
   // ---- 6. compose, then freeze ----
-  const composition = composeProgrammeMessage({ programmeCampaignId, coachId });
+  const composition = composeProgrammeMessage({ programmeCampaignId, ...recipient });
   return createProgrammeMessage({
     programmeContactAttemptId: attempt.id,
     composition,
