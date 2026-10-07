@@ -19,14 +19,14 @@ const ROOT = path.resolve(import.meta.dirname, '../../..');
 const OWN = 142001; const CLAIM = 240001; const WRONGLY_STORED = 150001; const PARENT = 160001; const AMBIG = 170001; const AMBIG_CLAIM = 170002; const PCT = 180001; const PCT_CLAIM = 180002;
 
 const REGISTRY = [
-  { UNITID: String(OWN), INSTNM: 'Owner College', ALIAS: 'NA', INSTURL: 'www.owner.edu/' },
-  { UNITID: String(CLAIM), INSTNM: 'Claimant University', ALIAS: 'NA', INSTURL: 'www.claimant.edu/' },
-  { UNITID: String(WRONGLY_STORED), INSTNM: 'Lookalike College of the West', ALIAS: 'NA', INSTURL: 'www.lookalike.edu/' },
-  { UNITID: String(PARENT), INSTNM: 'Parent University', ALIAS: 'NA', INSTURL: 'www.parent.edu/' },
-  { UNITID: String(AMBIG), INSTNM: 'North Point University', ALIAS: 'NA', INSTURL: 'www.northpoint.edu/' },
-  { UNITID: String(AMBIG_CLAIM), INSTNM: 'North Point College', ALIAS: 'North Point University', INSTURL: 'www.northpointcollege.edu/' },
-  { UNITID: String(PCT), INSTNM: 'Penn Tech College', ALIAS: 'NA', INSTURL: 'www.penntech.edu/' },
-  { UNITID: String(PCT_CLAIM), INSTNM: 'Penn Big University', ALIAS: 'NA', INSTURL: 'www.pennbig.edu/' },
+  { UNITID: String(OWN), INSTNM: 'Owner College', ALIAS: 'NA', INSTURL: 'www.owner.example/' },
+  { UNITID: String(CLAIM), INSTNM: 'Claimant University', ALIAS: 'NA', INSTURL: 'www.claimant.example/' },
+  { UNITID: String(WRONGLY_STORED), INSTNM: 'Lookalike College of the West', ALIAS: 'NA', INSTURL: 'www.lookalike.example/' },
+  { UNITID: String(PARENT), INSTNM: 'Parent University', ALIAS: 'NA', INSTURL: 'www.parent.example/' },
+  { UNITID: String(AMBIG), INSTNM: 'North Point University', ALIAS: 'NA', INSTURL: 'www.northpoint.example/' },
+  { UNITID: String(AMBIG_CLAIM), INSTNM: 'North Point College', ALIAS: 'North Point University', INSTURL: 'www.northpointcollege.example/' },
+  { UNITID: String(PCT), INSTNM: 'Penn Tech College', ALIAS: 'NA', INSTURL: 'www.penntech.example/' },
+  { UNITID: String(PCT_CLAIM), INSTNM: 'Penn Big University', ALIAS: 'NA', INSTURL: 'www.pennbig.example/' },
 ];
 
 const wrongRow = (domain, unitid, { claimed = [unitid, CLAIM], wrong = [{ key: 'Claimant', claimantUnitid: CLAIM }], text = 'Owner College Athletics', status = 'WRONG_INSTITUTION', kind = 'OG_SITE_NAME' } = {}) => ({
@@ -54,20 +54,20 @@ function world() {
   ins(wrongRow('nolinkaths.com', OWN));                                                                                   // R5 no institution link
   ins(wrongRow('noagreeaths.com', OWN, { claimed: [CLAIM] }));                                                            // R3 no agreeing claim
   ins(wrongRow('weakaths.com', OWN, { kind: 'URL_PATH' }));                                                                // R2 weak self-id
-  ins({ ...wrongRow('penntech.edu', PCT, { claimed: [PCT_CLAIM], wrong: null, text: 'Penn Tech College' }), status: 'VERIFIED', role: 'INSTITUTION_SITE' }); // 6 pct.edu shape
-  ins({ ...wrongRow('owner.edu', OWN, { claimed: [OWN], wrong: null, text: 'Owner College' }), status: 'VERIFIED_ALIAS', role: 'INSTITUTION_SITE' }); // an alias row
+  ins({ ...wrongRow('penntech.example', PCT, { claimed: [PCT_CLAIM], wrong: null, text: 'Penn Tech College' }), status: 'VERIFIED', role: 'INSTITUTION_SITE' }); // 6 pct.edu shape
+  ins({ ...wrongRow('owner.example', OWN, { claimed: [OWN], wrong: null, text: 'Owner College' }), status: 'VERIFIED_ALIAS', role: 'INSTITUTION_SITE' }); // an alias row
   const col = db.prepare("INSERT INTO colleges (id, created_date, updated_date, name, sport, division, active, unitid, athletics_entity_id) VALUES (?,'t','t',?,'mens-soccer','NCAA D3',1,?,?)");
   col.run('c-own', 'Owner College', OWN, 'AE-OWN'); col.run('c-claim', 'Claimant University', CLAIM, 'AE-CLAIM');
   // staff published on the stored-wrong host use the CLAIMANT's mail domain (the rattlerathletics shape)
   const coach = db.prepare("INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title, email_status, email_source_url) VALUES (?, 't', ?, ?, ?, 'NCAA D3', 'mens-soccer', 'Head Coach', 'verified', ?)");
-  coach.run('k-own', 'Olive Owner', 'olive@owner.edu', 'Owner College', 'https://owneraths.com/sports/mens-soccer/coaches');
-  coach.run('k-wrong', 'Carl Claim', 'carl@claimant.edu', 'Lookalike', 'https://lookalikeaths.com/sports/mens-soccer/coaches');
+  coach.run('k-own', 'Olive Owner', 'olive@owner.example', 'Owner College', 'https://owneraths.com/sports/mens-soccer/coaches');
+  coach.run('k-wrong', 'Carl Claim', 'carl@claimant.example', 'Lookalike', 'https://lookalikeaths.com/sports/mens-soccer/coaches');
   return db;
 }
-const LINK = 'https://www.owner.edu/ links the host';
+const LINK = 'https://www.owner.example/ links the host';
 const EVIDENCE = {
-  links: { 'owneraths.com': LINK, 'lookalikeaths.com': LINK, 'parentaths.com': 'https://www.parent.edu/ links it', 'northpointaths.com': 'https://www.northpoint.edu/ links it', 'stmarytx.edu': LINK, 'twinaths.com': LINK, 'owner.sidearmsports.com': LINK, 'noagreeaths.com': LINK, 'weakaths.com': LINK },
-  claimantLinks: { 'lookalikeaths.com': 'www.claimant.edu links it' },
+  links: { 'owneraths.com': LINK, 'lookalikeaths.com': LINK, 'parentaths.com': 'https://www.parent.example/ links it', 'northpointaths.com': 'https://www.northpoint.example/ links it', 'stmarytx.edu': LINK, 'twinaths.com': LINK, 'owner.sidearmsports.com': LINK, 'noagreeaths.com': LINK, 'weakaths.com': LINK },
+  claimantLinks: { 'lookalikeaths.com': 'www.claimant.example links it' },
 };
 const APPROVAL = { approval_id: 'APPROVAL-TEST', approved_by: 'test', approved_at: '2026-10-08', basis: 'test' };
 const rowOf = (db, d) => db.prepare('SELECT * FROM athletics_domains WHERE domain = ?').get(d);
@@ -96,7 +96,7 @@ describe('rule R1-R5: which WRONG_INSTITUTION rows may be reversed', () => {
     expect(v.failures.join(' | ')).toMatch(/not a federal registry name of 150001/);
     expect(v.failures.join(' | ')).toMatch(/refuted claimant\(s\) Claimant/);
     expect(v.failures.join(' | ')).toMatch(/refuted claimant links or publishes/);
-    expect(v.failures.join(' | ')).toMatch(/claimant's domain \(claimant\.edu/);
+    expect(v.failures.join(' | ')).toMatch(/claimant's domain \(claimant\.example/);
   });
   it('3. a UNITID with a campus hanging off it -> kept (parent/campus is never decided here)', () => {
     expect(verdict(world(), 'parentaths.com').failures.join()).toMatch(/R4 UNITID 160001 is not exactly one SINGLE entity without campuses/);
@@ -117,14 +117,14 @@ describe('rule R1-R5: which WRONG_INSTITUTION rows may be reversed', () => {
   });
   it('6. the pct.edu shape (VERIFIED, the claim was the error, the UNITID right) and VERIFIED_ALIAS rows are never in scope and do not move', () => {
     const db = world(); const { fixture, assessments } = build(db);
-    expect(assessments.map((a) => a.host)).not.toContain('penntech.edu');
-    const keep = ['penntech.edu', 'owner.edu', 'www.twinaths.com', 'lookalikeaths.com', 'parentaths.com', 'northpointaths.com', 'stmarytx.edu', 'twinaths.com', 'owner.sidearmsports.com', 'nolinkaths.com', 'noagreeaths.com', 'weakaths.com'];
+    expect(assessments.map((a) => a.host)).not.toContain('penntech.example');
+    const keep = ['penntech.example', 'owner.example', 'www.twinaths.com', 'lookalikeaths.com', 'parentaths.com', 'northpointaths.com', 'stmarytx.edu', 'twinaths.com', 'owner.sidearmsports.com', 'nolinkaths.com', 'noagreeaths.com', 'weakaths.com'];
     const before = Object.fromEntries(keep.map((d) => [d, rowOf(db, d)]));
     const R0 = loadRefreshContext(db).resolver; const owners0 = Object.fromEntries(keep.map((d) => [d, R0.ownerOfHost(d)]));
     applyProtectedCorrections(db, fixture, { apply: true, postcheck: ownershipPostcheck });
     const R1 = loadRefreshContext(db).resolver;
     for (const d of keep) { expect(rowOf(db, d), d).toEqual(before[d]); expect(R1.ownerOfHost(d), d).toEqual(owners0[d]); }
-    expect(R1.ownerOfHost('penntech.edu').entity).toBe('AE-PCT');
+    expect(R1.ownerOfHost('penntech.example').entity).toBe('AE-PCT');
   });
   it('7. source trust follows the corrected owner only: the owner\'s staff page becomes its source, never the claimant\'s', () => {
     const db = world(); const url = 'https://owneraths.com/sports/mens-soccer/coaches';

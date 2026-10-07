@@ -23,17 +23,17 @@ function world() {
   const dom = db.prepare("INSERT INTO athletics_domains (domain, unitid, status, role, claimed_keys, claimed_unitids, verification_method, confidence, checked_at) VALUES (?, ?, 'VERIFIED', 'ATHLETICS_SITE', '[]', '[]', 'TEST', 'CERTAIN', ?)");
   const lead = db.prepare("INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title, email_status, email_source_url, source) VALUES (?, ?, NULL, ?, ?, 'NCAA D3', 'mens-soccer', 'Team Email', 'generic', ?, 'graduating_seniors.coaching_staff')");
   for (const [k, u] of [['alpha', 920001], ['beta', 920002], ['gamma', 920003], ['delta', 920004], ['eps', 920005]]) {
-    ent.run(`AE-U${u}`, `${k} College`, u, T); col.run(`c-${k}`, T, T, `${k} College`, u, `AE-U${u}`); dom.run(`${k}.edu`, u, T); dom.run(`${k}athletics.example`, u, T);
+    ent.run(`AE-U${u}`, `${k} College`, u, T); col.run(`c-${k}`, T, T, `${k} College`, u, `AE-U${u}`); dom.run(`${k}.example`, u, T); dom.run(`${k}athletics.example`, u, T);
   }
-  lead.run('g-superseded', T, 'msoccer@alpha.edu', 'alpha College', 'https://alphaathletics.example/sports/mens-soccer/coaches');
-  lead.run('g-referenced', T, 'msoccer@beta.edu', 'beta College', 'https://betaathletics.example/sports/mens-soccer/coaches');
-  lead.run('g-department', T, 'athletics@gamma.edu', 'gamma College', 'https://gammaathletics.example/sports/mens-soccer/coaches');
-  lead.run('g-invalid', T, 'msoccer@alpha.edu', 'delta College', 'https://deltaathletics.example/sports/mens-soccer/coaches');  // another institution's mail domain
-  lead.run('g-open', T, 'msoccer@eps.edu', 'eps College', 'https://epsathletics.example/sports/mens-soccer/coaches');
+  lead.run('g-superseded', T, 'msoccer@alpha.example', 'alpha College', 'https://alphaathletics.example/sports/mens-soccer/coaches');
+  lead.run('g-referenced', T, 'msoccer@beta.example', 'beta College', 'https://betaathletics.example/sports/mens-soccer/coaches');
+  lead.run('g-department', T, 'athletics@gamma.example', 'gamma College', 'https://gammaathletics.example/sports/mens-soccer/coaches');
+  lead.run('g-invalid', T, 'msoccer@alpha.example', 'delta College', 'https://deltaathletics.example/sports/mens-soccer/coaches');  // another institution's mail domain
+  lead.run('g-open', T, 'msoccer@eps.example', 'eps College', 'https://epsathletics.example/sports/mens-soccer/coaches');
   // the verified replacement for alpha
   db.prepare(`INSERT INTO programme_contacts (contact_id, athletics_entity_id, college_id, sport, email, label, contact_role, observed_on_url, observed_at, source, source_kind, source_tier, status, currentness_checked_at, provenance, created_at, updated_at)
-    VALUES (?, 'AE-U920001', 'c-alpha', 'mens-soccer', 'msoccer@alpha.edu', 'alpha College Men''s Soccer', 'TEAM_INBOX', 'https://alphaathletics.example/sports/mens-soccer/coaches', ?, 'refresh:t', 'OFFICIAL_STAFF_DIRECTORY', 'A', 'VERIFIED', ?, 'test', ?, ?)`)
-    .run(programmeContactId('AE-U920001', 'mens-soccer', 'msoccer@alpha.edu'), '2026-10-07T00:00:00.000Z', '2026-10-07T00:00:00.000Z', T, T);
+    VALUES (?, 'AE-U920001', 'c-alpha', 'mens-soccer', 'msoccer@alpha.example', 'alpha College Men''s Soccer', 'TEAM_INBOX', 'https://alphaathletics.example/sports/mens-soccer/coaches', ?, 'refresh:t', 'OFFICIAL_STAFF_DIRECTORY', 'A', 'VERIFIED', ?, 'test', ?, ?)`)
+    .run(programmeContactId('AE-U920001', 'mens-soccer', 'msoccer@alpha.example'), '2026-10-07T00:00:00.000Z', '2026-10-07T00:00:00.000Z', T, T);
   // history on beta's legacy row
   db.prepare(`INSERT INTO players (id, created_date, updated_date, full_name, position, sport, public_slug, email, video_id, video_chapters, graduation_year)
     VALUES ('p1', 'x', 'x', 'Test Athlete', 'Winger', 'mens-soccer', 'slug-p1', 'a@example.com', 'aqz-KE-bpKQ', '[]', 2027)`).run();
@@ -46,7 +46,7 @@ const byCoach = (p) => Object.fromEntries(p.entries.map((e) => [e.coach_id, e]))
 describe('the planner (read-only)', () => {
   it('accounts for every legacy row exactly once, with the right disposition', () => {
     const db = world(); const p = plan(db); const e = byCoach(p);
-    expect(e['g-superseded']).toMatchObject({ disposition: DISPOSITION.SUPERSEDED, programme_contact_id: programmeContactId('AE-U920001', 'mens-soccer', 'msoccer@alpha.edu') });
+    expect(e['g-superseded']).toMatchObject({ disposition: DISPOSITION.SUPERSEDED, programme_contact_id: programmeContactId('AE-U920001', 'mens-soccer', 'msoccer@alpha.example') });
     expect(e['g-referenced']).toMatchObject({ disposition: DISPOSITION.RETAINED_REFERENCED, programme_contact_id: null });
     expect(JSON.parse(e['g-referenced'].evidence_json).references).toMatchObject({ outreach: 1 });
     expect(e['g-department'].disposition).toBe(DISPOSITION.BLOCKED);
@@ -58,7 +58,7 @@ describe('the planner (read-only)', () => {
     const db = world();
     db.prepare("INSERT INTO outreach (id, athlete_id, coach_id, token, created_at) VALUES ('o2', 'p1', 'g-superseded', 'tok-2', ?)").run(T);
     const e = byCoach(plan(db))['g-superseded'];
-    expect(e).toMatchObject({ disposition: DISPOSITION.RETAINED_REFERENCED, programme_contact_id: programmeContactId('AE-U920001', 'mens-soccer', 'msoccer@alpha.edu') });
+    expect(e).toMatchObject({ disposition: DISPOSITION.RETAINED_REFERENCED, programme_contact_id: programmeContactId('AE-U920001', 'mens-soccer', 'msoccer@alpha.example') });
   });
   it('is deterministic and writes nothing', () => {
     const db = world(); const before = db.prepare('SELECT total_changes() n').get().n;

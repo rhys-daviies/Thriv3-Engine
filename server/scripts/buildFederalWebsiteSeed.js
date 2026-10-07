@@ -44,17 +44,21 @@ export function buildSeed(text, { retrievedAt, sourceSha256 }) {
   const header = it.next().value.map((h) => h.replace(/^﻿/, ''));
   const at = (name) => { const i = header.indexOf(name); if (i < 0) throw new Error(`column ${name} missing from the source`); return i; };
   const I = { unitid: at('UNITID'), name: at('INSTNM'), alias: at('ALIAS'), state: at('STABBR'), website: at('INSTURL'), main: at('MAIN'), operating: at('CURROPER') };
-  const rows = [];
+  const rows = []; const rejected = [];
   for (const r of it) {
     if (r.length < header.length / 2) continue;
     const unitid = Number(clean(r[I.unitid]));
     if (!Number.isInteger(unitid)) continue;
-    rows.push({ unitid, name: clean(r[I.name]), alias: clean(r[I.alias]), state: clean(r[I.state]), website: clean(r[I.website]), main: clean(r[I.main]) === '1', operating: clean(r[I.operating]) === '1' });
+    // a "website" that is an email address is not a website: it proves nothing and is a third
+    // party's contact address, which never enters the repository (fail closed: no website)
+    let website = clean(r[I.website]);
+    if (website && /@/.test(website)) { rejected.push(unitid); website = null; }
+    rows.push({ unitid, name: clean(r[I.name]), alias: clean(r[I.alias]), state: clean(r[I.state]), website, main: clean(r[I.main]) === '1', operating: clean(r[I.operating]) === '1' });
   }
   rows.sort((a, b) => a.unitid - b.unitid);
   const dup = rows.filter((r, i) => i && rows[i - 1].unitid === r.unitid);
   if (dup.length) throw new Error(`duplicate UNITIDs in the source: ${dup.slice(0, 5).map((r) => r.unitid).join(', ')}`);
-  const body = { kind: SEED_KIND, source: SEED_SOURCE, source_sha256: sourceSha256, retrieved_at: retrievedAt, columns: ['unitid', 'name', 'alias', 'state', 'website', 'main', 'operating'], row_count: rows.length, rows };
+  const body = { kind: SEED_KIND, source: SEED_SOURCE, source_sha256: sourceSha256, retrieved_at: retrievedAt, columns: ['unitid', 'name', 'alias', 'state', 'website', 'main', 'operating'], row_count: rows.length, websites_rejected_as_addresses: rejected.sort((a, b) => a - b), rows };
   return { ...body, seed_sha256: crypto.createHash('sha256').update(JSON.stringify(body)).digest('hex') };
 }
 
