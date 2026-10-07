@@ -15,7 +15,7 @@ import { normaliseOrigin } from '../../shared/outreachOrigin.js';
 import { recordOutboundAttempt, TRANSPORT } from '../lib/outboundBudget.js';
 import { evidenceFor } from '../lib/evidenceQueries.js';
 import { templateVariant } from '../../shared/evidence/templateVariant.js';
-import { BODY_SOURCE } from '../../src/lib/emailTemplate.js';
+import { BODY_SOURCE, coachFirstName } from '../../src/lib/emailTemplate.js';
 import { DEFAULT_EMAIL_TEMPLATE } from '../../src/lib/emailTemplate.js';
 import { composeInOutlook, isOutlookAvailable } from '../lib/outlook.js';
 import { buildHandoff } from '../lib/emailHandoff.js';
@@ -37,10 +37,50 @@ import { assertInboxBody, PROGRAMME_CONTACT_LABEL, RECIPIENT_KIND } from '../../
  */
 
 /** Swaps the greeting the composer pre-filled for this coach's name. */
-function personalise(text, fromName, toName) {
+export function personalise(text, fromName, toName) {
   if (!fromName || fromName === toName) return text;
   const escaped = fromName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return text.replace(new RegExp(`Dear\\s+${escaped},`, 'i'), `Dear ${toName},`);
+}
+
+/**
+ * PHASE 1F.1 — THE BODY'S GREETING, RE-RENDERED FOR THIS RECIPIENT.
+ *
+ * A multi-coach send is ONE body, composed for the seeded coach (`fromName`). The shipped
+ * greetings are "Hi {{coach_name}}," (the full name) and "Hi {{coach_first_name}}," (the first
+ * name, falling back to the full name) — and `personalise` above only ever rewrote
+ * "Dear <full name>,", so every other coach received the first coach's name.
+ *
+ * Only the FIRST non-empty line is read, and only when it is a salutation whose name is exactly
+ * the seeded coach's — in the form the template rendered it (full or first). That name is then
+ * rendered for THIS recipient in the same form, by the composer's own rule (coachFirstName, its
+ * fallback to the full name, then 'Coach'); the salutation, spacing and punctuation are kept.
+ * Nothing else in the body is touched, so a later mention of a coach, the athlete or the
+ * programme is never rewritten. A greeting that does not name the seeded coach (an operator's own
+ * "Hello there,") is left exactly as written; anything else falls back to the old rule, so no
+ * body that personalised before personalises differently now.
+ */
+const GREETING_LINE = /^(\s*)(hi|hello|hey|dear)(\s+)(.+?)(\s*[,!:]\s*)$/i;
+export function personaliseGreeting(text, fromName, toName) {
+  const seed = String(fromName ?? '').trim();
+  if (!seed || /^coach$/i.test(seed)) return text;
+  const lines = String(text ?? '').split('\n');
+  const i = lines.findIndex((l) => l.trim() !== '');
+  const m = i === -1 ? null : lines[i].match(GREETING_LINE);
+  if (m) {
+    const written = m[4];
+    const recipient = String(toName ?? '').trim();
+    const full = recipient || 'Coach';
+    const first = coachFirstName(recipient) || full;
+    let rendered = null;
+    if (written === seed) rendered = full;
+    else if (written === (coachFirstName(seed) || seed)) rendered = first;
+    if (rendered !== null) {
+      lines[i] = `${m[1]}${m[2]}${m[3]}${rendered}${m[5]}`;
+      return lines.join('\n');
+    }
+  }
+  return personalise(text, fromName, toName);
 }
 
 /**
@@ -612,7 +652,7 @@ export async function sendOutreach({
       const url = `${PUBLIC_BASE_URL}/p/${athlete.public_slug}.html?ref=${outreach.token}`;
 
       const personalisedBody = ensureProfileLink(
-        inbox ? body : personalise(body, greetingName, coach.name || 'Coach'),
+        inbox ? body : personaliseGreeting(body, greetingName, coach.name || 'Coach'),
         url
       ) + complianceFooter({ athleteName: athlete.full_name });
       // Worked out once. It is written to the row, handed to Outlook and put
