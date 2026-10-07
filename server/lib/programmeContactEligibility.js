@@ -9,7 +9,8 @@
  *   the exact address was published on an OFFICIAL page (tier A, entity-hosted kind),
  *   on a host the programme's own athletics entity owns (identityResolver.hostOwnedBy —
  *   the ownerOfHost primitive), fetched inside the current competitive cycle; the
- *   address's own mail domain is owned by that same entity; the programme row is active,
+ *   address's own mail domain is owned by that same entity (by the identity registry or,
+ *   Phase 1G-B, narrowly by the institution's own federal website record); the programme row is active,
  *   canonical and of the same sport; and the address is not a named person's.
  *
  * FAILS CLOSED. Every rule returns a reason when its evidence is absent, not only when it
@@ -30,6 +31,7 @@ import { loadRefreshContext } from './refresh/context.js';
 import { freshnessOf, FRESHNESS } from './refresh/freshness.js';
 import { PROGRAMME_CONTACT_SOURCE_KINDS } from './refresh/sourceAuthority.js';
 import { sportEvidence, SPORT_STATUS } from './refresh/adapters/sourceEvidence.js';
+import { federalMailDomainProof, loadFederalWebsites, FEDERAL } from './federalInstitutionWebsites.js';
 
 export const PC_INELIGIBLE = Object.freeze({
   NOT_VERIFIED: 'PC_NOT_VERIFIED',
@@ -51,6 +53,10 @@ export const PC_INELIGIBLE = Object.freeze({
   ADDRESS_AT_OTHER_PROGRAMME: 'PC_ADDRESS_AT_OTHER_PROGRAMME',
   SEX_CONFLICT: 'PC_SEX_CONFLICT',
   DEPARTMENT_INBOX: 'PC_DEPARTMENT_INBOX',
+  // Phase 1G-B
+  PERSONAL_MAIL_DOMAIN: 'PC_PERSONAL_MAIL_DOMAIN',
+  CAMP_OR_ACADEMY: 'PC_CAMP_OR_ACADEMY',
+  NOT_PROGRAMME_SPECIFIC: 'PC_NOT_PROGRAMME_SPECIFIC',
 });
 
 const EMAIL = /^[a-z0-9._%+'-]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/;
@@ -86,6 +92,17 @@ export function isDepartmentInbox(email) {
   return /^(athletics?|sports?|sportsinfo|info|information|admin|office|sid|compliance|tickets?|marketing|media|communications|webmaster|help|contact|general|inquiries|enquiries|recruit|recruiting|coach|coaches)([._-]|\d|$)/.test(local);
 }
 
+/**
+ * Phase 1G-B exclusions, each a property of the ADDRESS (where it was published is the classifier's
+ * question). A free-mail domain is a person's or a volunteer's, never the programme's own; a camp,
+ * academy or clinic address reaches a business line, not the programme's recruiting staff; and an
+ * address whose local part does not name the sport is not provably THIS programme's.
+ */
+const PERSONAL_MAIL = /^(gmail|googlemail|yahoo|ymail|rocketmail|hotmail|outlook|live|msn|aol|icloud|me|mac|protonmail|proton|comcast|att|sbcglobal|verizon|charter|cox|gmx|mail|zoho|yandex|fastmail)\.[a-z.]+$/;
+export const isPersonalMailDomain = (email) => PERSONAL_MAIL.test(addressDomain(email) || '');
+export const isCampOrAcademy = (email) => /camp|academy|academies|clinic|showcase/.test(lc(email).split('@')[0] || '');
+export const isProgrammeSpecific = (email) => /soc|futbol|f\u00fatbol/.test(lc(email).split('@')[0] || '');
+
 /** Deterministic id of a programme contact: the logical programme plus the exact address. */
 export function programmeContactId(entityId, sport, email) {
   return `PC-${crypto.createHash('sha256').update(`${entityId}|${sport}|${lc(email)}`).digest('hex').slice(0, 24)}`;
@@ -100,7 +117,9 @@ export function contextFromRefresh(ctx) {
   const namedAddresses = new Set((ctx.coaches || []).filter((c) => c.email && String(c.full_name ?? '').trim() !== '').map((c) => lc(c.email)));
   const verifiedByEmail = new Map();
   for (const c of (ctx.programmeContacts || []).filter((x) => x.status === 'VERIFIED')) (verifiedByEmail.get(c.email) || verifiedByEmail.set(c.email, []).get(c.email)).push(c);
-  return { resolver: ctx.resolver, collegeById: new Map(ctx.colleges.map((c) => [c.id, c])), linked: new Set(ctx.rowLinks.map((l) => l.college_id)), namedAddresses, verifiedByEmail };
+  // Phase 1G-B: the federal website record, for the narrow mail-domain proof (federalInstitutionWebsites.js)
+  const federal = { index: ctx.federalIndex !== undefined ? ctx.federalIndex : loadFederalWebsites(), entities: ctx.entities || [], domains: ctx.domains || [], resolver: ctx.resolver };
+  return { resolver: ctx.resolver, collegeById: new Map(ctx.colleges.map((c) => [c.id, c])), linked: new Set(ctx.rowLinks.map((l) => l.college_id)), namedAddresses, verifiedByEmail, federal };
 }
 
 /**
@@ -111,11 +130,11 @@ export function contextFromRefresh(ctx) {
  *   namedAddresses  lower-case addresses held by a NAMED coach row, any status, any school
  *   verifiedByEmail lower-case address -> VERIFIED programme_contacts rows
  */
-export function buildProgrammeContactContext(db) {
+export function buildProgrammeContactContext(db, { federalIndex } = {}) {
   const has = (t) => !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(t);
   const coaches = has('coaches') ? db.prepare('SELECT full_name, email FROM coaches WHERE email IS NOT NULL').all() : [];
   const programmeContacts = has('programme_contacts') ? db.prepare('SELECT * FROM programme_contacts').all() : [];
-  return contextFromRefresh({ ...loadRefreshContext(db), coaches, programmeContacts });
+  return contextFromRefresh({ ...loadRefreshContext(db), coaches, programmeContacts, ...(federalIndex !== undefined ? { federalIndex } : {}) });
 }
 
 /**
@@ -124,15 +143,19 @@ export function buildProgrammeContactContext(db) {
  * A parent-only domain (a branch campus on its parent's institutional domain) cannot prove a
  * campus (the Phase 7D rule for IU Columbus, Benedictine Mesa and Park Gilbert).
  */
-export function addressDomainVerdict(email, entityId, resolver) {
+export function addressDomainVerdict(email, entityId, resolver, federal = null) {
   const domain = addressDomain(email);
   if (!domain) return PC_INELIGIBLE.ADDRESS_DOMAIN_NOT_OWNED;
   const owner = resolver.ownerOfHost(domain);
   if (owner.entity === entityId) return 'OWNED';
   if (owner.entity) return PC_INELIGIBLE.ADDRESS_DOMAIN_OTHER_ENTITY;
   if (owner.parentOnly?.length) return PC_INELIGIBLE.ADDRESS_DOMAIN_PARENT_ONLY;
+  // Phase 1G-B: the institution's own federal website domain (narrow; see federalInstitutionWebsites.js)
+  if (federal && !isPersonalMailDomain(email) && federalMailDomainProof(domain, entityId, { ...federal, resolver }).ok) return FEDERAL.OWNED;
   return PC_INELIGIBLE.ADDRESS_DOMAIN_NOT_OWNED;
 }
+/** Both proofs of a mail domain: the identity registry ('OWNED') or the federal website ('OWNED_FEDERAL'). */
+export const isDomainProven = (verdict) => verdict === 'OWNED' || verdict === FEDERAL.OWNED;
 
 /**
  * Every reason a programme contact row fails the floor (empty = eligible). Pure.
@@ -163,8 +186,11 @@ export function programmeContactProblems(row, ctx, { now = new Date() } = {}) {
   const entity = college.athletics_entity_id;
   const pageHost = hostOf(row.observed_on_url);
   if (!entity || !pageHost || !ctx.resolver.hostOwnedBy(pageHost, entity)) out.push(PC_INELIGIBLE.SOURCE_NOT_OWNED);
-  const dom = entity ? addressDomainVerdict(email, entity, ctx.resolver) : PC_INELIGIBLE.ADDRESS_DOMAIN_NOT_OWNED;
-  if (dom !== 'OWNED') out.push(dom);
+  const dom = entity ? addressDomainVerdict(email, entity, ctx.resolver, ctx.federal) : PC_INELIGIBLE.ADDRESS_DOMAIN_NOT_OWNED;
+  if (!isDomainProven(dom)) out.push(dom);
+  if (isPersonalMailDomain(email)) out.push(PC_INELIGIBLE.PERSONAL_MAIL_DOMAIN);
+  if (isCampOrAcademy(email)) out.push(PC_INELIGIBLE.CAMP_OR_ACADEMY);
+  if (email && !isProgrammeSpecific(email)) out.push(PC_INELIGIBLE.NOT_PROGRAMME_SPECIFIC);
 
   if (ctx.namedAddresses.has(email)) out.push(PC_INELIGIBLE.NAMED_PERSON_ADDRESS);
   const elsewhere = (ctx.verifiedByEmail.get(email) || []).filter((c) => c.athletics_entity_id !== row.athletics_entity_id);

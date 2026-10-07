@@ -29,7 +29,7 @@ import Database from 'better-sqlite3';
 import { hostOf } from '../lib/athleticsEntity.js';
 import { stableJson } from '../lib/refresh/staging.js';
 import { programmeContactLabel } from '../lib/refresh/changeClassifier.js';
-import { buildProgrammeContactContext, addressDomainVerdict, sexSignalOfAddress, isDepartmentInbox, programmeContactId } from '../lib/programmeContactEligibility.js';
+import { buildProgrammeContactContext, addressDomainVerdict, isDomainProven, isCampOrAcademy, isProgrammeSpecific, sexSignalOfAddress, isDepartmentInbox, programmeContactId } from '../lib/programmeContactEligibility.js';
 import { projectPath } from '../lib/projectRoot.js';
 
 const lc = (s) => String(s ?? '').trim().toLowerCase();
@@ -46,6 +46,8 @@ export const QUEUE = Object.freeze({
   BLOCKED_DEPARTMENT_INBOX: 'BLOCKED_DEPARTMENT_INBOX',     // athletics@ / sports@: not a programme endpoint
   BLOCKED_NAMED_COACH_ADDRESS: 'BLOCKED_NAMED_COACH_ADDRESS', // a named coach row holds this address (Step 1G)
   BLOCKED_ADDRESS_DOMAIN: 'BLOCKED_ADDRESS_DOMAIN',         // the mail domain is not owned by the programme's entity
+  BLOCKED_CAMP_OR_ACADEMY: 'BLOCKED_CAMP_OR_ACADEMY',       // Phase 1G-B: a camp / academy / clinic line, not the programme
+  BLOCKED_NOT_PROGRAMME_SPECIFIC: 'BLOCKED_NOT_PROGRAMME_SPECIFIC', // Phase 1G-B: the address does not name the sport
   ALREADY_PROMOTED: 'ALREADY_PROMOTED',
 });
 
@@ -75,7 +77,7 @@ export function buildLeadQueue(db) {
     const entity = canonical?.athletics_entity_id || null;
     const legacyHost = hostOf(r.email_source_url);
     const pageOwned = !!(entity && legacyHost && ctx.resolver.hostOwnedBy(legacyHost, entity));
-    const domain = entity ? addressDomainVerdict(email, entity, ctx.resolver) : 'NO_PROGRAMME';
+    const domain = entity ? addressDomainVerdict(email, entity, ctx.resolver, ctx.federal) : 'NO_PROGRAMME';
     const sex = sexSignalOfAddress(email);
     const checks = {
       legacy_source_host_owned: pageOwned,
@@ -94,7 +96,9 @@ export function buildLeadQueue(db) {
     else if (canonical.active !== 1) status = QUEUE.BLOCKED_PROGRAMME_INACTIVE;
     else if (checks.department_inbox) status = QUEUE.BLOCKED_DEPARTMENT_INBOX;
     else if (checks.named_coach_holds_address) status = QUEUE.BLOCKED_NAMED_COACH_ADDRESS;
-    else if (domain !== 'OWNED') status = QUEUE.BLOCKED_ADDRESS_DOMAIN;
+    else if (isCampOrAcademy(email)) status = QUEUE.BLOCKED_CAMP_OR_ACADEMY;
+    else if (!isProgrammeSpecific(email)) status = QUEUE.BLOCKED_NOT_PROGRAMME_SPECIFIC;
+    else if (!isDomainProven(domain)) status = QUEUE.BLOCKED_ADDRESS_DOMAIN;
     else status = pageOwned ? QUEUE.REACQUIRE : QUEUE.REACQUIRE_DISCOVER_PAGE;
     return {
       lead_id: `LEAD-${crypto.createHash('sha256').update(String(r.id)).digest('hex').slice(0, 16)}`,
