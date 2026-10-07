@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import { extractVideoId } from '../../shared/youtube.js';
 import { generateSlug, generateUnique } from '../lib/tokens.js';
 
@@ -1587,6 +1588,7 @@ export function migrate(db) {
     addMissingColumns(db, 'generated_reports', GENERATED_REPORT_COLUMNS);
   }
   extendMembershipDivisions(db);
+  extendRefreshObservationDatasets(db);
 }
 
 /**
@@ -1618,6 +1620,47 @@ export function extendMembershipDivisions(db) {
     db.exec('ALTER TABLE programme_membership_periods_8b1 RENAME TO programme_membership_periods');
     db.exec('CREATE INDEX IF NOT EXISTS idx_pmp_open ON programme_membership_periods(athletics_entity_id, sport, last_season)');
     db.exec('CREATE INDEX IF NOT EXISTS idx_pmp_college ON programme_membership_periods(college_id)');
+  })();
+  return true;
+}
+
+/**
+ * PHASE 1B — the staging layer gains the PROGRAMME_CONTACT dataset.
+ *
+ * Programme contacts enter canonical data the way everything else does: staged as
+ * refresh_observations, then promoted by integrity:promote. The dataset CHECK on
+ * refresh_observations names the four Phase 7E datasets, and SQLite cannot alter a CHECK,
+ * so the table is rebuilt exactly as extendMembershipDivisions rebuilds its table:
+ *   - runs only when the table exists AND its CHECK lacks 'PROGRAMME_CONTACT';
+ *   - one transaction: create, copy EVERY row, verify the count AND a content digest of
+ *     every row in key order, drop, rename, recreate the index; any mismatch throws and
+ *     rolls the whole rebuild back;
+ *   - no row, value or key changes — only the constraint widens. Staged history (and the
+ *     observation ids refresh_promotions manifests name) is carried across byte for byte.
+ */
+export function extendRefreshObservationDatasets(db) {
+  const t = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'refresh_observations'").get();
+  if (!t || /'PROGRAMME_CONTACT'/.test(t.sql)) return false;
+  const newSql = t.sql
+    .replace(/CREATE TABLE (IF NOT EXISTS )?"?refresh_observations"?/, 'CREATE TABLE refresh_observations_1b')
+    .replace(/CHECK \(dataset IN \(([^)]*)\)\)/, (m, list) => `CHECK (dataset IN (${list}, 'PROGRAMME_CONTACT'))`);
+  if (!/'PROGRAMME_CONTACT'/.test(newSql)) throw new Error('extendRefreshObservationDatasets: could not locate the dataset CHECK');
+  const digest = (table) => {
+    const h = crypto.createHash('sha256');
+    for (const row of db.prepare(`SELECT * FROM ${table} ORDER BY observation_id`).raw().iterate()) h.update(JSON.stringify(row)).update('\n');
+    return h.digest('hex');
+  };
+  db.transaction(() => {
+    const before = db.prepare('SELECT COUNT(*) n FROM refresh_observations').get().n;
+    const beforeDigest = digest('refresh_observations');
+    db.exec(newSql);
+    db.exec('INSERT INTO refresh_observations_1b SELECT * FROM refresh_observations');
+    const after = db.prepare('SELECT COUNT(*) n FROM refresh_observations_1b').get().n;
+    if (after !== before) throw new Error(`extendRefreshObservationDatasets: copied ${after} of ${before} rows`);
+    if (digest('refresh_observations_1b') !== beforeDigest) throw new Error('extendRefreshObservationDatasets: copied rows differ from the originals');
+    db.exec('DROP TABLE refresh_observations');
+    db.exec('ALTER TABLE refresh_observations_1b RENAME TO refresh_observations');
+    db.exec('CREATE INDEX IF NOT EXISTS idx_refresh_obs_batch ON refresh_observations(batch_id, dataset, classification)');
   })();
   return true;
 }

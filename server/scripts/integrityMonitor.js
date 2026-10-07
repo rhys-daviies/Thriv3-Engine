@@ -32,6 +32,7 @@ import { personKey, selfIdentifies } from '../lib/refresh/changeClassifier.js';
 import { hostOf } from '../lib/athleticsEntity.js';
 import { classRank } from '../../shared/lifecycle/lifecycle.js';
 import { playerHistoryChecks } from '../lib/players/historyMonitor.js';
+import { buildProgrammeContactContext, programmeContactProblems, PC_INELIGIBLE } from '../lib/programmeContactEligibility.js';
 
 const NAIA_FREEZE = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../../shared/naiaIntegrityFreeze.json');
 export function loadNaiaFreeze(p = NAIA_FREEZE) { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; } }
@@ -135,6 +136,21 @@ export function runMonitor(dbPath, { now = new Date(), season, reconcile = true 
     // one ownership answer (Phase 8C.2C): entityHosts and hostOwnedBy must agree for every relevant entity/host
     add('DOMAIN', 'host_ownership_consistency', 'HARD', hostOwnershipDisagreements(ctx), 'entityHosts(entity) and hostOwnedBy(host, entity) disagree for the same relationship');
     add('DOMAIN', 'host_ownership_conflicting_twins', 'INFO', [...new Set(ctx.domains.map((d) => normHost(d.domain)))].filter((h) => ctx.resolver.ownerOfHost(h).status === 'CONFLICTING_TWINS').sort(), 'a "www." row contradicts its canonical bare-host record: owned by nobody until a person adjudicates');
+
+    // PROGRAMME CONTACT (Phase 1B) — its own floor; a VERIFIED contact that fails it is HARD
+    if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='programme_contacts'").get()) {
+      const pcCtx = buildProgrammeContactContext(db);
+      const pcs = db.prepare('SELECT * FROM programme_contacts ORDER BY contact_id').all();
+      const bad = []; const aging = [];
+      for (const r of pcs.filter((x) => x.status === 'VERIFIED')) {
+        const p = programmeContactProblems(r, pcCtx, { now });
+        if (p.length === 1 && p[0] === PC_INELIGIBLE.NOT_CURRENT) aging.push(`${r.contact_id} observed ${r.observed_at}`);
+        else if (p.length) bad.push(`${r.contact_id}: ${p.join(',')}`);
+      }
+      checks.push({ category: 'PROGRAMME_CONTACT', id: 'programme_contacts', severity: 'INFO', count: pcs.length, sample: [], note: `${pcs.filter((x) => x.status === 'VERIFIED').length} VERIFIED of ${pcs.length}` });
+      add('PROGRAMME_CONTACT', 'programme_contact_invalid', 'HARD', bad, 'a VERIFIED programme contact fails its own floor on evidence other than age');
+      add('PROGRAMME_CONTACT', 'programme_contact_not_current', 'WARN', aging, 'observed outside the current competitive cycle: ineligible until re-observed');
+    }
 
     // COACH (reconciles a temp copy)
     if (reconcile) {

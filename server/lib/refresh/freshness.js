@@ -46,6 +46,7 @@ export const FRESHNESS_POLICY = Object.freeze({
   roster: 'latest official roster season vs the current season; prior season is AGING until 1 Oct (publication window), STALE after',
   programme_membership: 'open membership period verified by a tier A/B source in the cycle; SEED rows are UNKNOWN until verified',
   domain_verification: 'athletics_domains.checked_at by competitive cycle',
+  programme_contact: 'programme_contacts.observed_at by competitive cycle; only an exact address published on an official page counts',
 });
 
 /**
@@ -80,6 +81,8 @@ export function freshnessOf(kind, rec = {}, { now = new Date(), season } = {}) {
     }
     case 'domain':
       return { last_observed: rec.checked_at || null, last_verified: ['VERIFIED', 'VERIFIED_ALIAS'].includes(rec.status) ? rec.checked_at : null, source: rec.final_url || null, state: ['VERIFIED', 'VERIFIED_ALIAS'].includes(rec.status) ? byCycle(rec.checked_at, n) : FRESHNESS.UNKNOWN };
+    case 'programme_contact':
+      return { last_observed: rec.observed_at || null, last_verified: rec.status === 'VERIFIED' ? rec.observed_at || null : null, source: rec.observed_on_url || null, state: rec.status === 'VERIFIED' ? byCycle(rec.observed_at, n) : FRESHNESS.UNKNOWN };
     default:
       throw new Error(`freshnessOf: unknown kind ${kind}`);
   }

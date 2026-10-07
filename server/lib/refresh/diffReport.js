@@ -65,6 +65,14 @@ export function buildDiffReport({ batch, observations, gate = null, plan = null 
   out.push(sec('disappeared / unreachable (investigate)', cls('DOMAIN', 'DISAPPEARED_FROM_SOURCE'), (o) => line(o, o.target_key)));
   out.push(sec('unverified or shared platform', pick('DOMAIN', (o) => ['POSSIBLE_CHANGE', 'SOURCE_UNTRUSTED'].includes(o.classification)), (o) => line(o, `${o.target_key} ${J(o.proposed_json).ownership_class || ''}`)));
   out.push('');
+  out.push('## PROGRAMME CONTACTS');
+  // the address itself is shown only in the unredacted operator report
+  const addr = (o) => (redact ? '' : (J(o.proposed_json).email || J(o.expected_old_json).email || ''));
+  out.push(sec('new programme inboxes', P('PROGRAMME_CONTACT', 'CREATE_PROGRAMME_CONTACT'), (o) => line(o, [J(o.proposed_json).contact_role, addr(o)].filter(Boolean).join(' '))));
+  out.push(sec('absent from a complete official page (investigate, not deleted)', cls('PROGRAMME_CONTACT', 'DISAPPEARED_FROM_SOURCE'), (o) => line(o, o.target_key)));
+  out.push(sec('refused (contradiction / identity / untrusted source)', pick('PROGRAMME_CONTACT', (o) => ['CONTRADICTION', 'IDENTITY_AMBIGUOUS', 'SOURCE_UNTRUSTED', 'POSSIBLE_CHANGE'].includes(o.classification)), (o) => line(o, o.classification)));
+  out.push(`- confirmed unchanged: ${cls('PROGRAMME_CONTACT', 'CONFIRMED_UNCHANGED').length}`);
+  out.push('');
   out.push('## INTEGRITY');
   out.push(sec('contradictions', observations.filter((o) => o.classification === 'CONTRADICTION'), (o) => line(o, o.dataset)));
   out.push(sec('review queue', observations.filter((o) => o.requires_review && !o.review_status), (o) => line(o, `${o.dataset} ${o.proposed_action || o.classification}`)));

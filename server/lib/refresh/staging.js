@@ -34,7 +34,8 @@ function loadHeld(db, ctx, input) {
     const min = Math.min(...input.pages.filter((p) => p.dataset === 'ROSTER').map((p) => Number(p.observed_season))) - 1;
     roster = db.prepare('SELECT id, college_name, sport, season, player_name, class_year_label, position, nationality, hometown FROM roster_players WHERE CAST(season AS INTEGER) >= ?').all(min).filter((r) => sports.has(r.sport));
   }
-  return { ...ctx, coaches, roster };
+  const programmeContacts = tableExists(db, 'programme_contacts') ? db.prepare('SELECT * FROM programme_contacts').all() : [];
+  return { ...ctx, coaches, roster, programmeContacts };
 }
 
 /**

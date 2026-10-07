@@ -1515,6 +1515,58 @@ CREATE INDEX IF NOT EXISTS idx_asl_host ON athletics_source_locations(host);
 CREATE INDEX IF NOT EXISTS idx_asl_entity ON athletics_source_locations(athletics_entity_id);
 
 -- ===========================================================================
+-- programme_contacts — A VERIFIED COMMUNICATION ENDPOINT OWNED BY A PROGRAMME (Phase 1B).
+--
+-- COACH INTELLIGENCE IS NOT PROGRAMME CONTACT INTELLIGENCE. A coach is a person with a
+-- verified employment relationship; a row here is an address ("menssoccer@...") that the
+-- programme itself publishes. They never share a table: a team inbox stored as a nameless
+-- coach is how 169 legacy rows came to carry a person's currentness, a person's greeting
+-- and, in 15 cases, the other sex's title. Nothing here is a person and nothing here may
+-- become one.
+--
+-- WRITTEN ONLY BY integrity:promote (CREATE_PROGRAMME_CONTACT / REFRESH_PROGRAMME_CONTACT).
+-- Eligibility is server/lib/programmeContactEligibility.js — its own fail-closed floor,
+-- never coachIneligibility. Legacy `coaches.email_status='generic'` rows are re-acquisition
+-- LEADS (server/scripts/programmeContactLeads.js), never evidence.
+--
+-- NOT A SEND TARGET IN THIS BUILD. No outreach table can reference a row here (their
+-- recipient is coach_id NOT NULL), and a test fails if any send path reads this table.
+--
+-- PROGRAMME IDENTITY is the logical programme (athletics_entity_id, sport) — the same key
+-- the integrity measure counts programmes by — with college_id naming its canonical row.
+-- sport is deliberately not an enum here: a CHECK cannot be widened without a rebuild, and
+-- the validator already requires sport to equal the programme row's own sport.
+CREATE TABLE IF NOT EXISTS programme_contacts (
+  contact_id TEXT PRIMARY KEY,            -- deterministic: PC- + sha256(entity|sport|email)
+  athletics_entity_id TEXT NOT NULL,
+  college_id TEXT NOT NULL REFERENCES colleges(id),
+  sport TEXT NOT NULL,
+  email TEXT NOT NULL,                    -- lower case, trimmed
+  label TEXT NOT NULL,                    -- "Cornell Men's Soccer": derived from the registry, never page text
+  contact_role TEXT NOT NULL,             -- TEAM_INBOX | RECRUITING_INBOX
+  observed_on_url TEXT NOT NULL,          -- the official page the exact address was published on
+  observed_at TEXT NOT NULL,              -- when that page was fetched
+  source TEXT NOT NULL,                   -- refresh:<parser_version>
+  source_kind TEXT NOT NULL,              -- sourceAuthority SOURCE_KINDS (entity-hosted official kinds only)
+  source_tier TEXT NOT NULL,
+  status TEXT NOT NULL,                   -- VERIFIED | HISTORICAL
+  currentness_checked_at TEXT NOT NULL,
+  provenance TEXT NOT NULL,               -- the refresh observation that established it
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  CHECK (email = lower(trim(email)) AND email LIKE '_%@_%._%' AND email NOT LIKE '% %' AND email NOT LIKE '%@%@%'),
+  CHECK (contact_role IN ('TEAM_INBOX', 'RECRUITING_INBOX')),
+  CHECK (status IN ('VERIFIED', 'HISTORICAL')),
+  CHECK (source_tier = 'A'),
+  CHECK (observed_on_url LIKE 'https://%'),
+  CHECK (length(trim(label)) > 0 AND length(trim(sport)) > 0),
+  UNIQUE (athletics_entity_id, sport, email)
+);
+CREATE INDEX IF NOT EXISTS idx_pc_programme ON programme_contacts(athletics_entity_id, sport, status);
+CREATE INDEX IF NOT EXISTS idx_pc_college ON programme_contacts(college_id);
+CREATE INDEX IF NOT EXISTS idx_pc_email ON programme_contacts(email);
+
+-- ===========================================================================
 -- PLAYER HISTORY IDENTITY (Phase 8B.1A) — an observation is not a person.
 --
 -- `roster_players` rows are ROSTER OBSERVATIONS: a name on programme P's official
@@ -1629,7 +1681,7 @@ CREATE TABLE IF NOT EXISTS refresh_batches (
 CREATE TABLE IF NOT EXISTS refresh_observations (
   observation_id TEXT PRIMARY KEY,   -- deterministic: sha of batch + dataset + source key
   batch_id TEXT NOT NULL,
-  dataset TEXT NOT NULL,             -- COACH | ROSTER | PROGRAMME | DOMAIN
+  dataset TEXT NOT NULL,             -- COACH | ROSTER | PROGRAMME | DOMAIN | PROGRAMME_CONTACT
   source_url TEXT,
   source_host TEXT,
   source_kind TEXT,
@@ -1656,7 +1708,7 @@ CREATE TABLE IF NOT EXISTS refresh_observations (
   review_status TEXT,                -- NULL | APPROVED | REJECTED
   review_note TEXT,
   promoted_at TEXT,
-  CHECK (dataset IN ('COACH', 'ROSTER', 'PROGRAMME', 'DOMAIN')),
+  CHECK (dataset IN ('COACH', 'ROSTER', 'PROGRAMME', 'DOMAIN', 'PROGRAMME_CONTACT')),
   CHECK (classification IN ('CONFIRMED_UNCHANGED', 'NEW_RECORD', 'VERIFIED_UPDATE', 'POSSIBLE_CHANGE',
                             'CONTRADICTION', 'STALE_CANDIDATE', 'IDENTITY_AMBIGUOUS', 'SOURCE_UNTRUSTED',
                             'DISAPPEARED_FROM_SOURCE')),

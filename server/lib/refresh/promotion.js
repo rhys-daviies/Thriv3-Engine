@@ -17,7 +17,11 @@ import { sha256 } from './staging.js';
 import { tableExists, columnsOf } from './context.js';
 import { conformRosterRow } from './rosterRowConformance.js';
 
-const NON_WRITING = new Set([null, 'INVESTIGATE_CURRENTNESS', 'INVESTIGATE_MEMBERSHIP', 'INVESTIGATE_DOMAIN', 'REVIEW_ROSTER_FIELDS']);
+const NON_WRITING = new Set([null, 'INVESTIGATE_CURRENTNESS', 'INVESTIGATE_MEMBERSHIP', 'INVESTIGATE_DOMAIN', 'REVIEW_ROSTER_FIELDS', 'INVESTIGATE_PROGRAMME_CONTACT']);
+/** Phase 1B: the only columns a programme-contact refresh may move. Identity (entity, sport, email, college) never changes in place. */
+const PC_REFRESH_FIELDS = ['observed_on_url', 'observed_at', 'currentness_checked_at', 'source', 'source_kind'];
+const PC_INSERT_FIELDS = ['contact_id', 'athletics_entity_id', 'college_id', 'sport', 'email', 'label', 'contact_role', 'observed_on_url', 'observed_at',
+  'source', 'source_kind', 'source_tier', 'status', 'currentness_checked_at'];
 const COACH_UPDATE_ACTIONS = new Set(['REFRESH_COACH_EVIDENCE', 'UPDATE_COACH_ROLE', 'CONFIRM_OBSERVED_EMAIL', 'ADD_PUBLISHED_EMAIL', 'REPLACE_VERIFIED_EMAIL', 'REINSTATE_COACH', 'MARK_PROVEN_STALE']);
 const PERIOD_ACTIONS = new Set(['CHANGE_DIVISION', 'CHANGE_CONFERENCE', 'CHANGE_MEMBERSHIP_STATUS', 'DEACTIVATE_PROGRAMME']);
 const PROTECTED_OF = { REPLACE_VERIFIED_EMAIL: 'REPLACE_VERIFIED_EMAIL', MARK_PROVEN_STALE: 'MARK_PROVEN_STALE', CHANGE_DIVISION: 'CHANGE_DIVISION', CHANGE_MEMBERSHIP_STATUS: 'CHANGE_DIVISION', DEACTIVATE_PROGRAMME: 'DEACTIVATE_PROGRAMME', CREATE_PROGRAMME: 'CREATE_PROGRAMME' };
@@ -163,6 +167,31 @@ export function applyOp(db, op) {
     db.prepare(`INSERT INTO programme_membership_periods (${Object.keys(period).join(',')}) VALUES (${Object.keys(period).map((k) => `@${k}`).join(',')})`).run(period);
     return { kind: 'GROUP', entries: [{ kind: 'INSERT', table: 'colleges', key: { id: op.insert_id }, new: row }, { kind: 'INSERT', table: 'programme_membership_periods', key: { athletics_entity_id: E.entity, sport: P.sport, first_season: P.first_season }, new: period }] };
   }
+  if (op.action === 'CREATE_PROGRAMME_CONTACT') {
+    const id = E.contact_id;
+    if (!id || id !== P.contact_id) throw guardFail('CREATE_PROGRAMME_CONTACT: proposal and guard name different contacts');
+    const there = db.prepare('SELECT * FROM programme_contacts WHERE contact_id=?').get(id);
+    if (there) { if (PC_INSERT_FIELDS.every((k) => same(there[k], P[k]))) return { noop: true }; throw guardFail(`CREATE_PROGRAMME_CONTACT ${id}: a different record now holds this id`); }
+    if (db.prepare('SELECT 1 FROM programme_contacts WHERE athletics_entity_id=? AND sport=? AND email=?').get(E.athletics_entity_id, E.sport, E.email)) throw guardFail(`CREATE_PROGRAMME_CONTACT ${id}: address now held for this programme`);
+    const c = db.prepare('SELECT id, sport, active, athletics_entity_id FROM colleges WHERE id=?').get(E.college_id);
+    if (!c || c.active !== 1 || c.athletics_entity_id !== E.athletics_entity_id || c.sport !== E.sport) throw guardFail(`CREATE_PROGRAMME_CONTACT ${id}: programme row ${E.college_id} no longer the active ${E.sport} programme of ${E.athletics_entity_id}`);
+    if (db.prepare("SELECT 1 FROM coaches WHERE lower(trim(email))=? AND trim(coalesce(full_name,''))!=''").get(E.email)) throw guardFail(`CREATE_PROGRAMME_CONTACT ${id}: the address is now held by a named coach`);
+    const stamp = now();
+    const row = { ...Object.fromEntries(PC_INSERT_FIELDS.map((k) => [k, P[k] ?? null])), provenance: `refresh-observation:${op.observation_id}`, created_at: stamp, updated_at: stamp };
+    db.prepare(`INSERT INTO programme_contacts (${Object.keys(row).join(',')}) VALUES (${Object.keys(row).map((k) => `@${k}`).join(',')})`).run(row);
+    return { kind: 'INSERT', table: 'programme_contacts', key: { contact_id: id }, new: row };
+  }
+  if (op.action === 'REFRESH_PROGRAMME_CONTACT') {
+    const row = db.prepare('SELECT * FROM programme_contacts WHERE contact_id=?').get(E.contact_id);
+    if (!row) throw guardFail(`REFRESH_PROGRAMME_CONTACT ${E.contact_id}: absent`);
+    for (const k of ['status', 'email', 'athletics_entity_id', 'sport']) if (!same(row[k], E[k])) throw guardFail(`REFRESH_PROGRAMME_CONTACT ${E.contact_id}: expected-old ${k} mismatch`);
+    const fields = PC_REFRESH_FIELDS.filter((k) => k in P);
+    if (fields.every((k) => same(row[k], P[k]))) return { noop: true };
+    const upd = { ...Object.fromEntries(fields.map((k) => [k, P[k] ?? null])), updated_at: now() };
+    const old = Object.fromEntries(Object.keys(upd).map((k) => [k, row[k] ?? null]));
+    db.prepare(`UPDATE programme_contacts SET ${Object.keys(upd).map((k) => `${k}=@${k}`).join(', ')} WHERE contact_id=@__id`).run({ ...upd, __id: E.contact_id });
+    return { kind: 'UPDATE', table: 'programme_contacts', key: { contact_id: E.contact_id }, old, new: upd };
+  }
   throw guardFail(`unknown promotion action ${op.action}`);
 }
 
@@ -220,7 +249,7 @@ export function revertManifest(db, manifest, { inTransaction = false } = {}) {
           reverted++;
         } else if (e.kind === 'INSERT') {
           if (!cur) continue;
-          const changed = Object.keys(e.new).filter((k) => !['created_at', 'created_date', 'updated_date', 'recorded_at', 'checked_at'].includes(k)).some((k) => !same(cur[k], e.new[k]));
+          const changed = Object.keys(e.new).filter((k) => !['created_at', 'created_date', 'updated_date', 'updated_at', 'recorded_at', 'checked_at'].includes(k)).some((k) => !same(cur[k], e.new[k]));
           if (changed) { conflicts.push(`${e.table} ${JSON.stringify(e.key)} edited after promotion — not removed`); continue; }
           db.prepare(`DELETE FROM ${e.table} WHERE ${where}`).run(keyArgs);
           reverted++;

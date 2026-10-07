@@ -65,6 +65,7 @@ export const FIELD_AUTHORITY = Object.freeze({
   domain_ownership: ['A'],           // host -> entity (with the full ownership chain)
   coach_current: ['A'],              // this person is on the staff NOW (CURRENT)
   email_seen: ['A'],                 // this exact address is published NOW
+  programme_contact: ['A'],          // this exact programme address is published NOW (Phase 1B)
   coach_role: ['A'],
   coach_history: ['A', 'C'],         // coach_seasons for a past season
   roster_current: ['A'],
@@ -128,5 +129,8 @@ export function mayEstablish(field, sources) {
   return { ok: false, reason: `${field} needs tier ${allowed.join(' or ')}; best source is ${best}` };
 }
 
-/** The five things tier D can never promote, stated once for tests and the operator doc. */
-export const TIER_D_NEVER = Object.freeze(['entity_identity', 'coach_current', 'email_seen', 'domain_ownership', 'federal_unitid']);
+/** The things tier D can never promote, stated once for tests and the operator doc. */
+export const TIER_D_NEVER = Object.freeze(['entity_identity', 'coach_current', 'email_seen', 'domain_ownership', 'federal_unitid', 'programme_contact']);
+
+/** Declared kinds that may carry a programme contact: the entity's own official pages only. */
+export const PROGRAMME_CONTACT_SOURCE_KINDS = Object.freeze(['OFFICIAL_ATHLETICS_PROGRAMME_PAGE', 'OFFICIAL_STAFF_DIRECTORY', 'OFFICIAL_INSTITUTION_DIRECTORY']);

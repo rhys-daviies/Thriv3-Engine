@@ -15,12 +15,17 @@
  *   G10 every NCAA/NAIA/NJCAA/USCAA membership change is explained by an op in the batch
  *   G11 DB integrity_check ok
  *   G12 privacy: the redacted report carries no address and no person name
+ *   G13 every VERIFIED programme contact passes the programme-contact floor (Phase 1B; its own
+ *       validator, never the coach floor)
+ *   G14 every programme-contact change is an op in the batch (nothing appears, moves or
+ *       disappears that the plan did not write)
  */
 import Database from 'better-sqlite3';
 import { validateEntityIdentity } from '../../scripts/validateAthleticsEntityIdentity.js';
 import { seasonFingerprint } from './temporal.js';
 import { loadRefreshContext } from './context.js';
 import { DIVISIONS } from './integrityMeasure.js';
+import { buildProgrammeContactContext, programmeContactProblems } from '../programmeContactEligibility.js';
 
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
 const byCat = (hard, codes) => hard.filter((h) => codes.some((c) => h.startsWith(c)));
@@ -28,13 +33,14 @@ const byCat = (hard, codes) => hard.filter((h) => codes.some((c) => h.startsWith
 /** Entities+sports and coach ids a plan legitimately touches (for G10 accounting). */
 export function planFootprint(plan, observations = []) {
   const byObs = new Map(observations.map((o) => [o.observation_id, o]));
-  const programmes = new Set(); const coaches = new Set();
+  const programmes = new Set(); const coaches = new Set(); const contacts = new Set();
   for (const op of plan.ops) {
     const o = byObs.get(op.observation_id);
+    if (op.dataset === 'PROGRAMME_CONTACT' && op.expected?.contact_id) contacts.add(op.expected.contact_id);
     if (op.dataset === 'PROGRAMME' && o?.candidate_entity_id) programmes.add(`${o.candidate_entity_id}|${(JSON.parse(o.raw_json || '{}')).sport}`);
     if (op.dataset === 'COACH') { if (op.expected?.id) coaches.add(op.expected.id); if (op.action === 'CREATE_COACH') coaches.add(op.insert_id); }
   }
-  return { programmes, coaches };
+  return { programmes, coaches, contacts };
 }
 
 /**
@@ -42,11 +48,18 @@ export function planFootprint(plan, observations = []) {
  * footprint: planFootprint(); redactedReport: the report text that will be shared.
  * extraExplained: {programmes:Set, coaches:Set} explained by a reviewed structural fixture.
  */
-export function evaluateGates({ pre, post, postPath, footprint, redactedReport = '', personNames = [], extraExplained = null }) {
+export function evaluateGates({ pre, post, postPath, footprint, redactedReport = '', personNames = [], extraExplained = null, now = new Date() }) {
   const db = new Database(postPath, { readonly: true, fileMustExist: true });
-  let v; let integ; let freezes = []; let ctx; let frozenDiff = [];
+  let v; let integ; let freezes = []; let ctx; let frozenDiff = []; let invalidContacts = [];
   try {
     v = validateEntityIdentity(db);
+    if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='programme_contacts'").get()) {
+      const pcCtx = buildProgrammeContactContext(db);
+      for (const r of db.prepare("SELECT * FROM programme_contacts WHERE status='VERIFIED' ORDER BY contact_id").all()) {
+        const p = programmeContactProblems(r, pcCtx, { now });
+        if (p.length) invalidContacts.push(`${r.contact_id}: ${p.join(',')}`);
+      }
+    }
     integ = db.pragma('integrity_check', { simple: true });
     freezes = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='season_freezes'").get() ? db.prepare('SELECT * FROM season_freezes').all() : [];
     frozenDiff = freezes.filter((f) => JSON.stringify(seasonFingerprint(db, f.season)) !== f.fingerprint_json).map((f) => `${f.season}/${f.scope}`);
@@ -69,6 +82,9 @@ export function evaluateGates({ pre, post, postPath, footprint, redactedReport =
   const preElig = new Set(pre.eligible_ids);
   const newly = post.eligible_ids.filter((id) => !preElig.has(id));
   const badNew = newly.filter((id) => { const d = post.eligible_detail[id]; const ent = ctx.colleges.find((c) => c.id === d?.college_id)?.athletics_entity_id; return !d?.email_seen_host || !ent || !ctx.resolver.hostOwnedBy(d.email_seen_host, ent); });
+  const preD = pre.programme_contacts?.digests || {}; const postD = post.programme_contacts?.digests || {};
+  const explainedContacts = new Set([...(footprint?.contacts || []), ...(extraExplained?.contacts || [])]);
+  const unexplainedContacts = [...new Set([...Object.keys(preD), ...Object.keys(postD)])].filter((id) => preD[id] !== postD[id] && !explainedContacts.has(id));
   const leak = EMAIL.test(redactedReport) || personNames.filter((n) => n && n.length > 3).some((n) => redactedReport.includes(n));
   const gates = {
     G1_programme_resolves_to_one_entity: byCat(hard, ['H1', 'H6', 'H9', 'H10']).length === 0,
@@ -83,6 +99,8 @@ export function evaluateGates({ pre, post, postPath, footprint, redactedReport =
     G10_membership_changes_accounted: unexplained.length === 0,
     G11_db_integrity_ok: integ === 'ok',
     G12_privacy: !leak,
+    G13_programme_contacts_valid: invalidContacts.length === 0,
+    G14_programme_contact_changes_accounted: unexplainedContacts.length === 0,
   };
-  return { pass: Object.values(gates).every(Boolean), gates, details: { validator_hard: hard, frozen_changed: frozenDiff, unexplained_membership: unexplained, newly_eligible: newly.length, newly_eligible_without_owned_evidence: badNew.map((x) => String(x).slice(0, 8)), freezes: freezes.length } };
+  return { pass: Object.values(gates).every(Boolean), gates, details: { validator_hard: hard, frozen_changed: frozenDiff, unexplained_membership: unexplained, newly_eligible: newly.length, newly_eligible_without_owned_evidence: badNew.map((x) => String(x).slice(0, 8)), freezes: freezes.length, programme_contacts_invalid: invalidContacts, programme_contacts_unexplained: unexplainedContacts } };
 }

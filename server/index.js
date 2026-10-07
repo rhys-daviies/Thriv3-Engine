@@ -26,6 +26,7 @@ import { uploadsRouter } from './routes/uploads.js';
 import { campaignsRouter } from './routes/campaigns.js';
 import { athleteProgrammesRouter } from './routes/athleteProgrammes.js';
 import { programmeCoachesRouter } from './routes/programmeCoaches.js';
+import { programmeContactsRouter } from './routes/programmeContacts.js';
 import { manualOutreachRouter } from './routes/manualOutreach.js';
 import { contactIntelligenceRouter } from './routes/contactIntelligence.js';
 import { matchmakingRouter } from './routes/matchmaking.js';
@@ -615,6 +616,10 @@ app.use('/api', athleteProgrammesRouter);
 // here, which is what makes "do not contact" a rule rather than a preference.
 app.use('/api', programmeCoachesRouter);
 app.use('/api', manualOutreachRouter);
+
+// ---- Programme contact intelligence (Phase 1B) ----
+// A programme's own published inbox: read-only, never a send target in this build.
+app.use('/api', programmeContactsRouter);
 
 // ---- Existing-contact intelligence ----
 //
