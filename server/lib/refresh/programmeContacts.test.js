@@ -41,7 +41,8 @@ const UNTOUCHED = ['colleges', 'coaches', 'roster_players', 'athletics_domains',
 const hashOf = (db, tables) => crypto.createHash('sha256').update(tables.map((t) => JSON.stringify(db.prepare(`SELECT * FROM ${t} ORDER BY 1`).raw().all())).join('|')).digest('hex');
 const contactPage = (over = {}) => ({ dataset: 'PROGRAMME_CONTACT', source_kind: 'OFFICIAL_STAFF_DIRECTORY', source_url: 'https://concordiatx.example/sports/mens-soccer/coaches',
   fetched_at: '2027-08-20T00:00:00.000Z', observed_season: 2027, parser_version: 'test-1', institution_label: 'Concordia University Texas', sport: 'mens-soccer', contacts: [], ...over });
-const pub = (email, extra = {}) => ({ email, email_origin: 'PUBLISHED_ON_SOURCE', ...extra });
+// Phase 1G-B: every staged address carries the slot it was published in; the default is an explicit team slot
+const pub = (email, extra = {}) => ({ email, email_origin: 'PUBLISHED_ON_SOURCE', slot: 'TEAM_SLOT', person_count: 0, labels: ['Team Email'], ...extra });
 const input = (pages, extra = {}) => ({ season: 2027, scope: 'NAIA', parser_version: 'test-1', gathered_at: '2027-08-20T00:00:00Z', pages, ...extra });
 const stage = (db, pages, now = NOW) => stageRefresh(db, input(pages), { now });
 const promote = (db, staged) => { const plan = planPromotion(staged); return { plan, res: applyPromotion(db, plan, { batchHash: staged.batch.batch_hash, record: false }) }; };
