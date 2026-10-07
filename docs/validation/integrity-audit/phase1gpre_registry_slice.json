@@ -1,0 +1,706 @@
+{
+ "source": "U.S. Department of Education College Scorecard institution file (federal registry tier), local copy server/data/generated/p8a/scorecard_slim.json",
+ "purpose": "owner + refuted-claimant UNITIDs of every WRONG_INSTITUTION athletics_domains row on 2026-10-08",
+ "rows": [
+  {
+   "UNITID": "100706",
+   "INSTNM": "University of Alabama in Huntsville",
+   "ALIAS": "UAH  University of Alabama Huntsville",
+   "INSTURL": "www.uah.edu/",
+   "STABBR": "AL"
+  },
+  {
+   "UNITID": "101587",
+   "INSTNM": "University of West Alabama",
+   "ALIAS": "UWA",
+   "INSTURL": "www.uwa.edu/",
+   "STABBR": "AL"
+  },
+  {
+   "UNITID": "110608",
+   "INSTNM": "California State University-Northridge",
+   "ALIAS": "CSUN",
+   "INSTURL": "https://www.csun.edu/",
+   "STABBR": "CA"
+  },
+  {
+   "UNITID": "110671",
+   "INSTNM": "University of California-Riverside",
+   "ALIAS": "UC Riverside",
+   "INSTURL": "www.ucr.edu/",
+   "STABBR": "CA"
+  },
+  {
+   "UNITID": "112075",
+   "INSTNM": "Concordia University-Irvine",
+   "ALIAS": "Concordia University Irvine",
+   "INSTURL": "www.cui.edu/",
+   "STABBR": "CA"
+  },
+  {
+   "UNITID": "117946",
+   "INSTNM": "Loyola Marymount University",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.lmu.edu/",
+   "STABBR": "CA"
+  },
+  {
+   "UNITID": "121901",
+   "INSTNM": "Riverside City College",
+   "ALIAS": "NA",
+   "INSTURL": "www.rcc.edu/",
+   "STABBR": "CA"
+  },
+  {
+   "UNITID": "123554",
+   "INSTNM": "Saint Mary's College of California",
+   "ALIAS": "St. Marys College of California | St Marys College of California",
+   "INSTURL": "https://www.stmarys-ca.edu/",
+   "STABBR": "CA"
+  },
+  {
+   "UNITID": "123800",
+   "INSTNM": "Southwestern College",
+   "ALIAS": "Southwestern Community College District",
+   "INSTURL": "https://www.swccd.edu/",
+   "STABBR": "CA"
+  },
+  {
+   "UNITID": "130590",
+   "INSTNM": "Trinity College",
+   "ALIAS": "Trinity College, Hartford, Connecticut",
+   "INSTURL": "https://www.trincoll.edu/",
+   "STABBR": "CT"
+  },
+  {
+   "UNITID": "131113",
+   "INSTNM": "Wilmington University",
+   "ALIAS": "NA",
+   "INSTURL": "www.wilmu.edu/",
+   "STABBR": "DE"
+  },
+  {
+   "UNITID": "131399",
+   "INSTNM": "University of the District of Columbia",
+   "ALIAS": "NA",
+   "INSTURL": "www.udc.edu/",
+   "STABBR": "DC"
+  },
+  {
+   "UNITID": "131496",
+   "INSTNM": "Georgetown University",
+   "ALIAS": "Georgetown|GU",
+   "INSTURL": "https://www.georgetown.edu/",
+   "STABBR": "DC"
+  },
+  {
+   "UNITID": "139630",
+   "INSTNM": "Emmanuel University",
+   "ALIAS": "NA",
+   "INSTURL": "eu.edu/",
+   "STABBR": "GA"
+  },
+  {
+   "UNITID": "139931",
+   "INSTNM": "Georgia Southern University",
+   "ALIAS": "NA",
+   "INSTURL": "www.georgiasouthern.edu/",
+   "STABBR": "GA"
+  },
+  {
+   "UNITID": "142328",
+   "INSTNM": "Lewis-Clark State College",
+   "ALIAS": "LC State",
+   "INSTURL": "https://www.lcsc.edu/",
+   "STABBR": "ID"
+  },
+  {
+   "UNITID": "144351",
+   "INSTNM": "Concordia University-Chicago",
+   "ALIAS": "Concordia University Chicago",
+   "INSTURL": "https://www.cuchicago.edu/",
+   "STABBR": "IL"
+  },
+  {
+   "UNITID": "145372",
+   "INSTNM": "Greenville University",
+   "ALIAS": "NA",
+   "INSTURL": "www.greenville.edu/",
+   "STABBR": "IL"
+  },
+  {
+   "UNITID": "145619",
+   "INSTNM": "Benedictine University",
+   "ALIAS": "NA",
+   "INSTURL": "https://ben.edu/",
+   "STABBR": "IL"
+  },
+  {
+   "UNITID": "145691",
+   "INSTNM": "Illinois College",
+   "ALIAS": "NA",
+   "INSTURL": "www.ic.edu/",
+   "STABBR": "IL"
+  },
+  {
+   "UNITID": "147660",
+   "INSTNM": "North Central College",
+   "ALIAS": "NCC|North Central|Cardinals|North Central University|University of Naperville|Naperville University",
+   "INSTURL": "northcentralcollege.edu/",
+   "STABBR": "IL"
+  },
+  {
+   "UNITID": "147767",
+   "INSTNM": "Northwestern University",
+   "ALIAS": "NA",
+   "INSTURL": "www.northwestern.edu/",
+   "STABBR": "IL"
+  },
+  {
+   "UNITID": "148654",
+   "INSTNM": "University of Illinois Springfield",
+   "ALIAS": "UIS",
+   "INSTURL": "www.uis.edu/",
+   "STABBR": "IL"
+  },
+  {
+   "UNITID": "150066",
+   "INSTNM": "Anderson University",
+   "ALIAS": "AU",
+   "INSTURL": "https://anderson.edu/",
+   "STABBR": "IN"
+  },
+  {
+   "UNITID": "150941",
+   "INSTNM": "Huntington University",
+   "ALIAS": "NA",
+   "INSTURL": "www.huntington.edu/",
+   "STABBR": "IN"
+  },
+  {
+   "UNITID": "151111",
+   "INSTNM": "Indiana University-Indianapolis",
+   "ALIAS": "IU Indianapolis",
+   "INSTURL": "https://indianapolis.iu.edu/",
+   "STABBR": "IN"
+  },
+  {
+   "UNITID": "151263",
+   "INSTNM": "University of Indianapolis",
+   "ALIAS": "UIndy",
+   "INSTURL": "https://uindy.edu/",
+   "STABBR": "IN"
+  },
+  {
+   "UNITID": "152390",
+   "INSTNM": "Saint Mary's College",
+   "ALIAS": "St. Mary's College   St Mary's College",
+   "INSTURL": "https://www.saintmarys.edu/",
+   "STABBR": "IN"
+  },
+  {
+   "UNITID": "153834",
+   "INSTNM": "Luther College",
+   "ALIAS": "Luther Norse",
+   "INSTURL": "https://www.luther.edu/",
+   "STABBR": "IA"
+  },
+  {
+   "UNITID": "154712",
+   "INSTNM": "Benedictine College",
+   "ALIAS": "NA",
+   "INSTURL": "www.benedictine.edu/",
+   "STABBR": "KS"
+  },
+  {
+   "UNITID": "156745",
+   "INSTNM": "Georgetown College",
+   "ALIAS": "NA",
+   "INSTURL": "www.georgetowncollege.edu/",
+   "STABBR": "KY"
+  },
+  {
+   "UNITID": "160904",
+   "INSTNM": "Xavier University of Louisiana",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.xula.edu/",
+   "STABBR": "LA"
+  },
+  {
+   "UNITID": "161518",
+   "INSTNM": "Saint Joseph's College of Maine",
+   "ALIAS": "Saint Joseph's College",
+   "INSTURL": "www.sjcme.edu/",
+   "STABBR": "ME"
+  },
+  {
+   "UNITID": "165024",
+   "INSTNM": "Bridgewater State University",
+   "ALIAS": "BSU|Bridgewater State",
+   "INSTURL": "www.bridgew.edu/",
+   "STABBR": "MA"
+  },
+  {
+   "UNITID": "165671",
+   "INSTNM": "Emmanuel College",
+   "ALIAS": "NA",
+   "INSTURL": "www.emmanuel.edu/",
+   "STABBR": "MA"
+  },
+  {
+   "UNITID": "165866",
+   "INSTNM": "Framingham State University",
+   "ALIAS": "NA",
+   "INSTURL": "www.framingham.edu/",
+   "STABBR": "MA"
+  },
+  {
+   "UNITID": "169363",
+   "INSTNM": "Concordia University Ann Arbor",
+   "ALIAS": "CUAA",
+   "INSTURL": "https://www.cuaa.edu/",
+   "STABBR": "MI"
+  },
+  {
+   "UNITID": "170037",
+   "INSTNM": "Cornerstone University",
+   "ALIAS": "NA",
+   "INSTURL": "www.cornerstone.edu/",
+   "STABBR": "MI"
+  },
+  {
+   "UNITID": "173142",
+   "INSTNM": "Bethany Lutheran College",
+   "ALIAS": "blc|bethany|bethnay|bethany lutheran|bethnay lutheran|bethany luthern|bethnay luthern|bethany college|bethnay college|bethany collage|bethnay collage|bethany lutheran college|bethnay lutheran college|bethany luthern college|bethnay luthern college|bethel lutheran college|bethany lutheran collage|bethnay lutheran collage|bethany luthern collage|bethnay luthern collage",
+   "INSTURL": "https://www.blc.edu/",
+   "STABBR": "MN"
+  },
+  {
+   "UNITID": "173300",
+   "INSTNM": "Concordia College at Moorhead",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.concordiacollege.edu/",
+   "STABBR": "MN"
+  },
+  {
+   "UNITID": "173452",
+   "INSTNM": "Martin Luther College",
+   "ALIAS": "MLC",
+   "INSTURL": "www.mlc-wels.edu/",
+   "STABBR": "MN"
+  },
+  {
+   "UNITID": "174437",
+   "INSTNM": "North Central University",
+   "ALIAS": "NA",
+   "INSTURL": "www.northcentral.edu/",
+   "STABBR": "MN"
+  },
+  {
+   "UNITID": "174491",
+   "INSTNM": "University of Northwestern-St Paul",
+   "ALIAS": "University of Northwestern (MN) | Northwestern",
+   "INSTURL": "https://www.unwsp.edu/",
+   "STABBR": "MN"
+  },
+  {
+   "UNITID": "174817",
+   "INSTNM": "Saint Mary's University of Minnesota",
+   "ALIAS": "NA",
+   "INSTURL": "www.smumn.edu/",
+   "STABBR": "MN"
+  },
+  {
+   "UNITID": "174844",
+   "INSTNM": "St Olaf College",
+   "ALIAS": "NA",
+   "INSTURL": "wp.stolaf.edu/",
+   "STABBR": "MN"
+  },
+  {
+   "UNITID": "175616",
+   "INSTNM": "Delta State University",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.deltastate.edu/",
+   "STABBR": "MS"
+  },
+  {
+   "UNITID": "176008",
+   "INSTNM": "Mississippi Delta Community College",
+   "ALIAS": "MDCC",
+   "INSTURL": "https://www.msdelta.edu/",
+   "STABBR": "MS"
+  },
+  {
+   "UNITID": "177065",
+   "INSTNM": "Columbia College",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.ccis.edu/",
+   "STABBR": "MO"
+  },
+  {
+   "UNITID": "180984",
+   "INSTNM": "Concordia University-Nebraska",
+   "ALIAS": "Concordia Teachers College  Concordia College  Concordia University, Seward",
+   "INSTURL": "www.cune.edu/",
+   "STABBR": "NE"
+  },
+  {
+   "UNITID": "183655",
+   "INSTNM": "Atlantic Cape Community College",
+   "ALIAS": "NA",
+   "INSTURL": "https://atlanticcape.edu/",
+   "STABBR": "NJ"
+  },
+  {
+   "UNITID": "184348",
+   "INSTNM": "Drew University",
+   "ALIAS": "NA",
+   "INSTURL": "www.drew.edu/",
+   "STABBR": "NJ"
+  },
+  {
+   "UNITID": "184694",
+   "INSTNM": "Fairleigh Dickinson University-Florham Campus",
+   "ALIAS": "FDU",
+   "INSTURL": "https://www.fdu.edu/",
+   "STABBR": "NJ"
+  },
+  {
+   "UNITID": "185129",
+   "INSTNM": "New Jersey City University",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.njcu.edu/",
+   "STABBR": "NJ"
+  },
+  {
+   "UNITID": "185262",
+   "INSTNM": "Kean University",
+   "ALIAS": "Kean",
+   "INSTURL": "https://www.kean.edu/",
+   "STABBR": "NJ"
+  },
+  {
+   "UNITID": "190150",
+   "INSTNM": "Columbia University in the City of New York",
+   "ALIAS": "Columbia University",
+   "INSTURL": "www.columbia.edu/",
+   "STABBR": "NY"
+  },
+  {
+   "UNITID": "192022",
+   "INSTNM": "Jefferson Community College",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.sunyjefferson.edu/",
+   "STABBR": "NY"
+  },
+  {
+   "UNITID": "193016",
+   "INSTNM": "Mercy University",
+   "ALIAS": "Mercy",
+   "INSTURL": "https://www.mercy.edu/",
+   "STABBR": "NY"
+  },
+  {
+   "UNITID": "196006",
+   "INSTNM": "SUNY College of Technology at Alfred",
+   "ALIAS": "Alfred State College",
+   "INSTURL": "www.alfredstate.edu/",
+   "STABBR": "NY"
+  },
+  {
+   "UNITID": "198215",
+   "INSTNM": "Catawba College",
+   "ALIAS": "NA",
+   "INSTURL": "www.catawba.edu/",
+   "STABBR": "NC"
+  },
+  {
+   "UNITID": "199218",
+   "INSTNM": "University of North Carolina Wilmington",
+   "ALIAS": "UNCW|University of North Carolina at Wilmington|UNC Wilmington|UNC W|University of NC at Wilmington|Univ of NC-Wilmington|UNC-W|University of North Carolina Wilmington|",
+   "INSTURL": "www.uncw.edu/",
+   "STABBR": "NC"
+  },
+  {
+   "UNITID": "204635",
+   "INSTNM": "Ohio Northern University",
+   "ALIAS": "Northern|ONU",
+   "INSTURL": "www.onu.edu/",
+   "STABBR": "OH"
+  },
+  {
+   "UNITID": "204909",
+   "INSTNM": "Ohio Wesleyan University",
+   "ALIAS": "OWU",
+   "INSTURL": "https://www.owu.edu/",
+   "STABBR": "OH"
+  },
+  {
+   "UNITID": "206507",
+   "INSTNM": "Wilmington College",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.wilmington.edu/",
+   "STABBR": "OH"
+  },
+  {
+   "UNITID": "206622",
+   "INSTNM": "Xavier University",
+   "ALIAS": "XU | X",
+   "INSTURL": "https://www.xavier.edu/",
+   "STABBR": "OH"
+  },
+  {
+   "UNITID": "209056",
+   "INSTNM": "Lewis & Clark College",
+   "ALIAS": "Lewis and Clark College",
+   "INSTURL": "https://www.lclark.edu/",
+   "STABBR": "OR"
+  },
+  {
+   "UNITID": "212133",
+   "INSTNM": "Eastern University",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.eastern.edu/about/student-consumer-information",
+   "STABBR": "PA"
+  },
+  {
+   "UNITID": "213358",
+   "INSTNM": "La Roche University",
+   "ALIAS": "LRU",
+   "INSTURL": "www.laroche.edu/",
+   "STABBR": "PA"
+  },
+  {
+   "UNITID": "214591",
+   "INSTNM": "Pennsylvania State University-Penn State Erie-Behrend College",
+   "ALIAS": "Behrend College",
+   "INSTURL": "https://behrend.psu.edu/",
+   "STABBR": "PA"
+  },
+  {
+   "UNITID": "216287",
+   "INSTNM": "Swarthmore College",
+   "ALIAS": "Swat",
+   "INSTURL": "www.swarthmore.edu/",
+   "STABBR": "PA"
+  },
+  {
+   "UNITID": "216357",
+   "INSTNM": "Thiel College",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.thiel.edu/",
+   "STABBR": "PA"
+  },
+  {
+   "UNITID": "216667",
+   "INSTNM": "Washington & Jefferson College",
+   "ALIAS": "W&J",
+   "INSTURL": "www.washjeff.edu/",
+   "STABBR": "PA"
+  },
+  {
+   "UNITID": "217235",
+   "INSTNM": "Johnson & Wales University-Providence",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.jwu.edu/campuses/providence/",
+   "STABBR": "RI"
+  },
+  {
+   "UNITID": "217633",
+   "INSTNM": "Anderson University",
+   "ALIAS": "AU",
+   "INSTURL": "https://www.andersonuniversity.edu/",
+   "STABBR": "SC"
+  },
+  {
+   "UNITID": "217819",
+   "INSTNM": "College of Charleston",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.charleston.edu/",
+   "STABBR": "SC"
+  },
+  {
+   "UNITID": "217907",
+   "INSTNM": "Coker University",
+   "ALIAS": "Coker",
+   "INSTURL": "https://coker.edu/",
+   "STABBR": "SC"
+  },
+  {
+   "UNITID": "218441",
+   "INSTNM": "North Greenville University",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.ngu.edu/",
+   "STABBR": "SC"
+  },
+  {
+   "UNITID": "219082",
+   "INSTNM": "Dakota State University",
+   "ALIAS": "Dakota State",
+   "INSTURL": "https://dsu.edu/",
+   "STABBR": "SD"
+  },
+  {
+   "UNITID": "219356",
+   "INSTNM": "South Dakota State University",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.sdstate.edu/",
+   "STABBR": "SD"
+  },
+  {
+   "UNITID": "224004",
+   "INSTNM": "Concordia University Texas",
+   "ALIAS": "CTX",
+   "INSTURL": "https://www.concordia.edu/",
+   "STABBR": "TX"
+  },
+  {
+   "UNITID": "226152",
+   "INSTNM": "Texas A & M International University",
+   "ALIAS": "NA",
+   "INSTURL": "www.tamiu.edu/",
+   "STABBR": "TX"
+  },
+  {
+   "UNITID": "226578",
+   "INSTNM": "McLennan Community College",
+   "ALIAS": "MCC",
+   "INSTURL": "www.mclennan.edu/",
+   "STABBR": "TX"
+  },
+  {
+   "UNITID": "227182",
+   "INSTNM": "Lone Star College System",
+   "ALIAS": "North Harris Montgomery|North Harris|NHMCCD|N Harris Montgomery|Kingwood|Tomball|Cy-Fair|CyFair|Montgomery|University Park/Houston North",
+   "INSTURL": "www.lonestar.edu/",
+   "STABBR": "TX"
+  },
+  {
+   "UNITID": "228149",
+   "INSTNM": "St. Mary's University",
+   "ALIAS": "St. Mary's",
+   "INSTURL": "www.stmarytx.edu/",
+   "STABBR": "TX"
+  },
+  {
+   "UNITID": "228343",
+   "INSTNM": "Southwestern University",
+   "ALIAS": "SU",
+   "INSTURL": "https://www.southwestern.edu/",
+   "STABBR": "TX"
+  },
+  {
+   "UNITID": "229504",
+   "INSTNM": "Vernon College",
+   "ALIAS": "Vernon Regional Junior College VRJC VC Vernon",
+   "INSTURL": "www.vernoncollege.edu/",
+   "STABBR": "TX"
+  },
+  {
+   "UNITID": "230959",
+   "INSTNM": "Middlebury College",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.middlebury.edu/college/",
+   "STABBR": "VT"
+  },
+  {
+   "UNITID": "232609",
+   "INSTNM": "University of Lynchburg",
+   "ALIAS": "Lynchburg",
+   "INSTURL": "www.lynchburg.edu/",
+   "STABBR": "VA"
+  },
+  {
+   "UNITID": "232706",
+   "INSTNM": "Marymount University",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.marymount.edu/",
+   "STABBR": "VA"
+  },
+  {
+   "UNITID": "234207",
+   "INSTNM": "Washington and Lee University",
+   "ALIAS": "Washington and Lee, W&L, WLU",
+   "INSTURL": "www.wlu.edu/",
+   "STABBR": "VA"
+  },
+  {
+   "UNITID": "237181",
+   "INSTNM": "Bethany College",
+   "ALIAS": "NA",
+   "INSTURL": "www.bethanywv.edu/",
+   "STABBR": "WV"
+  },
+  {
+   "UNITID": "237312",
+   "INSTNM": "University of Charleston",
+   "ALIAS": "NA",
+   "INSTURL": "www.ucwv.edu/",
+   "STABBR": "WV"
+  },
+  {
+   "UNITID": "238476",
+   "INSTNM": "Carthage College",
+   "ALIAS": "Carthage",
+   "INSTURL": "www.carthage.edu/",
+   "STABBR": "WI"
+  },
+  {
+   "UNITID": "238616",
+   "INSTNM": "Concordia University-Wisconsin",
+   "ALIAS": "CUW",
+   "INSTURL": "https://www.cuw.edu/",
+   "STABBR": "WI"
+  },
+  {
+   "UNITID": "240268",
+   "INSTNM": "University of Wisconsin-Eau Claire",
+   "ALIAS": "UW-Eau Claire",
+   "INSTURL": "www.uwec.edu/",
+   "STABBR": "WI"
+  },
+  {
+   "UNITID": "240329",
+   "INSTNM": "University of Wisconsin-La Crosse",
+   "ALIAS": "NA",
+   "INSTURL": "www.uwlax.edu/",
+   "STABBR": "WI"
+  },
+  {
+   "UNITID": "240338",
+   "INSTNM": "Wisconsin Lutheran College",
+   "ALIAS": "WLC, Wisconsin Lutheran",
+   "INSTURL": "www.wlc.edu/",
+   "STABBR": "WI"
+  },
+  {
+   "UNITID": "240462",
+   "INSTNM": "University of Wisconsin-Platteville",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.uwplatt.edu/",
+   "STABBR": "WI"
+  },
+  {
+   "UNITID": "240480",
+   "INSTNM": "University of Wisconsin-Stevens Point",
+   "ALIAS": "UW-Stevens Point",
+   "INSTURL": "https://www.uwsp.edu/",
+   "STABBR": "WI"
+  },
+  {
+   "UNITID": "485111",
+   "INSTNM": "Georgia Military College",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.gmc.edu/",
+   "STABBR": "GA"
+  },
+  {
+   "UNITID": "498562",
+   "INSTNM": "Commonwealth University of Pennsylvania",
+   "ALIAS": "NA",
+   "INSTURL": "https://www.commonwealthu.edu/",
+   "STABBR": "PA"
+  }
+ ]
+}
