@@ -1,105 +1,33 @@
 {
- "_doc": "Phase 8C.2 NJCAA/USCAA programme-universe baseline (entity|sport of active carrier rows), re-baselined after the guarded Phase 8C.2B apply of universe fixture A (50369d36ac0a…): 13 NJCAA men's programmes retired (INACTIVE / DISCONTINUED / WRONG_SEX), each with two independent authoritative sources; never deleted, history rows kept. This certifies that intentional change only; any other drift remains a WARN. integrity:monitor reports drift from it as WARN; these divisions are still being established — no coverage freeze.",
- "created_at": "2026-10-06T05:01:34.476Z",
+ "_doc": "Phase 8C.7B NJCAA/USCAA programme-universe baseline (entity|sport of active carrier rows), re-baselined after the guarded Phase 8C.7B apply of universe fixture F2 (3e1722d586b9…): Kennedy-King College men's soccer (UNITID 144157, federal registry) added as a current 2026-27 NJCAA programme — official 2026-27 district schedule with results, corroborated by Triton College's official 2026 schedule; Region 4 2025-26 listing. Daley and Wright unchanged. This certifies that intentional change only; any other drift remains a WARN. integrity:monitor reports drift from it as WARN; these divisions are still being established — no coverage freeze.",
+ "created_at": "2026-10-07T07:32:09.893Z",
  "season": 2026,
- "phase": "8C.2B (adjudicated 8C.2 / readiness 8C.2A)",
- "reason": "13 NJCAA men's programmes adjudicated INACTIVE/DISCONTINUED/WRONG_SEX with two independent authoritative sources (complete 2026-27 region/conference listing omission + the institution's own official athletics site, or two listing seasons + official site). Held, not retired: Butler County, Reading Area (fail the two-source rule), Christendom (membership verify held).",
+ "phase": "8C.7B (adjudicated 8C.6 / 8C.7A)",
+ "reason": "1 NJCAA men's programme added (Kennedy-King College, City Colleges of Chicago): current 2026-27 activity from two independent official sources plus the prior-season Region 4 listing; identity from the project's federal registry. No programme removed. (The 8C.7B NJCU retirement is NCAA D3 and outside this baseline.)",
  "previous": {
-  "phase": "8B.1",
-  "created_at": "2026-10-01",
-  "NJCAA": 410,
+  "phase": "8C.2B (adjudicated 8C.2 / readiness 8C.2A)",
+  "created_at": "2026-10-06T05:01:34.476Z",
+  "NJCAA": 397,
   "USCAA": 46,
-  "baseline_sha256": "379409248aff1e47f0715b54b9567b0f98e067d178601ee2dcbdb3c9c2641a02"
+  "baseline_sha256": "2646a4f6b82acb50f8d1e7bee8fba662776a8d1ffbe3a7057ad69ab1f834c0aa"
  },
  "change": {
-  "fixture": "integrity_artifacts/phase8c2/groups/A_universe.fixture.json",
-  "fixture_hash": "50369d36ac0a7a83bba9b98766c30bd62c1dfe5f8a25ace4f5077449c349d42c",
-  "apply_manifest_sha256": "992f54194a783f408e5cf9a75aace8e0d8f160a3e571bf68972f35cd82381291",
-  "evidence_manifest": "integrity_artifacts/phase8c2/deactivation_verification.json",
-  "removed": [
+  "fixture": "integrity_artifacts/phase8c7b/fixture_F2_kennedy_king_universe.json",
+  "fixture_hash": "3e1722d586b9de80471a162aedcf6e35673fb795bcf495f35bae71fdeab0e002",
+  "apply_manifest_sha256": "7f0b4c3aee2d5702b5c25e47b2c94e029575aee8e41d0702bbcfb52cba4d8a3f",
+  "evidence": "integrity_artifacts/phase8c7a/universe_adjudication.json",
+  "added": [
    {
-    "college_id": "edb928d1-eac5-4232-bb1f-fecdc6afc339",
-    "key": "AE-U240596|mens-soccer",
-    "programme": "Eastern Wyoming",
-    "decision": "INACTIVE"
-   },
-   {
-    "college_id": "813e10b1-39ed-4321-aa0b-482e2ab37223",
-    "key": "AE-U153214|mens-soccer",
-    "programme": "Des Moines Area",
-    "decision": "INACTIVE"
-   },
-   {
-    "college_id": "9dd6d801-deea-4b0e-8438-317a061e9375",
-    "key": "AE-U153296|mens-soccer",
-    "programme": "Ellsworth",
-    "decision": "INACTIVE"
-   },
-   {
-    "college_id": "8a8b10a1-8fce-4d12-b347-330189099433",
-    "key": "AE-U127200|mens-soccer",
-    "programme": "Front Range",
-    "decision": "INACTIVE"
-   },
-   {
-    "college_id": "710a9cff-7535-463c-b1d3-c0b053bde320",
-    "key": "AE-U153737|mens-soccer",
-    "programme": "Kirkwood",
-    "decision": "INACTIVE"
-   },
-   {
-    "college_id": "7126cd0c-9d04-4914-8f64-bd48f9834f16",
-    "key": "AE-U146506|mens-soccer",
-    "programme": "Lake Land",
-    "decision": "INACTIVE"
-   },
-   {
-    "college_id": "9b55308c-d3f2-48cc-ad7f-d05168f6e960",
-    "key": "AE-U148256|mens-soccer",
-    "programme": "Rend Lake",
-    "decision": "INACTIVE"
-   },
-   {
-    "college_id": "ba6f08d1-eddd-4cee-bbf4-d8845cdedb79",
-    "key": "AE-U221397|mens-soccer",
-    "programme": "Roane State",
-    "decision": "WRONG_SEX"
-   },
-   {
-    "college_id": "3985fe5f-53dd-4f0f-8308-6914a71fcadb",
-    "key": "AE-U148821|mens-soccer",
-    "programme": "Shawnee Community",
-    "decision": "INACTIVE"
-   },
-   {
-    "college_id": "68789865-bbd9-4361-8e96-986be1a5dcb0",
-    "key": "AE-U152637|mens-soccer",
-    "programme": "Vincennes",
-    "decision": "INACTIVE"
-   },
-   {
-    "college_id": "be4a904e-2758-48cc-9947-b5bc640d7dd5",
-    "key": "AE-U222053|mens-soccer",
-    "programme": "Volunteer State",
-    "decision": "WRONG_SEX"
-   },
-   {
-    "college_id": "7fb30447-a391-4a88-8854-9d48f3304663",
-    "key": "AE-U222062|mens-soccer",
-    "programme": "Walters State",
-    "decision": "INACTIVE"
-   },
-   {
-    "college_id": "c4ad7b59-4acf-4433-8783-79740be3a085",
-    "key": "AE-U240693|mens-soccer",
-    "programme": "Western Wyoming",
-    "decision": "DISCONTINUED"
+    "college_id": "90d106e1-2638-4788-a925-598e7ddc6b52",
+    "key": "AE-U144157|mens-soccer",
+    "programme": "City Colleges Chicago-Kennedy-King",
+    "decision": "CURRENT_PROGRAMME_ADDED"
    }
   ],
-  "added": []
+  "removed": []
  },
  "NJCAA": {
-  "logical": 397,
+  "logical": 398,
   "keys": [
    "AE-U101143|mens-soccer",
    "AE-U101295|mens-soccer",
@@ -162,6 +90,7 @@
    "AE-U143215|mens-soccer",
    "AE-U143215|womens-soccer",
    "AE-U143613|mens-soccer",
+   "AE-U144157|mens-soccer",
    "AE-U144175|mens-soccer",
    "AE-U144193|mens-soccer",
    "AE-U144209|mens-soccer",
