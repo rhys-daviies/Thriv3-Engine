@@ -1579,6 +1579,52 @@ CREATE INDEX IF NOT EXISTS idx_pc_college ON programme_contacts(college_id);
 CREATE INDEX IF NOT EXISTS idx_pc_email ON programme_contacts(email);
 
 -- ===========================================================================
+-- legacy_contact_reconciliation — Phase 1G-B (B5). APPEND-ONLY LEDGER.
+--
+-- How each legacy generic `coaches` row (email_status 'generic', the nameless "Team Email" rows)
+-- is accounted for once programme contacts exist. A legacy row is never converted, rewritten or
+-- deleted to make the data look clean: a VERIFIED programme_contacts row is created by promotion,
+-- and the legacy row is RECONCILED here, beside it, with the evidence for the decision.
+--
+--   SUPERSEDED           a VERIFIED programme contact for the same programme and address exists
+--   RETAINED_REFERENCED  historical outreach/sends/tracking point at the row: it is kept forever
+--                        (foreign keys forbid deleting it anyway); may also name its replacement
+--   BLOCKED              a rule stands in the way (department inbox, camp, unproven mail domain…)
+--   INVALID              the row is wrong (another institution's address, a malformed address)
+--   UNRESOLVED           nothing has been decided yet
+--
+-- Entries are only ever added: a later decision is a new entry with a new run_id. No UPDATE, no
+-- DELETE (triggers below). Nothing writes this table in Phase 1G-B: the planner and report are
+-- read-only dry runs.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS legacy_contact_reconciliation (
+  entry_id TEXT PRIMARY KEY,              -- deterministic: LCR- + sha256(run_id|coach_id|disposition|programme_contact_id)
+  run_id TEXT NOT NULL,                   -- the reconciliation run that decided it
+  coach_id TEXT NOT NULL,                 -- the legacy coaches row; deliberately NOT a foreign key: the
+                                          -- ledger is history and must outlive an approved retirement of the row
+  disposition TEXT NOT NULL,
+  programme_contact_id TEXT REFERENCES programme_contacts(contact_id),
+  cohort TEXT NOT NULL,                   -- the lead-queue status when decided
+  reason TEXT NOT NULL,
+  evidence_json TEXT NOT NULL,
+  rule_version TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  CHECK (disposition IN ('SUPERSEDED', 'RETAINED_REFERENCED', 'BLOCKED', 'INVALID', 'UNRESOLVED')),
+  CHECK (disposition <> 'SUPERSEDED' OR programme_contact_id IS NOT NULL),
+  CHECK (json_valid(evidence_json)),
+  UNIQUE (run_id, coach_id)
+);
+CREATE INDEX IF NOT EXISTS idx_lcr_coach ON legacy_contact_reconciliation(coach_id);
+CREATE TRIGGER IF NOT EXISTS trg_lcr_no_update BEFORE UPDATE ON legacy_contact_reconciliation
+BEGIN
+  SELECT RAISE(ABORT, 'legacy_contact_reconciliation is append-only');
+END;
+CREATE TRIGGER IF NOT EXISTS trg_lcr_no_delete BEFORE DELETE ON legacy_contact_reconciliation
+BEGIN
+  SELECT RAISE(ABORT, 'legacy_contact_reconciliation is append-only');
+END;
+
+-- ===========================================================================
 -- PLAYER HISTORY IDENTITY (Phase 8B.1A) — an observation is not a person.
 --
 -- `roster_players` rows are ROSTER OBSERVATIONS: a name on programme P's official

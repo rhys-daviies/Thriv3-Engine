@@ -74,6 +74,9 @@ const ALLOWED = new Set([
   'src/components/CampaignProgrammeCard.jsx',      // presentation only
   'src/components/CampaignMessageDetail.jsx',      // presentation only
   'src/pages/player/CampaignTab.jsx',              // routes approve/generate by recipient kind
+  // Phase 1G-B: the READ-ONLY legacy reconciliation dry run — finds each legacy row's verified
+  // replacement and checks it against the floor; opens its database query_only and writes nothing
+  'server/scripts/legacyReconciliationReport.js',
 ]);
 
 /** Phase 1F: the two boundaries that hand an ADDRESS to a provider, mailto or Outlook. */
@@ -125,7 +128,7 @@ describe('no send path can consume programme contacts', () => {
     expect(readers.sort()).toEqual(['server/lib/campaignAttribution.js', 'server/lib/executeProgrammeMessage.js', 'server/lib/outreach.js',
       'server/lib/programmeContactEligibility.js', 'server/lib/programmeContacts.js', 'server/lib/recipient.js', 'server/lib/recipientSelection.js',
       'server/lib/refresh/integrityGate.js', 'server/lib/refresh/integrityMeasure.js', 'server/lib/refresh/promotion.js', 'server/lib/refresh/staging.js',
-      'server/lib/v2/outreachProvenance.js', 'server/scripts/integrityMonitor.js', 'server/scripts/programmeContactLeads.js', 'server/scripts/validateProgrammeContacts.js']);
+      'server/lib/v2/outreachProvenance.js', 'server/scripts/integrityMonitor.js', 'server/scripts/legacyReconciliationReport.js', 'server/scripts/programmeContactLeads.js', 'server/scripts/validateProgrammeContacts.js']);
     for (const f of ['server/lib/pursuitPolicy.js', 'server/routes/sendOutreach.js', 'server/routes/manualOutreach.js']) expect(readers, f).not.toContain(f);
   });
 
