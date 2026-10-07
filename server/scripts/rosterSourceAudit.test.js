@@ -28,9 +28,10 @@ if (!HAVE_DB) console.warn(`\n  rosterSourceAudit.test.js SKIPPED — no databas
 
 const inDb = (expr) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
   import db from '${path.join(ROOT, 'server/db/client.js')}';
-  import { auditRosterSources, institutionsWithSeveralSites, registryIntegrity }
+  import { auditRosterSources, institutionsWithSeveralSites, registryIntegrity, verifiedDomains }
     from '${path.join(ROOT, 'server/scripts/rosterSourceAudit.js')}';
-  void auditRosterSources; void institutionsWithSeveralSites; void registryIntegrity; void db;
+  import { verifyRosterSource } from '${path.join(ROOT, 'shared/evidence/sourceVerification.js')}';
+  void auditRosterSources; void institutionsWithSeveralSites; void registryIntegrity; void verifiedDomains; void verifyRosterSource; void db;
   process.stdout.write(JSON.stringify(${expr}));
 `], { cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: DB }, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }));
 
@@ -184,23 +185,39 @@ d('registry integrity, against the real registry', () => {
     expect(states.SHARED_HOST_CONFLICT ?? 0).toBe(0);
   });
 
-  it('trusts no domain whose own mapping was contradicted', () => {
+  it('trusts a domain whose own mapping was contradicted only after a protected correction, and still refuses the claimant', () => {
     /**
      * `wrong_mappings` records a REJECTED CLAIMANT, not a doubt about the
      * row's own id — `gocolumbialions.com` carries Columbia University's
-     * unitid and a refused claim from Columbia (MO). Every one of those rows
-     * is nonetheless marked WRONG_INSTITUTION, so the trust filter already
-     * excludes all of them and no separate rule is needed.
+     * unitid and a refused claim from Columbia (MO). Such rows were all marked
+     * WRONG_INSTITUTION, so the trust filter excluded them.
      *
-     * That is a fact about today's registry, not a guarantee. If one ever
-     * reaches trust, this fails and someone decides what a contradicted claim
-     * should mean — rather than the gate silently deciding it means nothing.
+     * Phase 8C.5D decided what a contradicted claim means once its row is
+     * trusted: the host is authority for its own unitid and refused for every
+     * claimant it lists. The only way such a row reaches trust is an approved
+     * protected correction (`integrity:protected-correct`), which keeps
+     * `wrong_mappings` and appends PROTECTED_CORRECTION provenance to `notes`.
+     *
+     * So this still fails on any contradicted row that reaches trust WITHOUT
+     * that adjudication, and on any corrected row the gate would hand to a
+     * refused claimant or withhold from its owner.
      */
-    const [{ n }] = sql("SELECT COUNT(*) n FROM athletics_domains"
-      + " WHERE wrong_mappings IS NOT NULL AND wrong_mappings NOT IN ('','[]')"
-      + " AND status IN ('VERIFIED','VERIFIED_ALIAS') AND role = 'ATHLETICS_SITE'"
-      + " AND confidence IN ('CERTAIN','CORROBORATED') AND unitid IS NOT NULL");
-    expect(n).toBe(0);
+    const rows = inDb(`(() => {
+      const domains = verifiedDomains(); const integrity = registryIntegrity();
+      const gate = (domain, unitid) => verifyRosterSource({ url: 'https://' + domain + '/sports/mens-soccer/roster', unitid, season: '2026', urlSeason: '2026', verifiedDomains: domains, registryIntegrity: integrity }).status;
+      return db.prepare("SELECT domain, unitid, wrong_mappings, notes FROM athletics_domains"
+        + " WHERE wrong_mappings IS NOT NULL AND wrong_mappings NOT IN ('','[]')"
+        + " AND status IN ('VERIFIED','VERIFIED_ALIAS') AND role = 'ATHLETICS_SITE'"
+        + " AND confidence IN ('CERTAIN','CORROBORATED') AND unitid IS NOT NULL").all()
+        .map((r) => ({ domain: r.domain, adjudicated: /(^|\\| )PROTECTED_CORRECTION /.test(r.notes ?? ''),
+          owner: gate(r.domain, r.unitid), claimants: JSON.parse(r.wrong_mappings).map((m) => gate(r.domain, m.claimantUnitid)) }));
+    })()`);
+    expect(rows.filter((r) => !r.adjudicated).map((r) => r.domain)).toEqual([]);
+    for (const r of rows) {
+      expect(r.owner).toBe('VERIFIED_DIRECT');
+      expect(r.claimants.length).toBeGreaterThan(0);
+      for (const c of r.claimants) expect(c).not.toBe('VERIFIED_DIRECT');
+    }
   });
 
   it('refuses a source on a host, without moving what it can already link', () => {
