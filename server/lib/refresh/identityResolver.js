@@ -245,13 +245,24 @@ export function createIdentityResolver({ entities = [], colleges = [], domains =
    * host, path under the prefix on a segment boundary ("/athletics" covers "/athletics/msoc/..."
    * but never "/athleticsfoo" or "/admissions"), and the sport, when the location names one.
    * A location never makes the rest of its host proof of anything.
+   *
+   * SOURCE ownership is not HOST ownership (Phase 8C.7D). hostOwnedBy answers "which entity owns
+   * this whole host?"; this answers "is this exact URL an official source of this entity for this
+   * sport?". Every refresh layer (gatherer, classifier) asks this one question.
+   *
+   * A location only speaks for a host the registry has made no decision about: it never overrides a
+   * host that belongs to another entity (or only to a parent), or one that is held, contested,
+   * refuted or ambiguous. Those hosts answer through hostOwnedBy alone.
    */
+  const LOCATION_HOST_OPEN = new Set(['NO_RECORD', 'INSUFFICIENT_EVIDENCE', 'UNREACHABLE']);
   const locBy = new Map();
   for (const l of locations) if (l.status === 'VERIFIED' && !SHARED_PLATFORM_ROOT.test(l.host)) (locBy.get(l.host) || locBy.set(l.host, []).get(l.host)).push(l);
   function sourceOwnedBy(url, entityId, { sport = null } = {}) {
     let u; try { u = new URL(url); } catch { return false; }
     const host = u.hostname.toLowerCase().replace(/^www\./, '');
     if (hostOwnedBy(host, entityId)) return true;
+    const owner = ownerOfHost(host);
+    if (owner.entity || owner.parentOnly || !LOCATION_HOST_OPEN.has(owner.status)) return false;
     const pathLower = u.pathname.toLowerCase();
     return (locBy.get(host) || []).some((l) => l.athletics_entity_id === entityId && (!l.sport || !sport || l.sport === sport)
       && (pathLower === l.path_prefix.toLowerCase() || pathLower.startsWith(`${l.path_prefix.toLowerCase().replace(/\/$/, '')}/`)));
