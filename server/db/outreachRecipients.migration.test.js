@@ -25,6 +25,10 @@ import { findOrCreateCoach } from '../lib/coaches.js';
 const SCHEMA = fs.readFileSync(new URL('./schema.sql', import.meta.url), 'utf8');
 const PRE_1D = JSON.parse(fs.readFileSync(new URL('./pre1dRecipientTables.fixture.json', import.meta.url), 'utf8'));
 const NEW_INDEXES = new Set(['idx_outreach_athlete_programme_contact', 'idx_contact_attempts_campaign_programme_contact', 'idx_first_touch_campaign_programme_contact', 'idx_outreach_send_programme_contact', 'idx_programme_messages_programme_contact']);
+// Phase 1E: the recipient-agreement triggers ensureRecipientConstraints adds beside the indexes.
+const AGREEMENT_TRIGGERS = ['trg_recipient_send_outreach_insert', 'trg_recipient_send_outreach_update', 'trg_recipient_send_message_insert',
+  'trg_recipient_send_message_update', 'trg_recipient_attempt_outreach_insert', 'trg_recipient_attempt_outreach_update',
+  'trg_recipient_message_attempt_insert', 'trg_recipient_message_attempt_update', 'trg_recipient_outreach_fixed', 'trg_recipient_attempt_fixed'];
 const T = '2026-09-01T00:00:00.000Z';
 const ATHLETE = 'mig-athlete';
 
@@ -32,6 +36,8 @@ const ATHLETE = 'mig-athlete';
 function downgradeToPre1d(d) {
   d.pragma('foreign_keys = OFF');
   d.transaction(() => {
+    // A pre-1D database has none of the Phase 1E recipient-agreement triggers either.
+    for (const n of d.prepare("SELECT name FROM sqlite_master WHERE type='trigger' AND name LIKE 'trg_recipient_%'").pluck().all()) d.exec(`DROP TRIGGER "${n}"`);
     for (const t of RECIPIENT_TABLES) {
       const idx = d.prepare("SELECT name, sql FROM sqlite_master WHERE type='index' AND tbl_name=? AND sql IS NOT NULL").all(t).filter((i) => !NEW_INDEXES.has(i.name));
       const cols = d.prepare(`PRAGMA table_info(${t})`).all().map((c) => c.name).filter((c) => c !== 'programme_contact_id');
@@ -113,7 +119,8 @@ describe('migrating a database shaped exactly like the working one', () => {
     const changed = Object.keys(after).filter((k) => before.objects[k] !== undefined && before.objects[k] !== after[k]).sort();
     expect(changed).toEqual(RECIPIENT_TABLES.map((t) => `table:${t}`).sort());
     expect(Object.keys(before.objects).filter((k) => !(k in after))).toEqual([]);
-    expect(Object.keys(after).filter((k) => !(k in before.objects)).sort()).toEqual([...NEW_INDEXES].map((n) => `index:${n}`).sort());
+    expect(Object.keys(after).filter((k) => !(k in before.objects)).sort())
+      .toEqual([...[...NEW_INDEXES].map((n) => `index:${n}`), ...AGREEMENT_TRIGGERS.map((n) => `trigger:${n}`)].sort());
     // the rebuilt definitions are the pre-1D ones plus exactly the column and the CHECK
     // (SQLite stores a renamed table's name quoted: CREATE TABLE "outreach")
     for (const t of RECIPIENT_TABLES) expect(after[`table:${t}`].replace(`CREATE TABLE "${t}"`, `CREATE TABLE ${t}`)).toBe(recipientTableSql(PRE_1D[t], t));

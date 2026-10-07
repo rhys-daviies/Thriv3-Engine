@@ -14,10 +14,11 @@ import { programmeContactId } from './programmeContactEligibility.js';
 /**
  * PHASE 1B — PROGRAMME CONTACTS ARE INTELLIGENCE ONLY. Mechanical guards, not cautions:
  *
- *   1 only an allow-listed set of files may name programme contacts; a pursuit plan, a manual
- *     outreach route, a composer or a send path that starts reading them fails here first
- *   2 every outreach table still takes its recipient as coach_id NOT NULL REFERENCES coaches —
- *     there is no column through which a programme contact could be addressed
+ *   1 only an allow-listed set of files may name programme contacts. Since Step 1E that set
+ *     includes selection (recipientSelection.js), typed planning, and the delivery boundaries —
+ *     which name an inbox only to refuse it; composition and the manual staff lists still may not
+ *   2 every outreach table addresses a coach OR a programme contact (exactly one), and only
+ *     internal planning (contact attempts, first-touch approvals) ever writes an inbox
  *   3 the read-only route shows kind PROGRAMME_INBOX with sendable:false and only answers GET
  *   4 the staging-table rebuild that admits the PROGRAMME_CONTACT dataset carries every staged
  *     row across byte for byte, and is idempotent
@@ -50,7 +51,24 @@ const ALLOWED = new Set([
   'server/lib/recipient.js',
   // Phase 1D: the recipient tables' foreign key to programme_contacts(contact_id)
   'server/db/migrate.js',
+  // Phase 1E: SELECTION. The one place that chooses a programme inbox (named coach -> inbox -> none)
+  'server/lib/recipientSelection.js',
+  // Phase 1E: planning and safety carry a typed PROGRAMME_INBOX recipient through to an intent
+  'server/lib/pursuitPolicy.js',
+  'server/lib/campaignAttribution.js',             // stance + suppression on the inbox's address
+  'server/lib/contactIntelligence.js',             // programme-level prior contact by recipient kind
+  'server/lib/campaignExecution.js',               // reports an inbox as a blocker, never as a coach
+  // Phase 1E: DELIVERY BOUNDARIES — they name an inbox only to REFUSE it (see the test below)
+  'server/lib/programmeMessageGeneration.js',
+  'server/lib/programmeMessages.js',
+  'server/lib/executionClaim.js',
+  'server/lib/executeProgrammeMessage.js',
+  'server/routes/sendOutreach.js',
 ]);
+
+/** Phase 1E: every boundary a message crosses on its way to a provider, mailto or Outlook. */
+const DELIVERY_GATES = ['server/lib/programmeMessageGeneration.js', 'server/lib/programmeMessages.js',
+  'server/lib/executionClaim.js', 'server/lib/executeProgrammeMessage.js', 'server/routes/sendOutreach.js'];
 
 function sourceFiles(dir) {
   const out = [];
@@ -74,13 +92,35 @@ describe('no send path can consume programme contacts', () => {
     expect(naming.sort()).toEqual([...ALLOWED].sort());
   });
 
-  it('the known send-path modules do not name them (belt and braces for the allow-list)', () => {
-    const sendPath = ['server/lib/pursuitPolicy.js', 'server/lib/contactAttempts.js', 'server/lib/campaignAttribution.js', 'server/lib/programmeMessage.js',
-      'server/lib/programmeMessages.js', 'server/lib/programmeMessageGeneration.js', 'server/lib/executionClaim.js', 'server/lib/executeProgrammeMessage.js',
-      'server/lib/outreach.js', 'server/lib/outreachSend.js', 'server/lib/coachEligibility.js', 'server/lib/sendCap.js', 'server/lib/edgeSync.js',
-      'server/lib/manualOutreachSafety.js', 'server/lib/manualContactStance.js', 'server/routes/manualOutreach.js', 'server/routes/sendOutreach.js',
-      'server/routes/campaigns.js', 'server/routes/programmeCoaches.js', 'shared/coachRoles.js'];
-    for (const f of sendPath) expect(TOKEN.test(fs.readFileSync(path.join(ROOT, f), 'utf8')), f).toBe(false);
+  it('composition, manual staff lists and the coach floor still do not name them (belt and braces)', () => {
+    const coachOnly = ['server/lib/programmeMessage.js', 'server/lib/outreach.js', 'server/lib/coachEligibility.js', 'server/lib/sendCap.js',
+      'server/lib/edgeSync.js', 'server/lib/manualOutreachSafety.js', 'server/lib/manualContactStance.js', 'server/routes/manualOutreach.js',
+      'server/routes/campaigns.js', 'server/routes/programmeCoaches.js', 'shared/coachRoles.js', 'src/lib/emailTemplate.js'];
+    for (const f of coachOnly) expect(TOKEN.test(fs.readFileSync(path.join(ROOT, f), 'utf8')), f).toBe(false);
+  });
+
+  it('1E. every delivery boundary names a programme inbox only to refuse it', () => {
+    for (const f of DELIVERY_GATES) {
+      const src = fs.readFileSync(path.join(ROOT, f), 'utf8');
+      expect(src, f).toMatch(/PROGRAMME_INBOX_DELIVERY_DISABLED/);
+      // no SELECT of the contact table itself: a gate never looks an inbox up in order to use it
+      expect(src, f).not.toMatch(/FROM\s+programme_contacts\b/);
+    }
+  });
+
+  it('1E. among outreach modules, only selection, the typed resolver and the gate read programme_contacts', () => {
+    const readers = ['server', 'shared', 'src', 'worker']
+      .flatMap((d) => sourceFiles(path.join(ROOT, d)))
+      .map((f) => path.relative(ROOT, f).split(path.sep).join('/'))
+      .filter((rel) => /FROM\s+programme_contacts\b/.test(fs.readFileSync(path.join(ROOT, rel), 'utf8')));
+    // the selection boundary; the typed resolver; the gate's address read for stance and
+    // suppression; and the 1B intelligence / integrity readers
+    expect(readers.sort()).toEqual(['server/lib/campaignAttribution.js', 'server/lib/programmeContactEligibility.js', 'server/lib/programmeContacts.js',
+      'server/lib/recipient.js', 'server/lib/recipientSelection.js', 'server/lib/refresh/integrityGate.js', 'server/lib/refresh/integrityMeasure.js',
+      'server/lib/refresh/promotion.js', 'server/lib/refresh/staging.js', 'server/scripts/integrityMonitor.js', 'server/scripts/programmeContactLeads.js',
+      'server/scripts/validateProgrammeContacts.js']);
+    expect(readers).toContain('server/lib/recipientSelection.js');
+    for (const f of ['server/lib/pursuitPolicy.js', 'server/lib/contactAttempts.js', 'server/lib/executionClaim.js', 'server/routes/sendOutreach.js']) expect(readers, f).not.toContain(f);
   });
 
   it('every outreach table can address a coach OR a programme contact — exactly one, both foreign keys enforced', () => {
@@ -95,14 +135,22 @@ describe('no send path can consume programme contacts', () => {
     }
   });
 
-  it('29. no selection, composition or send entry point can WRITE a programme-inbox relationship', () => {
-    // the column is named only by the schema, its migration and the recipient READER
-    const COLUMN = /\bprogramme_contact_id\b/;
-    const naming = ['server', 'shared', 'src', 'worker']
-      .flatMap((d) => sourceFiles(path.join(ROOT, d)))
-      .map((f) => path.relative(ROOT, f).split(path.sep).join('/'))
-      .filter((rel) => COLUMN.test(fs.readFileSync(path.join(ROOT, rel), 'utf8')));
-    expect(naming.sort()).toEqual(['server/db/migrate.js', 'server/db/schema.sql', 'server/lib/recipient.js']);
+  it('29/T. only internal PLANNING writes a programme inbox; no outreach, send or message writer does', () => {
+    // Phase 1E: an intent (contact attempt) and a first-touch approval may be recorded for an
+    // inbox. Nothing that creates a relationship, a message or a send names the column in an
+    // INSERT — so a programme-inbox outreach, message or send cannot be created by the product.
+    const INSERT = /INSERT\s+(?:OR\s+\w+\s+)?INTO\s+(\w+)\s*\(([^)]*)\)/gi;
+    const writers = new Map();
+    for (const rel of ['server', 'shared', 'src', 'worker'].flatMap((d) => sourceFiles(path.join(ROOT, d))).map((f) => path.relative(ROOT, f).split(path.sep).join('/'))) {
+      if (rel.startsWith('server/db/')) continue;
+      for (const m of fs.readFileSync(path.join(ROOT, rel), 'utf8').matchAll(INSERT)) {
+        if (/\bprogramme_contact_id\b/.test(m[2])) writers.set(`${rel}:${m[1]}`, true);
+      }
+    }
+    expect([...writers.keys()].sort()).toEqual([
+      'server/lib/contactAttempts.js:programme_contact_attempts',
+      'server/lib/firstTouchApprovals.js:campaign_first_touch_approvals',
+    ]);
     // and the reader never writes it
     expect(fs.readFileSync(path.join(ROOT, 'server/lib/recipient.js'), 'utf8')).not.toMatch(/\b(INSERT|UPDATE)\b[\s\S]{0,80}programme_contact_id/i);
   });

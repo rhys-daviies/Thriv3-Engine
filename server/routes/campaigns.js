@@ -779,7 +779,7 @@ campaignsRouter.post(
     if (!isCurrent || !plan.firstTouchReview.required) {
       const err = new Error(
         'There is no first-touch review to approve for this coach: '
-        + (coach.priorContact.hasConfirmedSend
+        + ((coach.reviewContact ?? coach.priorContact).hasConfirmedSend
           ? 'the campaign is not making a first approach to them right now.'
           : 'this athlete has no confirmed prior contact with them.'),
       );
@@ -793,7 +793,9 @@ campaignsRouter.post(
       // The session's operator, never a field. `requireOperator` guards every
       // /api route, so this is present by the time the handler runs.
       operatorId: req.operator.id,
-      priorContact: coach.priorContact,
+      // Phase 1E: the snapshot is the fact the review was raised on (reviewContact), which
+      // is the coach's own history unless the programme's inbox was also written to.
+      priorContact: coach.reviewContact ?? coach.priorContact,
     });
 
     return {

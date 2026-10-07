@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import { bodyHash } from '../../shared/evidence/sendSnapshot.js';
 import { utcNow } from './time.js';
+import { PROGRAMME_INBOX_DELIVERY_DISABLED } from './recipientSelection.js';
 
 /**
  * THE MESSAGE A CAMPAIGN INTENDS TO SEND, MADE DURABLE — F10b-2.
@@ -67,6 +68,8 @@ const BY_ATTEMPT_STEP = db.prepare(
 const FOR_ATTEMPT = db.prepare(
   'SELECT * FROM programme_messages WHERE programme_contact_attempt_id = ? ORDER BY step',
 );
+
+const ATTEMPT_RECIPIENT = db.prepare('SELECT programme_contact_id FROM programme_contact_attempts WHERE id = ?');
 
 /** The attempt, with the coach it is pursuing and the campaign it belongs to. */
 const ATTEMPT = db.prepare(`
@@ -285,6 +288,12 @@ export function programmeMessageWithContext(id) {
 export function createProgrammeMessage({
   programmeContactAttemptId, composition, at = utcNow(),
 } = {}) {
+  // Phase 1E: a programme-inbox attempt has no message yet (composition is Step 1F). Refused
+  // by name, not left to the coach join below to report as a missing attempt.
+  if (ATTEMPT_RECIPIENT.get(programmeContactAttemptId)?.programme_contact_id) {
+    throw fail(PROGRAMME_INBOX_DELIVERY_DISABLED,
+      'Messages to a programme inbox are not composed or sent yet. Nothing was written.');
+  }
   const attempt = ATTEMPT.get(programmeContactAttemptId);
   if (!attempt) {
     throw fail('CONTACT_ATTEMPT_NOT_FOUND', `No contact attempt ${programmeContactAttemptId}`);

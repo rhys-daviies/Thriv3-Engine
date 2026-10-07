@@ -30,9 +30,10 @@
  * which column is set, never a COALESCE across the two, so nothing of one kind is ever read
  * as the other's.
  *
- * Nothing in this build CREATES a programme-inbox relationship: no selection or send entry
- * point produces one (programmeContactsIsolation.test.js). The schema and these readers can
- * represent it; choosing one is Step 1E.
+ * STEP 1E: recipientSelection.js may now CHOOSE a programme inbox (named coach -> inbox ->
+ * none) and a contact attempt or first-touch approval may record one. Nothing creates a
+ * programme-inbox relationship, message or send: every delivery boundary refuses it
+ * (PROGRAMME_INBOX_DELIVERY_DISABLED) until composition exists (programmeContactsIsolation.test.js).
  * ---------------------------------------------------------------------------
  */
 import db from '../db/client.js';
@@ -107,6 +108,29 @@ function recipientColumns({ row, as, left }) {
     coachEmail: `${rc}.email`,
     coachDivision: `${rc}.division`,
   };
+}
+
+/**
+ * Phase 1E. "This row addresses THAT recipient", for a row aliased `row` and the named
+ * parameters @coachId / @programmeContactId — bind them with `recipientParams`, which sets
+ * exactly one. A coach caller's query therefore reads `coach_id = @coachId` and nothing else
+ * (the other arm is false), and an inbox can never match a coach row or the reverse.
+ */
+export function recipientEqualsSql(row = 's') {
+  if (!/^[a-z_][a-z0-9_]*$/i.test(row)) throw new Error(`recipient SQL: bad alias ${row}`);
+  return `((@coachId IS NOT NULL AND ${row}.coach_id = @coachId) OR (@programmeContactId IS NOT NULL AND ${row}.programme_contact_id = @programmeContactId))`;
+}
+
+/** { coachId, programmeContactId } with exactly one set, from either spelling of a reference. */
+export function recipientParams(ref) {
+  const r = recipientRefOfOutreach({ coach_id: ref?.coachId ?? ref?.coach_id ?? null, programme_contact_id: ref?.programmeContactId ?? ref?.programme_contact_id ?? null });
+  return r.kind === RECIPIENT_KIND.COACH ? { coachId: r.id, programmeContactId: null } : { coachId: null, programmeContactId: r.id };
+}
+
+/** `COACH:<id>` / `PROGRAMME_INBOX:<id>` — a map key that can never collide across kinds. */
+export function recipientKey(ref) {
+  const p = recipientParams(ref);
+  return p.coachId ? `${RECIPIENT_KIND.COACH}:${p.coachId}` : `${RECIPIENT_KIND.PROGRAMME_INBOX}:${p.programmeContactId}`;
 }
 
 /* -------------------------------------------------------------------------- */

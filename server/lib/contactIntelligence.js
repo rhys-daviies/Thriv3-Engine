@@ -1,7 +1,9 @@
 import db from '../db/client.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
 import { contactIntelligenceKey } from '../../shared/contactIntelligenceKey.js';
-import { outreachRecipientSql } from './recipient.js';
+import { outreachRecipientSql, RECIPIENT_KIND } from './recipient.js';
+import { programmeNames } from './coachEligibility.js';
+import { programmeIdentity } from './recipientSelection.js';
 
 /**
  * WHAT AN OPERATOR SHOULD KNOW BEFORE WRITING TO A PROGRAMME AGAIN.
@@ -308,11 +310,18 @@ export function contactIntelligenceForProgramme({ athleteId, collegeName, sport 
  */
 const priorContactByArity = new Map();
 
-function priorContactStatement(n) {
-  if (!priorContactByArity.has(n)) {
-    priorContactByArity.set(n, db.prepare(`
+/*
+ * Phase 1E: the same statement keyed on either recipient column. `coach_id` is what it always
+ * was; `programme_contact_id` asks the identical question of a programme inbox. The column is
+ * one of two literals, never caller text.
+ */
+function priorContactStatement(n, column = 'coach_id') {
+  if (column !== 'coach_id' && column !== 'programme_contact_id') throw new Error(`prior contact: bad column ${column}`);
+  const key = `${column}:${n}`;
+  if (!priorContactByArity.has(key)) {
+    priorContactByArity.set(key, db.prepare(`
       SELECT
-        o.coach_id                     AS coach_id,
+        o.${column}                    AS recipient_id,
         -- First-wins by design in markOutreachSent, so this IS the first.
         o.sent_at                      AS legacy_first_send_at,
         COUNT(s.id)                    AS accepted_count,
@@ -330,11 +339,11 @@ function priorContactStatement(n) {
                                        AS unrecorded_count
       FROM outreach o
       LEFT JOIN outreach_send s ON s.outreach_id = o.id AND s.state = ?
-      WHERE o.athlete_id = ? AND o.coach_id IN (${Array(n).fill('?').join(', ')})
-      GROUP BY o.coach_id
+      WHERE o.athlete_id = ? AND o.${column} IN (${Array(n).fill('?').join(', ')})
+      GROUP BY o.${column}
     `));
   }
-  return priorContactByArity.get(n);
+  return priorContactByArity.get(key);
 }
 
 /**
@@ -374,15 +383,28 @@ export const NO_PRIOR_CONTACT = Object.freeze({
 });
 
 export function priorContactForCoaches({ athleteId, coachIds = [] }) {
-  const ids = [...new Set(coachIds.filter(Boolean))];
+  return priorContactFor({ athleteId, ids: coachIds, column: 'coach_id' });
+}
+
+/**
+ * Phase 1E. The same fact for programme inboxes, keyed on `programme_contact_id`: what this
+ * athlete has ever sent THAT INBOX. Person-level history stays with priorContactForCoaches;
+ * this is endpoint-level, and `programmePriorContact` below is programme-level.
+ */
+export function priorContactForProgrammeContacts({ athleteId, programmeContactIds = [] }) {
+  return priorContactFor({ athleteId, ids: programmeContactIds, column: 'programme_contact_id' });
+}
+
+function priorContactFor({ athleteId, ids: given, column }) {
+  const ids = [...new Set(given.filter(Boolean))];
   const facts = new Map();
   if (!athleteId || !ids.length) return facts;
 
-  for (const row of priorContactStatement(ids.length)
+  for (const row of priorContactStatement(ids.length, column)
     .all(MESSAGE_STATE.ACCEPTED, athleteId, ...ids)) {
     const hasConfirmedSend = row.accepted_count > 0 || Boolean(row.legacy_first_send_at);
     if (!hasConfirmedSend) continue;   // drafts only: a relationship, not a send.
-    facts.set(row.coach_id, {
+    facts.set(row.recipient_id, {
       hasConfirmedSend,
       /**
        * ACCEPTED MESSAGES ON FILE. Zero alongside `hasConfirmedSend: true` is
@@ -408,4 +430,41 @@ export function priorContactForCoaches({ athleteId, coachIds = [] }) {
 /** A miss is "nobody has written to them", which is a fact and not an absence. */
 export function priorContactOf(facts, coachId) {
   return facts.get(coachId) ?? NO_PRIOR_CONTACT;
+}
+
+/**
+ * HAS THIS ATHLETE ALREADY REACHED THIS PROGRAMME, BY ANY RECIPIENT? — Phase 1E.
+ *
+ * PROGRAMME-LEVEL, and kept apart from the person-level fact above. A message to a programme's
+ * inbox reached that programme even though it reached no named person, so "we have never
+ * contacted Duke" must not be concluded merely because the earlier recipient was an inbox.
+ * Matched on every spelling of the programme (programme_row_links) and, for an inbox, on the
+ * canonical row it is filed under. Same definition of "confirmed" as priorContactForCoaches:
+ * an accepted message, or a legacy relationship stamped sent.
+ *
+ * @returns {{hasConfirmedSend, coach: boolean, programmeInbox: boolean, recipients: object[]}}
+ */
+export function programmePriorContact({ athleteId, collegeName, sport }) {
+  const names = new Set(programmeNames(collegeName, sport));
+  const canon = programmeIdentity({ collegeName, sport });
+  if (canon) names.add(canon.name);
+  const P = outreachRecipientSql({ as: 'pp' });
+  const rows = db.prepare(`
+    SELECT ${P.kind} AS kind, ${P.id} AS id, o.sent_at AS legacy_sent_at,
+           (SELECT COUNT(*) FROM outreach_send s WHERE s.outreach_id = o.id AND s.state = @accepted) AS accepted,
+           (SELECT MAX(s.sent_at) FROM outreach_send s WHERE s.outreach_id = o.id AND s.state = @accepted) AS last_accepted_at
+      FROM outreach o
+      ${P.join}
+     WHERE o.athlete_id = @athleteId AND ${P.sport} = @sport
+       AND ${P.programmeName} IN (SELECT value FROM json_each(@names))
+     ORDER BY ${P.kind}, ${P.id}
+  `).all({ athleteId, sport, accepted: MESSAGE_STATE.ACCEPTED, names: JSON.stringify([...names]) });
+  const recipients = rows.map((r) => ({ kind: r.kind, id: r.id, hasConfirmedSend: r.accepted > 0 || Boolean(r.legacy_sent_at), confirmedSendCount: r.accepted, lastConfirmedSendAt: r.last_accepted_at ?? r.legacy_sent_at ?? null }))
+    .filter((r) => r.hasConfirmedSend);
+  return Object.freeze({
+    hasConfirmedSend: recipients.length > 0,
+    coach: recipients.some((r) => r.kind === RECIPIENT_KIND.COACH),
+    programmeInbox: recipients.some((r) => r.kind === RECIPIENT_KIND.PROGRAMME_INBOX),
+    recipients: Object.freeze(recipients),
+  });
 }

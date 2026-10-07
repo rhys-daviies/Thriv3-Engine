@@ -24,6 +24,7 @@ import { bodyHash } from '../../shared/evidence/sendSnapshot.js';
 import { PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS, complianceGaps, SENDER_IDENTITY, SENDER_POSTAL_ADDRESS } from '../lib/config.js';
 import { checkRequiredCore } from '../export/renderProfile.js';
 import { exportAthlete, OUTPUT_DIR } from '../export/exportProfiles.js';
+import { isProgrammeInboxAddress, PROGRAMME_INBOX_DELIVERY_DISABLED } from '../lib/recipientSelection.js';
 
 /**
  * Creates outreach and hands one message per coach to Outlook.
@@ -410,6 +411,14 @@ export async function sendOutreach({
       // this loop and only some of them go through a list builder.
       if (isSuppressed(coach.email)) {
         results.push({ email: coach.email, name: coach.name, status: 'suppressed' });
+        continue;
+      }
+
+      // PHASE 1E — a programme's inbox is not a coach and is not written to yet. Refused before
+      // the coach floor and before findOrCreateCoach, so no path through this loop (including
+      // the legacy opt-in) can mint a coach row for an inbox or draft to one.
+      if (isProgrammeInboxAddress(coach.email)) {
+        results.push({ email: coach.email, name: coach.name, status: 'not-eligible', reason: PROGRAMME_INBOX_DELIVERY_DISABLED });
         continue;
       }
 

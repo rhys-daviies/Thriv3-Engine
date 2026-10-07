@@ -512,6 +512,7 @@ export function transitionSend(sendId, nextState, {
       advanceAttemptForConfirmedSend({
         programmeCampaignId: accepted?.programme_campaign_id ?? null,
         coachId: accepted?.coach_id ?? null,
+        programmeContactId: accepted?.programme_contact_id ?? null,
         at,
       });
     }

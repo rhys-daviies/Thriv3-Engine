@@ -25,6 +25,7 @@ import { RUN_ID } from './executionRun.js';
  */
 import { resolveWireContent } from './executionContent.js';
 import { OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
+import { PROGRAMME_INBOX_DELIVERY_DISABLED } from './recipientSelection.js';
 
 /**
  * TAKE ONE REVIEWED MESSAGE FOR EXECUTION — D4.5. TXN 1, and nothing after it.
@@ -158,6 +159,7 @@ const ATHLETE_FOR_CONTENT = db.prepare(
 );
 /** The lifetime relationship, if there already is one. B3 needs it to see a revocation. */
 const OUTREACH_FOR = db.prepare('SELECT id FROM outreach WHERE athlete_id = ? AND coach_id = ?');
+const INBOX_ATTEMPT = db.prepare('SELECT 1 FROM programme_contact_attempts WHERE id = ? AND programme_contact_id IS NOT NULL');
 /** Has this exact composition already been executed, and how did it end? — D4.8. */
 const EXECUTION_FOR_MESSAGE = db.prepare(
   'SELECT id, state FROM outreach_send WHERE programme_message_id = ?',
@@ -321,6 +323,20 @@ export function claimProgrammeMessageForExecution({
 export function assertExecutionSafety({
   message, context, operatorUserId, connectedMailboxId, onDate, window,
 }) {
+  /**
+   * ---- 0. a programme inbox is never delivered to yet — Phase 1E -----------
+   *
+   * THE FINAL DELIVERY GATE for a programme inbox, asked before anything else. The schema can
+   * hold an inbox message and the plan can name an inbox, but composition (Step 1F) does not
+   * exist for one, so a message addressed to an inbox — however it came to be on file — is
+   * refused here, before a body is frozen, a relationship minted or capacity spent. Read from
+   * the stored row's own recipient column and from the attempt it is filed under, so neither
+   * can carry an inbox past this point unnoticed.
+   */
+  if (message.programme_contact_id || INBOX_ATTEMPT.get(message.programme_contact_attempt_id ?? null)) {
+    throw fail(PROGRAMME_INBOX_DELIVERY_DISABLED,
+      'Messages to a programme inbox are not sent yet. Nothing was claimed or sent.');
+  }
   /**
    * ---- 1b. nothing unresolved is in flight to this coach — D4.8 ----------
    *

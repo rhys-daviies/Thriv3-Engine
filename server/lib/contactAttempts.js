@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import { utcNow } from './time.js';
+import { recipientEqualsSql, recipientParams } from './recipient.js';
+import { assertProgrammeInbox } from './recipientSelection.js';
 
 /**
  * PURSUING ONE COACH, FOR ONE CAMPAIGN.
@@ -108,7 +110,8 @@ const COACH = db.prepare('SELECT id, full_name, email, school, sport FROM coache
  * school's men's and women's programmes and `coaches` is keyed on
  * (email, school, sport) so those are two rows — the same reasoning A6 gives.
  */
-function resolvePair(programmeCampaignId, coachId, athleteId = null) {
+function resolvePair(programmeCampaignId, recipient, athleteId = null) {
+  const { coachId, programmeContactId } = recipientParams(recipient);
   const pc = PROGRAMME_CAMPAIGN.get(programmeCampaignId);
   if (!pc) {
     throw fail('PROGRAMME_CAMPAIGN_NOT_FOUND', `No programme campaign ${programmeCampaignId}`);
@@ -116,6 +119,16 @@ function resolvePair(programmeCampaignId, coachId, athleteId = null) {
   if (athleteId && pc.athlete_id !== athleteId) {
     throw fail('CAMPAIGN_ATHLETE_MISMATCH',
       `Programme campaign ${programmeCampaignId} belongs to a different athlete's campaign.`);
+  }
+  if (programmeContactId) {
+    // Phase 1E: an inbox is proved to be THIS programme's by entity and sport, and must pass
+    // the programme-contact floor now — an intent is never recorded for an ineligible inbox.
+    try {
+      const inbox = assertProgrammeInbox(programmeContactId, { collegeName: pc.college_name, sport: pc.sport });
+      return { pc, coach: null, inbox };
+    } catch (err) {
+      throw fail(err.code, err.message);
+    }
   }
   const coach = COACH.get(coachId);
   if (!coach) throw fail('COACH_NOT_FOUND', `No coach ${coachId}`);
@@ -125,6 +138,14 @@ function resolvePair(programmeCampaignId, coachId, athleteId = null) {
       + `but this coach is at ${coach.school} (${coach.sport}).`);
   }
   return { pc, coach };
+}
+
+/** Phase 1E: the attempt this campaign has for this RECIPIENT (coach or inbox), or null. */
+export function attemptForRecipient(programmeCampaignId, recipient) {
+  return db.prepare(`
+    SELECT * FROM programme_contact_attempts a
+    WHERE a.programme_campaign_id = @programmeCampaignId AND ${recipientEqualsSql('a')}
+  `).get({ programmeCampaignId, ...recipientParams(recipient) }) || null;
 }
 
 // ---------------------------------------------------------------------------
@@ -194,7 +215,7 @@ export function attemptsForOutreach(outreachId) {
  * write.
  */
 export function createContactAttempt({
-  programmeCampaignId, coachId, athleteId = null, outreachId = null,
+  programmeCampaignId, coachId = null, programmeContactId = null, athleteId = null, outreachId = null,
   /**
    * WHERE THIS CAMPAIGN'S PURSUIT OF THIS COACH ALREADY IS — F9b-1.
    *
@@ -214,18 +235,20 @@ export function createContactAttempt({
   step = 1,
   at = utcNow(),
 }) {
-  const { pc } = resolvePair(programmeCampaignId, coachId, athleteId);
+  const recipient = recipientParams({ coachId, programmeContactId });
+  const { pc } = resolvePair(programmeCampaignId, recipient, athleteId);
   assertStep(step);
 
-  const existing = attemptForCoach(programmeCampaignId, coachId);
+  const existing = attemptForRecipient(programmeCampaignId, recipient);
   if (existing) return { ...existing, created: false };
 
-  if (outreachId) assertOutreachFits(outreachId, pc, coachId);
+  if (outreachId) assertOutreachFits(outreachId, pc, recipient);
 
   const row = {
     id: randomUUID(),
     programme_campaign_id: programmeCampaignId,
-    coach_id: coachId,
+    coach_id: recipient.coachId,
+    programme_contact_id: recipient.programmeContactId,
     outreach_id: outreachId,
     state: ATTEMPT_STATE.PLANNED,
     state_reason: null,
@@ -238,10 +261,10 @@ export function createContactAttempt({
   };
   db.prepare(`
     INSERT INTO programme_contact_attempts (
-      id, programme_campaign_id, coach_id, outreach_id, state, state_reason,
+      id, programme_campaign_id, coach_id, programme_contact_id, outreach_id, state, state_reason,
       state_changed_at, step, next_action_at, created_at, updated_at
     ) VALUES (
-      @id, @programme_campaign_id, @coach_id, @outreach_id, @state, @state_reason,
+      @id, @programme_campaign_id, @coach_id, @programme_contact_id, @outreach_id, @state, @state_reason,
       @state_changed_at, @step, @next_action_at, @created_at, @updated_at
     )
   `).run(row);
@@ -382,10 +405,10 @@ export function reconcileContactAttemptStep(id, derivedStep, { at = utcNow() } =
  *
  * @returns {{changed: boolean, attempt: object|null, reason: string|null}}
  */
-export function advanceAttemptForConfirmedSend({ programmeCampaignId, coachId, at = utcNow() }) {
-  if (!programmeCampaignId || !coachId) return { changed: false, attempt: null, reason: 'NO_ATTEMPT' };
+export function advanceAttemptForConfirmedSend({ programmeCampaignId, coachId = null, programmeContactId = null, at = utcNow() }) {
+  if (!programmeCampaignId || (!coachId && !programmeContactId)) return { changed: false, attempt: null, reason: 'NO_ATTEMPT' };
 
-  const row = attemptForCoach(programmeCampaignId, coachId);
+  const row = attemptForRecipient(programmeCampaignId, { coachId, programmeContactId });
   if (!row) return { changed: false, attempt: null, reason: 'NO_ATTEMPT' };
   if (row.state === ATTEMPT_STATE.STOPPED) {
     return { changed: false, attempt: row, reason: 'STOPPED' };
@@ -427,7 +450,7 @@ const ACCEPTED_SENDS_FOR_ATTEMPT = db.prepare(`
     JOIN programme_campaigns pc ON pc.id = s.programme_campaign_id
     JOIN campaigns c ON c.id = pc.campaign_id
    WHERE s.programme_campaign_id = @programmeCampaignId
-     AND s.coach_id = @coachId
+     AND ${recipientEqualsSql('s')}
      AND s.athlete_id = c.athlete_id
      AND s.state = 'ACCEPTED'
 `);
@@ -482,7 +505,7 @@ export function reconcileProgrammeContactAttempt(attemptId, { at = utcNow() } = 
 
   const { n: acceptedCount } = ACCEPTED_SENDS_FOR_ATTEMPT.get({
     programmeCampaignId: row.programme_campaign_id,
-    coachId: row.coach_id,
+    ...recipientParams(row),
   });
   const derivedStep = acceptedCount + 1;
 
@@ -547,7 +570,7 @@ const RECONCILE = db.transaction(({ row, acceptedCount, derivedStep, at }) => {
  */
 export function linkContactAttemptToOutreach(id, outreachId, { at = utcNow() } = {}) {
   const row = requireAttempt(id);
-  const { pc } = resolvePair(row.programme_campaign_id, row.coach_id);
+  const { pc } = resolvePair(row.programme_campaign_id, row);
 
   if (row.outreach_id === outreachId) return { ...row, changed: false };
   if (row.outreach_id) {
@@ -556,7 +579,7 @@ export function linkContactAttemptToOutreach(id, outreachId, { at = utcNow() } =
       + 'falsify which conversation its messages belong to.');
   }
 
-  assertOutreachFits(outreachId, pc, row.coach_id);
+  assertOutreachFits(outreachId, pc, row);
   db.prepare('UPDATE programme_contact_attempts SET outreach_id = ?, updated_at = ? WHERE id = ?')
     .run(outreachId, at, id);
   return { ...BY_ID.get(id), changed: true };
@@ -581,14 +604,15 @@ function requireAttempt(id) {
   return row;
 }
 
-function assertOutreachFits(outreachId, pc, coachId) {
-  const o = db.prepare('SELECT id, athlete_id, coach_id FROM outreach WHERE id = ?').get(outreachId);
+function assertOutreachFits(outreachId, pc, recipient) {
+  const { coachId, programmeContactId } = recipientParams(recipient);
+  const o = db.prepare('SELECT id, athlete_id, coach_id, programme_contact_id FROM outreach WHERE id = ?').get(outreachId);
   if (!o) throw fail('OUTREACH_NOT_FOUND', `No outreach ${outreachId}`);
   if (o.athlete_id !== pc.athlete_id) {
     throw fail('OUTREACH_ATHLETE_MISMATCH',
       'That outreach relationship belongs to a different athlete.');
   }
-  if (o.coach_id !== coachId) {
+  if ((o.coach_id ?? null) !== coachId || (o.programme_contact_id ?? null) !== programmeContactId) {
     throw fail('OUTREACH_COACH_MISMATCH',
       'That outreach relationship is with a different coach.');
   }

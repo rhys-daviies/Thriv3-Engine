@@ -8,6 +8,7 @@ import { unresolvedSendFor } from './outreachSend.js';
 import { composeProgrammeMessage } from './programmeMessage.js';
 import { createProgrammeMessage, messageForStep } from './programmeMessages.js';
 import { utcNow } from './time.js';
+import { PROGRAMME_INBOX_DELIVERY_DISABLED } from './recipientSelection.js';
 
 /**
  * TURN A PREPARED INTENT INTO A DURABLE MESSAGE — F10b-3.
@@ -205,7 +206,7 @@ const PROGRAMME_CAMPAIGN_EXISTS = db.prepare(
  * @throws with `err.code` — see GENERATION_REFUSAL, PREPARATION_REFUSAL and
  *   CONTACT_REFUSAL. Nothing is written on any refusal.
  */
-export function generateProgrammeMessage({ programmeCampaignId, coachId, at = utcNow() } = {}) {
+export function generateProgrammeMessage({ programmeCampaignId, coachId, programmeContactId = null, at = utcNow() } = {}) {
   /**
    * ---- 1. an intent exists, and is still being pursued ----
    *
@@ -216,6 +217,19 @@ export function generateProgrammeMessage({ programmeCampaignId, coachId, at = ut
    */
   if (!PROGRAMME_CAMPAIGN_EXISTS.get(programmeCampaignId)) {
     throw fail('PROGRAMME_CAMPAIGN_NOT_FOUND', `No programme campaign ${programmeCampaignId}`);
+  }
+
+  /**
+   * ---- 0. a programme inbox is not composed for yet — Phase 1E ----
+   *
+   * The pursuit plan can name a programme inbox and an intent can be recorded for one, but
+   * what a message to a programme's inbox SAYS (no person's name, its own greeting) is Step
+   * 1F. Until then generation refuses, before anything is composed or written, rather than
+   * reaching a composer that would greet a coach who does not exist.
+   */
+  if (programmeContactId) {
+    throw fail(PROGRAMME_INBOX_DELIVERY_DISABLED,
+      'Messages to a programme inbox are not composed or sent yet. Nothing was written.');
   }
 
   const attempt = attemptForCoach(programmeCampaignId, coachId);

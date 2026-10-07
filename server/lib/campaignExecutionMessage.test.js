@@ -281,10 +281,13 @@ describe('current means this attempt, this step, this coach', () => {
       programmeCampaignId: pc, coachId: coaches[0].id,
     });
 
-    db.prepare('UPDATE programme_messages SET coach_id = ? WHERE id = ?')
-      .run(coaches[1].id, message.id);
-
-    expect(entry(c, pc).currentMessage).toEqual(NOTHING);
+    // Phase 1E: a message can no longer be re-pointed at a different recipient than its
+    // contact attempt — the recipient-agreement trigger refuses the write itself, so the
+    // tampered state this test used to construct cannot exist. The message stays the
+    // attempt's, for the coach the campaign is pursuing.
+    expect(() => db.prepare('UPDATE programme_messages SET coach_id = ? WHERE id = ?')
+      .run(coaches[1].id, message.id)).toThrow(/RECIPIENT_DISAGREES/);
+    expect(entry(c, pc).currentMessage.id).toBe(message.id);
   });
 
   it('does not lend one programme’s message to another', () => {

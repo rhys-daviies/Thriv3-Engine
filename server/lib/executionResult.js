@@ -1,7 +1,7 @@
 import db from '../db/client.js';
 import { utcNow } from './time.js';
 import { transitionSend, appendSendEvent, sendById } from './outreachSend.js';
-import { reconcileProgrammeContactAttempt, attemptForCoach } from './contactAttempts.js';
+import { reconcileProgrammeContactAttempt, attemptForRecipient } from './contactAttempts.js';
 import { TRANSPORT_OUTCOME } from './outboundTransport.js';
 import { settleOutboundAttempt, OUTBOUND_ATTEMPT_DISPOSITION } from './outboundBudget.js';
 import {
@@ -267,10 +267,10 @@ export function persistTransportResult(sendId, result, {
            * that was missed is repaired by the next one, and a run that happens
            * twice changes nothing the second time.
            */
-          const attempt = attemptForCoach(
-            accepted?.programme_campaign_id ?? null,
-            accepted?.coach_id ?? null,
-          );
+          // Phase 1E: the accepted send's own recipient, whichever kind it is.
+          const attempt = (accepted?.coach_id || accepted?.programme_contact_id)
+            ? attemptForRecipient(accepted?.programme_campaign_id ?? null, accepted)
+            : null;
           const rec = attempt
             ? reconcileProgrammeContactAttempt(attempt.id, { at })
             : { reconciled: false, reason: 'NO_ATTEMPT', step: null, state: null, drift: false };

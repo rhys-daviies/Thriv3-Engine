@@ -1,7 +1,7 @@
 import { getCampaign, listProgrammeCampaigns } from './campaigns.js';
 import {
   programmePursuitPlan, PURSUIT_ACTION, PURSUIT_REASON,
-  contactAttemptPreparation,
+  contactAttemptPreparation, RECIPIENT_KIND, PROGRAMME_INBOX_DELIVERY_DISABLED,
 } from './pursuitPolicy.js';
 /**
  * MOVED OUT IN D4.8 and imported rather than kept here: the execution claim now
@@ -177,6 +177,18 @@ function programmeEntry(plan, { onDate, currentMessage = null }) {
 
   const steps = stepReconciliation(coach, plan.step);
 
+  /**
+   * ---- a programme inbox is planned, not executable — Phase 1E ----
+   *
+   * The plan may name a programme's inbox (no eligible named coach). It is reported as a
+   * blocker and NEVER as `currentCoach`: an inbox is not a person, and this screen does not
+   * show inbox addresses until composition and the UI exist (Steps 1F/1G).
+   */
+  const inboxCurrent = coach?.recipientKind === RECIPIENT_KIND.PROGRAMME_INBOX;
+  if (inboxCurrent) {
+    blockers.push({ source: BLOCKER_SOURCE.POLICY, code: PROGRAMME_INBOX_DELIVERY_DISABLED });
+  }
+
   // ---- policy has nothing to propose ----
   if (plan.nextAction === PURSUIT_ACTION.NO_FURTHER_COLD_OUTREACH) {
     blockers.push({ source: BLOCKER_SOURCE.POLICY, code: plan.reason });
@@ -253,7 +265,8 @@ function programmeEntry(plan, { onDate, currentMessage = null }) {
     policyVersion: plan.policyVersion,
     coachDepth: plan.coachDepth,
 
-    currentCoach: coach ? {
+    recipientKind: plan.recipientSelection?.kind ?? null,
+    currentCoach: coach && !inboxCurrent ? {
       id: coach.coachId,
       name: coach.name,
       role: coach.role,

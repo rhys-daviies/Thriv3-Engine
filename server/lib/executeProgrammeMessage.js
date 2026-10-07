@@ -9,6 +9,7 @@ import { persistTransportResult } from './executionResult.js';
  */
 import { productionTransport } from './productionTransport.js';
 import { reclaimRefusedExecution } from './executionRetry.js';
+import { isProgrammeInboxAddress, PROGRAMME_INBOX_DELIVERY_DISABLED } from './recipientSelection.js';
 
 /**
  * SENDING ONE REVIEWED MESSAGE, END TO END — D4.9.
@@ -184,6 +185,18 @@ async function transmitClaimed(claimed, { transport, at, message }) {
   if (!snapshot?.complete) {
     throw fail(EXECUTION_REFUSAL.EXECUTION_SNAPSHOT_INCOMPLETE,
       'The claim did not leave a complete frozen execution, so there is nothing safe to send.');
+  }
+
+  /**
+   * ---- 4b. never to a programme inbox — Phase 1E -------------------------
+   *
+   * Defence in depth behind the claim's own refusal: whatever path produced this claim, the
+   * provider is not called for a send addressed to a programme inbox, or for an address that
+   * is any programme's inbox, until Step 1F makes inbox delivery a real, composed thing.
+   */
+  if (claimed.send?.programme_contact_id || isProgrammeInboxAddress(snapshot.recipientEmail)) {
+    throw fail(PROGRAMME_INBOX_DELIVERY_DISABLED,
+      'Messages to a programme inbox are not sent yet. The provider was not called.');
   }
 
   /* ---- 5. one provider attempt, outside every transaction --------------- */

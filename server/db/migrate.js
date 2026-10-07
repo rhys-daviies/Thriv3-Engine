@@ -1751,6 +1751,11 @@ export function extendOutreachRecipients(db) {
     db.pragma('foreign_keys = OFF');
     try {
       db.transaction(() => {
+        // Phase 1E: the recipient-agreement triggers read programme_contact_id and reference
+        // these tables across each other, so they cannot survive a table being dropped and
+        // renamed under them. They are derived, not data: dropped here and recreated by
+        // ensureRecipientConstraints below, from the one definition.
+        for (const n of db.prepare("SELECT name FROM sqlite_master WHERE type='trigger' AND name LIKE 'trg_recipient_%'").pluck().all()) db.exec(`DROP TRIGGER "${n}"`);
         for (const t of pending) {
           const cols = colsOf(t);
           const def = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").get(t).sql;
@@ -1799,6 +1804,57 @@ function ensureRecipientConstraints(db) {
     CREATE INDEX IF NOT EXISTS idx_programme_messages_programme_contact
       ON programme_messages(programme_contact_id) WHERE programme_contact_id IS NOT NULL;
 
+  `);
+  ensureRecipientAgreement(db);
+}
+
+/**
+ * RECIPIENT AGREEMENT — Phase 1E. A child row never addresses someone other than its parent.
+ *
+ *   outreach_send               = its outreach            (outreach_id)
+ *   outreach_send               = its programme message   (programme_message_id, when set)
+ *   programme_contact_attempts  = its outreach            (outreach_id, when linked)
+ *   programme_messages          = its contact attempt     (programme_contact_attempt_id)
+ *   outreach, programme_contact_attempts: the recipient is fixed once written — children hang off it
+ *
+ * "Agree" is both columns equal under IS, so a coach row and an inbox row can never match.
+ * Each check fires only when the parent EXISTS: a missing parent is the foreign key's refusal
+ * and keeps the foreign key's error. campaign_first_touch_approvals has no parent row (it is
+ * keyed by campaign + recipient and nothing references it), so there is nothing for it to
+ * disagree with; its uniqueness is the partial index above.
+ *
+ * Triggers, because these are cross-row rules a CHECK cannot state, and because every writer —
+ * library, script or a hand-run UPDATE — passes through them. Idempotent (IF NOT EXISTS).
+ */
+const DISAGREES = (p) => `NOT (${p}.coach_id IS NEW.coach_id AND ${p}.programme_contact_id IS NEW.programme_contact_id)`;
+function ensureRecipientAgreement(db) {
+  const abort = (what) => `BEGIN SELECT RAISE(ABORT, 'RECIPIENT_DISAGREES: ${what}'); END`;
+  const sendOutreach = `WHEN EXISTS (SELECT 1 FROM outreach p WHERE p.id = NEW.outreach_id AND ${DISAGREES('p')})`;
+  const sendMessage = `WHEN NEW.programme_message_id IS NOT NULL AND EXISTS (SELECT 1 FROM programme_messages p WHERE p.id = NEW.programme_message_id AND ${DISAGREES('p')})`;
+  const attemptOutreach = `WHEN NEW.outreach_id IS NOT NULL AND EXISTS (SELECT 1 FROM outreach p WHERE p.id = NEW.outreach_id AND ${DISAGREES('p')})`;
+  const messageAttempt = `WHEN EXISTS (SELECT 1 FROM programme_contact_attempts p WHERE p.id = NEW.programme_contact_attempt_id AND ${DISAGREES('p')})`;
+  const fixed = 'WHEN NOT (OLD.coach_id IS NEW.coach_id AND OLD.programme_contact_id IS NEW.programme_contact_id)';
+  db.exec(`
+    CREATE TRIGGER IF NOT EXISTS trg_recipient_send_outreach_insert BEFORE INSERT ON outreach_send ${sendOutreach}
+      ${abort('outreach_send must address the recipient of its outreach')};
+    CREATE TRIGGER IF NOT EXISTS trg_recipient_send_outreach_update BEFORE UPDATE OF outreach_id, coach_id, programme_contact_id ON outreach_send ${sendOutreach}
+      ${abort('outreach_send must address the recipient of its outreach')};
+    CREATE TRIGGER IF NOT EXISTS trg_recipient_send_message_insert BEFORE INSERT ON outreach_send ${sendMessage}
+      ${abort('outreach_send must address the recipient of its programme message')};
+    CREATE TRIGGER IF NOT EXISTS trg_recipient_send_message_update BEFORE UPDATE OF programme_message_id, coach_id, programme_contact_id ON outreach_send ${sendMessage}
+      ${abort('outreach_send must address the recipient of its programme message')};
+    CREATE TRIGGER IF NOT EXISTS trg_recipient_attempt_outreach_insert BEFORE INSERT ON programme_contact_attempts ${attemptOutreach}
+      ${abort('a contact attempt must address the recipient of its outreach')};
+    CREATE TRIGGER IF NOT EXISTS trg_recipient_attempt_outreach_update BEFORE UPDATE OF outreach_id ON programme_contact_attempts ${attemptOutreach}
+      ${abort('a contact attempt must address the recipient of its outreach')};
+    CREATE TRIGGER IF NOT EXISTS trg_recipient_message_attempt_insert BEFORE INSERT ON programme_messages ${messageAttempt}
+      ${abort('a programme message must address the recipient of its contact attempt')};
+    CREATE TRIGGER IF NOT EXISTS trg_recipient_message_attempt_update BEFORE UPDATE OF programme_contact_attempt_id, coach_id, programme_contact_id ON programme_messages ${messageAttempt}
+      ${abort('a programme message must address the recipient of its contact attempt')};
+    CREATE TRIGGER IF NOT EXISTS trg_recipient_outreach_fixed BEFORE UPDATE OF coach_id, programme_contact_id ON outreach ${fixed}
+      ${abort('an outreach relationship keeps the recipient it was created with')};
+    CREATE TRIGGER IF NOT EXISTS trg_recipient_attempt_fixed BEFORE UPDATE OF coach_id, programme_contact_id ON programme_contact_attempts ${fixed}
+      ${abort('a contact attempt keeps the recipient it was created with')};
   `);
 }
 

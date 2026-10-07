@@ -7,11 +7,10 @@
  * returned; a VERIFIED row that has aged out of the current cycle, or whose ownership evidence
  * has since moved, is withheld (and counted) rather than shown.
  *
- * `sendable: false` on every contact, and that is the whole contract of this build: no
- * pursuit plan, manual outreach route or composer reads this module (a test enforces it), and
- * no outreach table can reference a programme contact — their recipient is coach_id NOT NULL.
- * The selection hierarchy (verified named coach -> verified programme inbox -> no contact)
- * arrives with the recipient abstraction in a later step, not here.
+ * `sendable: false` on every contact: no pursuit plan, manual outreach route or composer reads
+ * this module (a test enforces it). The selection hierarchy (verified named coach -> verified
+ * programme inbox -> no contact) lives in recipientSelection.js (Step 1E), and no delivery
+ * boundary sends to an inbox yet.
  */
 import db from '../db/client.js';
 import { buildProgrammeContactContext, programmeContactProblems } from './programmeContactEligibility.js';
