@@ -15,3 +15,4 @@ _state/
 # swallowed it, and L6D found out by discovering the versioned pipeline could
 # not import lib.py at all. Reference data, not state: it belongs in history.
 !geo25.json
+!requirements.txt
