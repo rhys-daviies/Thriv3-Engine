@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
-// server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+// The send floor (verified address, not PROVEN_STALE, canonically eligible at this programme,
+// not held) applies at send time whatever any operator flag says, so every coach this file
+// sends to is seeded genuinely sendable in beforeEach (seedSendableCoach). The floor itself is
+// tested in server/lib/coachEligibility.test.js.
 
 
 // Intercept the Outlook bridge so the orchestration can be inspected without
@@ -19,10 +18,26 @@ vi.mock('../lib/outlook.js', () => ({
   }),
 }));
 
+// Lets one test make evidence derivation throw. A send used to reach that path by passing no
+// collegeName, but a send with no programme now has no eligible coach to go to, so the failure is
+// injected instead; every other test sees the real evidenceFor.
+let failEvidence = false;
+vi.mock('../lib/evidenceQueries.js', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    evidenceFor: (...args) => {
+      if (failEvidence) throw new Error('evidence unavailable (test)');
+      return actual.evidenceFor(...args);
+    },
+  };
+});
+
 const db = (await import('../db/client.js')).default;
 const { utcNow } = await import('../lib/time.js');
 const { sendOutreach } = await import('./sendOutreach.js');
 const { suppress } = await import('../lib/suppressions.js');
+const { seedSendableCoach } = await import('../testCanonicalCoaches.js');
 
 const CHAPTERS = [
   { t: 10, label: 'Opening' },
@@ -76,6 +91,7 @@ beforeEach(() => {
   // outreach_evidence references outreach, so it goes first — sendOutreach
   // now writes a row per message describing the personalisation it used.
   db.exec('DELETE FROM outreach_evidence; DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches; DELETE FROM suppressions;');
+  for (const c of COACHES) seedSendableCoach(db, { ...c, school: 'Butler University', sport: 'mens-soccer' });
 });
 
 describe('one email per coach', () => {
@@ -184,8 +200,13 @@ describe('evidence logging', () => {
 
   it('does not fail a send when evidence cannot be worked out', async () => {
     const athleteId = makeAthlete();
-    const { results } = await sendOutreach(baseRequest(athleteId, { collegeName: null }));
-    expect(results.every((r) => r.status === 'drafted')).toBe(true);
+    failEvidence = true;
+    try {
+      const { results } = await sendOutreach(baseRequest(athleteId));
+      expect(results.every((r) => r.status === 'drafted')).toBe(true);
+    } finally {
+      failEvidence = false;
+    }
   });
 });
 
@@ -254,7 +275,10 @@ describe('refusing to send a dead link', () => {
       coaches: [{ name: 'No Address', email: '', title: 'Head Coach' }, ...COACHES],
     }));
 
-    expect(results[0].status).toBe('error');
+    // An addressless coach is now refused by the send floor (no usable email) before anything
+    // is composed for it, rather than erroring part-way; the rest still go.
+    expect(results[0].status).toBe('not-eligible');
+    expect(results[0].reason).toBe('NO_USABLE_EMAIL');
     expect(results[1].status).toBe('drafted');
     expect(results[2].status).toBe('drafted');
   });

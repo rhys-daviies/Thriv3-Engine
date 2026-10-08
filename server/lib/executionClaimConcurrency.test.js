@@ -6,11 +6,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
+// Fixture coaches are made genuinely sendable (verified address + coach_seasons corroboration,
+// via server/testCanonicalCoaches.js): the send-time floor, including the canonical decision,
+// always applies and no operator flag lifts it. The floor itself is tested in
 // server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
 
 
 const run = promisify(execFile);
@@ -49,6 +48,7 @@ const SEED = `
 import db from '${path.join(ROOT, 'server/db/client.js')}';
 import { randomUUID } from 'node:crypto';
 import { findOrCreateCoach } from '${path.join(ROOT, 'server/lib/coaches.js')}';
+import { makeCoachesSendable } from '${path.join(ROOT, 'server/testCanonicalCoaches.js')}';
 import { materialiseNextContactAttempt } from '${path.join(ROOT, 'server/lib/pursuitPolicy.js')}';
 import { generateProgrammeMessage } from '${path.join(ROOT, 'server/lib/programmeMessageGeneration.js')}';
 import { reviewProgrammeMessage } from '${path.join(ROOT, 'server/lib/programmeMessages.js')}';
@@ -63,6 +63,7 @@ for (const [n, s] of [['Hayden Aish','2024'],['Jack Kelly','2023']]) {
   db.prepare("INSERT INTO roster_players (id, created_date, updated_date, college_name, sport, division, season, player_name, position, nationality, country, class_year_label, minutes_played, games_played) VALUES (?, 'x','x',?, 'mens-soccer','NCAA D1',?,?,'DEFENSE','International','New Zealand','Junior',900,18)").run(randomUUID(), COLLEGE, s, n);
 }
 const coach = findOrCreateCoach({ full_name: 'A Coach', email: 'head@duke.edu', school: COLLEGE, sport: 'mens-soccer', division: 'NCAA D1', position_title: 'Head Coach' });
+makeCoachesSendable(db, [coach.id]);
 const mb = 'mb-race';
 db.prepare("INSERT INTO connected_mailboxes (id, operator_user_id, athlete_id, provider, provider_account_id, email_address, status, connected_at, created_at, updated_at) VALUES (?,?,?, 'GOOGLE', ?, 'athlete@example.com', 'CONNECTED','x','x','x')").run(mb, OP, A, randomUUID());
 db.prepare("INSERT INTO connected_mailbox_credentials (mailbox_id, ciphertext, iv, auth_tag, key_version, rotated_at, created_at, updated_at) VALUES (?, 'ct','iv','tag','v1','x','x','x')").run(mb);

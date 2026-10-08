@@ -19,6 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import Database from 'better-sqlite3';
+import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
 
 const REPO = path.resolve(import.meta.dirname, '../..');
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'thriv3-pc-'));
@@ -53,6 +54,8 @@ function build(dbPath, withReconciled) {
   coach.run({ id: 'A', name: 'Ann Keep', email: 'ann@eureka.edu', school: 'Eureka', sport: 'womens-soccer', title: 'Head Coach' });
   coach.run({ id: 'B', name: 'Bob Reassign', email: 'bob@realstate.edu', school: 'Wrong (TX)', sport: 'womens-soccer', title: 'Head Coach' });
   coach.run({ id: 'C', name: 'Cara Withheld', email: 'cara@eureka.edu', school: 'Eureka', sport: 'womens-soccer', title: 'Assistant' });
+  // the engine's own evidence that each person works where they are filed (the floor now asks it)
+  corroborateFixtureCoaches(db);
 
   if (withReconciled) {
     db.exec(`CREATE TABLE coaches_reconciled (

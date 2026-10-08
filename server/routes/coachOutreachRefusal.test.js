@@ -1,7 +1,10 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
 import express from 'express';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import db from '../db/client.js';
+import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
 
 /**
  * PHASE 8A FLOOR, AT THE MOMENT OF SENDING — what the operator's request gets back.
@@ -67,10 +70,11 @@ vi.mock('../lib/coachEligibility.js', async (importOriginal) => {
   const real = await importOriginal();
   return {
     ...real,
-    coachIneligibility(row) {
+    // every outreach path now reads the floor through outreachIneligibility (coach floor + canonical decision)
+    outreachIneligibility(row, opts) {
       // plan rows are `SELECT * FROM coaches` and carry position_title; the claim's row does not
       if (planBlind.on && row && 'position_title' in row) return null;
-      return real.coachIneligibility(row);
+      return real.outreachIneligibility(row, opts);
     },
   };
 });
@@ -137,16 +141,17 @@ function mailbox() {
 }
 
 /** A reviewed message for a coach who MEETS the floor when it is approved — the state a send starts from. */
-function approvedForVerifiedCoach() {
+function approvedForVerifiedCoach({ coachId: fixedId = null } = {}) {
   const c = `camp-${++seq}`;
   db.prepare(`INSERT INTO campaigns (id, athlete_id, sport, state, starts_on, created_at, updated_at, snapshot_taken_at, programme_count)
     VALUES (?, ?, 'mens-soccer', 'active', '2020-01-01', 'x', 'x', 'x', 1)`).run(c, ATHLETE);
   const pc = `pc-${++seq}`;
   db.prepare(`INSERT INTO programme_campaigns (id, campaign_id, college_name, sport, rank, match_score, tier, tier_source, state, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, 82, 'A', 'AUTO', 'queued', 'x', 'x')`).run(pc, c, COLLEGE, SPORT, ++seq);
-  const coachId = randomUUID();
+  const coachId = fixedId || randomUUID();
   db.prepare(`INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title, email_status)
     VALUES (?, 'x', ?, ?, ?, 'NCAA D1', ?, 'Head Coach', 'verified')`).run(coachId, `Coach ${++seq}`, `k${seq}@duke.edu`, COLLEGE, SPORT);
+  corroborateFixtureCoaches(db, { ids: [coachId] });
   materialiseNextContactAttempt({ programmeCampaignId: pc });
   const { message } = generateProgrammeMessage({ programmeCampaignId: pc, coachId });
   reviewProgrammeMessage(message.id, { operatorId: OPERATOR });
@@ -179,6 +184,7 @@ beforeEach(() => {
            DELETE FROM programme_campaigns; DELETE FROM campaigns;
            DELETE FROM athlete_programmes;
            DELETE FROM connected_mailbox_credentials; DELETE FROM connected_mailboxes;
+           DELETE FROM coach_email_absence_observations; DELETE FROM coach_seasons;
            DELETE FROM coaches; DELETE FROM colleges; DELETE FROM roster_players;
            DELETE FROM suppressions; DELETE FROM operator_users; DELETE FROM players;`);
   seq = 0;
@@ -288,26 +294,47 @@ describe('an eligible coach is unaffected', () => {
   });
 });
 
-describe('THRIV3_ALLOW_LEGACY_COACHES is the explicit, and only, override', () => {
+describe('THRIV3_ALLOW_LEGACY_COACHES never reaches send time', () => {
   beforeEach(() => { planBlind.on = true; });   // isolate the claim-time check, as in the block above
 
-  it('=1 lets an unverified coach through (the pre-8A behaviour), and only because it was asked for', async () => {
+  /**
+   * THE INVARIANT: no operator flag may bypass eligibility at the moment of sending. The legacy
+   * opt-in once let an unverified coach be claimed and sent (pre-8A); it now widens only what is
+   * offered, and the claim applies the full floor whatever it is set to.
+   */
+  it('=1 does NOT let an unverified coach be claimed or sent', async () => {
     const m = approvedForVerifiedCoach();
+    const before = durable(m);
     setCoach(m.coachId, { email_status: 'inferred' });
     process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
 
     const res = await send(m.messageId, { bodyHash: m.bodyHash, connectedMailboxId: mailbox() });
 
-    expect(res.status).toBe(200);
-    expect(res.body.state).toBe('ACCEPTED');
-    expect(count('outreach_send')).toBe(1);
+    expect(res.status).toBe(422);
+    expect(res.body.code).toBe('COACH_NOT_OUTREACH_ELIGIBLE');
+    expect(durable(m)).toEqual(before);
+    expect(count('outreach_send')).toBe(0);
+    expect(transportBehaviour.calls).toHaveLength(0);
   });
 
-  it('removing it restores the refusal; falsy or unrecognised values are not an override', async () => {
+  it('=1 does NOT let a canonically ineligible (uncorroborated) coach with a verified address be sent', async () => {
+    const m = approvedForVerifiedCoach();
+    db.prepare('DELETE FROM coach_seasons WHERE lower(coach_name) = lower((SELECT full_name FROM coaches WHERE id = ?))').run(m.coachId);
+    process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+
+    const res = await send(m.messageId, { bodyHash: m.bodyHash, connectedMailboxId: mailbox() });
+
+    expect(res.status).toBe(422);
+    expect(res.body.error).toContain('COACH_NOT_CANONICALLY_ELIGIBLE');
+    expect(count('outreach_send')).toBe(0);
+    expect(transportBehaviour.calls).toHaveLength(0);
+  });
+
+  it('every value of the flag gives the same refusal', async () => {
     const m = approvedForVerifiedCoach();
     const mb = mailbox();
     setCoach(m.coachId, { email_status: 'inferred' });
-    for (const value of [undefined, '0', 'no', 'off', '']) {
+    for (const value of [undefined, '0', 'no', 'off', '', '1', 'true', 'yes', 'on']) {
       if (value === undefined) delete process.env.THRIV3_ALLOW_LEGACY_COACHES; else process.env.THRIV3_ALLOW_LEGACY_COACHES = value;
 
       const res = await send(m.messageId, { bodyHash: m.bodyHash, connectedMailboxId: mb });
@@ -318,3 +345,64 @@ describe('THRIV3_ALLOW_LEGACY_COACHES is the explicit, and only, override', () =
     expect(count('outreach_send')).toBe(0);
   });
 });
+
+/**
+ * PHASE 1G-D CLOSE-OUT — the canonical decision and the activation holds at send time. A message
+ * approved while its coach was eligible is refused if, by the time it is sent, the coach's recorded
+ * address has been found POSITIVELY ABSENT from their official page (the Brosnihan case) or the coach
+ * is under an activation hold — by the plan, and, where the plan still names the coach, by the claim.
+ */
+describe('send-time canonical decision: eligible when approved, not when sent', () => {
+  const UNITID = 990001;
+  function recordAbsence(coachId) {
+    db.prepare('UPDATE colleges SET unitid = ? WHERE name = ? AND sport = ?').run(UNITID, COLLEGE, SPORT);
+    const c = db.prepare('SELECT * FROM coaches WHERE id = ?').get(coachId);
+    const src = 'https://goduke.example/sports/mens-soccer/coaches';
+    const sha = createHash('sha256').update(`page-${coachId}`).digest('hex');
+    db.prepare(`INSERT INTO coach_email_absence_observations (observation_id, coach_id, email, observed_at, page_season, source_url, source_host, page_unitid, page_sport,
+        parser_version, evidence_sha256, parse_status, staff_records, emails_published, coach_name_found, coach_email_found, other_email_for_coach, fixture_hash, action_id, recorded_at)
+      VALUES (?, ?, ?, '2026-10-01T12:00:00.000Z', 2026, ?, 'goduke.example', ?, ?, 'sidearm-staff-2', ?, 'COMPLETE', 4, 3, 1, 0, NULL, 'test-fixture', 'test-action', 'x')`)
+      .run(createHash('sha256').update(`${coachId}|${src}`).digest('hex'), coachId, c.email.toLowerCase(), src, UNITID, SPORT, sha);
+  }
+
+  it('the plan refuses once the address is found positively absent; nothing is created, nothing sent', async () => {
+    const m = approvedForVerifiedCoach();
+    const before = durable(m);
+    recordAbsence(m.coachId);
+    const res = await send(m.messageId, { bodyHash: m.bodyHash, connectedMailboxId: mailbox() });
+    expect(res.status).toBe(422);
+    expect(res.body.code).toBe('NO_ACTION_TO_EXECUTE');
+    expect(durable(m)).toEqual(before);
+    expect(transportBehaviour.calls).toHaveLength(0);
+  });
+
+  it('where the plan still names the coach, the CLAIM refuses with the reason, before any capacity is spent', async () => {
+    const m = approvedForVerifiedCoach();
+    const before = durable(m);
+    recordAbsence(m.coachId);
+    planBlind.on = true;
+    const res = await send(m.messageId, { bodyHash: m.bodyHash, connectedMailboxId: mailbox() });
+    expect(res.status).toBe(422);
+    expect(res.body.code).toBe(CLAIM_REFUSAL.COACH_NOT_OUTREACH_ELIGIBLE);
+    expect(res.body.error).toContain('COACH_EMAIL_POSITIVELY_ABSENT');
+    expect(durable(m)).toEqual(before);
+    expect(count('outreach_send')).toBe(0);
+    expect(transportBehaviour.calls).toHaveLength(0);
+  });
+
+  it('a message prepared for a coach now under an activation hold is refused at claim time, even under the legacy opt-in', async () => {
+    const held = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, '../data/seeds/coach_activation_holds.json'), 'utf8'))
+      .holds.find((h) => h.hold === 'PENDING_SEND_TIME_VERIFICATION').coach_id;
+    planBlind.on = true;                                  // the message was prepared before the hold existed
+    const m = approvedForVerifiedCoach({ coachId: held });
+    const before = durable(m);
+    process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+    const res = await send(m.messageId, { bodyHash: m.bodyHash, connectedMailboxId: mailbox() });
+    expect(res.status).toBe(422);
+    expect(res.body.code).toBe(CLAIM_REFUSAL.COACH_NOT_OUTREACH_ELIGIBLE);
+    expect(res.body.error).toContain('COACH_ACTIVATION_HELD');
+    expect(durable(m)).toEqual(before);
+    expect(transportBehaviour.calls).toHaveLength(0);
+  });
+});
+

@@ -16,7 +16,7 @@
  *   node server/scripts/draftOutreach.js --athlete "Ryan Billing" --top 20 --apply
  *   node server/scripts/draftOutreach.js --athlete <id> --roles head
  */
-import { coachIneligibility, legacyCoachesAllowed } from '../lib/coachEligibility.js';
+import { coachIneligibility } from '../lib/coachEligibility.js';
 import 'dotenv/config';
 import db from '../db/client.js';
 import { activeCollegesForSeason } from '../lib/programmeStatus.js';
@@ -273,9 +273,9 @@ function main() {
       provenance[status] = (provenance[status] || 0) + 1;
 
       if (isSuppressed(coach.email)) { skipped.suppressed.push(coach.email); continue; }
-      // Phase 8A runtime floor (verified address, coach not PROVEN_STALE); the send path
-      // enforces it again. Pre-8A behaviour only with THRIV3_ALLOW_LEGACY_COACHES=1.
-      if (!legacyCoachesAllowed() && coachIneligibility(coach)) { skipped.notEligible.push(coach.email); continue; }
+      // The send floor (verified address, not PROVEN_STALE, canonically eligible at this
+      // programme, not under an activation hold); the send boundary enforces it again. No flag lifts it.
+      if (coachIneligibility(coach)) { skipped.notEligible.push(coach.email); continue; }
       if (SKIP_INFERRED && coach.email_status === 'inferred') {
         skipped.inferred.push(coach.email);
         continue;
@@ -346,7 +346,7 @@ function main() {
     console.log('  Re-run with --skip-inferred to leave them out.');
   }
   if (skipped.inferred.length) console.log(`  ${skipped.inferred.length} inferred address(es) skipped (--skip-inferred).`);
-  if (skipped.notEligible.length) console.log(`  ${skipped.notEligible.length} address(es) not outreach-eligible (unverified or coach departed) skipped — THRIV3_ALLOW_LEGACY_COACHES=1 to include.`);
+  if (skipped.notEligible.length) console.log(`  ${skipped.notEligible.length} address(es) not outreach-eligible (unverified, departed, not canonically eligible here, or held) skipped.`);
   const split = plan.filter((p) => p.domainSplit);
   if (split.length) console.log(`  !! ${split.length} programme(s) have contacts on unrelated domains: ${split.map((p) => p.college.name).join(', ')}`);
   if (skipped.noContacts.length) console.log(`  ${skipped.noContacts.length} programme(s) skipped, no contacts at all: ${skipped.noContacts.join(', ')}`);

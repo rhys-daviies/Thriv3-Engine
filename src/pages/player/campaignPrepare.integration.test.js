@@ -10,6 +10,7 @@ import CampaignTab, { GROUP } from './CampaignTab.jsx';
 import db from '../../../server/db/client.js';
 import { campaignsRouter } from '../../../server/routes/campaigns.js';
 import { MESSAGE_STATE } from '../../../shared/outreachMessageState.js';
+import { corroborateFixtureCoaches } from '../../../server/testCanonicalCoaches.js';
 
 /**
  * F9b-3 — PREPARING AN ATTEMPT, WITH NOTHING PRETENDED.
@@ -79,6 +80,7 @@ function coach({ school = 'Duke', email, name = 'John Smith', title = 'Head Coac
       email_status)
     VALUES (?, ?, ?, ?, ?, 'NCAA D1', 'mens-soccer', ?, 'verified')
   `).run(id, NOW, name, email ?? `c${++seq}@duke.edu`, school, title);
+  corroborateFixtureCoaches(db, { ids: [id] });
   return id;
 }
 

@@ -4,11 +4,10 @@ import {
 import express from 'express';
 import { randomUUID } from 'node:crypto';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
-// server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+// The send floor (verified address, not PROVEN_STALE, canonically eligible at this programme,
+// not held) applies at send time whatever any operator flag says, so the coaches this file
+// drafts to are made genuinely sendable in beforeEach (makeCoachesSendable). No legacy opt-in is
+// needed. The floor itself is tested in server/lib/coachEligibility.test.js.
 
 
 /**
@@ -36,6 +35,7 @@ const { findOrCreateCoach } = await import('../lib/coaches.js');
 const { MESSAGE_STATE, ACCEPTED_SOURCE } = await import('../../shared/outreachMessageState.js');
 const { OUTREACH_ORIGIN } = await import('../../shared/outreachOrigin.js');
 const { PER_COACH_MAX_SENDS } = await import('../lib/config.js');
+const { makeCoachesSendable } = await import('../testCanonicalCoaches.js');
 
 /**
  * F7b — THRIV3 DRAFTS, A PERSON SENDS, A PERSON SAYS SO.
@@ -182,7 +182,9 @@ beforeEach(() => {
   const uncId = college(UNC);
   headCoachId = coachAt(DUKE, { name: 'Head Person' }).id;
   asstCoachId = coachAt(DUKE, { name: 'Assistant Person' }).id;
-  coachAt(UNC, { name: 'Tar Coach' });
+  const uncCoachId = coachAt(UNC, { name: 'Tar Coach' }).id;
+  // Genuinely sendable: the send floor applies at send time whatever any flag says.
+  makeCoachesSendable(db, [headCoachId, asstCoachId, uncCoachId]);
 
   dukeRelationship = upsertAthleteProgramme(ATHLETE, { college_id: dukeId }).programme.id;
   uncRelationship = upsertAthleteProgramme(ATHLETE, { college_id: uncId }).programme.id;

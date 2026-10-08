@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
+// Both coaches this file sends to are seeded genuinely sendable in beforeEach (verified
+// address, filed at Duke, with coach_seasons corroboration): the send floor applies the
+// canonical decision at send time with no operator override. The floor itself is tested in
 // server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
 
 
 /**
@@ -56,6 +55,7 @@ const { utcNow } = await import('../lib/time.js');
 const { sendOutreach } = await import('./sendOutreach.js');
 const { OUTREACH_ORIGIN } = await import('../../shared/outreachOrigin.js');
 const { ACTIVATION_REFUSAL } = await import('../lib/tokenActivation.js');
+const { seedSendableCoach } = await import('../testCanonicalCoaches.js');
 
 const CHAPTERS = [{ t: 10, label: 'Opening' }];
 
@@ -109,6 +109,11 @@ beforeEach(() => {
            DELETE FROM outreach_send; DELETE FROM outreach;
            DELETE FROM athlete_programmes; DELETE FROM suppressions;
            DELETE FROM players; DELETE FROM coaches;`);
+  for (const c of TWO) {
+    seedSendableCoach(db, {
+      name: c.name, email: c.email, title: c.title, school: 'Duke', sport: 'mens-soccer', division: 'NCAA D1',
+    });
+  }
 });
 
 /* ========================================================================== */

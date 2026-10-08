@@ -7,6 +7,7 @@ import db from '../db/client.js';
 import { campaignsRouter } from './campaigns.js';
 import { UPLOADS_DIR } from '../lib/uploadPath.js';
 import { getCampaign, getProgrammeCampaign, listProgrammeCampaigns } from '../lib/campaigns.js';
+import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
 
 /**
  * A5 — the API doorway.
@@ -761,6 +762,7 @@ describe('GET /api/campaigns/:id/execution-plan', () => {
         `).run(randomUUID(), `Coach ${i}${j}`, `c${j}.s${i}@example.edu`, `School ${i}`, title);
       }
     }
+    corroborateFixtureCoaches(db);
   }
 
   it('returns a campaign, a summary, its programmes and an ordered preview', async () => {

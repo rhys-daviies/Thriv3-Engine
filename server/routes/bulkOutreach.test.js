@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
-// server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+// The send floor (verified address, not PROVEN_STALE, canonically eligible at this programme,
+// not held) applies at send time whatever any operator flag says, so seed() gives every
+// programme a genuinely sendable coach (seedSendableCoach). No legacy opt-in is needed. The
+// floor itself is tested in server/lib/coachEligibility.test.js.
 
 
 process.env.RECRUITMATCH_DB = ':memory:';
@@ -48,6 +47,7 @@ const { sendOutreach } = await import('./sendOutreach.js');
 const { evidenceForOutreach } = await import('../lib/evidenceLog.js');
 const { evidenceReport } = await import('../lib/evidencePerformance.js');
 const { confirmSent, pendingDrafts } = await import('../lib/confirmSends.js');
+const { seedSendableCoach } = await import('../testCanonicalCoaches.js');
 
 const RECENT = () => new Date(Date.now() - 86400000).toISOString();
 const athleteId = randomUUID();
@@ -109,6 +109,8 @@ function seed() {
     db.prepare(`INSERT INTO colleges (id, created_date, updated_date, name, sport, division, active)
       VALUES (?, '2026-01-01', '2026-01-01', ?, 'mens-soccer', 'NCAA D1', 1)`)
       .run(randomUUID(), p.name);
+    // The coach `request` addresses for this programme, genuinely sendable.
+    seedSendableCoach(db, { ...coachFor(p.name), school: p.name, sport: 'mens-soccer', division: 'NCAA D1' });
     // A realistic current squad for every programme — defenders and midfielders
     // in ordinary proportions — so freshness is CURRENT throughout and the only
     // thing differing between programmes is what their history holds.
@@ -137,9 +139,13 @@ function seed() {
   }
 }
 
+function coachFor(programme) {
+  return { name: `${programme} Coach`, email: `coach@${programme.replace(/\s/g, '')}.test`, title: 'Head Coach' };
+}
+
 const request = (programme, extra = {}) => ({
   athleteId,
-  coaches: [{ name: `${programme} Coach`, email: `coach@${programme.replace(/\s/g, '')}.test`, title: 'Head Coach' }],
+  coaches: [coachFor(programme)],
   subject: 'Subject',
   body: 'Hi Coach,\n\n{{player_profile_url}}\n\nBest regards',
   greetingName: 'Coach',
