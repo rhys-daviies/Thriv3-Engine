@@ -25,7 +25,8 @@ import {
 import {
   REGIONS, REGION_KEYS, canonicalCountry, regionOf, unmappedCountries,
 } from '../../shared/recruiting/regions.js';
-import { POSITION_PLURAL } from '../../shared/positions.js';
+// canonicalPosition, so 'CB', 'Defense' and 'Defender' all read as DEFENSE.
+import { POSITION_PLURAL, canonicalPosition as canonicalPositionOf } from '../../shared/positions.js';
 
 const argv = process.argv.slice(2);
 const arg = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
@@ -374,7 +375,7 @@ if (has('regions')) {
   playerReport({
     name: row.full_name,
     country: row.nationality,
-    canonicalPosition: { Defender: 'DEFENSE', Midfielder: 'MIDFIELD', Forward: 'FORWARD', Goalkeeper: 'GOALKEEPER' }[row.position] ?? 'UNKNOWN',
+    canonicalPosition: canonicalPositionOf(row.position),
     entryType: 'FRESHMAN',
   }, patterns);
 } else if (programme) {

@@ -6,6 +6,7 @@ import { usePlayerWorkspace } from './PlayerWorkspace';
 import { classYearOf } from '@shared/athlete.js';
 import { contributionSummary } from '@/lib/contributionIntake';
 import { preferenceSummary, preferencesComplete } from '@/lib/preferenceIntake';
+import { positionSummary, recruitmentPreferenceRows } from '@/lib/recruitmentPreferenceView';
 
 function present(value) {
   return value !== null && value !== undefined && value !== '';
@@ -56,6 +57,8 @@ export default function ProfileTab() {
   const contribution = contributionSummary(player);
   const preferences = preferenceSummary(player);
   const preferencesAnswered = preferencesComplete(player);
+  const positions = positionSummary(player);
+  const recruitment = recruitmentPreferenceRows(player);
 
   return (
     <div className="space-y-4">
@@ -83,8 +86,13 @@ export default function ProfileTab() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Block title="Identity">
-          <Row label="Position" value={player.position} />
-          <Row label="Secondary position" value={player.secondary_position !== 'None' ? player.secondary_position : null} />
+          <Row
+            label="Position"
+            value={positions.primary && positions.rankedAs && positions.primary !== positions.rankedAs
+              ? `${positions.primary} (ranked as ${positions.rankedAs.toLowerCase()})`
+              : positions.primary}
+          />
+          <Row label="Secondary position" value={positions.secondary} />
           <Row label="Class year" value={classYearOf(player)} />
           <Row label="Status" value={player.commitment_status} />
           <Row label="Nationality" value={player.nationality} />
@@ -130,6 +138,30 @@ export default function ProfileTab() {
               Edit Player to have their preferences reflected.
             </p>
           )}
+        </Card>
+
+        {/*
+          Written out, like the card above: "No preference" is an answer the
+          operator needs to see, and `Block` would hide a card of them. Each
+          row says whether Matcher V2 ranks on it or only checks it.
+        */}
+        <Card className="p-5" data-testid="profile-recruitment-preferences">
+          <h3 className="font-heading text-sm font-semibold mb-2">Where, and what kind of school</h3>
+          <dl>
+            {recruitment.map((r) => (
+              <div key={r.field} className="flex items-baseline justify-between gap-4 py-2 border-b border-border/60 last:border-0">
+                <dt className="text-xs text-muted-foreground shrink-0">{r.label}</dt>
+                <dd className={`text-sm text-right ${r.stated ? 'font-medium' : 'italic text-muted-foreground'}`}>
+                  {r.text}
+                  {r.stated && (
+                    <span className="block text-[11px] font-normal text-muted-foreground">
+                      {r.ranked ? 'Counted in the ranking' : 'Checked on each match'}
+                    </span>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </Card>
 
         <Block title="Contact">

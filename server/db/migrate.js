@@ -127,6 +127,16 @@ const PLAYER_COLUMNS = [
   // to none, and what it removes is counted and reported rather than
   // disappearing.
   ['academic_minimum', 'REAL'],
+
+  /**
+   * Recruitment preferences: JSON arrays, NULL on every existing row because
+   * nobody has been asked. Location (states, and regions expanded to states)
+   * reaches the matcher's own `locationFit`; institution type is checked on
+   * each match card, never scored. See shared/recruitmentPreferences.js.
+   */
+  ['preferred_states', 'TEXT'],
+  ['preferred_regions', 'TEXT'],
+  ['preferred_institution_types', 'TEXT'],
 ];
 
 /**

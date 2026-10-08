@@ -4,6 +4,8 @@ import { extractVideoId } from '../../../shared/youtube.js';
 import { generateSlug, generateUnique } from '../../lib/tokens.js';
 import { contributionPairError } from '../../../shared/matching/v2/financialRules.js';
 import { PREFERENCE_FIELD_NAMES, normalisePriority } from '../../../shared/matching/v2/athletePreferences.js';
+import { isKnownPosition, hasSecondaryPosition } from '../../../shared/positions.js';
+import { preferenceListError } from '../../../shared/recruitmentPreferences.js';
 
 const columns = [
   'full_name', 'email', 'phone', 'graduation_year', 'recruiting_class_year', 'match_weights', 'criterion_ranking', 'origin', 'academic_minimum', 'high_school', 'city', 'state',
@@ -28,9 +30,15 @@ const columns = [
 
   // Lifecycle
   'archived_at', 'published_at',
+
+  // Recruitment preferences (shared/recruitmentPreferences.js)
+  'preferred_states', 'preferred_regions', 'preferred_institution_types',
 ];
 
-const jsonFields = ['preferred_divisions', 'preferred_conferences', 'video_chapters', 'sport_attributes', 'criterion_ranking'];
+const jsonFields = [
+  'preferred_divisions', 'preferred_conferences', 'video_chapters', 'sport_attributes', 'criterion_ranking',
+  'preferred_states', 'preferred_regions', 'preferred_institution_types',
+];
 
 const base = createEntity('players', columns, jsonFields);
 
@@ -112,6 +120,32 @@ function checkPriorities(data) {
   return out;
 }
 
+/**
+ * Refuse a position the matcher cannot place, and a malformed preference list.
+ *
+ * Positions are free text in the schema, and an unrecognised one does not
+ * fail anywhere loud: `canonicalPosition` reads it as UNKNOWN, positional
+ * opportunity goes unscoreable and the athlete's whole ranking quietly loses
+ * its most important layer. So a written position must resolve to one of the
+ * four groups. A secondary position may also be the 'None' sentinel or blank.
+ *
+ * Only fields in the patch are checked, so a legacy row holding a value this
+ * rule would now refuse can still be edited elsewhere without being rewritten.
+ */
+function checkPositionsAndPreferences(data) {
+  if (!data) return data;
+  const has = (k) => Object.prototype.hasOwnProperty.call(data, k);
+  if (has('position') && !isKnownPosition(data.position)) {
+    throw new Error(`position "${data.position ?? ''}" is not a position the matcher can place`);
+  }
+  if (has('secondary_position') && hasSecondaryPosition(data.secondary_position) && !isKnownPosition(data.secondary_position)) {
+    throw new Error(`secondary_position "${data.secondary_position}" is not a position the matcher can place`);
+  }
+  const listError = preferenceListError(data);
+  if (listError) throw new Error(listError);
+  return data;
+}
+
 const slugTaken = (candidate) => !!db.prepare('SELECT 1 FROM players WHERE public_slug = ?').get(candidate);
 
 /**
@@ -127,8 +161,8 @@ function withSlug(data) {
 
 export const Player = {
   ...base,
-  create: (data) => base.create(withSlug(deriveVideoId(checkPriorities(checkContribution(data))))),
-  update: (id, data) => base.update(id, deriveVideoId(checkPriorities(checkContribution(data, base.get(id))))),
+  create: (data) => base.create(withSlug(deriveVideoId(checkPriorities(checkContribution(checkPositionsAndPreferences(data)))))),
+  update: (id, data) => base.update(id, deriveVideoId(checkPriorities(checkContribution(checkPositionsAndPreferences(data), base.get(id))))),
 
   /**
    * The athletes currently being represented.

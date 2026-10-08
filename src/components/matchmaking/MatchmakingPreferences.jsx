@@ -7,6 +7,7 @@ import { preferenceSummary } from '@/lib/preferenceIntake';
 import { contributionSummary } from '@/lib/contributionIntake';
 import { academicIntentState, ACADEMIC_INTENT } from '@shared/academicMajors.js';
 import { majorPreference, changedSinceRun } from '@/lib/matchmakingV2View';
+import { positionSummary, recruitmentPreferenceRows, ROW_FIELDS } from '@/lib/recruitmentPreferenceView';
 
 /**
  * THE INPUTS THIS RANKING WAS BUILT FROM — §L, §M, §N, §O.
@@ -46,6 +47,8 @@ export default function MatchmakingPreferences({ player, run }) {
   const contribution = contributionSummary(player);
   const changed = changedSinceRun(player, run?.inputs ?? null);
   const intent = academicIntentState(player?.intended_major);
+  const positions = positionSummary(player);
+  const recruitment = recruitmentPreferenceRows(player);
 
   return (
     <div className="rounded-lg border border-border p-3" data-testid="active-preferences">
@@ -103,6 +106,36 @@ export default function MatchmakingPreferences({ player, run }) {
           >
             {p.label}: {p.text}
             <ChangedMark when={changed.has(p.field)} />
+          </Badge>
+        ))}
+      </div>
+
+      {/*
+        POSITION AND RECRUITMENT PREFERENCES. The position badge names the
+        group the ranking used, because a detailed position is finer than
+        anything the matcher reads. Each preference says whether it was
+        RANKED (location) or only CHECKED on the cards below, so a stated
+        division can never be mistaken for a filter that ran.
+      */}
+      <div className="flex items-center gap-1.5 flex-wrap mt-1.5" data-testid="recruitment-preference-badges">
+        {positions.primary && (
+          <Badge variant="muted" data-testid="preference-position">
+            Position: {positions.primary}
+            {positions.rankedAs && positions.rankedAs !== positions.primary && ` (ranked as ${positions.rankedAs.toLowerCase()})`}
+            {positions.secondary && `; also ${positions.secondary}, not ranked`}
+            <ChangedMark when={changed.has('position')} />
+          </Badge>
+        )}
+        {recruitment.map((r) => (
+          <Badge
+            key={r.field}
+            variant="muted"
+            className={r.stated ? undefined : 'italic'}
+            data-testid={`preference-${r.field}`}
+          >
+            {r.label}: {r.text}
+            {r.stated && <span className="text-muted-foreground">{r.ranked ? ' · ranked' : ' · checked'}</span>}
+            <ChangedMark when={ROW_FIELDS[r.field].some((f) => changed.has(f))} />
           </Badge>
         ))}
       </div>

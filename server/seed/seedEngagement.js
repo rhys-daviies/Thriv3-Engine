@@ -22,8 +22,8 @@ export const SEED_MARKER = 'seed:engagement';
 const ATHLETES = [
   {
     full_name: 'Nikau Brennan',
-    position: 'Left Winger',
-    secondary_position: 'Attacking Midfielder',
+    position: 'W', // winger; the entity refuses positions the matcher cannot place
+    secondary_position: 'AM',
     graduation_year: 2027,
     sport: 'mens-soccer',
     email: 'nikau.brennan@example.com',

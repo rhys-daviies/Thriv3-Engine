@@ -9,6 +9,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
 import { players as playersApi } from '@/api/client';
+import { positionDetailLabel } from '@shared/positions.js';
 
 const STATUS_VARIANT = {
   New: 'blue',
@@ -47,6 +48,7 @@ export default function Players() {
     if (!q) return players;
     return players.filter(
       (p) => p.full_name?.toLowerCase().includes(q) || p.position?.toLowerCase().includes(q)
+        || positionDetailLabel(p.position).toLowerCase().includes(q)
     );
   }, [players, search]);
 
@@ -104,7 +106,7 @@ export default function Players() {
               <div className="min-w-0">
                 <p className="font-medium truncate">{p.full_name}</p>
                 <p className="text-xs text-muted-foreground truncate">
-                  {p.position} · {p.state || '—'} · {(p.preferred_divisions || []).join(', ') || 'Any division'}
+                  {positionDetailLabel(p.position)} · {p.state || '—'} · {(p.preferred_divisions || []).join(', ') || 'Any division'}
                 </p>
               </div>
             </Link>

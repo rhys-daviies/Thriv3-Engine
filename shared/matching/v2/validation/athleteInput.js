@@ -21,6 +21,7 @@
 import { abilityToPercentile, abilityToProgrammeScore } from '../calibration/abilityScale.js';
 import { budgetInterval } from '../financialRules.js';
 import { readPriority } from '../athletePreferences.js';
+import { preferredStatesOf } from '../../../recruitmentPreferences.js';
 
 /**
  * The fields a real athlete must carry, and what happens without each.
@@ -51,7 +52,13 @@ export const REQUIRED_INPUTS = Object.freeze({
 /** Fields the product does not ask anybody, so they are absent by design rather than by accident. */
 export const NOT_COLLECTED = Object.freeze([
   'intended_major',
-  'location preference (how far from home, or where)',
+  /**
+   * WHERE is collected now (states and regions, see recruitmentPreferences.js);
+   * HOW FAR is not. `locationFit` can take a maximum distance, but Thriv3 holds
+   * only a home state, and a state centroid is not a distance a family would
+   * recognise for Texas or California.
+   */
+  'distance from home (how far the athlete will travel)',
   'recruit type (high school / transfer / post-graduate / junior college)',
   'initial enrolment year and seasons used, which is what eligibility actually runs on',
   'whether the athlete has already been contacted by any programme',
@@ -137,6 +144,7 @@ export function buildValidationAthlete({ record, v1Shape, position, profile = {}
       ...(academic === null ? ['academic_strength_priority'] : []),
     ],
     intendedMajor: record.intended_major ?? null,
+    preferredStates: preferredStatesOf(record),
     preferredDivisions: v1Shape.divisions ?? [],
     preferredConferences: v1Shape.conferences ?? [],
     criterionRanking: v1Shape.criterionRanking ?? [],
@@ -167,6 +175,12 @@ export function buildValidationAthlete({ record, v1Shape, position, profile = {}
       competitiveLevelPriority: level,
       playingOpportunityPriority: playing,
       academicStrengthPriority: academic,
+      /**
+       * The states the athlete would go to, regions already expanded - or null,
+       * which keeps `locationFit` NOT_APPLICABLE and leaves every athlete who
+       * stated nothing ranked exactly as before.
+       */
+      preferredStates: preferredStatesOf(record),
     },
   };
 

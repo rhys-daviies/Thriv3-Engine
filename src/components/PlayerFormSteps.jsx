@@ -7,7 +7,9 @@ import PublicProfileFields from '@/components/PublicProfileFields';
 import { extractVideoId } from '@shared/youtube';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import {
+  Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectGroup,
+} from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { RotateCcw } from 'lucide-react';
 import AbilitySlider from '@/components/AbilitySlider';
@@ -17,6 +19,7 @@ import { US_STATES, COUNTRIES, ORIGINS } from '@/lib/locations';
 import { DIVISIONS } from '@shared/divisions.js';
 import FamilyContributionField from '@/components/FamilyContributionField';
 import AthletePreferenceFields from '@/components/AthletePreferenceFields';
+import RecruitmentPreferenceFields from '@/components/RecruitmentPreferenceFields';
 import {
   contributionFromPlayer, chooseContribution, setContributionAmount,
   contributionValid, contributionPayload,
@@ -24,15 +27,20 @@ import {
 import {
   preferencesFromPlayer, setPreference, preferencesValid, preferencePayload,
 } from '@/lib/preferenceIntake';
-import { positionLabel } from '@shared/positions.js';
+import {
+  positionLabel, positionDetail, positionOptionGroups, isKnownPosition, canonicalPosition, NO_SECONDARY_POSITION,
+  hasSecondaryPosition,
+} from '@shared/positions.js';
 import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, validateTemplate } from '@/lib/emailTemplate';
 import { cn } from '@/lib/utils';
 import { entities } from '@/api/client';
 
-// The person who plays there, so the word reads the same way in the form, on
-// the profile and in the email. Stored as written and canonicalised on read
-// (shared/positions.js), so rows saved as 'Defense' keep matching.
-const POSITIONS = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
+/**
+ * Positions come from the sport's model (shared/positions.js): a detailed key
+ * such as 'CB' is stored, and the matcher reads its group, so being specific
+ * about an athlete never moves their ranking. Each group also offers a
+ * no-detail choice, which is what every athlete saved before this held.
+ */
 // Imported, not restated. This list was a third copy of the division
 // vocabulary and would have gone on offering five options after USCAA was
 // added, so an athlete could never have said they were open to it.
@@ -49,8 +57,25 @@ const POSITIONS = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
  * and is left alone.
  */
 function positionOption(stored) {
-  if (!stored || stored === 'None') return stored || '';
-  return positionLabel(stored);
+  if (!stored || stored === NO_SECONDARY_POSITION) return stored || '';
+  const detail = positionDetail(stored);
+  // A detail that only restates its group (GK) is offered as the group itself.
+  if (detail) return detail.label === positionLabel(detail.group) ? positionLabel(detail.group) : detail.key;
+  // An unplaceable legacy value is kept as written: blanking it would hide
+  // the problem, and the server now refuses to save it, which says why.
+  return isKnownPosition(stored) ? positionLabel(stored) : stored;
+}
+
+/** One picker body: the four groups, each headed, each led by its no-detail choice. */
+function PositionItems({ sport, exclude = null }) {
+  return positionOptionGroups(sport).map((g) => (
+    <SelectGroup key={g.group}>
+      <div className="px-2 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{g.label}</div>
+      {g.options.filter((o) => o.key !== exclude).map((o) => (
+        <SelectItem key={o.key} value={o.key}>{o.label}</SelectItem>
+      ))}
+    </SelectGroup>
+  ));
 }
 
 function defaultsFrom(initialData) {
@@ -90,6 +115,9 @@ function defaultsFrom(initialData) {
     evaluation: initialData?.evaluation || '',
     sport_attributes: initialData?.sport_attributes || {},
     preferred_conferences: initialData?.preferred_conferences || [],
+    preferred_states: initialData?.preferred_states || [],
+    preferred_regions: initialData?.preferred_regions || [],
+    preferred_institution_types: initialData?.preferred_institution_types || [],
     /**
      * READ-ONLY from here on. Kept in form state so the previous answer can be
      * shown as context and so the column survives a save untouched; the
@@ -194,7 +222,16 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
     });
   };
 
-  const step1Valid = data.full_name.trim().length > 0 && !!data.position && data.preferred_divisions.length > 0
+  const positionValid = isKnownPosition(data.position);
+  /**
+   * A legacy secondary the matcher cannot place ("Attacking Midfielder") is
+   * shown and blocks the step, exactly like the primary: the server refuses
+   * to save it, and a save refused there would fail with nothing on screen.
+   * Choosing None or a listed position is the operator's decision, never a
+   * silent rewrite of what was stored.
+   */
+  const secondaryValid = !hasSecondaryPosition(data.secondary_position) || isKnownPosition(data.secondary_position);
+  const step1Valid = data.full_name.trim().length > 0 && positionValid && secondaryValid && data.preferred_divisions.length > 0
     && !!data.recruiting_class_year;
   /**
    * NOT part of step1Valid. An athlete whose family has not discussed money is
@@ -378,26 +415,46 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             <div className="space-y-1.5">
               <Label>Primary Position *</Label>
               <Select value={data.position} onValueChange={set('position')}>
-                <SelectTrigger><SelectValue placeholder="Select position" /></SelectTrigger>
-                <SelectContent>
-                  {POSITIONS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                <SelectTrigger data-testid="primary-position"><SelectValue placeholder="Select position" /></SelectTrigger>
+                <SelectContent className="max-h-80">
+                  <PositionItems sport={sport} />
                 </SelectContent>
               </Select>
+              {data.position && !positionValid && (
+                <p role="alert" className="text-xs text-destructive">
+                  &ldquo;{data.position}&rdquo; is not a position Thriv3 can match on. Choose one from the list.
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label>Secondary Position</Label>
               <Select value={data.secondary_position} onValueChange={set('secondary_position')}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="None">None</SelectItem>
-                  {POSITIONS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                <SelectTrigger data-testid="secondary-position"><SelectValue /></SelectTrigger>
+                <SelectContent className="max-h-80">
+                  <SelectItem value={NO_SECONDARY_POSITION}>None</SelectItem>
+                  <PositionItems sport={sport} exclude={data.position} />
                 </SelectContent>
               </Select>
+              {!secondaryValid && (
+                <p role="alert" className="text-xs text-destructive" data-testid="secondary-position-invalid">
+                  &ldquo;{data.secondary_position}&rdquo; is not a position Thriv3 can match on. Choose one from the list, or None.
+                </p>
+              )}
             </div>
           </div>
+          <p className="text-xs text-muted-foreground -mt-2" data-testid="position-ranking-note">
+            {positionValid
+              ? `Matching ranks on the ${positionLabel(canonicalPosition(data.position)).toLowerCase()} group. `
+                + 'The detailed position and any secondary position appear on the profile and the match screen; '
+                + 'neither changes the ranking, and outreach emails still name the group.'
+              : 'Matching ranks on the position group: goalkeeper, defender, midfielder or forward.'}
+          </p>
 
           <div className="space-y-2">
             <Label>Preferred Divisions *</Label>
+            <p className="text-xs text-muted-foreground -mt-1">
+              Matcher V2 does not filter on these. Each match shows whether it is inside or outside them.
+            </p>
             <div className="flex flex-wrap gap-4">
               {DIVISIONS.map((div) => (
                 <label key={div} className="flex items-center gap-2 text-sm">
@@ -494,6 +551,13 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             )}
           </div>
 
+          <div className="border-t border-border pt-4">
+            <RecruitmentPreferenceFields
+              value={data}
+              onChange={(field, v) => setData((d) => ({ ...d, [field]: v }))}
+            />
+          </div>
+
           <FamilyContributionField
             value={data.contribution}
             onChoice={(choice) => setData((d) => ({ ...d, contribution: chooseContribution(d.contribution, choice) }))}
@@ -519,7 +583,8 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
           <div className="space-y-2 max-w-md">
             <Label>Minimum Academic Rating</Label>
             <p className="text-xs text-muted-foreground -mt-1">
-              Hides programs rated below this. Leave as N/A to consider every program.
+              Each match shows whether the school meets this minimum. Matcher V2 does not hide schools
+              below it; the previous engine did. Leave as N/A for no minimum.
             </p>
             <AbilitySlider
               value={data.academic_minimum}

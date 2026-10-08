@@ -21,6 +21,8 @@ import { emailBodyFor } from '../../src/lib/emailTemplate.js';
 import { EVIDENCE_KINDS, kindLabel, permissionsFor, PERMISSION } from '../../shared/evidence/kinds.js';
 import { renderEvidence } from '../../shared/evidence/render.js';
 import { COVERAGE } from '../../shared/recruiting/patterns.js';
+// canonicalPosition, so 'CB', 'Defense' and 'Defender' all read as DEFENSE.
+import { canonicalPosition as canonicalPositionOf } from '../../shared/positions.js';
 
 const argv = process.argv.slice(2);
 const arg = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
@@ -296,7 +298,7 @@ function validationSet(athlete) {
   const sport = athlete.sport ?? 'mens-soccer';
   const patterns = loadPatternsForSport(sport);
   const country = athlete.nationality;
-  const position = { Defender: 'DEFENSE', Midfielder: 'MIDFIELD', Forward: 'FORWARD', Goalkeeper: 'GOALKEEPER' }[athlete.position] ?? 'UNKNOWN';
+  const position = canonicalPositionOf(athlete.position);
 
   const taken = new Set();
   const pick = (fn) => {

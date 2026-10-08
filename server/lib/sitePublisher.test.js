@@ -30,7 +30,7 @@ function makeAthlete(overrides = {}) {
   const ts = utcNow();
   return Player.create({
     full_name: `Athlete ${randomUUID().slice(0, 6)}`,
-    position: 'Left Winger',
+    position: 'W', // winger; the entity refuses positions the matcher cannot place
     graduation_year: 2027,
     email: 'athlete@example.com',
     highlights_url: 'https://youtu.be/aqz-KE-bpKQ',

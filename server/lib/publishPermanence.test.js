@@ -42,7 +42,7 @@ function makeAthlete(overrides = {}) {
   const ts = utcNow();
   return Player.create({
     full_name: `Athlete ${randomUUID().slice(0, 6)}`,
-    position: 'Left Winger',
+    position: 'W', // winger; the entity refuses positions the matcher cannot place
     graduation_year: 2027,
     email: 'athlete@example.com',
     highlights_url: 'https://youtu.be/aqz-KE-bpKQ',
@@ -322,13 +322,13 @@ describe('identity survives republishing', () => {
     const { athlete } = makePublicAthlete();
     await publishSite({ outputDir: site, workerBundle: bundle, env: readyEnv(), exec: okDeploy });
 
-    Player.update(athlete.id, { position: 'Centre Back', evaluation: 'Rewritten scouting note' });
+    Player.update(athlete.id, { position: 'CB', evaluation: 'Rewritten scouting note' });
     await publishSite({ outputDir: site, workerBundle: bundle, env: readyEnv(), exec: okDeploy });
 
     expect(Player.get(athlete.id).public_slug).toBe(athlete.public_slug);
     expect(pagesIn(site)).toEqual([`${athlete.public_slug}.html`]);
     expect(fs.readFileSync(path.join(site, 'p', `${athlete.public_slug}.html`), 'utf-8'))
-      .toContain('Centre Back');
+      .toContain('Center back'); // the long name a coach reads, not the stored code
   });
 
   it('keeps an already-issued outreach token valid across deployments', async () => {
