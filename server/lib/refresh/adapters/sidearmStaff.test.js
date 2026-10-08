@@ -107,7 +107,7 @@ describe('sidearm-staff-2 through the staff adapter and the email-publication de
     expect(c.observation).toMatchObject({ parser_version: 'sidearm-staff-2', evidence_sha256: sha(STAFF), staff_records: 3, other_email_for_coach: 'as123-sw@example-college.test' });
     const again = classifyEmailPublication({ coach, programme: prog, read: await staffAdapter(target, { fetch: fetchOf(STAFF) }), hostUnitid: 199999 });
     expect(again.observation.observation_id).toBe(c.observation.observation_id); // deterministic provenance
-    expect(classifyEmailPublication({ coach: { ...coach, email: 'as123-sw@example-college.test' }, programme: prog, read: r, hostUnitid: 199999 }).status).toBe(EMAIL_PUBLICATION.PUBLISHED);
+    expect(classifyEmailPublication({ coach: { ...coach, email: 'as123-sw@example-college.test' }, programme: prog, read: r, hostUnitid: 199999 }).status).toBe(EMAIL_PUBLICATION.COACH_PUBLISHED);
   });
   it('12. refusals: wrong sport, wrong institution, historical page, profile page — none is absence', async () => {
     const mens = page(sTable([sRow('Abby Sample', 'Assistant Coach', 'x@example-college.test', 'a')]), "2026 Men&#x27;s Soccer Coaches - Example College Athletics");
@@ -121,5 +121,22 @@ describe('sidearm-staff-2 through the staff adapter and the email-publication de
     const bio = await staffAdapter(target, { fetch: fetchOf(profileHtml('Abby Sample', 'as123-sw@example-college.test'), 'https://examplecollegeathletics.test/sports/womens-soccer/roster/coaches/abby-sample/1') });
     expect(classifyEmailPublication({ coach, programme: prog, read: bio, hostUnitid: 199999 }).status).toBe(EMAIL_PUBLICATION.UNKNOWN);
     expect(classifyEmailPublication({ coach, programme: prog, read: bio, hostUnitid: 188888 }).status).toBe(EMAIL_PUBLICATION.UNKNOWN);
+  });
+  it('13. from real-shaped HTML: footer address, department inbox, another coach\'s address and a shared inbox are PAGE_PUBLISHED, never the coach\'s own and never absent', async () => {
+    const html = page(sTable([
+      sRow('Pat Example', 'Head Coach', 'pexample@example-college.test', 'p'),
+      sRow('Abby Sample', 'Assistant Coach', 'wsoccer@example-college.test', 'a'), sRow('Lee Own', 'Assistant Coach', 'wsoccer@example-college.test', 'l'),
+      sRow('Recruiting Inquiries', '', 'wsocrecruit@example-college.test', 'r'),
+    ]) + '<div class="contact"><p>Athletics department: <a href="mailto:athletics@example-college.test">athletics@example-college.test</a></p></div>');
+    const read = await staffAdapter(target, { fetch: fetchOf(html) });
+    expect(read.page.source_complete).toBe(true);
+    const as = (email) => classifyEmailPublication({ coach: { ...coach, email }, programme: prog, read, hostUnitid: 199999 });
+    const cases = { 'webmaster@example-college.test': /footer or contact block/, 'athletics@example-college.test': /footer or contact block/, 'wsocrecruit@example-college.test': /label row/,
+      'pexample@example-college.test': /another person \(Pat Example\)/, 'wsoccer@example-college.test': /shared inbox/ };
+    for (const [email, why] of Object.entries(cases)) { const r = as(email); expect(r.status, email).toBe(EMAIL_PUBLICATION.PAGE_PUBLISHED); expect(r.reasons[0]).toMatch(why); expect(r.observation).toBeUndefined(); }
+    // the adapter never stages the shared inbox as either coach's own address
+    expect(read.page.people.filter((p) => p.email === 'wsoccer@example-college.test')).toEqual([]);
+    // an address on no part of the page, for a named coach on a complete list, is the one positive absence
+    expect(as('as999@example-college.test').status).toBe(EMAIL_PUBLICATION.POSITIVELY_ABSENT);
   });
 });

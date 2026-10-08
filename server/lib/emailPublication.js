@@ -2,8 +2,14 @@
  * EMAIL PUBLICATION — Phase 8D.3D. Is a coach's RECORDED address published on that coach's own
  * official current-season staff page? Three answers, and only one of them withholds anything:
  *
- *   PUBLISHED          the page publishes this exact address for this coach (or anywhere on it)
- *   POSITIVELY_ABSENT  every condition below holds, and the address is not on the page
+ *   COACH_PUBLISHED    the address is printed against THIS coach — exactly one person on the page
+ *                      carries the coach's name, and the address is that person's own (not an inbox
+ *                      printed against two or more people). Proof of the coach's current address.
+ *   PAGE_PUBLISHED     the address is on the page but its association with the coach is unproven:
+ *                      a footer or contact block, a department/programme label row, another person's
+ *                      row, an inbox shared by several people, or a name that matches two people.
+ *                      It BLOCKS a positive-absence finding and proves nothing about the coach.
+ *   POSITIVELY_ABSENT  every condition below holds, and the address is printed nowhere on the page
  *   UNKNOWN            anything less — the treatment of the coach does not change
  *
  * POSITIVELY_ABSENT requires ALL of:
@@ -29,7 +35,7 @@ import crypto from 'node:crypto';
 import { cycleOf } from './refresh/freshness.js';
 import { STAFF_LISTS } from './refresh/adapters/sidearmStaff.js';
 
-export const EMAIL_PUBLICATION = Object.freeze({ PUBLISHED: 'PUBLISHED', POSITIVELY_ABSENT: 'POSITIVELY_ABSENT', UNKNOWN: 'UNKNOWN' });
+export const EMAIL_PUBLICATION = Object.freeze({ COACH_PUBLISHED: 'COACH_PUBLISHED', PAGE_PUBLISHED: 'PAGE_PUBLISHED', POSITIVELY_ABSENT: 'POSITIVELY_ABSENT', UNKNOWN: 'UNKNOWN' });
 export const ABSENCE_REASON = 'recorded email positively not published on the official staff page (EMAIL_POSITIVELY_ABSENT)';
 
 const lc = (s) => String(s ?? '').trim().toLowerCase();
@@ -74,8 +80,23 @@ export function classifyEmailPublication({ coach, programme, read, hostUnitid })
   const email = lc(coach.email);
   // every address the page prints (sidearm-staff-2 lists all of them), else the people's own
   const published = [...new Set([...(page.emails_on_page || []).map(lc), ...people.map((p) => lc(p.email))])].filter((e) => e.includes('@'));
-  // publication is positive evidence on any verified, current page — a coach's bio page included
-  if (mine.some((p) => lc(p.email) === email) || published.includes(email)) return { status: EMAIL_PUBLICATION.PUBLISHED, reasons: ['address published on the official page'] };
+  // COACH_PUBLISHED: printed against this coach alone, on any verified current page (a bio page included)
+  const personEmails = (page.person_emails || people.map((p) => ({ full_name: p.full_name, emails: [p.email].filter(Boolean), shared_emails: [] })));
+  const minePe = personEmails.filter((x) => nameKey(x.full_name) && nameKey(x.full_name) === nameKey(coach.full_name));
+  const labelEmails = (page.labels || []).flatMap((l) => l.emails || []).map(lc);
+  const onPage = [...new Set([...published, ...personEmails.flatMap((x) => x.emails || []).map(lc), ...labelEmails])];
+  if (minePe.length === 1 && (minePe[0].emails || []).map(lc).includes(email)) {
+    if ((minePe[0].shared_emails || []).map(lc).includes(email)) return { status: EMAIL_PUBLICATION.PAGE_PUBLISHED, reasons: ['shared inbox: printed against this coach and at least one other person — not a personal address'] };
+    return { status: EMAIL_PUBLICATION.COACH_PUBLISHED, reasons: ['address printed against this coach on the official page'] };
+  }
+  // PAGE_PUBLISHED: on the page, association unproven — blocks absence, proves nothing about the coach
+  if (onPage.includes(email)) {
+    const why = minePe.length > 1 && minePe.some((x) => (x.emails || []).map(lc).includes(email)) ? 'the coach\'s name matches more than one person on the page'
+      : labelEmails.includes(email) ? 'printed in a label row (department / programme / recruiting inbox), not against a person'
+      : personEmails.some((x) => (x.emails || []).map(lc).includes(email)) ? `printed against another person (${personEmails.filter((x) => (x.emails || []).map(lc).includes(email)).map((x) => x.full_name).join(', ')})`
+      : 'printed elsewhere on the page (footer or contact block), not against a person';
+    return { status: EMAIL_PUBLICATION.PAGE_PUBLISHED, reasons: [why] };
+  }
   // ABSENCE is a statement about a whole staff LIST: complete, recognised as a list, at least one person read
   if (!page.source_complete || people.length === 0) return unknown(`incomplete parse: the parser did not read a complete staff list${page.incomplete_reason ? ` (${page.incomplete_reason})` : ''}`);
   if (!STAFF_LISTS.includes(page.structure)) return unknown(`page structure ${page.structure ?? 'unrecorded'} is not a recognised staff list`);
@@ -83,8 +104,11 @@ export function classifyEmailPublication({ coach, programme, read, hostUnitid })
   if (mine.length > 1) return unknown('coach name matches more than one person on the page');
   if (published.length === 0) return unknown('the page publishes no addresses at all');
   if (publicationConflicts(coach, page.fetched_at)) return unknown('conflicting official evidence: address observed published in this cycle or later');
-  const allMine = (page.person_emails || []).find((x) => nameKey(x.full_name) === nameKey(coach.full_name))?.emails || [mine[0].email].filter(Boolean);
-  const other = allMine.map(lc).find((e) => e.includes('@') && e !== email) || null;
+  const pe = (page.person_emails || []).find((x) => nameKey(x.full_name) === nameKey(coach.full_name));
+  const allMine = (pe?.emails || [mine[0].email].filter(Boolean)).map(lc);
+  const sharedMine = (pe?.shared_emails || []).map(lc);
+  // the coach's own different address first; a shared inbox is only a lead, never the coach's address
+  const other = allMine.find((e) => e.includes('@') && e !== email && !sharedMine.includes(e)) || allMine.find((e) => e.includes('@') && e !== email) || null;
   const observation = {
     coach_id: coach.id, email, observed_at: page.fetched_at, page_season: cycle, source_url: page.source_url, source_host: hostOfUrl(page.source_url),
     page_unitid: Number(programme.unitid), page_sport: page.sport, parser_version: page.parser_version, evidence_sha256: sha, parse_status: 'COMPLETE',

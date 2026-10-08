@@ -15,7 +15,7 @@ import { runCompositeCorrection, revertComposite, approvalHash, idSetHash, COMPO
  * (the reconciler withholds a coach with a qualifying recorded observation), and the guarded writer.
  * Institutions, people and addresses are invented; addresses use the reserved .test TLD.
  */
-const { UNKNOWN, PUBLISHED, POSITIVELY_ABSENT } = EMAIL_PUBLICATION;
+const { UNKNOWN, COACH_PUBLISHED, PAGE_PUBLISHED, POSITIVELY_ABSENT } = EMAIL_PUBLICATION;
 const SHA = 'a'.repeat(64);
 const FETCHED = '2026-10-07T23:52:41.664Z'; // cycle 2026
 const OWN = 142001; const OTHER = 320001;
@@ -34,9 +34,25 @@ describe('the definition — classifyEmailPublication', () => {
     expect(r.observation).toMatchObject({ coach_id: 'k-ab', email: 'ab1@owner.test', page_unitid: OWN, page_season: 2026, parser_version: 'sidearm-staff-2', evidence_sha256: SHA, staff_records: 2, emails_published: 2, other_email_for_coach: 'ab1-sw@owner.test' });
     expect(r.observation.observation_id).toMatch(/^[0-9a-f]{64}$/);
   });
-  it('2. confirmed publication: the address on the coach\'s entry, or anywhere on the page', () => {
-    expect(classify({ page: { people: [{ full_name: 'Abby Example', email: 'AB1@owner.test' }] } }).status).toBe(PUBLISHED);
-    expect(classify({ page: { people: [{ full_name: 'Abby Example', email: null }, { full_name: 'Office', email: 'ab1@owner.test' }] } }).status).toBe(PUBLISHED);
+  it('2. COACH_PUBLISHED only when the address is printed against this coach; elsewhere it is PAGE_PUBLISHED', () => {
+    expect(classify({ page: { people: [{ full_name: 'Abby Example', email: 'AB1@owner.test' }] } }).status).toBe(COACH_PUBLISHED);
+    expect(classify({ page: { people: [{ full_name: 'Abby Example', email: null }, { full_name: 'Head Person', email: 'ab1@owner.test' }] } })).toMatchObject({ status: PAGE_PUBLISHED, reasons: [expect.stringMatching(/another person \(Head Person\)/)] });
+  });
+  it('2b. PAGE_PUBLISHED blocks absence but proves nothing: footer, department label row, shared inbox, ambiguous name', () => {
+    const named = [{ full_name: 'Abby Example', email: 'ab1-sw@owner.test' }, { full_name: 'Head Person', email: 'hp@owner.test' }];
+    // footer / contact block: only in emails_on_page
+    expect(classify({ page: { people: named, emails_on_page: ['ab1@owner.test', 'hp@owner.test'] } })).toMatchObject({ status: PAGE_PUBLISHED, reasons: [expect.stringMatching(/footer or contact block/)] });
+    // department / programme inbox in a label row
+    expect(classify({ page: { people: named, labels: [{ label: 'Recruiting Inquiries', emails: ['ab1@owner.test'] }] } })).toMatchObject({ status: PAGE_PUBLISHED, reasons: [expect.stringMatching(/label row/)] });
+    // a shared inbox printed against the coach AND another person is not her personal address
+    const shared = { people: [{ full_name: 'Abby Example', email: null }, { full_name: 'Head Person', email: null }],
+      person_emails: [{ full_name: 'Abby Example', emails: ['ab1@owner.test'], shared_emails: ['ab1@owner.test'] }, { full_name: 'Head Person', emails: ['ab1@owner.test'], shared_emails: ['ab1@owner.test'] }] };
+    expect(classify({ page: shared })).toMatchObject({ status: PAGE_PUBLISHED, reasons: [expect.stringMatching(/shared inbox/)] });
+    // the coach's name on two people: association unproven
+    const twice = { people: [{ full_name: 'Abby Example', email: 'ab1@owner.test' }, { full_name: 'Abby  Example', email: null }, { full_name: 'Head Person', email: 'hp@owner.test' }] };
+    expect(classify({ page: twice })).toMatchObject({ status: PAGE_PUBLISHED, reasons: [expect.stringMatching(/more than one person/)] });
+    // none of these is ever a positive absence
+    for (const pg of [{ people: named, emails_on_page: ['ab1@owner.test'] }, shared, twice]) expect(classify({ page: pg }).observation).toBeUndefined();
   });
   it('3. an inaccessible or refused page is UNKNOWN, never absence', () => {
     expect(classify({ read: null }).status).toBe(UNKNOWN);
@@ -68,10 +84,10 @@ describe('the definition — classifyEmailPublication', () => {
     expect(classify({ page: { adapter_evidence: { sha256: SHA, title: 'Women\'s Soccer Coaches' } } }).status).toBe(POSITIVELY_ABSENT);
   });
   it('8b. structure: a bio PROFILE can show publication but never absence; an unrecorded structure is not a list', () => {
-    expect(classify({ page: { structure: 'PROFILE', source_complete: false, people: [{ full_name: 'Abby Example', email: 'ab1@owner.test' }] } }).status).toBe(PUBLISHED);
+    expect(classify({ page: { structure: 'PROFILE', source_complete: false, people: [{ full_name: 'Abby Example', email: 'ab1@owner.test' }] } }).status).toBe(COACH_PUBLISHED);
     expect(classify({ page: { structure: 'PROFILE', source_complete: false, people: [{ full_name: 'Abby Example', email: 'ab1-sw@owner.test' }] } }).status).toBe(UNKNOWN);
     expect(classify({ page: { structure: undefined } }).status).toBe(UNKNOWN);
-    expect(classify({ page: { emails_on_page: ['ab1@owner.test'] } }).status).toBe(PUBLISHED); // printed elsewhere on the page: not absent
+    expect(classify({ page: { emails_on_page: ['ab1@owner.test'] } }).status).toBe(PAGE_PUBLISHED); // printed elsewhere on the page: not absent, not proof
   });
   it('9. identity: the coach not named, or named twice, is UNKNOWN; a page publishing no addresses says nothing', () => {
     expect(classify({ page: { people: [{ full_name: 'Head Person', email: 'hp@owner.test' }] } }).status).toBe(UNKNOWN);
