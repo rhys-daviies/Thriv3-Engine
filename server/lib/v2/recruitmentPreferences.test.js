@@ -209,3 +209,57 @@ describe('staleness across the input-schema change', () => {
     expect(snap.preferred_regions).toBeNull();
   });
 });
+
+describe('a school with no state on file', () => {
+  it('stays ranked, is neither rewarded nor penalised, and reads UNKNOWN on its card', () => {
+    const id = db.prepare("SELECT id FROM colleges WHERE sport = 'mens-soccer' AND active = 1 ORDER BY id LIMIT 1").pluck().get();
+    const was = db.prepare('SELECT state FROM colleges WHERE id = ?').pluck().get(id);
+    db.prepare('UPDATE colleges SET state = NULL WHERE id = ?').run(id);
+    clearContextCache(); clearCorpusDigestCache();
+    try {
+      const none = computeMatchmakingV2(db, athlete(), { withExplanations: true });
+      const west = computeMatchmakingV2(db, athlete({ preferred_regions: ['WEST'] }), { withExplanations: true });
+      const a = none.programmes.find((p) => p.programmeId === id);
+      const b = west.programmes.find((p) => p.programmeId === id);
+      expect(b.status).toBe(a.status);
+      expect(b.opportunity.value).toBe(a.opportunity.value);
+      expect(b.opportunity.coverage).toBeLessThan(a.opportunity.coverage);
+      expect(b.explanation.preferenceChecks).toEqual([expect.objectContaining({ check: 'LOCATION', status: 'UNKNOWN', actual: null })]);
+    } finally {
+      db.prepare('UPDATE colleges SET state = ? WHERE id = ?').run(was, id);
+      clearContextCache(); clearCorpusDigestCache();
+    }
+  });
+});
+
+describe('legacy position values', () => {
+  const legacy = (position, secondary) => {
+    const id = `legacy-${created.length}-${Date.now()}`;
+    db.prepare(`INSERT INTO players (id, created_date, updated_date, full_name, position, secondary_position, sport)
+      VALUES (?, 'x', 'x', 'Legacy', ?, ?, 'mens-soccer')`).run(id, position, secondary);
+    created.push(id);
+    return id;
+  };
+
+  it('reads an unsupported stored value back as written', () => {
+    const id = legacy('Attacking Midfielder', 'Left Winger');
+    expect(Player.get(id).position).toBe('Attacking Midfielder');
+    expect(Player.get(id).secondary_position).toBe('Left Winger');
+  });
+
+  it('an edit that does not touch positions saves and leaves them exactly as stored', () => {
+    const id = legacy('Left Winger', 'Attacking Midfielder');
+    Player.update(id, { evaluation: 'Updated note', preferred_regions: ['SOUTH'] });
+    const back = Player.get(id);
+    expect([back.position, back.secondary_position, back.evaluation]).toEqual(['Left Winger', 'Attacking Midfielder', 'Updated note']);
+  });
+
+  it('a save that writes the unsupported value again is refused, and changes nothing', () => {
+    const id = legacy('Defense', 'Attacking Midfielder');
+    expect(() => Player.update(id, { secondary_position: 'Attacking Midfielder', evaluation: 'x' })).toThrow(/secondary_position/);
+    expect(Player.get(id).evaluation ?? null).toBeNull();
+    // Legacy coarse spellings are valid and still accepted as written.
+    Player.update(id, { position: 'Defense', secondary_position: 'None' });
+    expect(Player.get(id).position).toBe('Defense');
+  });
+});

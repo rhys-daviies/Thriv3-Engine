@@ -29,6 +29,7 @@ import {
 } from '@/lib/preferenceIntake';
 import {
   positionLabel, positionDetail, positionOptionGroups, isKnownPosition, canonicalPosition, NO_SECONDARY_POSITION,
+  hasSecondaryPosition,
 } from '@shared/positions.js';
 import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, validateTemplate } from '@/lib/emailTemplate';
 import { cn } from '@/lib/utils';
@@ -222,7 +223,15 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
   };
 
   const positionValid = isKnownPosition(data.position);
-  const step1Valid = data.full_name.trim().length > 0 && positionValid && data.preferred_divisions.length > 0
+  /**
+   * A legacy secondary the matcher cannot place ("Attacking Midfielder") is
+   * shown and blocks the step, exactly like the primary: the server refuses
+   * to save it, and a save refused there would fail with nothing on screen.
+   * Choosing None or a listed position is the operator's decision, never a
+   * silent rewrite of what was stored.
+   */
+  const secondaryValid = !hasSecondaryPosition(data.secondary_position) || isKnownPosition(data.secondary_position);
+  const step1Valid = data.full_name.trim().length > 0 && positionValid && secondaryValid && data.preferred_divisions.length > 0
     && !!data.recruiting_class_year;
   /**
    * NOT part of step1Valid. An athlete whose family has not discussed money is
@@ -426,6 +435,11 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
                   <PositionItems sport={sport} exclude={data.position} />
                 </SelectContent>
               </Select>
+              {!secondaryValid && (
+                <p role="alert" className="text-xs text-destructive" data-testid="secondary-position-invalid">
+                  &ldquo;{data.secondary_position}&rdquo; is not a position Thriv3 can match on. Choose one from the list, or None.
+                </p>
+              )}
             </div>
           </div>
           <p className="text-xs text-muted-foreground -mt-2" data-testid="position-ranking-note">

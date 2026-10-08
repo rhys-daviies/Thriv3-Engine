@@ -80,3 +80,14 @@ describe('preference checks', () => {
     expect([1, 2, 3, null, 9].map(institutionTypeOfControl)).toEqual(['PUBLIC', 'PRIVATE_NONPROFIT', 'PRIVATE_FOR_PROFIT', null, null]);
   });
 });
+
+describe('normalisation of what was stated', () => {
+  it('trims, upper-cases and de-duplicates, and drops what is not a state', () => {
+    expect(preferredStatesOf({ preferred_states: [' tx ', 'TX', 'ny', 'PR', ''], preferred_regions: ['west', 'Atlantis'] }))
+      .toEqual(['AK', 'AZ', 'CA', 'CO', 'HI', 'ID', 'MT', 'NM', 'NV', 'NY', 'OR', 'TX', 'UT', 'WA', 'WY']);
+  });
+  it('a lower-case school state still checks inside', () => {
+    const prefs = recruitmentPreferencesOf({ preferred_states: ['TX'] });
+    expect(preferenceChecks(prefs, { state: 'tx' })[0].status).toBe(CHECK_STATUS.INSIDE);
+  });
+});
