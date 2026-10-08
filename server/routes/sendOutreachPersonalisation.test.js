@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
+import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
 
 /**
  * PHASE 1F.1 — EACH NAMED COACH IS GREETED BY THEIR OWN NAME.
@@ -48,6 +49,7 @@ beforeAll(() => {
     db.prepare(`INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title, email_status, currentness_status)
       VALUES (?, ?, ?, ?, ?, 'NCAA D1', 'mens-soccer', ?, 'verified', 'CURRENT')`).run(`pc-${i}`, T, c.name, c.email, COLLEGE, c.title);
   }
+  corroborateFixtureCoaches(db);
 });
 beforeEach(() => { composed.length = 0; outlook.available = true; db.prepare('DELETE FROM suppressions').run(); db.prepare('DELETE FROM athlete_programmes').run(); });
 

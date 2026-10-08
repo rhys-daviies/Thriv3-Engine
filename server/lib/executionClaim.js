@@ -1,4 +1,4 @@
-import { coachIneligibility, legacyCoachesAllowed } from './coachEligibility.js';
+import { outreachIneligibility } from './coachEligibility.js';
 import db from '../db/client.js';
 import { utcNow, utcToday } from './time.js';
 import { programmeMessageWithContext, MESSAGE_STATE as CONTENT_STATE } from './programmeMessages.js';
@@ -518,13 +518,16 @@ export function assertExecutionSafety({
         'This coach\'s address has changed since the message was approved. Somebody needs to look '
         + 'at it rather than send to an inbox nobody agreed to.');
     }
-    const floor = legacyCoachesAllowed() ? null : coachIneligibility(coach);
+    const floor = outreachIneligibility(coach);
     if (floor) {
       /**
        * PHASE 8A — re-checked at claim time, not only when the plan was built: a coach can be
        * PROVEN_STALE or lose a verified address between approval and send, and an attempt
        * materialised before 8A may name an inferred address. Refused before any capacity is
-       * spent. Opt-out only via THRIV3_ALLOW_LEGACY_COACHES=1.
+       * spent. The floor includes the CANONICAL decision at the coach's filed programme and the
+       * activation holds (canonicalCoachEligibility.js), read fresh now — so a message prepared
+       * while a coach was eligible is refused if the coach is no longer eligible, or is held.
+       * THRIV3_ALLOW_LEGACY_COACHES=1 lifts the floor but never an activation hold.
        */
       throw fail(CLAIM_REFUSAL.COACH_NOT_OUTREACH_ELIGIBLE,
         `This coach is not outreach-eligible (${floor}). Nothing was claimed and no capacity was spent.`);

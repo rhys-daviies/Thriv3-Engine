@@ -16,7 +16,7 @@
  *   node server/scripts/draftOutreach.js --athlete "Ryan Billing" --top 20 --apply
  *   node server/scripts/draftOutreach.js --athlete <id> --roles head
  */
-import { coachIneligibility, legacyCoachesAllowed } from '../lib/coachEligibility.js';
+import { outreachIneligibility } from '../lib/coachEligibility.js';
 import 'dotenv/config';
 import db from '../db/client.js';
 import { activeCollegesForSeason } from '../lib/programmeStatus.js';
@@ -275,7 +275,7 @@ function main() {
       if (isSuppressed(coach.email)) { skipped.suppressed.push(coach.email); continue; }
       // Phase 8A runtime floor (verified address, coach not PROVEN_STALE); the send path
       // enforces it again. Pre-8A behaviour only with THRIV3_ALLOW_LEGACY_COACHES=1.
-      if (!legacyCoachesAllowed() && coachIneligibility(coach)) { skipped.notEligible.push(coach.email); continue; }
+      if (outreachIneligibility(coach)) { skipped.notEligible.push(coach.email); continue; }
       if (SKIP_INFERRED && coach.email_status === 'inferred') {
         skipped.inferred.push(coach.email);
         continue;

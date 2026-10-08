@@ -1,6 +1,7 @@
 import express from 'express';
 import db from '../db/client.js';
 import { applyCoachFloor } from '../lib/coachEligibility.js';
+import { canonicalDecisions, activationHold } from '../lib/canonicalCoachEligibility.js';
 import { findCanonicalCollege } from '../lib/collegeSearch.js';
 
 /**
@@ -107,10 +108,14 @@ function staffRows(school, sport) {
     const rows = reconciledStaff(school, sport);
     const populated = rows && db.prepare('SELECT 1 FROM coaches_reconciled LIMIT 1').get();
     if (populated) {
+      // the snapshot is re-checked against the coach NOW and against the engine's current answer
+      // (a projection row cannot outlive a positive email absence), and no hold is lifted by it
+      const canon = canonicalDecisions(db).byCoach;
       return rows.filter((r) => {
         const live = LIVE_COACH.get(r.id);
         return live && String(live.email || '').toLowerCase() === String(r.email || '').toLowerCase()
-          && live.currentness_status !== 'PROVEN_STALE' && live.email_status === 'verified';
+          && live.currentness_status !== 'PROVEN_STALE' && live.email_status === 'verified'
+          && canon.get(r.id)?.outreach_eligibility === 'YES' && !activationHold(r.id);
       });
     }
     console.warn('[colleges/coaches] THRIV3_USE_RECONCILED_COACHES on but coaches_reconciled absent or empty; serving the runtime-eligibility floor over legacy coaches.');

@@ -10,6 +10,7 @@ import CampaignTab from './CampaignTab.jsx';
 import db from '../../../server/db/client.js';
 import { campaignsRouter } from '../../../server/routes/campaigns.js';
 import { evidenceSentences, MESSAGE_COPY } from '@/lib/campaignLabels';
+import { corroborateFixtureCoaches } from '../../../server/testCanonicalCoaches.js';
 
 /**
  * F10b-5 — THE WHOLE CHAIN, WITH NOTHING PRETENDED.
@@ -106,6 +107,7 @@ function coach({ school = 'Duke', email, name = 'John Smith', title = 'Head Coac
       email_status)
     VALUES (?, ?, ?, ?, ?, 'NCAA D1', 'mens-soccer', ?, 'verified')
   `).run(id, NOW, name, email ?? `c${++seq}@duke.edu`, school, title);
+  corroborateFixtureCoaches(db, { ids: [id] });
   return id;
 }
 

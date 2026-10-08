@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import express from 'express';
 import { randomUUID } from 'node:crypto';
+import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
 
 /**
  * PHASE 1F (Step 8) — MANUAL OUTREACH TO A PROGRAMME INBOX, THROUGH THE ROUTE AND sendOutreach.
@@ -36,6 +37,7 @@ function programme(key, { coaches = [] } = {}) {
   db.prepare("INSERT INTO athletics_domains (domain, unitid, status, role, claimed_keys, claimed_unitids, verification_method, confidence, checked_at) VALUES (?, ?, 'VERIFIED', 'ATHLETICS_SITE', '[]', ?, 'TEST', 'CERTAIN', ?)").run(host, unit, JSON.stringify([unit]), T);
   coaches.forEach((c, i) => db.prepare(`INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title, email_status, currentness_status)
     VALUES (?, ?, ?, ?, ?, 'NCAA D3', 'mens-soccer', 'Head Coach', ?, 'CURRENT')`).run(`co-${key}-${i}`, T, c.name, `coach${i}@${host}`, name, c.status ?? 'verified'));
+  corroborateFixtureCoaches(db);
   const email = `msoccer@${host}`; const pc = programmeContactId(ent, 'mens-soccer', email);
   const seen = new Date(Date.now() - 3600_000).toISOString();
   db.prepare(`INSERT INTO programme_contacts (contact_id, athletics_entity_id, college_id, sport, email, label, contact_role, observed_on_url, observed_at, source, source_kind, source_tier, status, currentness_checked_at, provenance, created_at, updated_at)

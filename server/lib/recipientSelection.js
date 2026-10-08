@@ -1,7 +1,7 @@
 /**
  * WHO A PROGRAMME IS APPROACHED THROUGH — Phase 1E. The one place the recipient hierarchy lives.
  *
- *   1. an eligible, current NAMED COACH            (coachIneligibility, unchanged)
+ *   1. an eligible, current NAMED COACH            (coachIneligibility: row checks + canonical decision + holds)
  *   2. an eligible, current verified PROGRAMME INBOX (programmeContactProblems, unchanged)
  *   3. NO RECIPIENT                                 (fail closed)
  *
@@ -22,13 +22,23 @@
  * from Thriv3, and their programme's shared inbox is very likely an inbox they read. Falling
  * back to it would route around the opt-out. Fails closed; an operator can still write by hand.
  *
+ * A HELD NAMED COACH BLOCKS THE FALLBACK TOO. A coach under an activation hold (the 131 newly
+ * eligible after Data Integrity 8D.3F, the caution and the positive-email-absence coaches —
+ * server/data/seeds/coach_activation_holds.json) is a real coach at the programme whose outreach
+ * is paused, not a vacancy. Holding them must not quietly route their programme to its inbox:
+ * the programme gets nobody until the hold is released. The same holds for a coach with a
+ * qualifying POSITIVE EMAIL ABSENCE (on the official page, under a different address): the fix is
+ * the reviewed email correction, not a detour. A PROVEN_STALE coach has left and blocks nothing.
+ *
  * Read-only. Nothing here sends, creates outreach, or decides what a message says.
  */
 import db from '../db/client.js';
 import { buildProgrammeContactContext, programmeContactProblems } from './programmeContactEligibility.js';
 import { isSuppressed } from './suppressions.js';
 import { RECIPIENT_KIND } from './recipient.js';
-import { coachIneligibility, legacyCoachesAllowed } from './coachEligibility.js';
+import { outreachIneligibility, legacyCoachesAllowed } from './coachEligibility.js';
+import { activationHold, canonicalDecisions } from './canonicalCoachEligibility.js';
+import { ABSENCE_REASON } from './emailPublication.js';
 import { classifyRole, hasUsableEmail } from '../../shared/coachRoles.js';
 
 export const RECIPIENT_SELECTION = Object.freeze({
@@ -44,7 +54,20 @@ export const INBOX_NOT_SELECTED = Object.freeze({
   INELIGIBLE: 'PROGRAMME_INBOX_INELIGIBLE',
   SUPPRESSED: 'PROGRAMME_INBOX_SUPPRESSED',
   COACH_OPTED_OUT_AT_PROGRAMME: 'PROGRAMME_INBOX_COACH_OPTED_OUT_AT_PROGRAMME',
+  NAMED_COACH_HELD: 'PROGRAMME_INBOX_NAMED_COACH_HELD',
 });
+
+/**
+ * Is this coach row a named coach whose outreach is PAUSED rather than ended: an activation hold
+ * (other than PROVEN_STALE, a departure), or a qualifying positive email absence (the coach is on
+ * the official page, under a different address)?
+ */
+export function heldNamedCoach(c, { handle = db } = {}) {
+  if (String(c?.full_name ?? '').trim() === '' || !c?.id) return false;
+  const h = activationHold(c.id);
+  if (h) return h.hold !== 'PROVEN_STALE';
+  return canonicalDecisions(handle).byCoach.get(c.id)?.ineligible_reason === ABSENCE_REASON;
+}
 
 /** The reason a legacy team-inbox coach row is not pursued when a verified inbox exists. */
 export const TEAM_ROW_SUPERSEDED = 'TEAM_INBOX_SUPERSEDED_BY_PROGRAMME_INBOX';
@@ -145,7 +168,7 @@ export function programmeInboxesFor({ collegeName, sport }, { handle = db, now =
  *
  *   named       eligible named coaches, already ordered and deduplicated by the caller
  *   teamRows    `team-email` coach rows that passed the floor (only under the legacy opt-in)
- *   staff       every coach row at the programme, for the opt-out rule
+ *   staff       every coach row at the programme, for the opt-out and held-coach rules
  *
  * Returns { kind, recipients[], inbox: {considered, eligible[], refused[], blockedBy}, teamRowsSuperseded }
  * where `recipients` is the named coaches (COACH), exactly one inbox (PROGRAMME_INBOX), the
@@ -162,6 +185,10 @@ export function chooseRecipients({ collegeName, sport, named = [], teamRows = []
     return teamRows.length
       ? { kind: RECIPIENT_SELECTION.COACH, recipients: [teamRows[0]], inbox: { considered: true, ...found, blockedBy: INBOX_NOT_SELECTED.COACH_OPTED_OUT_AT_PROGRAMME }, teamRowsSuperseded: false }
       : { kind: RECIPIENT_SELECTION.NO_RECIPIENT, recipients: [], inbox: { considered: true, ...found, blockedBy: INBOX_NOT_SELECTED.COACH_OPTED_OUT_AT_PROGRAMME }, teamRowsSuperseded: false };
+  }
+  if (staff.some((c) => heldNamedCoach(c, { handle }))) {
+    // a held named coach is paused, not absent: no inbox and no legacy team row in their place
+    return { kind: RECIPIENT_SELECTION.NO_RECIPIENT, recipients: [], inbox: { considered: true, ...found, blockedBy: INBOX_NOT_SELECTED.NAMED_COACH_HELD }, teamRowsSuperseded: false };
   }
   if (found.eligible.length) {
     return { kind: RECIPIENT_SELECTION.PROGRAMME_INBOX, recipients: [inboxCandidate(found.eligible[0])], inbox: { considered: true, ...found, blockedBy: null }, teamRowsSuperseded: true };
@@ -213,7 +240,7 @@ export function manualRecipientChoice({ collegeName, sport }, { handle = db, now
   const staff = handle.prepare('SELECT * FROM coaches WHERE school = ? AND sport = ? ORDER BY id').all(collegeName, sport);
   const legacy = legacyCoachesAllowed(env);
   const named = staff.filter((c) => String(c.full_name ?? '').trim() !== '' && classifyRole(c.position_title) !== 'team-email'
-    && (legacy ? hasUsableEmail(c) : coachIneligibility(c) === null) && !isSuppressed(c.email));
+    && (legacy ? hasUsableEmail(c) : true) && outreachIneligibility(c, { handle, env }) === null && !isSuppressed(c.email));
   return chooseRecipients({ collegeName, sport, named, teamRows: [], staff }, { handle, now });
 }
 
@@ -232,9 +259,11 @@ export function assertManualProgrammeInbox({ programmeContactId, collegeName, sp
   if (choice.kind !== RECIPIENT_SELECTION.PROGRAMME_INBOX || choice.recipients[0]?.programmeContactId !== programmeContactId) {
     const why = choice.kind === RECIPIENT_SELECTION.COACH ? 'a named coach at this programme can be written to instead'
       : choice.inbox?.blockedBy === INBOX_NOT_SELECTED.COACH_OPTED_OUT_AT_PROGRAMME ? 'a coach at this programme has opted out'
-        : 'it is not this programme\'s selected programme contact';
+        : choice.inbox?.blockedBy === INBOX_NOT_SELECTED.NAMED_COACH_HELD ? 'a named coach at this programme is under an activation hold'
+          : 'it is not this programme\'s selected programme contact';
+    const blocked = [INBOX_NOT_SELECTED.COACH_OPTED_OUT_AT_PROGRAMME, INBOX_NOT_SELECTED.NAMED_COACH_HELD].includes(choice.inbox?.blockedBy) ? choice.inbox.blockedBy : null;
     throw new RecipientSelectionError(
-      choice.inbox?.blockedBy === INBOX_NOT_SELECTED.COACH_OPTED_OUT_AT_PROGRAMME ? INBOX_NOT_SELECTED.COACH_OPTED_OUT_AT_PROGRAMME : 'PROGRAMME_INBOX_NOT_FALLBACK',
+      blocked || 'PROGRAMME_INBOX_NOT_FALLBACK',
       `This programme inbox cannot be written to: ${why}.`);
   }
   if (email != null && String(email).trim().toLowerCase() !== row.email) {

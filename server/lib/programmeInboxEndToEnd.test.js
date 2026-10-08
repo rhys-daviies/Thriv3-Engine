@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { randomUUID } from 'node:crypto';
+import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
 
 /**
  * PHASE 1F — A PROGRAMME INBOX, END TO END, THROUGH THE REAL CHAIN.
@@ -49,6 +50,7 @@ function programme(key, { staff = [], inbox = true } = {}) {
     const id = `co-${key}-${i}`;
     db.prepare(`INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title, email_status, currentness_status)
       VALUES (?, ?, ?, ?, ?, 'NCAA D3', 'mens-soccer', ?, ?, 'CURRENT')`).run(id, T, c.name ?? null, c.email ?? `coach${i}@${host}`, name, c.title ?? 'Head Coach', c.status ?? 'verified');
+    corroborateFixtureCoaches(db, { ids: [id] });
     return id;
   });
   let pc = null; const email = `msoccer@${host}`;
@@ -235,6 +237,7 @@ describe('T. a named coach who becomes eligible later outranks the inbox, and is
   it('the coach is current, the inbox is not offered beside them, and the first touch needs review (Q3)', () => {
     db.prepare(`INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title, email_status, currentness_status)
       VALUES ('co-zulu-new', ?, 'Nora Newcoach', 'nora@zuluathletics.example', ?, 'NCAA D3', 'mens-soccer', 'Assistant Coach', 'verified', 'CURRENT')`).run(T, Z.name);
+    corroborateFixtureCoaches(db, { ids: ['co-zulu-new'] });
     const a = 'e2e-ath-t'; athlete(a);
     db.prepare('INSERT INTO outreach (id, athlete_id, coach_id, programme_contact_id, token, created_at, drafted_at, sent_at) VALUES (?,?,?,?,?,?,?,?)').run('e2e-t-inbox', a, null, Z.pc, 'e2e-t-tok', T, T, T);
     const plan = programmePursuitPlan({ programmeCampaignId: campaignFor(a, Z.name).pc });

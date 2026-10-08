@@ -18,6 +18,7 @@ import { recordDraft, confirmSend } from '../../../server/lib/outreachSend.js';
 import { ACCEPTED_SOURCE } from '../../../shared/outreachMessageState.js';
 import { utcToday } from '../../../server/lib/time.js';
 import { MESSAGE_COPY, evidenceSentences } from '@/lib/campaignLabels';
+import { corroborateFixtureCoaches } from '../../../server/testCanonicalCoaches.js';
 
 /**
  * F10c — THE WHOLE F10 SYSTEM, THROUGH THE SCREEN AN OPERATOR ACTUALLY USES.
@@ -83,6 +84,7 @@ function coach({ school, email, name = `Coach ${school}` }) {
       email_status)
     VALUES (?, ?, ?, ?, ?, 'NCAA D1', 'mens-soccer', 'Head Coach', 'verified')
   `).run(id, NOW, name, email, school);
+  corroborateFixtureCoaches(db, { ids: [id] });
   return id;
 }
 

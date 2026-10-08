@@ -17,6 +17,7 @@ import { recentSendCount } from './sendCap.js';
 import { athleteUsage, mailboxUsage, recordOutboundAttempt } from './outboundBudget.js';
 import { setProgrammeTier, stopProgrammeCampaign } from './campaigns.js';
 import { MESSAGE_STATE, ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
+import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
 
 /**
  * B6 — what a campaign INTENDS to do at a programme.
@@ -83,6 +84,7 @@ function rawCoach(title, { email, name, school = COLLEGE, status = 'verified' } 
       position_title, email_status)
     VALUES (?, '2026-09-01T00:00:00.000Z', ?, ?, ?, 'NCAA D1', ?, ?, ?)
   `).run(id, name ?? `Coach ${++seq}`, email, school, SPORT, title, status);
+  corroborateFixtureCoaches(db, { ids: [id] });
   return { id, email, full_name: name };
 }
 
@@ -93,6 +95,7 @@ const coach = (title, { email, name, school = COLLEGE, status = 'verified' } = {
     school, sport: SPORT, division: 'NCAA D1', position_title: title,
   });
   db.prepare('UPDATE coaches SET email_status = ? WHERE id = ?').run(status, row.id);
+  corroborateFixtureCoaches(db, { ids: [row.id] });
   return { ...row, email_status: status };
 };
 

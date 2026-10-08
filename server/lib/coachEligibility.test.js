@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import db from '../db/client.js';
 import {
-  coachIneligibility, applyCoachFloor, recipientIneligibility, legacyCoachesAllowed, programmeNames, INELIGIBLE,
+  coachIneligibility, coachRowIneligibility, applyCoachFloor, recipientIneligibility, legacyCoachesAllowed, programmeNames, INELIGIBLE,
 } from './coachEligibility.js';
 import { programmeCoaches } from '../routes/programmeCoaches.js';
+import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
 
 /**
  * PHASE 8A — the runtime coach floor is the DEFAULT on every recipient path.
@@ -26,24 +27,31 @@ beforeAll(() => {
   ins(coach('stale', { currentness_status: 'PROVEN_STALE' }));
   ins(coach('altname', { school: 'Floor Coll.' }));
   ins(coach('elsewhere', { school: 'Another College' }));
+  corroborateFixtureCoaches(db);
 });
 afterEach(() => { delete process.env.THRIV3_ALLOW_LEGACY_COACHES; });
 
 describe('the floor', () => {
-  it('passes only a verified address of a coach who is not PROVEN_STALE', () => {
-    expect(coachIneligibility(coach('a'))).toBeNull();
-    expect(coachIneligibility(coach('a', { email_status: 'inferred' }))).toBe('EMAIL_NOT_VERIFIED:inferred');
-    expect(coachIneligibility(coach('a', { email_status: 'generic' }))).toBe('EMAIL_NOT_VERIFIED:generic');
-    expect(coachIneligibility(coach('a', { email_status: null }))).toBe('EMAIL_NOT_VERIFIED:unknown');
-    expect(coachIneligibility(coach('a', { currentness_status: 'PROVEN_STALE' }))).toBe(INELIGIBLE.COACH_PROVEN_STALE);
-    expect(coachIneligibility(coach('a', { email: 'N/A' }))).toBe(INELIGIBLE.NO_USABLE_EMAIL);
+  it('row checks: passes only a verified address of a coach who is not PROVEN_STALE', () => {
+    expect(coachRowIneligibility(coach('a'))).toBeNull();
+    expect(coachRowIneligibility(coach('a', { email_status: 'inferred' }))).toBe('EMAIL_NOT_VERIFIED:inferred');
+    expect(coachRowIneligibility(coach('a', { email_status: 'generic' }))).toBe('EMAIL_NOT_VERIFIED:generic');
+    expect(coachRowIneligibility(coach('a', { email_status: null }))).toBe('EMAIL_NOT_VERIFIED:unknown');
+    expect(coachRowIneligibility(coach('a', { currentness_status: 'PROVEN_STALE' }))).toBe(INELIGIBLE.COACH_PROVEN_STALE);
+    expect(coachRowIneligibility(coach('a', { email: 'N/A' }))).toBe(INELIGIBLE.NO_USABLE_EMAIL);
+  });
+  it('the full floor also needs the canonical decision: a coach the engine never saw is refused (fail closed)', () => {
+    expect(coachIneligibility(coach('never-inserted'))).toBe('COACH_NO_CANONICAL_DECISION');
+    const ok = db.prepare("SELECT * FROM coaches WHERE id = 'ok'").get();
+    expect(coachIneligibility(ok)).toBeNull();
+    expect(coachIneligibility(db.prepare("SELECT * FROM coaches WHERE id = 'stale'").get())).toBe(INELIGIBLE.COACH_PROVEN_STALE);
   });
   it('is default-on; the legacy offer needs the explicit opt-in (trimmed, case-insensitive)', () => {
     expect(legacyCoachesAllowed({})).toBe(false);
     expect(legacyCoachesAllowed({ THRIV3_ALLOW_LEGACY_COACHES: ' 1 ' })).toBe(true);
     expect(legacyCoachesAllowed({ THRIV3_ALLOW_LEGACY_COACHES: 'no' })).toBe(false);
-    const rows = [coach('a'), coach('b', { email_status: 'inferred' })];
-    expect(applyCoachFloor(rows, { env: {} }).map((r) => r.id)).toEqual(['a']);
+    const rows = db.prepare("SELECT * FROM coaches WHERE id IN ('ok', 'inferred') ORDER BY id").all();
+    expect(applyCoachFloor(rows, { env: {} }).map((r) => r.id)).toEqual(['ok']);
     expect(applyCoachFloor(rows, { env: { THRIV3_ALLOW_LEGACY_COACHES: '1' } })).toHaveLength(2);
   });
 });

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
 
 /**
  * PHASE 1E — FALLBACK RECIPIENT SELECTION AND RECIPIENT AGREEMENT. The synthetic matrix.
@@ -14,7 +15,7 @@ delete process.env.THRIV3_ALLOW_LEGACY_COACHES;
 
 const db = (await import('../db/client.js')).default;
 const { programmeContactId } = await import('./programmeContactEligibility.js');
-const { coachIneligibility } = await import('./coachEligibility.js');
+const { coachIneligibility, coachRowIneligibility } = await import('./coachEligibility.js');
 const {
   programmePursuitPlan, contactAttemptPreparation, materialiseNextContactAttempt, PURSUIT_REASON,
   PREPARATION_REFUSAL, FIRST_TOUCH_REVIEW,
@@ -62,6 +63,7 @@ function programme(key, { sport = 'mens-soccer', coaches = [], inboxes = [] } = 
       c.title || 'Head Coach', c.status || 'verified', c.currentness || 'CURRENT');
     ids.push(id);
   });
+  corroborateFixtureCoaches(db, { ids });
   const pcs = [];
   for (const ib of inboxes) {
     const email = ib.email || `msoccer@${host}`;
@@ -399,10 +401,12 @@ describe('R–T. an inbox moves through planning and the typed delivery boundari
 });
 
 describe('U–V. the coach floor is untouched', () => {
-  it('U. coachIneligibility gives the same answers it always did', () => {
-    expect(coachIneligibility({ email: 'a@b.edu', email_status: 'verified', currentness_status: 'CURRENT' })).toBeNull();
-    expect(coachIneligibility({ email: 'a@b.edu', email_status: 'inferred' })).toBe('EMAIL_NOT_VERIFIED:inferred');
-    expect(coachIneligibility({ email: 'a@b.edu', email_status: 'verified', currentness_status: 'PROVEN_STALE' })).toBe('COACH_PROVEN_STALE');
+  it('U. the floor\'s ROW checks give the same answers they always did (the canonical decision is added on top)', () => {
+    expect(coachRowIneligibility({ email: 'a@b.edu', email_status: 'verified', currentness_status: 'CURRENT' })).toBeNull();
+    expect(coachRowIneligibility({ email: 'a@b.edu', email_status: 'inferred' })).toBe('EMAIL_NOT_VERIFIED:inferred');
+    expect(coachRowIneligibility({ email: 'a@b.edu', email_status: 'verified', currentness_status: 'PROVEN_STALE' })).toBe('COACH_PROVEN_STALE');
+    // a row the canonical engine never saw is refused by the full floor: fail closed
+    expect(coachIneligibility({ email: 'a@b.edu', email_status: 'verified', currentness_status: 'CURRENT' })).toBe('COACH_NO_CANONICAL_DECISION');
   });
   it('V. a legacy generic team row stays ineligible and is never a recipient under the default floor', () => {
     const row = db.prepare('SELECT * FROM coaches WHERE id = ?').get(P.f.coaches[0]);

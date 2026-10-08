@@ -1,0 +1,690 @@
+{
+ "kind": "COACH_ACTIVATION_HOLDS",
+ "version": "cah-1",
+ "source": "Data Integrity 8D.3F handoff (integrity_artifacts/phase8d3f/pd_handoff_8d3f.json), approval 5a0275747ec3, fixtures D 85a8be15 / C c6b8ad41 / B 779b3a99 / A 6355a188",
+ "created": "2026-10-08",
+ "rule": "A held coach is never an outreach recipient on any path (selection, manual send, prepared-campaign claim), and a held named coach blocks the programme-inbox fallback at its programme. A hold is released only by removing it here in a reviewed, explicitly authorised commit.",
+ "counts": {
+  "PENDING_SEND_TIME_VERIFICATION": 129,
+  "PROVEN_STALE": 3,
+  "ACTIVATION_CAUTION": 2,
+  "POSITIVE_EMAIL_ABSENCE": 1
+ },
+ "holds": [
+  {
+   "coach_id": "026d892b-a773-4028-8d26-e76d47196cb9",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "02cf0e29-3cfa-4544-ae0e-dfda49454900",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "03932e58-bd1b-454d-b4ff-3d5ed4b72788",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "05a90e64-1cf8-4a9c-a7d3-199c5c8fb2b4",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "06d2ef54-bf98-486a-96ac-666cd9550ea3",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "08b54a55-6c1a-4a7f-8b7a-824aef6835cf",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "08f9f32a-83e9-43b8-b4c9-768b19aa98d0",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "0a3d4bdb-f037-4ad6-a039-a30dd5d4a60b",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "0d40c192-ca11-485e-80ef-da03cfb54f65",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "102e4926-f94d-4192-a72c-1b13264bcc74",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "1053ff2a-0f24-4bfb-9d56-fcf89fb88747",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "1061520b-1548-456d-91f8-1e2023e771fb",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "10988e1f-0508-47ad-8098-16003d95d767",
+   "hold": "PROVEN_STALE",
+   "reason": "absent from the official current coaching-staff page"
+  },
+  {
+   "coach_id": "113f8573-0501-49a6-9756-e72035c8508d",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "12e1b587-4b5a-4387-b8ca-ed32765ec8d7",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "1980197d-225b-43a3-9bcc-ad18257700aa",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "198ee469-b73f-4042-85b8-15333573f419",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "1f3cdf29-9ad8-4411-8dae-132de827c12b",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "2bc9016d-9b47-40d6-982d-530425bd07e8",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "2bd77354-cafb-409f-98bc-e7603d6b2d61",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "2f3adf11-6521-4187-a999-b6d8b470cc0c",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "2f5d1b84-b603-4776-89c6-d8f2d8bfe260",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "3559a21b-8c39-43fd-bd33-58e20780d864",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "36e75e24-311d-4f1f-9fa2-1446da018c31",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "37489921-7611-44ee-b3d6-629ad133d4d4",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "3e3b5954-e979-4d7c-928b-8949bcb467ba",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "3f98efe5-ed9a-420e-8b3c-8cc491cec4e3",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "47217e4c-c8ca-4996-bd85-d78729d238c0",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "49227c24-202c-4c52-bbbb-f581a5ac61cc",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "4a61e757-6a90-4528-afd7-29122d5a1ac8",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "4a929def-a91b-4c6e-a76f-fce413bd86ac",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "4b1bbf7f-b94b-447a-8042-2eaa3f5a4cb2",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "52900f84-fc94-49a8-b11b-5d49833a700a",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "549d62a3-ecea-43ca-a87f-f4aca6f338ef",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "5a13fc48-0e23-4cb2-808d-0bbb3cc00fb4",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "5b7c7faa-84e6-4768-a7d6-33aa8b5b5320",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "5dad235c-627f-4e44-9b8f-645aff95c7b8",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "605f0e97-daee-4d6c-9202-7d9a3614a9e1",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "606c1fa1-192d-41bd-a24e-e782dafbfe1a",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "63fd4d6c-28ce-4fe5-8668-d05f4aa03107",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "63ff86fb-b943-4520-ab17-9976ace513a0",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "646b9069-aaea-4f38-ab43-84f21340280d",
+   "hold": "ACTIVATION_CAUTION",
+   "reason": "email evidence only on the opposite-sex programme staff page; not to be activated until reviewed"
+  },
+  {
+   "coach_id": "647c575f-b199-4669-9dff-3542cd607029",
+   "hold": "POSITIVE_EMAIL_ABSENCE",
+   "reason": "recorded address positively not published on the official staff page; replacement only via the reviewed email-correction path"
+  },
+  {
+   "coach_id": "6624059d-d721-4def-a0d1-fc151bc63e08",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "67fb7f30-cd85-46e5-b8a1-dd5fe205f1b0",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "6b119e98-89a4-4b4f-a0fe-054bef3d9256",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "6c7dce7e-33fc-4ca5-8e5d-4278581a0830",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "6c99aa54-5dd9-4495-a914-ac13f6408599",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "6e06d6e5-e1f5-4700-a2cd-383badc703ae",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "6fd01d98-ac0b-4756-baf7-9f1543780ae3",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "70ac0ee2-69c2-4565-a8e6-a917569c66aa",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "70c9151c-260f-48de-8e66-1c429b75e036",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "7126bb56-d9b2-4474-9bc7-e01d61185b00",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "73d980bf-2be8-4f1a-a3e2-b32d6fcf227f",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "74683283-cfed-4640-9e86-4802d6d616ef",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "75172876-e5f4-4436-b4c5-1096f2d42f82",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "797fdb8e-8ec9-4d58-9037-c42efb53a4f4",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "7bf1a3e8-5bf9-426f-8fbb-3a4950e43c8d",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "7cf5d124-9479-4a2d-bd1a-dcf34c6e2940",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "7e6dd582-e5e8-4af8-8db9-596c3a8983ab",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "7f7dff86-59a5-4d59-b5aa-ec5a7b097f57",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "8014dc8a-9180-4343-822f-ce058d9a78c3",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "8045c478-b175-47ca-8a38-f122ab2ab136",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "84dc0fb4-500d-41b0-b681-04eae9ec501d",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "84e8fc2f-1d22-4ae5-a843-16170795f213",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "860eb7c8-a87d-4de8-a07d-bf8bb7e4c657",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "87e597a1-d059-4237-b511-20624631b69c",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "8a4c43a3-5f01-4a88-ac94-3f032322f2e2",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "8d063103-8509-4214-819e-57b4002539d0",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "8ddbffff-f02e-46fa-bd89-0ea2f436b3c9",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "8df2aacc-5f96-4fa1-b34e-83984e4a72f1",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "912fe4df-4c1c-4206-ba5d-fcb6fa1eb8d5",
+   "hold": "PROVEN_STALE",
+   "reason": "absent from the official current coaching-staff page"
+  },
+  {
+   "coach_id": "9578c38a-6d34-4e83-93c0-631c88019b4f",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "959ac52c-9801-4782-a7ee-d76ca02c2c17",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "96884df6-2b68-4287-93a6-c80a80fa30a9",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "9843341a-19f7-403d-952b-3d7d1611e888",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "9b088103-ba43-4cb5-9516-d8388fd9ba90",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "9baa311e-d568-4553-a3e6-a7db7b7e7f2b",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "9bb74181-6951-4e08-a353-541792dbc71a",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "9eec8f40-7efb-4be8-a31f-0007b03cd15c",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "a175b47d-3fb7-41cf-b113-8e2b716f0abf",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "a1e6dfd7-a6bd-43d6-8585-090d8882599a",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "a2d1b68d-9f88-4140-9754-9925cc6a5e94",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "a50af39e-4865-4cac-bb26-56081c7e1464",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "ac00130a-617a-45ce-8c03-91682ce8ae91",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "aeec601f-9b9c-4ed5-a0a6-7e36e428109e",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "b0ed191f-6e3b-41f3-abc3-7ce80e7b46a1",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "b1429a3b-a97f-410c-b03d-bfccbd00f697",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "b50fa56b-47f2-4716-8b47-526a7b6e5163",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "b594c6b6-7281-439d-bf43-9d991c4df978",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "b659f4d4-d2e7-45bf-a310-7d750f75270b",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "b69e385a-4860-4036-8146-fb6eed0af548",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "b97cae23-aa64-4f0c-9208-21b2bb5c0ee4",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "ba10a31b-a353-470b-ba08-ec95e7f5606e",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "bb12d54f-2443-40f3-9fd5-b81f27dc4dc9",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "bd6d4d3b-cfca-40ed-bdc8-a92d5626d54b",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "bd76ee13-0f79-4747-b60f-8e52c65679c1",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "bdbf815d-3597-4a6d-ac9a-f084c33f1172",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "bf26fbf7-5bbe-4cf6-9140-b7ff9d2ae9a7",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "c37c38d4-5a29-43f1-ba3c-b4ae96849bf9",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "c51021c5-935f-4045-9506-b12389b69c00",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "c6c17682-5c03-432e-97c3-357bb24746e4",
+   "hold": "PROVEN_STALE",
+   "reason": "absent from the official current coaching-staff page"
+  },
+  {
+   "coach_id": "c854a6da-d852-4dbe-ab94-5da7b1db5a0c",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "c931ecba-b36a-47e3-94c6-419743e4ff49",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "c9ebec9d-866c-463d-9d7b-0a5852c78cfc",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "cb286a9c-b98c-4a1c-8f52-13a40fcd4659",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "cb7aa51c-7f88-40ea-99f6-a87145140372",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "cd6d6353-4c0a-4fb8-9ff7-f3baac1d05c5",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "d006aad1-5ded-4502-afaf-c2c2d4bb5f70",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "d00b1c81-f098-4d8a-9d54-5187ca3c193d",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "d3861aa8-6e88-4c50-a1f1-99742a872404",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "d3beddcf-8206-48c4-a5e5-f1a070e9e41f",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "d4a3a703-41a2-48f5-a3ba-43cccddfa330",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "d99a56d7-3c1a-4bc2-86ec-841a3d193eb7",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "dac48e64-125f-4bdb-a7ed-fd27fb875bc9",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "df7397f3-182f-414e-81c7-60f2aef8df11",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "dfd907d4-a81f-4b67-8c4f-522469c9fc63",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "e1e6b658-59c7-4060-bb15-a0a80719f1a9",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "e6063c89-8e62-48a4-98bd-7307f45ad82b",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "e624f417-c081-45b5-a17a-661997b3018a",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "e708a50f-a564-459b-8f66-9df301e853a2",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "e7bd7a84-4ad0-4e03-bea1-be9d4194dc5a",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "ed9b57c9-328f-4fd0-a035-c300694ab0ef",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "edadf60a-c6cf-4886-bc0a-68dbf4b61614",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "ee17c420-e432-437e-ab67-be539e92647e",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "ee641267-67bf-4103-89cd-b3bb98dbabb3",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "eebda05c-4d16-44c9-b28c-ef8973668cfb",
+   "hold": "ACTIVATION_CAUTION",
+   "reason": "email evidence only on the opposite-sex programme staff page; not to be activated until reviewed"
+  },
+  {
+   "coach_id": "f1d2f8df-c215-470b-b505-4fe431483b66",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "f2414c8e-e601-4cdc-98ba-efa8e0ee5aab",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "f42723bb-2edf-4e88-8821-3d3023bca0b6",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "f69f0b91-1d59-4f49-ab49-c29b1ecd4a55",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "f8f8cba1-b0c0-43f7-a01f-c7bd3a14c7f6",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "fcabe507-27b7-403f-bf5e-4aaf4d2b33bc",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "fea8569d-c3de-439c-88ed-a8dc2dff6b6e",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "ff779457-e8a2-400d-80a7-9d23e516e459",
+   "hold": "PENDING_SEND_TIME_VERIFICATION",
+   "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  }
+ ]
+}

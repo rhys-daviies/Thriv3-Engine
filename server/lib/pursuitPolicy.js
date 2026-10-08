@@ -1,4 +1,4 @@
-import { coachIneligibility, legacyCoachesAllowed } from './coachEligibility.js';
+import { outreachIneligibility } from './coachEligibility.js';
 import db from '../db/client.js';
 import {
   classifyRole, hasUsableEmail, titleOf, CONTACT_LADDER,
@@ -511,8 +511,8 @@ function candidates(staff, { athletePosition }) {
     emailStatus: c.email_status || 'unknown',
     usable: hasUsableEmail(c),
   }));
-  const legacy = legacyCoachesAllowed();
-  const floorOf = new Map(staff.map((c) => [c.id, legacy ? null : coachIneligibility(c)]));
+  // the floor every outreach path applies: row checks + the canonical decision + activation holds
+  const floorOf = new Map(staff.map((c) => [c.id, outreachIneligibility(c)]));
 
   const contactable = [];
   for (const c of rows) {

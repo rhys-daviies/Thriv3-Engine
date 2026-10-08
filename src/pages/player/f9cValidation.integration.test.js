@@ -13,6 +13,7 @@ import { recordDraft, acceptSend, openSendFor } from '../../../server/lib/outrea
 import { createOutreach } from '../../../server/lib/outreach.js';
 import { suppress } from '../../../server/lib/suppressions.js';
 import { ACCEPTED_SOURCE } from '../../../shared/outreachMessageState.js';
+import { corroborateFixtureCoaches } from '../../../server/testCanonicalCoaches.js';
 
 /**
  * F9c — THE WHOLE OF F9, AS ONE SYSTEM.
@@ -89,6 +90,7 @@ function coach({ school = 'Duke', email, name = 'John Smith', title = 'Head Coac
       email_status)
     VALUES (?, ?, ?, ?, ?, 'NCAA D1', 'mens-soccer', ?, 'verified')
   `).run(id, NOW, name, email ?? `c${++seq}@duke.edu`, school, title);
+  corroborateFixtureCoaches(db, { ids: [id] });
   return id;
 }
 
