@@ -101,6 +101,18 @@ export function decisionEvidenceHref(playerId, programme) {
   return `/player/${playerId}/decision?${q.toString()}`;
 }
 
+/**
+ * Phase 4: the programme's own workspace in the Programme Database. Keyed by
+ * the engine's `programmeId`, which IS the programme's `colleges` id - so the
+ * link is to this programme in this sport, never a name lookup. Null when the
+ * run carries no id (an older persisted run): no link rather than a guess.
+ */
+export function programmeHref(programme, entryYear = null) {
+  if (!programme?.programmeId) return null;
+  const q = entryYear ? `?classYear=${encodeURIComponent(entryYear)}` : '';
+  return `/programmes/${encodeURIComponent(programme.programmeId)}${q}`;
+}
+
 export default function MatchmakingResultCard({
   programme,
   /** Ratings, cost and roster departures, from the page's one bounded read. */
@@ -259,14 +271,27 @@ export default function MatchmakingResultCard({
           Mary's). Only under a player route - a card rendered anywhere else
           has no athlete to open evidence for.
         */}
-        {open && playerId && (
-          <Link
-            to={decisionEvidenceHref(playerId, programme)}
-            className="inline-block text-xs underline underline-offset-2 text-muted-foreground hover:text-foreground"
-            data-testid="view-full-evidence"
-          >
-            View full evidence
-          </Link>
+        {open && (playerId || programmeHref(programme)) && (
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {playerId && (
+              <Link
+                to={decisionEvidenceHref(playerId, programme)}
+                className="inline-block text-xs underline underline-offset-2 text-muted-foreground hover:text-foreground"
+                data-testid="view-full-evidence"
+              >
+                View full evidence
+              </Link>
+            )}
+            {programmeHref(programme) && (
+              <Link
+                to={programmeHref(programme, entryYear)}
+                className="inline-block text-xs underline underline-offset-2 text-muted-foreground hover:text-foreground"
+                data-testid="open-programme"
+              >
+                Open programme
+              </Link>
+            )}
+          </div>
         )}
       </Disclosure>
     </Card>

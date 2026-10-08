@@ -27,6 +27,7 @@ import { uploadsRouter } from './routes/uploads.js';
 import { campaignsRouter } from './routes/campaigns.js';
 import { athleteProgrammesRouter } from './routes/athleteProgrammes.js';
 import { programmeCoachesRouter } from './routes/programmeCoaches.js';
+import { programmesRouter } from './routes/programmes.js';
 import { programmeContactsRouter } from './routes/programmeContacts.js';
 import { manualOutreachRouter } from './routes/manualOutreach.js';
 import { contactIntelligenceRouter } from './routes/contactIntelligence.js';
@@ -650,6 +651,9 @@ app.use('/api', contactIntelligenceRouter);
 // frozen engine rather than described by a request.
 app.use('/api', matchmakingRouter);
 app.use('/api', observationsRouter);
+// Phase 4: the Programme Database. GET only; after observationsRouter so its
+// /programmes/intelligence (by name) keeps that exact path.
+app.use('/api', programmesRouter);
 // ---- NCAA roster-gap review ----
 //
 // Purpose-built for the same reason as campaignsRouter: `roster_gap_reviews`

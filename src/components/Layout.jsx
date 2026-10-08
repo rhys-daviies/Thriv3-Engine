@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Home, Trophy, Users, Database, BookOpen, LogOut, Contact } from 'lucide-react';
+import { Home, Trophy, Users, Database, LogOut, Contact } from 'lucide-react';
 import { Thriv3Mark, Thriv3Wordmark } from '@/components/Logo';
 import { useSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
@@ -10,8 +10,8 @@ const NAV_ITEMS = [
   { to: '/sports', label: 'Sports', icon: Trophy },
   { to: '/players', label: 'Players', icon: Users },
   { to: '/representatives', label: 'Representatives', icon: Contact },
-  { to: '/colleges', label: 'College DB', icon: Database },
-  { to: '/graduating-db', label: 'Graduating DB', icon: BookOpen },
+  // The review queues still live under /colleges/*; they belong to this entry.
+  { to: '/programmes', label: 'Programme DB', icon: Database, also: ['/colleges/'] },
 ];
 
 export default function Layout() {
@@ -27,8 +27,8 @@ export default function Layout() {
             <Thriv3Wordmark />
           </Link>
           <nav className="flex items-center gap-1">
-            {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
-              const active = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
+            {NAV_ITEMS.map(({ to, label, icon: Icon, also = [] }) => {
+              const active = to === '/' ? location.pathname === '/' : [to, ...also].some((p) => location.pathname.startsWith(p));
               return (
                 <Link
                   key={to}

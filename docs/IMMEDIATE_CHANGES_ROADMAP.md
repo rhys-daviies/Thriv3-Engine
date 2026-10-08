@@ -17,7 +17,7 @@ Detailed primary and secondary athlete positions are done (PR #68, main `67e8964
 - Preserve the existing athlete-authorized mailbox sending architecture. Representative-first contact must not silently change the sender mailbox or OAuth model.
 - Preserve historical records, coach eligibility, programme-contact fallback, suppressions and send safeguards.
 
-Status: implemented on `feat/representative-contact` (PR open, not merged). A representative is recommended for every athlete, not enforced: making it a publish requirement would block all outreach for unassigned athletes, because sending refuses links to ungeneratable pages. With none assigned, emails keep the long-standing sign-off and the coach page shows no personal contact.
+Status: **complete** — PR #70, merged to main `dab547b` (not deployed). A representative is recommended for every athlete, not enforced: making it a publish requirement would block all outreach for unassigned athletes, because sending refuses links to ungeneratable pages. With none assigned, emails keep the long-standing sign-off and the coach page shows no personal contact.
 
 **Sending and replies (unchanged by Phase 2).** Outreach is still sent from the athlete's own connected mailbox under the athlete's OAuth grant. The message sets `From` to that mailbox and sets no `Reply-To`, `Cc` or `Bcc` (`server/lib/rfc822.js`). **A coach who replies is therefore writing to the athlete's mailbox, not to the representative.** The representative is reached through the details in the email signature and on the coach-facing page. Every outreach review surface says this in its signature notice, and warns, without blocking, when the long-standing consultant signature will be used. Routing replies to representatives would be a separate design decision, not part of Phase 2.
 
@@ -34,7 +34,7 @@ Reorganize the player workspace into:
 - Remove Program Philosophy, Evidence and Decision Evidence from the primary navigation, while preserving their engines, data and functionality.
 - Expose the existing preferred-conference picker and verify how matchmaking actually consumes it. Do not silently change ranking weights.
 
-Status: implemented on `feat/phase3-navigation-conferences` (PR open, not merged).
+Status: **complete** — PR #71, merged to main `8427b75` (not deployed).
 - Primary tabs are exactly the five above. Program Philosophy, Evidence and Decision Evidence sit under a secondary **More views** menu, with their routes and deep links unchanged. Each V2 match card has **View full evidence**, which opens Decision Evidence for that programme (`?college=<name>&source=v2`), even one the previous engine's list never held.
 - Conference consumption, verified: **Matcher V2 does not rank or filter on preferred conferences.** Each match card checks the programme against them ("checked, not ranked"). Only the previous engine (`?matching=v1`) filters on them. A test proves V2 rankings are byte-identical with and without conference preferences, while the per-card check updates.
 - Fixed: the edit form erased saved conferences (it pruned them before the reference list had loaded). Saved conferences now survive loading, a failed load, and names missing from the current list; they are removed only when the operator removes them or unticks their division. The picker now sits directly beneath divisions on step 1.
@@ -49,7 +49,14 @@ Programme workspace sections: Overview · Roster & Openings · Recruiting Intell
 
 Reuse existing datasets, APIs and intelligence, and avoid parallel sources of truth.
 
-Status: not started.
+Status: implemented on `feat/phase4-programme-database` (PR open, not merged). Read only: no schema change and no writes to programme data.
+- `/programmes`: one list, filtered and paginated by the server (Sport, Recruiting Class, Division, Conference, School). Replaces the College Database and Graduating Database; `/colleges` and `/graduating-db` redirect to it. The Roster gaps and Season trust queues are linked from it and keep their routes.
+- `/programmes/:id`: Overview · Roster & Openings · Recruiting Intelligence · Coaches & Contacts · Programme Intelligence. The id is the `colleges` id, which is the engine's `programmeId`, so a programme is always one school in one sport. The other sport is linked only through the athletics-entity id. Each V2 match card has **Open programme**.
+- **Openings are the matching engine's own projection.** They come from `programmeContext` / `positionEvidence`, and per-player standing comes from `availabilityAtEntry`. A place is open for a class when its holder's last eligible season, under the eligibility rules on file, is before that class arrives. They are projections, not confirmed graduates. The stored `estimated_graduation_year` the old Graduating Database grouped by is not used.
+- **Recruiting classes run from 2027 to 2030.** That is the season after the 2026 roster through the furthest season any current player could still be eligible (`maxAttainableLastSeason`). Classes outside that window are refused. At or past a division's own ceiling, the counts are marked as set by the eligibility window. NJCAA/USCAA have no rule on file and show "Not established".
+- **Conference filters by identity.** It uses the canonical conference register (`resolveConference`, scoped by sport and division), so stored spellings such as "Sooner" and "Sooner Athletic Conference" are one option. Spellings the register does not hold match exactly. **School** uses the registry search's predicate: name plus global aliases on UNITID, no fuzzy matching.
+- **Removed from the UI:** the legacy mock-data "Run Batch Research" and the legacy CSV export. The underlying `graduating_seniors` data and server functions are untouched.
+- **Coaches & Contacts** reads the existing per-programme routes unchanged, with their eligibility floors. It shows no email links and has no send path.
 
 ## Phase 5 — End-to-End Integration
 

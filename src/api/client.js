@@ -494,26 +494,6 @@ export const campaigns = {
   },
 };
 
-/**
- * A response we want as bytes.
- *
- * Separate from `request()` on purpose: a function whose return type depends
- * on a response header is a trap for every caller that already exists. On a
- * failure the server answers with JSON, so the message is read out and thrown
- * the same way `request()` does rather than discarded.
- */
-async function requestBlob(path, options = {}) {
-  const res = await fetch(path, { credentials: 'same-origin', ...options });
-  if (res.status === 401) { noteUnauthenticated(); throw new SignedOutError(); }
-  if (!res.ok) {
-    const text = await res.text();
-    let message = text;
-    try { message = JSON.parse(text).error || text; } catch { /* not JSON */ }
-    throw new Error(message || `Request failed (${res.status})`);
-  }
-  return res.blob();
-}
-
 export const evidence = {
   /**
    * What the server can genuinely say about this athlete at these programmes,
@@ -589,6 +569,40 @@ export const operatorEvidence = {
 export const playerHistory = {
   possibleTransfers(season, sport) {
     return request(`/api/player-history/possible-transfers?season=${encodeURIComponent(season)}&sport=${encodeURIComponent(sport)}`);
+  },
+};
+
+/**
+ * THE PROGRAMME DATABASE — Phase 4. Read only. A programme is one `colleges`
+ * row (a school in a sport); its id is the engine's `programmeId`. Coaches and
+ * inboxes come from the existing per-programme routes, with their eligibility
+ * floors, unchanged.
+ */
+export const programmes = {
+  list(params = {}) {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== null && v !== undefined && v !== '' && v !== false) qs.set(k, v === true ? '1' : String(v));
+    }
+    return request(`/api/programmes?${qs.toString()}`);
+  },
+  facets(sport, { includeInactive = false } = {}) {
+    return request(`/api/programmes/facets?sport=${encodeURIComponent(sport)}${includeInactive ? '&includeInactive=1' : ''}`);
+  },
+  get(id, classYear) {
+    return request(`/api/programmes/${encodeURIComponent(id)}${classYear ? `?classYear=${encodeURIComponent(classYear)}` : ''}`);
+  },
+  recruiting(id) {
+    return request(`/api/programmes/${encodeURIComponent(id)}/recruiting`);
+  },
+  intelligence(id) {
+    return request(`/api/programmes/${encodeURIComponent(id)}/intelligence`);
+  },
+  coaches(id) {
+    return request(`/api/colleges/${encodeURIComponent(id)}/coaches`);
+  },
+  contacts(id) {
+    return request(`/api/colleges/${encodeURIComponent(id)}/programme-contacts`);
   },
 };
 
@@ -913,7 +927,6 @@ function callFunction(name, body) {
 }
 
 export const functions = {
-  buildGraduatingDatabase: (body) => callFunction('buildGraduatingDatabase', body),
   evaluateSoccerProgram: (body) => callFunction('evaluateSoccerProgram', body),
   importSoccerScores: (body) => callFunction('importSoccerScores', body),
   listSchoolsByDivision: (body) => callFunction('listSchoolsByDivision', body),
@@ -921,13 +934,6 @@ export const functions = {
   cleanInactiveSchools: (body) => callFunction('cleanInactiveSchools', body),
   importGraduatingCSV: (body) => callFunction('importGraduatingCSV', body),
   csvAgentChat: (body) => request('/api/csv-agent/chat', { method: 'POST', body: JSON.stringify(body) }),
-  exportGraduatingDatabase(body) {
-    return requestBlob('/api/functions/exportGraduatingDatabase', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body || {}),
-    });
-  },
 };
 
 /**
