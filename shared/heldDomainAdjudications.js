@@ -44,16 +44,69 @@ export const HELD_DOMAIN_ADJUDICATIONS = Object.freeze([
   }),
 ]);
 
-const HELD = new Set(HELD_DOMAIN_ADJUDICATIONS.map((h) => h.domain.toLowerCase()));
+/**
+ * RELEASES (Phase DI-03B). A hold ends only through a reviewed release record, never by deleting the
+ * hold above (the hold stays as the audit trail of why it was held). A release names the exact hold
+ * it ends (domain, stored UNITID, disputed pair, recorded date), the owner the evidence settles on,
+ * the reviewer, a reason, and the external evidence the hold's `resolves_when` asks for: the site's
+ * own self-identification and the NCES/IPEDS record, each with its URL and sha256.
+ *
+ * Two uses, one validator (holdReleaseProblems):
+ *   - a DOMAIN_OWNERSHIP_CORRECTION fixture may carry a release to authorise correcting the held
+ *     row's ownership inside the correction transaction (domainOwnershipCorrection.js);
+ *   - a release listed in HELD_DOMAIN_RELEASES ends the hold for every reader of isHeldDomain. It
+ *     takes effect only with `applied_correction.manifest_hash` — the committed correction that put
+ *     the row on the released owner — so merging a release before the data is corrected can never
+ *     lend the held host's authority to the institution it was wrongly filed under.
+ */
+export const HELD_DOMAIN_RELEASES = Object.freeze([]);
 
-/** Is this domain's ownership currently under adjudication? */
-export function isHeldDomain(domain) {
-  return typeof domain === 'string' && HELD.has(domain.trim().toLowerCase().replace(/^www\./, ''));
+const normDomain = (d) => String(d ?? '').trim().toLowerCase().replace(/^www\./, '');
+const HEX64 = /^[0-9a-f]{64}$/;
+
+/** The hold record for a domain whether or not it has been released, or null. */
+export function holdRecord(domain) {
+  if (typeof domain !== 'string') return null;
+  const d = normDomain(domain);
+  return HELD_DOMAIN_ADJUDICATIONS.find((h) => h.domain.toLowerCase() === d) ?? null;
 }
 
-/** The held record for a domain, or null. */
+/**
+ * Problems with a release against the hold it claims to end ([] = a valid release).
+ * `requireApplied`: a code-level release must also name the committed correction manifest.
+ */
+export function holdReleaseProblems(release, hold, { requireApplied = false } = {}) {
+  const p = [];
+  if (!release || typeof release !== 'object') return ['no release record'];
+  if (!hold) return [`${release.domain ?? '?'} has no hold to release`];
+  const sameSet = (a, b) => Array.isArray(a) && a.length === b.length && [...a].map(Number).sort().join(',') === [...b].map(Number).sort().join(',');
+  if (!release.release_id) p.push('release_id is required');
+  if (normDomain(release.domain) !== normDomain(hold.domain)) p.push(`release domain ${release.domain} is not the held domain ${hold.domain}`);
+  if (release.hold_recorded !== hold.recorded) p.push(`hold_recorded ${release.hold_recorded} does not match the hold (${hold.recorded})`);
+  if (Number(release.stored_unitid) !== Number(hold.stored_unitid)) p.push(`stored_unitid ${release.stored_unitid} does not match the hold (${hold.stored_unitid})`);
+  if (!sameSet(release.disputed_between, hold.disputed_between)) p.push('disputed_between does not match the hold');
+  if (!hold.disputed_between.map(Number).includes(Number(release.released_to_unitid))) p.push(`released_to_unitid ${release.released_to_unitid} is not one of the disputed owners`);
+  // the reviewer's name is sealed into the fixture hash the approver signs off; the repo-wide "NOT APPROVED" marker is refused
+  if (!String(release.reviewer || '').trim() || /not approved/i.test(String(release.reviewer))) p.push('reviewer authorisation is required');
+  if (!/^\d{4}-\d{2}-\d{2}/.test(String(release.approved_at || ''))) p.push('approved_at (ISO date) is required');
+  if (String(release.reason || '').trim().length < 40) p.push('a documented reason (at least 40 characters) is required');
+  const ev = Array.isArray(release.evidence) ? release.evidence : [];
+  const okEv = ev.filter((e) => /^https:\/\//.test(e?.url || '') && HEX64.test(e?.sha256 || ''));
+  if (okEv.length !== ev.length) p.push('every evidence item needs an https url and a sha256');
+  if (!okEv.some((e) => e.kind === 'SELF_IDENTIFICATION')) p.push('evidence must include the site\'s own SELF_IDENTIFICATION');
+  if (!okEv.some((e) => e.kind === 'IPEDS')) p.push('evidence must include the NCES/IPEDS record (IPEDS)');
+  if (requireApplied && !HEX64.test(release.applied_correction?.manifest_hash || '')) p.push('a code-level release must name the applied correction manifest (applied_correction.manifest_hash)');
+  return p;
+}
+
+/** Is this domain's ownership currently under adjudication? `releases` exists for tests only. */
+export function isHeldDomain(domain, { releases = HELD_DOMAIN_RELEASES } = {}) {
+  const hold = holdRecord(domain);
+  if (!hold) return false;
+  return !releases.some((r) => normDomain(r?.domain) === normDomain(hold.domain) && holdReleaseProblems(r, hold, { requireApplied: true }).length === 0);
+}
+
+/** The held record for a domain, or null (null once validly released). */
 export function heldAdjudication(domain) {
-  if (!isHeldDomain(domain)) return null;
-  const d = domain.trim().toLowerCase().replace(/^www\./, '');
-  return HELD_DOMAIN_ADJUDICATIONS.find((h) => h.domain.toLowerCase() === d) ?? null;
+  return isHeldDomain(domain) ? holdRecord(domain) : null;
 }

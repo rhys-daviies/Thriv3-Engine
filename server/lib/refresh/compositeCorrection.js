@@ -12,6 +12,10 @@
  * STAGE TYPES (rank = the only order allowed; equal ranks may repeat):
  *   1 COACH_CURRENTNESS / withhold_before_A   — disproven currentness -> PROVEN_STALE
  *   1 COACH_EMAIL_ABSENCE                      — recorded address positively unpublished (8D.3D) -> observation row
+ *   1.5 DOMAIN_OWNERSHIP_CORRECTION            — authenticated host ownership: reassign / restore / promote,
+ *                                                bare + www together (domainOwnershipCorrection, DI-03B). It runs
+ *                                                BEFORE relabels: a coach relabel is attributed through the hosts
+ *                                                it lands on, so those hosts must already name the right owner.
  *   2 COACH_INSTITUTION                        — coach filed at the wrong programme -> right one
  *   3 COACH_CURRENTNESS / reinstate_after_B   — PROVEN_STALE -> CURRENT on the coach's own page
  *   4 PROTECTED_SOURCE_CORRECTION             — WRONG_INSTITUTION -> VERIFIED (protectedCorrection)
@@ -30,6 +34,11 @@
  *     baseline; the programme universe (every division) is unchanged
  *   - attribution: every relabelled coach resolves to its new programme (or is ineligible)
  *   - currentness: every withheld coach is ineligible
+ * ACTIVATION HOLDS (DI-03B): a run containing a DOMAIN_OWNERSHIP_CORRECTION stage may only make a coach
+ *   newly eligible if that coach is already under an activation hold (server/data/seeds/
+ *   coach_activation_holds.json, read through canonicalCoachEligibility.activationHolds — the file every
+ *   send path enforces). An unreadable holds file, or any unheld newly eligible coach, refuses the whole
+ *   run: an ownership correction can never activate outreach on its own.
  * FINAL: full PRAGMA integrity_check, then COMMIT. Any throw anywhere -> ROLLBACK of everything.
  *
  * The result manifest is ONE promotion-format revert list over every changed row; revertComposite
@@ -44,6 +53,8 @@ import { revertManifest } from './promotion.js';
 import { loadRefreshContext } from './context.js';
 import { hostOwnershipDisagreements } from './identityResolver.js';
 import { validateEntityIdentity } from '../../scripts/validateAthleticsEntityIdentity.js';
+import { applyDomainOwnershipInTransaction, domainOwnershipPostcheck, DOMAIN_OWNERSHIP_KIND } from './domainOwnershipCorrection.js';
+import { activationHolds, HOLDS_PATH } from '../canonicalCoachEligibility.js';
 
 export const COMPOSITE_APPROVAL_KIND = 'COMPOSITE_CORRECTION_APPROVAL';
 export const COMPOSITE_MANIFEST_PHASE = 'COMPOSITE_CORRECTION';
@@ -54,6 +65,7 @@ export const idSetHash = (ids) => sha([...ids].sort().join(','));
 export function stageRank(s) {
   if (s.type === COACH_EMAIL_ABSENCE_KIND) return 1; // a withhold: positive email absence (8D.3D)
   if (s.type === COACH_CURRENTNESS_KIND && s.group === 'withhold_before_A') return 1;
+  if (s.type === DOMAIN_OWNERSHIP_KIND) return 1.5; // hosts must name the right owner before any relabel is attributed through them
   if (s.type === COACH_INSTITUTION_KIND) return 2;
   if (s.type === COACH_CURRENTNESS_KIND && s.group === 'reinstate_after_B') return 3;
   if (s.type === PROTECTED_CORRECTION_KIND) return 4;
@@ -88,7 +100,7 @@ export function validateComposite(stages, approval) {
     if (!s?.stage_id || ids.has(s.stage_id)) problems.push(`${label}: stage_id missing or duplicated`); ids.add(s?.stage_id);
     const rank = stageRank(s || {});
     if (rank == null) { problems.push(`${label}: unknown stage ${s?.type}/${s?.group ?? '-'}`); return; }
-    if (rank < last) problems.push(`${label}: out of order (rank ${rank} after ${last}); order is withhold -> institution -> reinstate -> protected domain`);
+    if (rank < last) problems.push(`${label}: out of order (rank ${rank} after ${last}); order is withhold -> domain ownership -> institution -> reinstate -> protected domain`);
     last = Math.max(last, rank);
     if (s.type === COACH_CURRENTNESS_KIND && !CURRENTNESS_GROUPS[s.group]) problems.push(`${label}: unknown currentness group`);
     if (s.fixture?.kind !== s.type) problems.push(`${label}: fixture kind ${s.fixture?.kind} != stage type ${s.type}`);
@@ -124,7 +136,7 @@ const sameSet = (x, y) => x.length === y.length && [...x].sort().join(',') === [
  * `inject(point)` is a test hook called at every named point; a throw there must roll back all.
  * Returns { committed, report, manifest }.
  */
-export function runCompositeCorrection(db, stages, approval, { apply = false, now = new Date().toISOString(), scope = 'NAIA', inject = null } = {}) {
+export function runCompositeCorrection(db, stages, approval, { apply = false, now = new Date().toISOString(), scope = 'NAIA', inject = null, activationHoldsFile = HOLDS_PATH } = {}) {
   const hit = (p) => { if (inject) inject(p); };
   const problems = validateComposite(stages, approval);
   if (problems.length) throw fail(`composite correction refused: ${problems.length} problem(s)`, problems);
@@ -147,6 +159,7 @@ export function runCompositeCorrection(db, stages, approval, { apply = false, no
       const onAction = (_p, k) => { if (k === 0) hit(`stage:${s.stage_id}:action`); };
       let r;
       if (s.type === PROTECTED_CORRECTION_KIND) r = applyProtectedCorrectionsInTransaction(db, s.fixture, { now, postcheck: ownershipPostcheck, onAction });
+      else if (s.type === DOMAIN_OWNERSHIP_KIND) r = applyDomainOwnershipInTransaction(db, s.fixture, { now, postcheck: domainOwnershipPostcheck, onAction });
       else if (s.type === COACH_INSTITUTION_KIND) r = applyCoachInstitutionInTransaction(db, s.fixture, { onAction });
       else if (s.type === COACH_EMAIL_ABSENCE_KIND) r = applyCoachEmailAbsenceInTransaction(db, s.fixture, { now, onAction });
       else r = applyCoachCurrentnessInTransaction(db, s.fixture, s.group, { now, onAction });
@@ -183,6 +196,14 @@ export function runCompositeCorrection(db, stages, approval, { apply = false, no
     const integ = db.pragma('integrity_check', { simple: true });
     if (integ !== 'ok') throw fail(`integrity ${integ}`);
     report.final = { eligible: prev.size, eligible_ids_hash: idSetHash(prev), added: diffIds(base, prev).added, removed: diffIds(base, prev).removed };
+    if (stages.some((s) => s.type === DOMAIN_OWNERSHIP_KIND)) {
+      hit('final:activation-holds');
+      const holds = activationHolds(activationHoldsFile);
+      if (holds === null) throw fail(`activation holds unreadable (${activationHoldsFile}) — an ownership correction may not run without them (fail closed)`);
+      const unheld = report.final.added.filter((id) => !holds.has(id));
+      if (unheld.length) throw fail(`${unheld.length} newly eligible coach(es) without an activation hold — the correction would activate outreach`, unheld);
+      report.final.activation_holds = { file: activationHoldsFile, newly_eligible: report.final.added.length, all_held: true };
+    }
     hit('final:precommit');
     if (apply) db.exec('COMMIT'); else db.exec('ROLLBACK');
   } catch (err) { if (db.inTransaction) { try { db.exec('ROLLBACK'); } catch { /* */ } } throw err; }
