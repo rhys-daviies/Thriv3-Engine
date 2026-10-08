@@ -263,3 +263,16 @@ describe('suppression and opt-out are unchanged', () => {
     db.prepare('DELETE FROM suppressions WHERE email = ?').run(UNCORR.email);
   });
 });
+
+describe('the send boundary itself (also on main, PR #64)', () => {
+  it('an uncorroborated coach cannot be written to, also under the legacy opt-in', async () => {
+    process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+    const { results } = await send(UNCORR, { name: 'Una Uncorroborated', email: row(UNCORR.ids[0]).email, title: 'Head Coach' });
+    expect(results[0]).toMatchObject({ status: 'not-eligible', reason: CANONICAL_INELIGIBLE.NOT_CANONICALLY_ELIGIBLE });
+  });
+  it('a corroborated, unheld coach is still writable (nothing over-blocked)', async () => {
+    const { results } = await send(OK, { name: 'Olive Okay', email: row(OK.ids[0]).email, title: 'Head Coach' });
+    expect(results[0].status).toBe('drafted');
+  });
+});
+
