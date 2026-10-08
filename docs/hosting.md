@@ -356,7 +356,7 @@ about each case:
 |---|---|
 | history row, artefact missing | the row stays; the download answers 410 with *"The report was recorded but its file is missing from the store. Regenerate it."* **It is never regenerated silently** — a document that was sent cannot be recreated from today's data and called the same document |
 | artefact present, no history row | kept, and reported by `--verify`. Deleting a file nothing points at is how the wrong file gets deleted |
-| athlete points at a missing analysis | the Program Philosophy tab reads *"No matches yet"*, which is indistinguishable from never having been analysed — so `--verify` names the athletes |
+| athlete points at a missing analysis | the Program Philosophy view (player workspace → *More views*) reads *"No matches yet"*, which is indistinguishable from never having been analysed — so `--verify` names the athletes |
 
 **Historical integrity wins.** That is why all three paths share one volume and
 one snapshot.

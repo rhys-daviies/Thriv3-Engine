@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, Info } from 'lucide-react';
+import { ChevronDown, ChevronRight, Info, X } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
@@ -18,8 +18,39 @@ import { cn } from '@/lib/utils';
  * AMC all span NCAA D2 and NAIA), so ticking one of those ticks it everywhere
  * it appears. That is the data model rather than a bug, and the affected rows
  * say so instead of looking broken.
+ *
+ * WHAT MATCHING DOES WITH IT (Phase 3, verified): Matcher V2 neither ranks nor
+ * filters on conferences. Each V2 match card checks the programme against
+ * them ("checked, not ranked"); only the previous engine (?matching=v1)
+ * filters. The copy below says exactly that.
+ *
+ * A SAVED CHOICE IS NEVER DROPPED BY THIS COMPONENT. While the reference list
+ * loads, if it fails, or when a saved name is not in the current list (renamed
+ * or retired in the data), the saved names stay visible and removable - an
+ * operator removes a preference, the screen never does it for them.
  */
-export default function ConferencePicker({ divisions, colleges, value, onChange, loading }) {
+const V2_NOTE = 'Matcher V2 does not rank or filter on conferences; each match card shows whether the programme is in one chosen here.';
+
+function SavedChips({ names, onRemove, label }) {
+  if (!names.length) return null;
+  return (
+    <div className="space-y-1" data-testid="conference-saved-chips">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <div className="flex flex-wrap gap-1.5">
+        {names.map((n) => (
+          <span key={n} className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs" data-testid={`conference-chip-${n}`}>
+            {n}
+            <button type="button" aria-label={`Remove ${n}`} onClick={() => onRemove(n)} className="text-muted-foreground hover:text-foreground">
+              <X className="h-3 w-3" />
+            </button>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function ConferencePicker({ divisions, colleges, value, onChange, loading, failed = false }) {
   const groups = useMemo(() => {
     const byDivision = new Map();
     for (const c of colleges) {
@@ -66,16 +97,36 @@ export default function ConferencePicker({ divisions, colleges, value, onChange,
     onChange(Array.from(next));
   }
 
-  if (loading) return <p className="text-xs text-muted-foreground italic">Loading conferences…</p>;
-  if (!groups.length) return null;
+  const remove = (name) => onChange((value || []).filter((v) => v !== name));
+  const saved = Array.from(selected);
+
+  if (loading || failed) {
+    return (
+      <div className="space-y-2" data-testid={failed ? 'conference-load-failed' : 'conference-loading'}>
+        <p className="text-xs text-muted-foreground italic">
+          {failed
+            ? 'The conference list could not be loaded. Saved selections are kept; reload the page to change them.'
+            : 'Loading conferences… saved selections are kept.'}
+        </p>
+        <SavedChips names={saved} onRemove={remove} label="Saved:" />
+      </div>
+    );
+  }
+
+  /** Saved names the current data does not offer under the chosen divisions. Kept, shown, removable. */
+  const unlisted = saved.filter((c) => !all.includes(c));
+
+  if (!groups.length) {
+    return <SavedChips names={unlisted} onRemove={remove} label="Saved, but not in the current list:" />;
+  }
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground" data-testid="conference-summary">
           {selected.size === 0
-            ? 'None selected — every conference in your divisions is considered.'
-            : `${selected.size} of ${all.length} selected.`}
+            ? `None selected — no conference preference. ${V2_NOTE}`
+            : `${selected.size - unlisted.length} of ${all.length} selected. ${V2_NOTE}`}
         </p>
         <button
           type="button"
@@ -150,6 +201,7 @@ export default function ConferencePicker({ divisions, colleges, value, onChange,
           );
         })}
       </div>
+      <SavedChips names={unlisted} onRemove={remove} label="Saved, but not in the current list (kept until removed):" />
     </div>
   );
 }

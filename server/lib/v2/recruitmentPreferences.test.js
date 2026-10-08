@@ -263,3 +263,23 @@ describe('legacy position values', () => {
     expect(Player.get(id).position).toBe('Defense');
   });
 });
+
+describe('conference preferences (Phase 3): advisory only in V2', () => {
+  it('changing them leaves the V2 ranking byte-identical and updates each card\'s check', () => {
+    const none = computeMatchmakingV2(db, athlete(), { withExplanations: true });
+    const conf0 = computeMatchmakingV2(db, athlete({ preferred_conferences: ['Conf 0'] }), { withExplanations: true });
+    const conf1 = computeMatchmakingV2(db, athlete({ preferred_conferences: ['Conf 1', 'Conf 2'] }), { withExplanations: true });
+    expect(resultDigest(conf0)).toBe(resultDigest(none));
+    expect(resultDigest(conf1)).toBe(resultDigest(none));
+
+    const colleges = new Map(db.prepare("SELECT id, conference FROM colleges WHERE sport = 'mens-soccer'").all().map((c) => [c.id, c.conference]));
+    const checkOf = (result, id) => result.programmes.find((p) => p.programmeId === id).explanation.preferenceChecks.find((c) => c.check === 'CONFERENCE');
+    for (const p of ranked(conf0).slice(0, 15)) {
+      expect(checkOf(conf0, p.programmeId).status).toBe(colleges.get(p.programmeId) === 'Conf 0' ? 'INSIDE' : 'OUTSIDE');
+      expect(checkOf(conf1, p.programmeId).status).toBe(['Conf 1', 'Conf 2'].includes(colleges.get(p.programmeId)) ? 'INSIDE' : 'OUTSIDE');
+      expect(checkOf(conf0, p.programmeId).ranked).toBe(false);
+    }
+    // Stated nothing: no conference check at all.
+    expect(ranked(none)[0].explanation.preferenceChecks.some((c) => c.check === 'CONFERENCE')).toBe(false);
+  });
+});

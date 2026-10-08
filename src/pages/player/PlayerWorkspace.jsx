@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link, NavLink, Navigate, Outlet, useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Sparkles, MapPin, GraduationCap, Pencil } from 'lucide-react';
+import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Sparkles, MapPin, GraduationCap, Pencil, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { entities, integrations } from '@/api/client';
 import { analyze } from '@/lib/playerAnalysis';
@@ -24,12 +24,6 @@ const TABS = [
    * fit, what engagement has happened, and then what outreach is running.
    */
   { segment: 'campaign', label: 'Campaign' },
-  { segment: 'philosophy', label: 'Program Philosophy' },
-  // Two evidence surfaces, named for the question each answers rather than
-  // both being called "Evidence". This one is the assessment; the one above
-  // is what an email would say.
-  { segment: 'evidence', label: 'Evidence' },
-  { segment: 'decision', label: 'Decision Evidence' },
   /**
    * 13J: the delivery surface. It lives here rather than on its own screen
    * because the athlete is already chosen and displayed above these tabs —
@@ -38,6 +32,84 @@ const TABS = [
    */
   { segment: 'reports', label: 'Reports' },
 ];
+
+/**
+ * SECONDARY VIEWS — Phase 3 (docs/IMMEDIATE_CHANGES_ROADMAP.md).
+ *
+ * Off the primary bar, not out of the product. Each keeps its route, its page
+ * and every deep link into it (Decision Evidence's `?college=` preselect
+ * included); they are one click away under "More views", and Decision
+ * Evidence is also opened per programme from each V2 match card.
+ */
+export const MORE_VIEWS = Object.freeze([
+  { segment: 'philosophy', label: 'Program Philosophy' },
+  // Two evidence surfaces, named for the question each answers rather than
+  // both being called "Evidence": this one is what an email would say, the one
+  // below is the operator's assessment.
+  { segment: 'evidence', label: 'Evidence' },
+  { segment: 'decision', label: 'Decision Evidence' },
+]);
+
+export const PRIMARY_TABS = Object.freeze(TABS.map((t) => t.label));
+
+/**
+ * A small menu, not a dependency: a button that opens a list of links, closed
+ * by Escape, by a click outside or by following one. When one of these views
+ * is open the button carries the active colour and names it, so the operator
+ * can still see where they are with no primary tab lit.
+ */
+function MoreViewsMenu({ playerId }) {
+  const [open, setOpen] = useState(false);
+  const ref = React.useRef(null);
+  const location = useLocation();
+  const current = MORE_VIEWS.find((v) => location.pathname.endsWith(`/${v.segment}`)) ?? null;
+
+  useEffect(() => { setOpen(false); }, [location.pathname]);
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    const onClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onClick);
+    return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('mousedown', onClick); };
+  }, [open]);
+
+  return (
+    <div className="relative ml-auto shrink-0" ref={ref} data-testid="more-views">
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={cn(
+          'flex items-center gap-1 whitespace-nowrap border-b-2 px-3 py-2.5 text-xs font-medium transition-colors',
+          current ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
+        )}
+        data-testid="more-views-button"
+      >
+        {current ? `More views: ${current.label}` : 'More views'}
+        <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', open && 'rotate-180')} />
+      </button>
+      {open && (
+        <div role="menu" className="absolute right-0 z-30 mt-1 min-w-[12rem] rounded-md border border-border bg-card p-1 shadow-lg" data-testid="more-views-menu">
+          {MORE_VIEWS.map(({ segment, label }) => (
+            <NavLink
+              key={segment}
+              role="menuitem"
+              to={`/player/${playerId}/${segment}`}
+              className={({ isActive }) => cn(
+                'block rounded px-3 py-2 text-sm hover:bg-muted',
+                isActive ? 'text-primary' : 'text-foreground'
+              )}
+            >
+              {label}
+            </NavLink>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 /**
  * Stored analysis keyed by the recommendations pointer itself, so a fresh
@@ -291,7 +363,7 @@ export default function PlayerWorkspace() {
       </div>
 
       {/* Gold marks the active tab and nothing else in this bar. */}
-      <div className="border-b border-border">
+      <div className="border-b border-border flex items-end gap-1">
         <nav className="flex gap-1 -mb-px overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Player workspace">
           {TABS.map(({ segment, label }) => (
             <NavLink
@@ -308,6 +380,8 @@ export default function PlayerWorkspace() {
             </NavLink>
           ))}
         </nav>
+        {/* Outside the scrolling nav, so its menu is not clipped by overflow-x. */}
+        <MoreViewsMenu playerId={id} />
       </div>
 
       {saveError && (

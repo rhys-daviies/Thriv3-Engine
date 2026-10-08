@@ -70,9 +70,10 @@ export default function MatchmakingWhyRanked() {
       <p className="text-xs text-muted-foreground">
         The athlete&rsquo;s own stated preferences — contribution, major, competitive
         level, playing opportunity, academic strength and where they want to study —
-        shape these readings. Divisions, conferences, school type and an academic
-        minimum are checked on each card rather than ranked. They are all shown above,
-        and editing them is what changes the ranking.
+        shape these readings, and editing them changes the ranking. Divisions,
+        conferences, school type and an academic minimum are checked on each card
+        rather than ranked or filtered: editing them changes what each card reports,
+        not the order. All of them are shown above.
       </p>
 
       {/*

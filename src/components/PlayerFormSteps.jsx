@@ -160,6 +160,7 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
   const [data, setData] = useState(() => defaultsFrom(initialData));
   const [colleges, setColleges] = useState([]);
   const [collegesLoading, setCollegesLoading] = useState(true);
+  const [collegesFailed, setCollegesFailed] = useState(false);
   const [templateError, setTemplateError] = useState(null);
   const [representatives, setRepresentatives] = useState([]);
 
@@ -183,46 +184,48 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
   useEffect(() => {
     let cancelled = false;
     setCollegesLoading(true);
+    setCollegesFailed(false);
     entities.College.filter({ sport }).then((rows) => {
       if (!cancelled) {
         // Exclude inactive colleges so a preference never offers a
         // conference/division whose only members are non-recruiting-eligible.
-        setColleges(rows.filter((c) => c.active !== 0));
+        setColleges((Array.isArray(rows) ? rows : []).filter((c) => c.active !== 0));
         setCollegesLoading(false);
       }
+    }).catch(() => {
+      // A failed reference read is not "no conferences": the saved
+      // selections stay exactly as they were, and the picker says why.
+      if (!cancelled) { setCollegesFailed(true); setCollegesLoading(false); }
     });
     return () => { cancelled = true; };
   }, [sport]);
 
   const selectedDivisions = data.preferred_divisions;
 
-  // Kept only to prune the selection below; ConferencePicker derives its own
-  // groups from `colleges` so it can show which division each one belongs to.
-  const availableConferences = useMemo(() => {
-    if (selectedDivisions.length === 0) return [];
-    const set = new Set();
-    for (const c of colleges) {
-      if (selectedDivisions.includes(c.division) && c.conference) set.add(c.conference);
-    }
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [colleges, selectedDivisions]);
-
   const divisionsWithNoData = useMemo(() => {
-    if (collegesLoading) return [];
+    if (collegesLoading || collegesFailed) return [];
     return selectedDivisions.filter((div) => !colleges.some((c) => c.division === div));
-  }, [colleges, collegesLoading, selectedDivisions]);
+  }, [colleges, collegesLoading, collegesFailed, selectedDivisions]);
 
-  // Re-sync selection whenever the available conference list changes (e.g.
-  // the user went back to Step 1 and changed divisions) so a stale
-  // conference from a since-deselected division can't linger invisibly.
-  useEffect(() => {
-    setData((d) => {
-      const pruned = d.preferred_conferences.filter((c) => availableConferences.includes(c));
-      if (pruned.length === d.preferred_conferences.length) return d;
-      return { ...d, preferred_conferences: pruned };
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableConferences]);
+  /**
+   * PRUNING ON THE OPERATOR'S CHANGE, NEVER ON LOAD — Phase 3 fix.
+   *
+   * This used to be an effect over the available conferences. `colleges`
+   * starts empty, so on the edit form's first render every saved conference
+   * looked unavailable and was removed before the list arrived - and saving
+   * then wrote the empty list. Saved conferences silently disappeared on edit.
+   *
+   * Now a conference is dropped only when the operator UNTICKS A DIVISION, the
+   * reference list has actually loaded, and the conference is known in the data
+   * and offered by none of the divisions still chosen. A saved name the data
+   * does not know (renamed, retired) is kept and shown by the picker.
+   */
+  const conferencesWithout = (conferences, divisions) => {
+    if (collegesLoading || collegesFailed || !colleges.length) return conferences;
+    const known = new Set(colleges.map((c) => c.conference).filter(Boolean));
+    const offered = new Set(colleges.filter((c) => divisions.includes(c.division) && c.conference).map((c) => c.conference));
+    return conferences.filter((c) => !known.has(c) || offered.has(c));
+  };
 
   const set = (field) => (value) => setData((d) => ({ ...d, [field]: value }));
 
@@ -237,7 +240,11 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
   const toggleArrayValue = (field, value) => {
     setData((d) => {
       const arr = d[field] || [];
-      const next = arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
+      const removing = arr.includes(value);
+      const next = removing ? arr.filter((v) => v !== value) : [...arr, value];
+      if (field === 'preferred_divisions' && removing) {
+        return { ...d, [field]: next, preferred_conferences: conferencesWithout(d.preferred_conferences || [], next) };
+      }
       return { ...d, [field]: next };
     });
   };
@@ -488,6 +495,35 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             </div>
           </div>
 
+          {/* Phase 3: directly beneath divisions, because it depends on them and
+              was easy to miss on the second step. */}
+          <div className="space-y-2">
+            <Label>Preferred Conferences</Label>
+
+            {selectedDivisions.length === 0 && (
+              <p className="text-xs text-muted-foreground italic">Select a division above to see its conferences.</p>
+            )}
+
+            {selectedDivisions.length > 0 && (
+              <>
+                {divisionsWithNoData.map((div) => (
+                  <p key={div} className="text-xs text-muted-foreground italic">
+                    No conferences available yet for {div} — colleges for this division haven't been added to the database.
+                  </p>
+                ))}
+
+                <ConferencePicker
+                  divisions={selectedDivisions}
+                  colleges={colleges}
+                  value={data.preferred_conferences}
+                  onChange={set('preferred_conferences')}
+                  loading={collegesLoading}
+                  failed={collegesFailed}
+                />
+              </>
+            )}
+          </div>
+
           {/* All three already reach the public profile and the match card —
               only GPA had a way in, so SAT and ACT rendered as empty rows on
               every athlete's page and admissibility fell back to GPA alone. */}
@@ -545,32 +581,6 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
 
       {step === 1 && (
         <Card className="p-6 space-y-5">
-          <div className="space-y-2">
-            <Label>Preferred Conferences</Label>
-
-            {selectedDivisions.length === 0 && (
-              <p className="text-xs text-muted-foreground italic">Select a division in Step 1 to see available conferences.</p>
-            )}
-
-            {selectedDivisions.length > 0 && (
-              <>
-                {divisionsWithNoData.map((div) => (
-                  <p key={div} className="text-xs text-muted-foreground italic">
-                    No conferences available yet for {div} — colleges for this division haven't been added to the database.
-                  </p>
-                ))}
-
-                <ConferencePicker
-                  divisions={selectedDivisions}
-                  colleges={colleges}
-                  value={data.preferred_conferences}
-                  onChange={set('preferred_conferences')}
-                  loading={collegesLoading}
-                />
-              </>
-            )}
-          </div>
-
           <div className="border-t border-border pt-4">
             <RecruitmentPreferenceFields
               value={data}

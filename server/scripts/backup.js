@@ -217,7 +217,7 @@ function reportOrphans(dir) {
   if (analyses.length) {
     console.log(`\n  ${analyses.length} athlete(s) point at a stored analysis this backup does `
       + `not hold: ${analyses.map((a) => a.full_name).join(', ')}. `
-      + 'Their Program Philosophy tab would read "No matches yet".');
+      + 'Their Program Philosophy view (under "More views" in the player workspace) would read "No matches yet".');
   }
 
   const onDisk = new Set(fs.existsSync(storeDir) ? fs.readdirSync(storeDir) : []);

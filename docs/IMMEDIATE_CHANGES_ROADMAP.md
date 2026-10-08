@@ -34,7 +34,10 @@ Reorganize the player workspace into:
 - Remove Program Philosophy, Evidence and Decision Evidence from the primary navigation, while preserving their engines, data and functionality.
 - Expose the existing preferred-conference picker and verify how matchmaking actually consumes it. Do not silently change ranking weights.
 
-Status: not started. Note from PR #68: V2 ranking does not filter or score on preferred conferences. Each match card checks the programme against them ("checked, not ranked").
+Status: implemented on `feat/phase3-navigation-conferences` (PR open, not merged).
+- Primary tabs are exactly the five above. Program Philosophy, Evidence and Decision Evidence sit under a secondary **More views** menu, with their routes and deep links unchanged. Each V2 match card has **View full evidence**, which opens Decision Evidence for that programme (`?college=<name>&source=v2`), even one the previous engine's list never held.
+- Conference consumption, verified: **Matcher V2 does not rank or filter on preferred conferences.** Each match card checks the programme against them ("checked, not ranked"). Only the previous engine (`?matching=v1`) filters on them. A test proves V2 rankings are byte-identical with and without conference preferences, while the per-card check updates.
+- Fixed: the edit form erased saved conferences (it pruned them before the reference list had loaded). Saved conferences now survive loading, a failed load, and names missing from the current list; they are removed only when the operator removes them or unticks their division. The picker now sits directly beneath divisions on step 1.
 
 ## Phase 4 — Unified Programme Database
 
