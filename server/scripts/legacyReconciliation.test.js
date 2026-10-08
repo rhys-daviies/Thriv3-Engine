@@ -3,7 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';
 import { migrate } from '../db/migrate.js';
-import { planLegacyReconciliation, ledgerCoverage, DISPOSITION } from './legacyReconciliationReport.js';
+import { planLegacyReconciliation, ledgerCoverage, DISPOSITION, MATCH } from './legacyReconciliationReport.js';
+import { applyLegacyReconciliation, dryRunManifest, protectedFingerprint } from './legacyReconciliationApply.js';
 import { programmeContactId } from '../lib/programmeContactEligibility.js';
 import { indexFederalWebsites } from '../lib/federalInstitutionWebsites.js';
 
@@ -98,3 +99,102 @@ describe('the ledger table (append-only)', () => {
     expect(db.prepare("PRAGMA foreign_key_list('legacy_contact_reconciliation')").all().map((f) => f.table)).toEqual(['programme_contacts']);
   });
 });
+
+/* ------------------------------------------------------------------------ */
+/* PHASE 1G-E — explicit exact matching (LCR-2) and the gated, append-only apply */
+/* ------------------------------------------------------------------------ */
+const ev = (e) => JSON.parse(e.evidence_json);
+const addContact = (db, ent, col, email) => db.prepare(`INSERT INTO programme_contacts (contact_id, athletics_entity_id, college_id, sport, email, label, contact_role, observed_on_url, observed_at, source, source_kind, source_tier, status, currentness_checked_at, provenance, created_at, updated_at)
+  VALUES (?, ?, ?, 'mens-soccer', ?, 'x Men''s Soccer', 'TEAM_INBOX', 'https://x.example/sports/mens-soccer/coaches', '2026-10-07T00:00:00.000Z', 'refresh:t', 'OFFICIAL_STAFF_DIRECTORY', 'A', 'VERIFIED', '2026-10-07T00:00:00.000Z', 'test', ?, ?)`)
+  .run(programmeContactId(ent, 'mens-soccer', email), ent, col, email, T, T);
+
+describe('LCR-2: a replacement is named only for an explicit, unambiguous exact match', () => {
+  it('an EXACT match records the evidence: same entity, sport and address, and the contact\'s own provenance', () => {
+    const e = byCoach(plan(world()))['g-superseded'];
+    expect(e.disposition).toBe(DISPOSITION.SUPERSEDED);
+    expect(ev(e).match).toMatchObject({
+      class: MATCH.EXACT, same_entity: true, same_sport: true, same_address: true,
+      legacy: { coach_id: 'g-superseded', address: 'msoccer@alpha.example', athletics_entity_id: 'AE-U920001' },
+      contact: { address: 'msoccer@alpha.example', athletics_entity_id: 'AE-U920001', sport: 'mens-soccer', status: 'VERIFIED', observed_on_url: expect.stringMatching(/^https:/), source: 'refresh:t' },
+    });
+  });
+  it('a programme holding a verified contact at a DIFFERENT address is ambiguous: UNRESOLVED, nothing named', () => {
+    const db = world(); addContact(db, 'AE-U920005', 'c-eps', 'wsocc-other@eps.example');
+    const e = byCoach(plan(db))['g-open'];
+    expect(e).toMatchObject({ disposition: DISPOSITION.UNRESOLVED, programme_contact_id: null });
+    expect(ev(e).match.class).toBe(MATCH.AMBIGUOUS_PROGRAMME_ADDRESS);
+  });
+  it('two verified contacts at one programme make even the exact address ambiguous', () => {
+    const db = world(); addContact(db, 'AE-U920001', 'c-alpha', 'soccer-two@alpha.example');
+    const e = byCoach(plan(db))['g-superseded'];
+    expect(e).toMatchObject({ disposition: DISPOSITION.UNRESOLVED, programme_contact_id: null });
+    expect(ev(e).match.class).toBe(MATCH.AMBIGUOUS_PROGRAMME_ADDRESS);
+  });
+  it('an address verified for a DIFFERENT programme is never reconciled to it', () => {
+    const db = world(); addContact(db, 'AE-U920002', 'c-beta', 'msoccer@eps.example');   // eps's legacy address, verified under beta
+    const e = byCoach(plan(db))['g-open'];
+    expect(e).toMatchObject({ disposition: DISPOSITION.UNRESOLVED, programme_contact_id: null });
+    expect(ev(e).match.class).toBe(MATCH.AMBIGUOUS_ADDRESS_ELSEWHERE);
+  });
+  it('two legacy rows for one programme (its two spellings) and one address are both reconciled to the one contact', () => {
+    const db = world();
+    db.prepare("INSERT INTO colleges (id, created_date, updated_date, name, sport, division, active, unitid, athletics_entity_id) VALUES ('c-alpha-alt', ?, ?, 'Alpha Coll.', 'mens-soccer', 'NCAA D3', 1, 920001, 'AE-U920001')").run(T, T);
+    db.prepare("INSERT INTO programme_row_links (college_id, canonical_college_id, link_kind, provenance, recorded_at) VALUES ('c-alpha-alt', 'c-alpha', 'SAME_PROGRAMME_ALT_NAME', 'test', ?)").run(T);
+    db.prepare("INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title, email_status, email_source_url, source) VALUES ('g-superseded-alt', ?, NULL, 'msoccer@alpha.example', 'Alpha Coll.', 'NCAA D3', 'mens-soccer', 'Team Email', 'generic', 'https://alphaathletics.example/sports/mens-soccer/coaches', 'graduating_seniors.coaching_staff')").run(T);
+    const p = plan(db); const e = byCoach(p);
+    const pc = programmeContactId('AE-U920001', 'mens-soccer', 'msoccer@alpha.example');
+    expect(e['g-superseded']).toMatchObject({ disposition: DISPOSITION.SUPERSEDED, programme_contact_id: pc });
+    expect(e['g-superseded-alt']).toMatchObject({ disposition: DISPOSITION.SUPERSEDED, programme_contact_id: pc });
+    expect(p.summary.contacts_naming_several_rows).toEqual([{ contact_id: pc, coach_ids: ['g-superseded', 'g-superseded-alt'] }]);
+  });
+});
+
+describe('applying a reviewed plan (the only writer)', () => {
+  const RUN = 'LCR-1GE-TEST';
+  const approved = (db) => planLegacyReconciliation(db, { runId: RUN, now: NOW }).summary.plan_hash;
+  it('the dry run writes nothing and describes every insert', () => {
+    const db = world(); const before = db.prepare('SELECT total_changes() n').get().n;
+    const m = dryRunManifest(db, { runId: RUN, now: NOW });
+    expect(m).toMatchObject({ would_insert: 5, writes: 0, ledger_rows_now: 0, table: 'legacy_contact_reconciliation' });
+    expect(m.inserts.map((i) => i.disposition).sort()).toEqual(['BLOCKED', 'INVALID', 'RETAINED_REFERENCED', 'SUPERSEDED', 'UNRESOLVED']);
+    expect(db.prepare('SELECT total_changes() n').get().n).toBe(before);
+  });
+  it('inserts exactly the approved entries and changes no protected table — history keeps its recipient', () => {
+    const db = world(); const fp = protectedFingerprint(db);
+    const r = applyLegacyReconciliation(db, { runId: RUN, expectedPlanHash: approved(db), now: NOW });
+    expect(r).toMatchObject({ status: 'APPLIED', inserted: 5, ledger_before: 0, ledger_after: 5 });
+    expect(protectedFingerprint(db)).toEqual(fp);
+    expect(db.prepare("SELECT coach_id FROM outreach WHERE id = 'o1'").get().coach_id).toBe('g-referenced');   // never rewritten
+    expect(db.prepare("SELECT COUNT(*) n FROM coaches WHERE email_status = 'generic'").get().n).toBe(5);       // never converted or deleted
+    expect(db.prepare("SELECT disposition FROM legacy_contact_reconciliation WHERE coach_id = 'g-referenced'").get().disposition).toBe('RETAINED_REFERENCED');
+  });
+  it('refuses a plan that drifted after approval, and writes nothing', () => {
+    const db = world(); const hash = approved(db);
+    addContact(db, 'AE-U920005', 'c-eps', 'msoccer@eps.example');   // the world moved: eps now has a verified contact
+    expect(() => applyLegacyReconciliation(db, { runId: RUN, expectedPlanHash: hash, now: NOW })).toThrow(/plan changed/);
+    expect(db.prepare('SELECT COUNT(*) n FROM legacy_contact_reconciliation').get().n).toBe(0);
+  });
+  it('requires an approved plan hash', () => {
+    const db = world();
+    expect(() => applyLegacyReconciliation(db, { runId: RUN, now: NOW })).toThrow(/plan hash/);
+  });
+  it('is idempotent for the same run, and refuses reusing a run id for different entries', () => {
+    const db = world(); const hash = approved(db);
+    applyLegacyReconciliation(db, { runId: RUN, expectedPlanHash: hash, now: NOW });
+    expect(applyLegacyReconciliation(db, { runId: RUN, expectedPlanHash: hash, now: NOW })).toMatchObject({ status: 'ALREADY_APPLIED', inserted: 0 });
+    expect(db.prepare('SELECT COUNT(*) n FROM legacy_contact_reconciliation').get().n).toBe(5);
+    // a manual ledger entry under the same run id for a row the plan would decide differently
+    const db2 = world(); const h2 = approved(db2);
+    db2.prepare(`INSERT INTO legacy_contact_reconciliation (entry_id, run_id, coach_id, disposition, programme_contact_id, cohort, reason, evidence_json, rule_version, recorded_at)
+      VALUES ('LCR-manual', ?, 'g-open', 'BLOCKED', NULL, 'x', 'x', '{}', 'LCR-2', ?)`).run(RUN, T);
+    expect(() => applyLegacyReconciliation(db2, { runId: RUN, expectedPlanHash: h2, now: NOW })).toThrow(/already holds a different set/);
+  });
+  it('rolls back everything if a protected table changes during the apply', () => {
+    const db = world(); const hash = approved(db);
+    db.exec("CREATE TRIGGER t_sneaky AFTER INSERT ON legacy_contact_reconciliation BEGIN UPDATE coaches SET position_title = 'changed' WHERE id = NEW.coach_id; END;");
+    expect(() => applyLegacyReconciliation(db, { runId: RUN, expectedPlanHash: hash, now: NOW })).toThrow(/change nothing but the ledger/);
+    expect(db.prepare('SELECT COUNT(*) n FROM legacy_contact_reconciliation').get().n).toBe(0);
+    expect(db.prepare("SELECT COUNT(*) n FROM coaches WHERE position_title = 'changed'").get().n).toBe(0);
+  });
+});
+
