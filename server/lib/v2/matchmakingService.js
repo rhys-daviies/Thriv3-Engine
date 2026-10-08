@@ -24,6 +24,7 @@
  */
 import crypto from 'node:crypto';
 import { canonicalPosition } from '../../../shared/positions.js';
+import { recruitmentPreferencesOf, preferenceChecks } from '../../../shared/recruitmentPreferences.js';
 import { normaliseAthlete } from '../../../shared/matching/pool.js';
 import {
   buildValidationAthlete, RANKING_STATE, TOP_N, isScoreable, explainProgramme,
@@ -320,18 +321,33 @@ export const UNSUPPORTED_EXPLANATION = Object.freeze({
  * one on screen.
  * ===========================================================================
  */
-function explanationsFor(pipeline) {
+function explanationsFor(pipeline, { player = null, colleges = [] } = {}) {
   const ranked = pipeline?.ranked ?? [];
   const outOf = ranked.length;
   const poolSize = outOf
     + (pipeline?.limited?.length ?? 0)
     + (pipeline?.ineligible?.length ?? 0)
     + (pipeline?.suppressed?.length ?? 0);
-  return (entry) => explainProgramme(entry, {
-    rank: entry.rank ?? null,
-    outOf,
-    poolSize,
-  });
+  /**
+   * THE ATHLETE'S STATED PREFERENCES, CHECKED AGAINST THIS PROGRAMME'S FACTS.
+   *
+   * Computed here, beside the engine's explanation and stored with it, for the
+   * same reason the explanation is: a check worked out at render time would
+   * compare today's profile with today's corpus while the rank beside it came
+   * from the run's. Reads programme facts only - no score, no layer - so it
+   * cannot move a rank, and it is not part of the result digest.
+   */
+  const prefs = player ? recruitmentPreferencesOf(player) : null;
+  const byId = new Map(colleges.map((c) => [c.id, c]));
+  return (entry) => {
+    const explanation = explainProgramme(entry, {
+      rank: entry.rank ?? null,
+      outOf,
+      poolSize,
+    });
+    if (!explanation || !prefs) return explanation;
+    return { ...explanation, preferenceChecks: preferenceChecks(prefs, byId.get(entry.id)) };
+  };
 }
 
 export function computeMatchmakingV2(db, player, {
@@ -410,7 +426,7 @@ export function computeMatchmakingV2(db, player, {
   const universeOfProgramme = (division) => universeOf({ division, season: Number(season) });
 
   /** An explicit `explanationFor` wins; `withExplanations` is the ordinary way in. */
-  const explain = explanationFor ?? (withExplanations ? explanationsFor(run.pipeline) : null);
+  const explain = explanationFor ?? (withExplanations ? explanationsFor(run.pipeline, { player, colleges }) : null);
 
   const programmes = [];
   for (const entry of run.pipeline.ranked) {

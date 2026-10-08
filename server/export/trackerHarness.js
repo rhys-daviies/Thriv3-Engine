@@ -14,7 +14,7 @@ import { renderProfile } from './renderProfile.js';
 const ATHLETE = {
   id: 'ath-test',
   full_name: 'Nikau Brennan',
-  position: 'Left Winger',
+  position: 'W', // winger; the entity refuses positions the matcher cannot place
   graduation_year: 2027,
   email: 'athlete@example.com',
   video_id: 'aqz-KE-bpKQ',

@@ -8,6 +8,7 @@ import { readReserve } from '@shared/matching/reserve.js';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 import { matchmakingVersion, MATCHING_V1 } from '@/lib/matchmakingVersion';
 import { cn } from '@/lib/utils';
+import { positionDetailLabel } from '@shared/positions.js';
 
 const TABS = [
   { segment: 'profile', label: 'Profile' },
@@ -241,7 +242,7 @@ export default function PlayerWorkspace() {
           <div>
             <h1 className="font-heading text-2xl font-bold">{player.full_name}</h1>
             <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
-              <span>{player.position}</span>
+              <span>{positionDetailLabel(player.position)}</span>
               <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{player.state || '—'}</span>
               <span className="flex items-center gap-1"><GraduationCap className="h-3.5 w-3.5" />Class of {player.recruiting_class_year || player.graduation_year || '—'}</span>
             </div>

@@ -40,8 +40,13 @@ import { UNIVERSE } from './validationUniverse.js';
  */
 export const RESULT_SCHEMA_VERSION = 1;
 
-/** Bumped when the INPUT snapshot's field set changes. Moves independently. */
-export const INPUT_SCHEMA_VERSION = 1;
+/**
+ * Bumped when the INPUT snapshot's field set changes. Moves independently.
+ *
+ * 2: the recruitment preferences joined - location (read by `locationFit`)
+ * and the four lists the match card checks each programme against.
+ */
+export const INPUT_SCHEMA_VERSION = 2;
 
 /**
  * THE ATHLETE FIELDS A RANKING ACTUALLY READ, AND NOTHING ELSE.
@@ -53,7 +58,7 @@ export const INPUT_SCHEMA_VERSION = 1;
  * for no ranking purpose at all. Every field below is read by a layer or a
  * preference; nothing else is.
  */
-export const INPUT_FIELDS = Object.freeze([
+const INPUT_FIELDS_V1 = Object.freeze([
   'sport',
   'football_ability',
   'position',
@@ -76,16 +81,44 @@ export const INPUT_FIELDS = Object.freeze([
   'recruit_type',
 ]);
 
+/**
+ * Lists whose ORDER means nothing. Snapshotted sorted, and an empty list as
+ * NULL, so ticking two regions in a different order - or an entity layer that
+ * writes '[]' where the column held NULL - is not reported as the operator
+ * having changed the athlete.
+ */
+const UNORDERED_LIST_FIELDS = Object.freeze([
+  'preferred_states', 'preferred_regions', 'preferred_divisions', 'preferred_conferences', 'preferred_institution_types',
+]);
+
+export const INPUT_FIELDS = Object.freeze([...INPUT_FIELDS_V1, ...UNORDERED_LIST_FIELDS]);
+
+/** The field set a run was snapshotted under, so an older run is compared like for like. */
+function inputFieldsFor(version) {
+  return Number(version) >= 2 ? INPUT_FIELDS : INPUT_FIELDS_V1;
+}
+
+function unorderedList(value) {
+  let list = value;
+  if (typeof list === 'string') {
+    try { list = JSON.parse(list); } catch { return null; }
+  }
+  if (!Array.isArray(list) || list.length === 0) return null;
+  return [...new Set(list.map(String))].sort();
+}
+
 /** The snapshot, and a digest of it so a change is detectable without a diff. */
 export function inputSnapshot(player) {
   const snap = {};
-  for (const f of INPUT_FIELDS) snap[f] = player[f] ?? null;
+  for (const f of INPUT_FIELDS) {
+    snap[f] = UNORDERED_LIST_FIELDS.includes(f) ? unorderedList(player[f]) : (player[f] ?? null);
+  }
   return snap;
 }
 
-export function inputDigest(snapshot) {
-  /** Key order fixed by INPUT_FIELDS, so the digest cannot depend on insertion order. */
-  const canonical = INPUT_FIELDS.map((f) => [f, snapshot[f] ?? null]);
+export function inputDigest(snapshot, fields = INPUT_FIELDS) {
+  /** Key order fixed by the field list, so the digest cannot depend on insertion order. */
+  const canonical = fields.map((f) => [f, snapshot[f] ?? null]);
   return crypto.createHash('sha256').update(JSON.stringify(canonical)).digest('hex');
 }
 
@@ -435,8 +468,15 @@ export function runStaleness(db, player, runRow, { season = SEASON } = {}) {
   if (!runRow) return { current: false, reasons: ['NO_RUN'] };
   const reasons = [];
 
+  /**
+   * Compared over the fields THIS run recorded. A run snapshotted before the
+   * recruitment preferences existed has no opinion about them, and reading
+   * their absence as a change would tell every operator, on deploy, that they
+   * had edited every athlete.
+   */
+  const fields = inputFieldsFor(runRow.input_schema_version);
   const snapshotNow = inputSnapshot(player);
-  if (inputDigest(snapshotNow) !== inputDigest(JSON.parse(runRow.input_snapshot))) {
+  if (inputDigest(snapshotNow, fields) !== inputDigest(JSON.parse(runRow.input_snapshot), fields)) {
     reasons.push(STALE_REASON.PLAYER_INPUT_CHANGED);
   }
   /**

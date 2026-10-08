@@ -305,3 +305,17 @@ describe('NCAA eligibility ID on the public profile', () => {
     expect(athlete.ncaa_eligibility_id).toBe('2110042886');
   });
 });
+
+describe('detailed positions on the coach-facing page', () => {
+  it('prints the long names, never the stored codes', () => {
+    const html = renderProfile({ ...COMPLETE, position: 'CB', secondary_position: 'DM' });
+    expect(html).toContain('Center back / Defensive midfielder');
+    expect(html).not.toMatch(/>\s*CB\s*\//);
+  });
+
+  it('omits the None sentinel and keeps a legacy coarse value readable', () => {
+    const html = renderProfile({ ...COMPLETE, position: 'Midfielder', secondary_position: 'None' });
+    expect(html).toContain('Midfielder');
+    expect(html).not.toContain('None');
+  });
+});

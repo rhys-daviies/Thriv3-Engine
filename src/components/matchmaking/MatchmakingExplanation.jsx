@@ -3,6 +3,7 @@ import { Disclosure } from '@/components/ui/Disclosure';
 import {
   explanationView, summaryView, LAYER_KEYS, layerLabel,
 } from '@/lib/matchmakingV2View';
+import { checksView } from '@/lib/recruitmentPreferenceView';
 
 /**
  * WHY THIS SCHOOL RANKS HERE — A11 §7, §8; recomposed for A11.2 §1D/§1E/§6.
@@ -73,6 +74,30 @@ export const EXPLAINED_TOP_N = 100;
 export const SHOW_DETAIL = 'View detailed reasoning';
 export const HIDE_DETAIL = 'Hide detailed reasoning';
 
+/** The word that carries each check's state, so it never rests on colour alone. */
+const CHECK_WORD = Object.freeze({ fit: 'Fits', short: 'Outside', unknown: 'Not on file' });
+const CHECK_TONE = Object.freeze({
+  fit: 'text-emerald-600 dark:text-emerald-400',
+  short: 'text-amber-700 dark:text-amber-400',
+  unknown: 'text-muted-foreground',
+});
+
+/**
+ * WHAT THE RANKING DOES NOT KNOW — the unknown-polarity reasons the concise
+ * summary did not already show. They sort after strengths and concerns, so on
+ * most cards the summary's three lines never reached them, and a programme
+ * whose positional evidence was partial read exactly like one where it was
+ * complete. Engine sentences, deduplicated; nothing is composed here.
+ */
+export function missingInformation(explanation, summary) {
+  const shown = new Set((summary ?? []).map((r) => `${r.code}-${r.sub ?? 0}`));
+  const seen = new Set();
+  return (explanationView(explanation) ?? [])
+    .filter((r) => r.polarity === 'unknown' && !shown.has(`${r.code}-${r.sub ?? 0}`))
+    .map((r) => ({ ...r, text: r.plain ?? r.sentence }))
+    .filter((r) => (seen.has(r.text) ? false : (seen.add(r.text), true)));
+}
+
 function Reasons({ rows, testid, field = 'sentence' }) {
   if (!rows?.length) return null;
   return (
@@ -109,6 +134,8 @@ export default function MatchmakingExplanation({ explanation, programme = null }
   }
 
   const summary = summaryView(explanation);
+  const checks = checksView(explanation.preferenceChecks);
+  const missing = missingInformation(explanation, summary);
 
   return (
     <div className="space-y-3" data-testid="explanation">
@@ -128,6 +155,33 @@ export default function MatchmakingExplanation({ explanation, programme = null }
           </p>
         )}
       </div>
+
+      {/*
+        THE ATHLETE'S OWN PREFERENCES, AGAINST THIS PROGRAMME'S FACTS. Stored
+        with the run, so it describes the profile and corpus the rank came
+        from. Each line says whether that preference was ranked or only
+        checked; a run from before checks existed simply shows none.
+      */}
+      {checks.length > 0 && (
+        <div className="rounded-lg border border-border p-3 space-y-1.5" data-testid="preference-checks">
+          <p className="text-xs font-medium">Against their stated preferences</p>
+          <ul className="space-y-1">
+            {checks.map((c) => (
+              <li key={c.key} className="text-xs text-muted-foreground" data-check={c.key} data-tone={c.tone}>
+                <span className={`font-medium ${CHECK_TONE[c.tone]}`}>{CHECK_WORD[c.tone]}:</span>{' '}
+                {c.text} <span className="text-[11px] italic">({c.note.toLowerCase()})</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {missing.length > 0 && (
+        <div className="rounded-lg border border-dashed border-border p-3 space-y-1.5" data-testid="missing-information">
+          <p className="text-xs font-medium">Not known yet</p>
+          <Reasons rows={missing} testid="missing-information-reasons" field="text" />
+        </div>
+      )}
 
       {/*
         §1E, §5. ONE DISCLOSURE, CLOSED BY DEFAULT.

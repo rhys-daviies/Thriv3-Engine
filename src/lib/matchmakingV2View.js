@@ -478,7 +478,7 @@ export function runView(payload, { staleness = null } = {}) {
     counts: payload.counts ?? null,
     programmes,
     /**
-     * The six preference fields this run was computed from — §O. Absent on a
+     * The preference fields this run was computed from — §O. Absent on a
      * live POST body, which carries no `inputSnapshot`; the screen then simply
      * marks nothing as changed, which is true: a run computed a moment ago was
      * computed from what is on the profile now.
@@ -496,7 +496,7 @@ export function runView(payload, { staleness = null } = {}) {
  * THE PREFERENCE FIELDS A RUN CARRIES FORWARD, AND ONLY THOSE.
  *
  * ===========================================================================
- * A9.3 DROPPED THE WHOLE SNAPSHOT. THIS PUTS BACK SIX NAMED FIELDS, NOT THE
+ * A9.3 DROPPED THE WHOLE SNAPSHOT. THIS PUTS BACK NAMED FIELDS, NOT THE
  * SNAPSHOT.
  *
  * `inputSnapshot` holds all twenty matchmaking inputs, including `gpa`,
@@ -506,7 +506,7 @@ export function runView(payload, { staleness = null } = {}) {
  * does not show them is how a payload becomes a place person-level data
  * accumulates unnoticed.
  *
- * So the view model picks the SIX fields the preference summary actually
+ * So the view model picks the fields the preference summary actually
  * renders. The privacy assertion in the view-model tests was not removed when
  * this arrived; it was narrowed to name the fields that must still never
  * appear, which is a sharper check than the one it replaced.
@@ -524,18 +524,52 @@ export const RUN_INPUT_FIELDS = Object.freeze([
   'academic_strength_priority',
   'contribution_state',
   'max_annual_contribution_usd',
+  /**
+   * The position and the recruitment preferences, which the bar now shows.
+   * None of them is person-level contact data; `state`, `nationality` and the
+   * test scores stay off this list.
+   */
+  'position',
+  'academic_minimum',
+  'preferred_states',
+  'preferred_regions',
+  'preferred_divisions',
+  'preferred_conferences',
+  'preferred_institution_types',
 ]);
 
-/** The six fields, off a persisted snapshot. Null when a run carries none. */
+/** Lists whose order means nothing; compared sorted, and empty reads as unanswered. */
+const LIST_INPUTS = new Set([
+  'preferred_states', 'preferred_regions', 'preferred_divisions', 'preferred_conferences', 'preferred_institution_types',
+]);
+
+function comparable(field, value) {
+  if (!LIST_INPUTS.has(field)) return value ?? null;
+  let v = value;
+  if (typeof v === 'string') { try { v = JSON.parse(v); } catch { return null; } }
+  if (!Array.isArray(v) || v.length === 0) return null;
+  return JSON.stringify([...new Set(v.map(String))].sort());
+}
+
+/**
+ * The shown fields, off a persisted snapshot. Null when a run carries none.
+ *
+ * A field the snapshot never RECORDED is carried as `undefined`: a run from
+ * before the recruitment preferences existed has no opinion about them, and a
+ * field it never held must not read as "changed" beside it.
+ */
 export function runInputs(snapshot) {
   if (!snapshot) return null;
   const out = {};
-  for (const f of RUN_INPUT_FIELDS) out[f] = snapshot[f] ?? null;
+  for (const f of RUN_INPUT_FIELDS) {
+    // `undefined`, not null: "this run never recorded it" is not "it was unanswered".
+    out[f] = Object.prototype.hasOwnProperty.call(snapshot, f) ? (snapshot[f] ?? null) : undefined;
+  }
   return out;
 }
 
 /**
- * Which of those six have moved since the run was computed.
+ * Which of those have moved since the run was computed.
  *
  * A Set of field names, so a surface marks the field that changed rather than
  * printing a diff. Empty when nothing moved, and empty when the run carries no
@@ -546,8 +580,8 @@ export function changedSinceRun(player, inputs) {
   const changed = new Set();
   if (!player || !inputs) return changed;
   for (const f of RUN_INPUT_FIELDS) {
-    const now = player[f] ?? null;
-    if (now !== (inputs[f] ?? null)) changed.add(f);
+    if (inputs[f] === undefined) continue;
+    if (comparable(f, player[f]) !== comparable(f, inputs[f])) changed.add(f);
   }
   return changed;
 }

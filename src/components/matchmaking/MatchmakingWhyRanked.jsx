@@ -69,8 +69,10 @@ export default function MatchmakingWhyRanked() {
 
       <p className="text-xs text-muted-foreground">
         The athlete&rsquo;s own stated preferences — contribution, major, competitive
-        level, playing opportunity and academic strength — shape all three. They are
-        shown above, and editing them is what changes the ranking.
+        level, playing opportunity, academic strength and where they want to study —
+        shape these readings. Divisions, conferences, school type and an academic
+        minimum are checked on each card rather than ranked. They are all shown above,
+        and editing them is what changes the ranking.
       </p>
 
       {/*

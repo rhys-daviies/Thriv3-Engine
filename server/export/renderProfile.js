@@ -1,5 +1,5 @@
 import { describeAttributes } from '../../shared/sportProfiles.js';
-import { positionLabel } from '../../shared/positions.js';
+import { positionLabel, positionDetailLabel, hasSecondaryPosition } from '../../shared/positions.js';
 import { formatTimecode } from '../../shared/timecode.js';
 import { PROFILE_CSS } from './styles.js';
 import { TRACKER_JS } from './tracker.js';
@@ -118,7 +118,11 @@ function badges(athlete) {
 
 function roleGrid(athlete) {
   const items = [
-    ['Position', [athlete.position, athlete.secondary_position !== 'None' ? athlete.secondary_position : null].filter(present).join(' / ')],
+    // A coach reads "Center back / Defensive midfielder", never the stored code.
+    ['Position', [
+      present(athlete.position) ? positionDetailLabel(athlete.position) : null,
+      hasSecondaryPosition(athlete.secondary_position) ? positionDetailLabel(athlete.secondary_position) : null,
+    ].filter(present).join(' / ')],
     ['Current club', athlete.club_name],
     ['Nationality', athlete.nationality],
     ['Available', present(classYearOf(athlete)) ? `${classYearOf(athlete)} entry` : null],

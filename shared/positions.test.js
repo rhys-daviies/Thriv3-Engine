@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   POSITIONS, POSITION_NOUN, POSITION_PLURAL,
   canonicalPosition, positionNoun, positionPlural, positionLabel,
+  POSITION_MODELS, positionModelFor, positionOptionGroups, positionDetailLabel, isKnownPosition,
+  NO_SECONDARY_POSITION, hasSecondaryPosition,
 } from './positions.js';
 
 describe('the position vocabulary', () => {
@@ -72,5 +74,63 @@ describe('canonicalPosition', () => {
     expect(positionNoun('Sweeper')).toBe('sweeper');
     expect(positionPlural('Sweeper')).toBe('sweepers');
     expect(positionLabel('')).toBe('');
+  });
+});
+
+describe('detailed athlete positions', () => {
+  it('every detailed key resolves to the group it declares, through the engine\'s own lookup', () => {
+    for (const sport of Object.keys(POSITION_MODELS)) {
+      for (const d of positionModelFor(sport)) expect(canonicalPosition(d.key), `${sport} ${d.key}`).toBe(d.group);
+    }
+  });
+
+  it('adds exactly one label to the lookup, and it is one no roster row uses', () => {
+    // The long names are printed, never looked up: "Center Back" stays UNKNOWN
+    // so ~60 corpus roster rows do not move cohort.
+    for (const raw of ['Center Back', 'Central Midfielder', 'Attacking Midfielder', 'Center back', 'Wingback', 'Fullback']) {
+      expect(canonicalPosition(raw), raw).toBe('UNKNOWN');
+    }
+    expect(canonicalPosition('WM')).toBe('MIDFIELD');
+  });
+
+  it('labels a detailed key by its long name and a coarse value by its group', () => {
+    expect(positionDetailLabel('CB')).toBe('Center back');
+    expect(positionDetailLabel('cb')).toBe('Center back');
+    expect(positionDetailLabel('Defender')).toBe('Defender');
+    expect(positionDetailLabel('DEFENSE')).toBe('Defender');
+    expect(positionDetailLabel('Sweeper-keeper')).toBe('Sweeper-keeper');
+  });
+
+  it('offers every group with a no-detail choice first, so legacy coarse values stay selectable', () => {
+    const groups = positionOptionGroups('womens-soccer');
+    expect(groups.map((g) => g.group)).toEqual(POSITIONS);
+    expect(groups.map((g) => g.options[0].key)).toEqual(['Goalkeeper', 'Defender', 'Midfielder', 'Forward']);
+    expect(groups.find((g) => g.group === 'MIDFIELD').options.map((o) => o.key)).toEqual(['Midfielder', 'DM', 'CM', 'AM', 'WM']);
+  });
+
+  it('a sport with no model offers the four groups and nothing borrowed from soccer', () => {
+    const groups = positionOptionGroups('mens-volleyball');
+    expect(groups.every((g) => g.options.length === 1)).toBe(true);
+  });
+
+  it('knows which values the engine can place', () => {
+    expect(isKnownPosition('ST')).toBe(true);
+    expect(isKnownPosition('Midfielder')).toBe(true);
+    expect(isKnownPosition('Attacking Midfielder')).toBe(false);
+    expect(isKnownPosition('')).toBe(false);
+  });
+
+  it('treats the secondary sentinel, null and blank as no secondary position', () => {
+    expect([NO_SECONDARY_POSITION, null, '', '  ', undefined].map(hasSecondaryPosition)).toEqual([false, false, false, false, false]);
+    expect(hasSecondaryPosition('DM')).toBe(true);
+  });
+});
+
+describe('the goalkeeper group', () => {
+  it('offers one goalkeeper choice, not "Goalkeeper (no detail)" beside "Goalkeeper"', () => {
+    const gk = positionOptionGroups('mens-soccer').find((g) => g.group === 'GOALKEEPER');
+    expect(gk.options.map((o) => o.label)).toEqual(['Goalkeeper']);
+    // A stored GK still reads as the goalkeeper it is.
+    expect(positionDetailLabel('GK')).toBe('Goalkeeper');
   });
 });

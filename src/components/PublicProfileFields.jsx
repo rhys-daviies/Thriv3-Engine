@@ -42,8 +42,16 @@ export default function PublicProfileFields({ data, set, sport }) {
           <Field label="Commitment status" hint="e.g. Uncommitted">
             <Input value={data.commitment_status} onChange={(e) => set('commitment_status')(e.target.value)} placeholder="Uncommitted" />
           </Field>
-          <Field label="Nationality">
-            <Input value={data.nationality} onChange={(e) => set('nationality')(e.target.value)} placeholder="New Zealand" />
+          {/*
+            ONE FIELD, ONE EDITOR. For an international athlete `nationality`
+            is the Country chosen in Soccer Profile, which matching reads; a
+            free-text copy here could write "new zealand" and leave that
+            picker blank. So it is shown, not edited, in that case.
+          */}
+          <Field label="Nationality" hint={data.origin === 'International' ? 'Set by Country in Soccer Profile' : undefined}>
+            {data.origin === 'International'
+              ? <Input value={data.nationality || ''} readOnly disabled data-testid="nationality-readonly" />
+              : <Input value={data.nationality} onChange={(e) => set('nationality')(e.target.value)} placeholder="New Zealand" />}
           </Field>
           <Field label="Current club">
             <Input value={data.club_name} onChange={(e) => set('club_name')(e.target.value)} placeholder="Auckland City FC Academy" />
