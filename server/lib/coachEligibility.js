@@ -42,6 +42,7 @@ export const INELIGIBLE = Object.freeze({
   EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
   UNKNOWN_ADDRESS: 'UNKNOWN_ADDRESS',
   ADDRESS_AT_OTHER_PROGRAMME: 'ADDRESS_AT_OTHER_PROGRAMME',
+  PROGRAMME_INACTIVE: 'PROGRAMME_INACTIVE',
 });
 
 const usable = (e) => !!e && String(e).includes('@') && String(e).trim() !== '' && String(e).trim().toUpperCase() !== 'N/A';
@@ -107,6 +108,10 @@ export function recipientIneligibility({ email, collegeName, sport }, { handle =
   // read here — THRIV3_ALLOW_LEGACY_COACHES widens what is offered, never what is sent.
   const rows = usable(email) ? handle.prepare('SELECT * FROM coaches WHERE lower(trim(email)) = lower(trim(?)) AND sport = ?').all(email, sport) : [];
   if (!usable(email)) return INELIGIBLE.NO_USABLE_EMAIL;
+  // a send must name a programme that exists NOW: a superseded or retired row (linked to its
+  // successor by programme_row_links) never carries outreach, even to an address eligible there
+  const named = handle.prepare('SELECT active FROM colleges WHERE name = ? AND sport = ?').get(collegeName, sport);
+  if (named && named.active === 0) return INELIGIBLE.PROGRAMME_INACTIVE;
   if (!rows.length) return INELIGIBLE.UNKNOWN_ADDRESS;
   const names = new Set(programmeNames(collegeName, sport));
   const here = rows.filter((r) => names.has(r.school));

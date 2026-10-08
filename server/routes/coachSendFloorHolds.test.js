@@ -32,7 +32,7 @@ const { manualOutreachRouter } = await import('./manualOutreach.js');
 const { sendOutreach } = await import('./sendOutreach.js');
 const { upsertAthleteProgramme } = await import('../lib/athleteProgrammes.js');
 const { programmeContactId } = await import('../lib/programmeContactEligibility.js');
-const { coachIneligibility, outreachIneligibility, recipientIneligibility, applyCoachFloor } = await import('../lib/coachEligibility.js');
+const { coachIneligibility, outreachIneligibility, recipientIneligibility, applyCoachFloor, INELIGIBLE } = await import('../lib/coachEligibility.js');
 const { manualRecipientChoice, INBOX_NOT_SELECTED } = await import('../lib/recipientSelection.js');
 const { activationHolds, activationHold, canonicalDecisions, CANONICAL_INELIGIBLE } = await import('../lib/canonicalCoachEligibility.js');
 const { programmeCoaches } = await import('./programmeCoaches.js');
@@ -45,11 +45,11 @@ const heldId = (kind) => SEED.holds.find((h) => h.hold === kind).coach_id;
 let baseUrl; let unit = 930000;
 
 /** One programme with a corroborated staff (canonically eligible unless a test says otherwise) and an inbox. */
-function programme(key, { coaches = [], inbox = true, corroborate = true } = {}) {
+function programme(key, { coaches = [], inbox = true, corroborate = true, active = 1 } = {}) {
   unit += 1;
   const ent = `AE-U${unit}`; const host = `${key}athletics.example`; const name = `${key} College`;
   db.prepare("INSERT INTO athletics_entities (athletics_entity_id, display_name, federal_unitid, entity_kind, provenance, created_at) VALUES (?, ?, ?, 'SINGLE', 'test', ?)").run(ent, name, unit, T);
-  db.prepare("INSERT INTO colleges (id, created_date, updated_date, name, sport, division, active, unitid, athletics_entity_id) VALUES (?, ?, ?, ?, 'mens-soccer', 'NCAA D3', 1, ?, ?)").run(`col-${key}`, T, T, name, unit, ent);
+  db.prepare("INSERT INTO colleges (id, created_date, updated_date, name, sport, division, active, unitid, athletics_entity_id) VALUES (?, ?, ?, ?, 'mens-soccer', 'NCAA D3', ?, ?, ?)").run(`col-${key}`, T, T, name, active, unit, ent);
   db.prepare("INSERT INTO athletics_domains (domain, unitid, status, role, claimed_keys, claimed_unitids, verification_method, confidence, checked_at) VALUES (?, ?, 'VERIFIED', 'ATHLETICS_SITE', '[]', ?, 'TEST', 'CERTAIN', ?)").run(host, unit, JSON.stringify([unit]), T);
   const ids = coaches.map((c, i) => {
     const id = c.id || `co-${key}-${i}`;
@@ -66,7 +66,8 @@ function programme(key, { coaches = [], inbox = true, corroborate = true } = {})
       VALUES (?, ?, ?, 'mens-soccer', ?, ?, 'TEAM_INBOX', ?, ?, 'refresh:test', 'OFFICIAL_STAFF_DIRECTORY', 'A', 'VERIFIED', ?, 'test', ?, ?)`)
       .run(pc, ent, `col-${key}`, email, `${name} Men's Soccer`, `https://${host}/sports/mens-soccer/coaches`, seen, seen, T, T);
   }
-  const relationshipId = upsertAthleteProgramme(ATH, { college_id: `col-${key}`, request_state: 'requested', requested_by: 'athlete' }).programme.id;
+  // an inactive programme cannot be on an athlete's list (athleteProgrammes refuses it), which is the point of that fixture
+  const relationshipId = active ? upsertAthleteProgramme(ATH, { college_id: `col-${key}`, request_state: 'requested', requested_by: 'athlete' }).programme.id : null;
   return { name, host, unit, email, pc, ids, relationshipId };
 }
 
@@ -91,7 +92,7 @@ const sends = () => db.prepare('SELECT COUNT(*) n FROM outreach_send').get().n;
 const send = (p, entry) => sendOutreach({ athleteId: ATH, coaches: [entry], subject: 'Marcus Reyes', body: BODY, greetingName: 'Coach', collegeName: p.name, division: 'NCAA D3' });
 const row = (id) => db.prepare('SELECT * FROM coaches WHERE id = ?').get(id);
 
-let ABS; let HELD; let STALE; let UNCORR; let OK; let FROM; let TO; let OPT;
+let ABS; let HELD; let STALE; let UNCORR; let OK; let FROM; let TO; let OPT; let GONE;
 beforeAll(async () => {
   const app = express(); app.use(express.json()); app.use('/api', manualOutreachRouter);
   await new Promise((resolve) => { const s = app.listen(0, () => { baseUrl = `http://127.0.0.1:${s.address().port}`; resolve(); }); s.unref(); });
@@ -104,6 +105,7 @@ beforeAll(async () => {
   UNCORR = programme('uncorr', { coaches: [{ name: 'Una Uncorroborated' }], corroborate: false });
   OK = programme('okay', { coaches: [{ name: 'Olive Okay' }] });
   OPT = programme('optout', { coaches: [{ name: 'Otto Optout' }] });
+  GONE = programme('gone', { coaches: [{ name: 'Gus Gone' }], inbox: false, active: 0 });
   // a coach filed at FROM whose own mail domain and identity place them at TO: the engine REASSIGNS
   TO = programme('target', { coaches: [], inbox: false });
   FROM = programme('filed', { coaches: [{ name: 'Rita Reassigned', email: `rita@${'target'}athletics.example` }], inbox: false, corroborate: false });
@@ -233,6 +235,9 @@ describe('the canonical decision itself', () => {
     expect(coachIneligibility(row(FROM.ids[0]))).toBe(CANONICAL_INELIGIBLE.CANONICAL_PROGRAMME_MISMATCH);
     expect(manualRecipientChoice({ collegeName: FROM.name, sport: 'mens-soccer' }).recipients).toEqual([]);
     expect(manualRecipientChoice({ collegeName: TO.name, sport: 'mens-soccer' }).recipients).toEqual([]);
+  });
+  it('a send naming an inactive (superseded or retired) programme row is refused', () => {
+    expect(recipientIneligibility({ email: row(GONE.ids[0]).email, collegeName: GONE.name, sport: 'mens-soccer' })).toBe(INELIGIBLE.PROGRAMME_INACTIVE);
   });
   it('a corroborated, unheld coach is still offered first, ahead of the inbox (coach-first unchanged)', async () => {
     expect(coachIneligibility(row(OK.ids[0]))).toBeNull();
