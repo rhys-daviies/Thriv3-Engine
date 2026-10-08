@@ -17,13 +17,16 @@ const suite = (file, tests, extra = {}) => ({
   ...extra,
 });
 const known = (file, test, over = {}) => ({ file, test, reason: 'r', owner: 'o', added: '2026-10-01', expires: '2026-10-31', ...over });
-const run = (suites, baseline = {}, opts = {}) => evaluate({ testResults: suites }, baseline, { root: ROOT, today: TODAY, ...opts });
+// Every run has one critical suite that always passes, so the empty-list rule stays out of the way.
+const ALWAYS = suite('always.test.js', [pass('ok')]);
+const run = (suites, baseline = {}, opts = {}) => evaluate({ testResults: [ALWAYS, ...suites] },
+  { ...baseline, criticalSuites: ['always.test.js', ...(baseline.criticalSuites || [])] }, { root: ROOT, today: TODAY, ...opts });
 
 describe('testGate', () => {
   it('passes a clean run', () => {
     const r = run([suite('a.test.js', [pass('x'), pass('y')])]);
     expect(r.ok).toBe(true);
-    expect(r.totals).toMatchObject({ passed: 2, failed: 0, skipped: 0 });
+    expect(r.totals).toMatchObject({ passed: 3, failed: 0, skipped: 0 }); // 2 + the always-passing critical suite
   });
 
   it('fails a suite whose beforeAll threw, although vitest shows its tests as skipped', () => {
@@ -63,15 +66,32 @@ describe('testGate', () => {
     expect(r.errors).toEqual(['STALE EXEMPTION: a.test.js › old no longer fails — remove it from knownFailures']);
   });
 
+  it('fails a spare exemption listed more times than its test fails', () => {
+    const r = run([suite('a.test.js', [fail('dup')])], { knownFailures: [known('a.test.js', 'dup'), known('a.test.js', 'dup')] });
+    expect(r.errors).toEqual(['STALE EXEMPTION: a.test.js › dup is listed 2 times but fails 1 — remove the spare entries']);
+  });
+
+  it('fails a hook error in a suite whose only failing test is exempted', () => {
+    const r = run(
+      [suite('a.test.js', [fail('old'), pass('x')], { message: 'Error: afterAll blew up' })],
+      { knownFailures: [known('a.test.js', 'old')] },
+    );
+    expect(r.errors).toEqual([expect.stringMatching(/^SUITE FAILED TO RUN: a\.test\.js — Error: afterAll blew up/)]);
+  });
+
   it('fails an expired exemption even though the test still fails as listed', () => {
     const r = run([suite('a.test.js', [fail('old')])], { knownFailures: [known('a.test.js', 'old', { expires: '2026-10-07' })] });
     expect(r.ok).toBe(false);
     expect(r.errors[0]).toMatch(/expired on 2026-10-07/);
   });
 
+  it('refuses an empty critical-suite list', () => {
+    expect(validateBaseline({ criticalSuites: [] }, TODAY)).toEqual(['criticalSuites is empty — the critical safety job would check nothing']);
+  });
+
   it(`refuses an exemption longer than ${MAX_EXEMPTION_DAYS} days, or one missing a field`, () => {
-    expect(validateBaseline({ knownFailures: [known('a', 'b', { expires: '2027-01-01' })] }, TODAY)[0]).toMatch(/the limit is 45/);
-    expect(validateBaseline({ knownFailures: [known('a', 'b', { owner: '' })] }, TODAY)[0]).toMatch(/missing "owner"/);
+    expect(validateBaseline({ criticalSuites: ['c'], knownFailures: [known('a', 'b', { expires: '2027-01-01' })] }, TODAY)[0]).toMatch(/the limit is 45/);
+    expect(validateBaseline({ criticalSuites: ['c'], knownFailures: [known('a', 'b', { owner: '' })] }, TODAY)[0]).toMatch(/missing "owner"/);
   });
 
   it('fails an unexpected skip and tolerates an expected one', () => {
@@ -112,7 +132,7 @@ describe('testGate', () => {
   });
 
   it('fails a tracked test file that vitest never reported', () => {
-    const r = run([suite('a.test.js', [pass('x')])], {}, { trackedFiles: ['a.test.js', 'gone.test.js'] });
+    const r = run([suite('a.test.js', [pass('x')])], {}, { trackedFiles: ['always.test.js', 'a.test.js', 'gone.test.js'] });
     expect(r.errors).toEqual(['TEST FILE NOT COLLECTED: gone.test.js']);
   });
 

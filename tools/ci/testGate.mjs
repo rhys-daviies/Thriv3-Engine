@@ -67,6 +67,8 @@ function tally(list) {
 export function validateBaseline(baseline, today) {
   const problems = [];
   const critical = new Set(baseline.criticalSuites || []);
+  // An empty list would make the critical CI job run everything and pass on nothing.
+  if (!critical.size) problems.push('criticalSuites is empty — the critical safety job would check nothing');
   for (const [i, e] of (baseline.knownFailures || []).entries()) {
     const where = `knownFailures[${i}]`;
     for (const field of ['file', 'test', 'reason', 'owner', 'added', 'expires']) {
@@ -117,7 +119,10 @@ export function evaluate(report, baseline, { root = process.cwd(), today, strict
     const passed = results.filter((a) => a.status === 'passed');
     bySuite.set(file, { status: suite.status, passed: passed.length, failed: failed.length, skipped: skipped.length });
 
-    if (suite.status === 'failed' && failed.length === 0) {
+    // A file-level error (load, beforeAll, afterAll) sets the suite's message;
+    // test failures alone leave it empty. So a message counts even when the
+    // suite also has failing tests that a baseline entry would absorb.
+    if (suite.status === 'failed' && (failed.length === 0 || String(suite.message || '').trim())) {
       suiteFailures.push({ file, message: firstLine(suite.message), tests: results.length });
     }
     for (const a of failed) failures.push({ file, test: testName(a), message: firstLine((a.failureMessages || [])[0]) });
@@ -140,12 +145,13 @@ export function evaluate(report, baseline, { root = process.cwd(), today, strict
       known.set(key, known.get(key) - 1);
     }
   }
-  for (const e of baseline.knownFailures || []) {
-    const key = `${e.file} › ${e.test}`;
-    if (!seenFailing.get(key)) {
-      errors.push(`STALE EXEMPTION: ${key} no longer fails — remove it from knownFailures`);
-      seenFailing.set(key, -1); // report each stale key once
-    }
+  // Each entry absorbs one failure. Spare entries (the test passes now, or is
+  // listed more times than it fails) would absorb a future failure, so they
+  // fail the gate until removed.
+  for (const [key, listed] of tally((baseline.knownFailures || []).map((e) => `${e.file} › ${e.test}`))) {
+    const failing = seenFailing.get(key) || 0;
+    if (failing === 0) errors.push(`STALE EXEMPTION: ${key} no longer fails — remove it from knownFailures`);
+    else if (listed > failing) errors.push(`STALE EXEMPTION: ${key} is listed ${listed} times but fails ${failing} — remove the spare entries`);
   }
 
   // 3. Skips against expectedSkips.

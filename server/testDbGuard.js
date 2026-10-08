@@ -38,7 +38,11 @@ function canonical(p) {
     let st;
     try { st = fs.lstatSync(abs); } catch { break; }
     if (!st.isSymbolicLink()) break;
-    abs = path.resolve(path.dirname(abs), fs.readlinkSync(abs));
+    // Against the parent's REAL location: the kernel applies a relative
+    // target's `..` there, not to the spelling the link was reached through.
+    let parent = path.dirname(abs);
+    try { parent = fs.realpathSync.native(parent); } catch { /* keep the spelling */ }
+    abs = path.resolve(parent, fs.readlinkSync(abs));
   }
   let real;
   try { real = fs.realpathSync.native(abs); } catch {
