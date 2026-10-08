@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { afterAll } from 'vitest';
+import { afterAll, describe, it } from 'vitest';
 import { assertRunDir, cloneFile, WORKING_COPY } from './testScratch.js';
 
 /**
@@ -36,4 +36,20 @@ export function workingCorpusCopy(label = 'suite') {
     for (const suffix of ['', '-wal', '-shm']) fs.rmSync(copy + suffix, { force: true });
   });
   return copy;
+}
+
+/**
+ * `describe` when the suite has its corpus, otherwise a skipped block whose
+ * body NEVER RUNS.
+ *
+ * `describe.skip` still runs its body while vitest collects, and these bodies
+ * do real work there — spawn an operator script, read the database — with the
+ * path the suite never got. A child handed `RECRUITMATCH_DB=null` creates a
+ * database called `null` in the checkout and runs against it, so the "skip"
+ * was executing scripts in every clean checkout, worktree and CI run. The one
+ * placeholder keeps each skipped block visible by name.
+ */
+export function describeWithCorpus(haveCorpus) {
+  if (haveCorpus) return describe;
+  return (name) => describe.skip(name, () => { it('needs the working database', () => {}); });
 }

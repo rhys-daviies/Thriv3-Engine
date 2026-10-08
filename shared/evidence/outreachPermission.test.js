@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync, mkdtempSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { outreachPermitted } from './select.js';
@@ -307,14 +308,22 @@ describe('the registry cannot grant an outbound licence by omission', () => {
   const KINDS_PATH = fileURLToPath(new URL('./kinds.js', import.meta.url));
   const source = readFileSync(KINDS_PATH, 'utf8');
 
-  /** Loads a mutated copy of the registry beside the real one, so its relative imports resolve. */
+  /**
+   * Loads a mutated copy of the registry from a private temp directory, its
+   * relative imports rewritten to the real files. It used to be written beside
+   * the real one, where suites that scan the source tree in parallel could list
+   * it and then fail reading it after it was removed.
+   */
   const loadMutated = async (mutate) => {
-    const tmp = path.join(path.dirname(KINDS_PATH), `kinds.__mutation-${process.pid}-${n++}.js`);
-    writeFileSync(tmp, mutate(source));
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'thriv3-kinds-mutation-'));
+    const tmp = path.join(dir, `kinds.__mutation-${n++}.js`);
+    const absolute = mutate(source).replace(/from '(\.\.?\/[^']+)'/g,
+      (_, rel) => `from '${pathToFileURL(path.resolve(path.dirname(KINDS_PATH), rel)).href}'`);
+    writeFileSync(tmp, absolute);
     try {
       return await import(pathToFileURL(tmp).href);
     } finally {
-      rmSync(tmp, { force: true });
+      rmSync(dir, { recursive: true, force: true });
     }
   };
   let n = 0;

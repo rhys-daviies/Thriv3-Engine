@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { sportContradicted } from './rosterCandidatePlan.js';
 import { fileCorpusOr } from '../db/corpusIdentity.js';
-import { workingCorpusCopy } from '../testCorpus.js';
+import { workingCorpusCopy, describeWithCorpus } from '../testCorpus.js';
 
 /**
  * L7B — the discovery plan against the real registry, and what it must not touch.
@@ -21,7 +21,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 /* L7ZO: obey an explicitly selected corpus; see `fileCorpusOr`. */
 const DB = fileCorpusOr(workingCorpusCopy('rosterCandidatePlan'));
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
-const d = HAVE_DB ? describe : describe.skip;
+const d = describeWithCorpus(HAVE_DB);
 if (!HAVE_DB) console.warn(`\n  rosterCandidatePlan.test.js SKIPPED — no database at ${DB}\n`);
 
 const inDb = (expr) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
