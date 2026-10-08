@@ -8,6 +8,7 @@ import {
   blockerCopy, isCampaignWide, BLOCKER_CATEGORY, ACTION_COPY, REASON_COPY, ROLE_COPY,
   EMAIL_STATUS_COPY, shortDate, PREPARE_COPY, preparedLabel, MESSAGE_COPY, messageStateLabel,
 } from '@/lib/campaignLabels';
+import { PROGRAMME_CONTACT_HINT } from '@shared/recipientPresentation.js';
 
 /**
  * ONE PROGRAMME IN A CAMPAIGN, AS THE SERVER DESCRIBES IT.
@@ -126,10 +127,21 @@ function Blockers({ blockers, policyEligibleOn, alreadySaid = [] }) {
  * out loud, naming the coach and the school, so a click on the wrong card is
  * caught before it is a decision on the record.
  */
+/**
+ * Phase 1F: who the current approach is to, for the sentences these controls say out loud —
+ * the coach by name, or "Programme Contact" for the programme's shared inbox. Null when the
+ * plan names nobody.
+ */
+function recipientShown(programme) {
+  if (programme?.currentCoach) return programme.currentCoach;
+  if (programme?.currentRecipient) return { id: programme.currentRecipient.id, name: programme.currentRecipient.primary };
+  return null;
+}
+
 function ApproveFirstTouch({ programme, onApprove }) {
   const [mode, setMode] = useState('idle');
   const [error, setError] = useState(null);
-  const coach = programme.currentCoach;
+  const coach = recipientShown(programme);
 
   /**
    * FOCUS FOLLOWS THE STEP, because the control the operator was on keeps being
@@ -257,7 +269,7 @@ function ApproveFirstTouch({ programme, onApprove }) {
 function PrepareAttempt({ programme, onPrepare }) {
   const [mode, setMode] = useState('idle');
   const [error, setError] = useState(null);
-  const coach = programme.currentCoach;
+  const coach = recipientShown(programme);
 
   /**
    * FOCUS FOLLOWS THE STEP, because the control the operator was on keeps being
@@ -400,7 +412,7 @@ function PreparedMarker({ currentAttempt }) {
 function GenerateMessage({ programme, onGenerate }) {
   const [mode, setMode] = useState('idle');
   const [error, setError] = useState(null);
-  const coach = programme.currentCoach;
+  const coach = recipientShown(programme);
 
   const generateRef = useRef(null);
   const confirmRef = useRef(null);
@@ -510,8 +522,8 @@ function MessageMarker({ programme, onOpenMessage }) {
   if (!message?.id) return null;
 
   const reviewed = message.state === 'reviewed';
-  const where = programme.currentCoach?.name
-    ? `${programme.currentCoach.name} at ${programme.collegeName}`
+  const where = recipientShown(programme)?.name
+    ? `${recipientShown(programme).name} at ${programme.collegeName}`
     : programme.collegeName;
 
   return (
@@ -541,7 +553,7 @@ export default function CampaignProgrammeCard({
   onGenerate = null, onOpenMessage = null,
 }) {
   const {
-    collegeName, rank, tier, tierSource, programmeState, currentCoach,
+    collegeName, rank, tier, tierSource, programmeState, currentCoach, currentRecipient = null,
     nextAction, derivedStep, policyReason, blockers, policyEligibleOn, candidates,
     firstTouchReview, preparableNow, currentAttempt, currentMessage,
   } = programme;
@@ -566,6 +578,13 @@ export default function CampaignProgrammeCard({
               {currentCoach.name}
               {role ? ` · ${role}` : ''}
               {currentCoach.email ? ` · ${currentCoach.email}` : ''}
+            </p>
+          ) : currentRecipient?.kind === 'PROGRAMME_INBOX' ? (
+            /* Phase 1F: the programme's shared inbox — never shown as a person. */
+            <p className="text-xs text-muted-foreground truncate" data-testid="programme-contact">
+              {currentRecipient.primary}
+              {currentRecipient.secondary ? ` · ${currentRecipient.secondary}` : ''}
+              {` · ${PROGRAMME_CONTACT_HINT}`}
             </p>
           ) : (
             <p className="text-xs text-muted-foreground">No coach selected for this programme</p>
@@ -624,7 +643,7 @@ export default function CampaignProgrammeCard({
               </Badge>
             )}
           </div>
-          <PriorContact priorContact={currentCoach?.priorContact} />
+          <PriorContact priorContact={currentCoach ? currentCoach.priorContact : currentRecipient?.reviewContact} />
           <p className="text-xs text-muted-foreground">
             {approval?.status === 'stale'
               ? 'This review is out of date because further confirmed contact has been recorded '
@@ -637,7 +656,7 @@ export default function CampaignProgrammeCard({
             the identifiers it would be approved with are the plan's own. No
             control is reconstructed from a school name.
           */}
-          {onApprove && currentCoach?.id && programme.programmeCampaignId && (
+          {onApprove && (currentCoach?.id || currentRecipient?.id) && programme.programmeCampaignId && (
             <ApproveFirstTouch programme={programme} onApprove={onApprove} />
           )}
         </div>

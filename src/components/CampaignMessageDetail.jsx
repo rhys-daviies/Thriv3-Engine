@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   MESSAGE_COPY, messageStateLabel, evidenceSentences, shortDate, ROLE_COPY,
 } from '@/lib/campaignLabels';
+import { PROGRAMME_CONTACT_LABEL, PROGRAMME_CONTACT_HINT } from '@shared/recipientPresentation.js';
 
 /**
  * ONE EMAIL, READ THE WAY A PERSON READS AN EMAIL.
@@ -279,9 +280,13 @@ export default function CampaignMessageDetail({
 
   const edited = message.bodyHash !== message.generatedBodyHash
     || message.subject !== message.generatedSubject;
-  const where = programme?.currentCoach?.name
+  // Phase 1F: a message to the programme's inbox is "Programme Contact", never a person.
+  const inboxMessage = message.recipientKind === 'PROGRAMME_INBOX';
+  const where = programme?.currentCoach?.name && !inboxMessage
     ? `${programme.currentCoach.name} at ${programme.collegeName}`
-    : programme?.collegeName ?? '';
+    : inboxMessage && programme?.collegeName
+      ? `${PROGRAMME_CONTACT_LABEL} at ${programme.collegeName}`
+      : programme?.collegeName ?? '';
 
   return (
     <div className="space-y-4" data-testid="message-detail">
@@ -312,7 +317,14 @@ export default function CampaignMessageDetail({
             >
               {programme?.collegeName ?? message.recipientEmail}
             </h2>
-            {programme?.currentCoach && (
+            {inboxMessage && (
+              <p className="text-xs text-muted-foreground break-words" data-testid="message-programme-contact">
+                {PROGRAMME_CONTACT_LABEL}
+                {programme?.currentRecipient?.secondary ? ` · ${programme.currentRecipient.secondary}` : ''}
+                {` · ${PROGRAMME_CONTACT_HINT}`}
+              </p>
+            )}
+            {programme?.currentCoach && !inboxMessage && (
               <p className="text-xs text-muted-foreground break-words">
                 {programme.currentCoach.name}
                 {/*

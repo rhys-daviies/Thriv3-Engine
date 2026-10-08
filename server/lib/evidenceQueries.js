@@ -296,9 +296,10 @@ export function programmeInputs(collegeName, sport, { match = null, now = Date.n
  * follow-up per coach and ESP1 describes exactly those two, so a third throws
  * rather than composing a generic email nobody chose to send.
  */
-function sequenceFor({ programmeCampaignId, coachId, athleteId, evidenceResult }) {
-  if (!programmeCampaignId || !coachId || !athleteId) return null;
-  const scope = { programmeCampaignId, athleteId, coachId };
+function sequenceFor({ programmeCampaignId, coachId, programmeContactId = null, athleteId, evidenceResult }) {
+  if (!programmeCampaignId || (!coachId && !programmeContactId) || !athleteId) return null;
+  // Phase 1F: the step is per RECIPIENT — a coach, or (when there is no coach) a programme inbox.
+  const scope = { programmeCampaignId, athleteId, coachId, programmeContactId };
   return evidenceStrategyForMessage({
     outreach: evidenceResult.roles,
     step: campaignLocalStep(scope),
@@ -316,7 +317,7 @@ function sequenceFor({ programmeCampaignId, coachId, athleteId, evidenceResult }
 export function evidenceFor(athlete, collegeName, {
   sport = null, match = null, maxEmail = MAX_EMAIL_EVIDENCE, prefer = null,
   preferStructure = null, now = Date.now(),
-  programmeCampaignId = null, coachId = null,
+  programmeCampaignId = null, coachId = null, programmeContactId = null,
 } = {}) {
   const resolved = sport || athlete.sport || 'mens-soccer';
 
@@ -376,7 +377,7 @@ export function evidenceFor(athlete, collegeName, {
    */
   const composed = selectEvidence(athlete, { ...inputs, fit }, { maxEmail, prefer, preferStructure });
   const sequence = sequenceFor({
-    programmeCampaignId, coachId, athleteId: athlete?.id, evidenceResult: composed,
+    programmeCampaignId, coachId, programmeContactId: coachId ? null : programmeContactId, athleteId: athlete?.id, evidenceResult: composed,
   });
   if (!sequence) return { ...composed, programmeResolved: inputs.resolved };
 

@@ -6,6 +6,8 @@
  *   PROGRAMME  governing-body / region listing -> PROGRAMME pages + a membership listing
  *   ROSTER     an entity-owned official roster page -> one ROSTER page (or a REFUSAL)
  *   STAFF      an entity-owned official staff page  -> one COACH page (or a REFUSAL)
+ *   PROGRAMME_CONTACT  the same staff page -> one PROGRAMME_CONTACT page: every published address
+ *              that could be a programme's own, with the slot it sat in (Phase 1G-B)
  *
  * ADAPTERS WRITE NOTHING. They return the staging input contract consumed by
  * `npm run integrity:refresh` (server/lib/refresh/staging.js), which resolves identity,
@@ -27,6 +29,7 @@ import { detectPlatform, parseSidearmRosterStrict, parseSidearmStaff } from './s
 import { parseRosterTableStrict, STRUCTURE, prestoListViewHref, prestoCardNames, crossCheckCards, parsePrestoCardsStrict } from './rosterStructure.js';
 import { refusePage, pageEvidence, REFUSAL } from './adapterSafety.js';
 import { nameKey, coreKey, wordsContained } from './institutionNames.js';
+import { extractAddressSlots, SLOT, SLOT_PARSER_VERSION } from './programmeContactSlots.js';
 
 // -2: responsive Presto roster tables (mobile-only cells / hidden labels) parsed correctly (Phase 8A pilot)
 // -3: structure-validated, fail-closed roster parsing (PARSER_STRUCTURE_UNKNOWN) — Phase 8B.1
@@ -153,5 +156,37 @@ export async function staffAdapter(target, { ownsHost, ownsSource, fetch = fetch
     source_complete: sa ? sa.complete : true, parser_version: sa ? sa.parser_version : `${platform.toLowerCase()}-staff-1`, adapter_version: ADAPTER_VERSION, adapter_evidence: { platform, title: meta.title, sha256: meta.sha256, records: people.length },
     people: people.map((x) => ({ full_name: x.full_name, role: x.role, email: x.email_origin === 'PUBLISHED_ON_SOURCE' ? x.email : null, email_origin: x.email_origin })),
     ...(sa ? { structure: sa.structure, incomplete_reason: sa.incomplete_reason, emails_on_page: sa.emails_on_page, labels: sa.labels, person_emails: sa.people.map((x) => ({ full_name: x.full_name, emails: x.emails, shared_emails: x.shared_emails })) } : {}),
+  } };
+}
+
+/**
+ * A PERSON-slot address is staged only when it reads like a programme's own (msoccer@, a
+ * recruiting address): it is then refused at classification with its reason, so an inbox printed
+ * against one coach is visible as "coach intelligence", not silently dropped. A coach's personal
+ * address (jsmith@) is coach data and is not a programme-contact observation at all.
+ */
+const PROGRAMME_LOCAL = /soc|futbol|recruit|team/;
+
+/**
+ * One programme's staff page as PROGRAMME_CONTACT evidence (Phase 1G-B). HOST-ONLY ownership:
+ * the programme-contact validator accepts only a host the programme's athletics entity owns, so
+ * the gatherer never accepts a path-scoped source the validator would refuse.
+ * target: { athletics_entity_id, institution_label, sport, host, platform?, season }
+ */
+export async function programmeContactAdapter(target, { ownsHost, fetch = fetchPage, url } = {}) {
+  const u = url || staffUrl(target.host, target.platform, target.sport);
+  const p = await fetch(u);
+  const platform = target.platform || (p.block ? null : detectPlatform(p.body)) || 'CUSTOM';
+  const slots = p.block ? { addresses: [], malformed: [], rows: 0, source: null } : extractAddressSlots(p.body);
+  const contacts = slots.addresses.filter((a) => a.slot !== SLOT.PERSON || PROGRAMME_LOCAL.test(a.email.split('@')[0]));
+  const refusal = refusePage(p, { kind: 'PROGRAMME_CONTACT', sport: target.sport, season: null, entityOwnsHost: ownsHost ? (h) => ownsHost(h, target.athletics_entity_id) : null }, contacts);
+  const meta = { source_url: p.final_url || u, fetched_at: p.fetched_at, http: p.status, platform, title: p.block ? null : pageTitle(p.body).slice(0, 160), sha256: p.sha256 };
+  if (refusal) return { refusal: { ...refusal, target: { entity: target.athletics_entity_id, sport: target.sport }, ...meta } };
+  return { page: {
+    dataset: 'PROGRAMME_CONTACT', source_kind: 'OFFICIAL_STAFF_DIRECTORY', source_url: meta.source_url, fetched_at: meta.fetched_at, observed_season: target.season,
+    page_title: meta.title, institution_label: target.institution_label, raw_programme: `${target.institution_label} ${target.sport}`, sport: target.sport, athletics_entity_id: target.athletics_entity_id,
+    source_complete: true, parser_version: SLOT_PARSER_VERSION, adapter_version: ADAPTER_VERSION,
+    adapter_evidence: { platform, title: meta.title, sha256: meta.sha256, staff_rows: slots.rows, structure: slots.source, addresses: slots.addresses.length, staged: contacts.length, malformed: slots.malformed.length },
+    contacts: contacts.map((a) => ({ email: a.email, email_origin: 'PUBLISHED_ON_SOURCE', slot: a.slot, person_count: a.person_count, labels: a.labels, context_text: a.context_text, recruiting: a.recruiting, attached_to_person: a.slot === SLOT.PERSON ? true : null })),
   } };
 }

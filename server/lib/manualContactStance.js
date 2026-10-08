@@ -3,6 +3,7 @@ import {
   findRelationship, updateAthleteProgramme, upsertAthleteProgramme,
 } from './athleteProgrammes.js';
 import { OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
+import { recipientForOutreach, RecipientError } from './recipient.js';
 
 /**
  * A HUMAN WROTE TO THIS SCHOOL, SO THE CAMPAIGN STOPS WRITING TO IT — F5b.
@@ -214,13 +215,6 @@ export function establishManualOnly({ athleteId, collegeName, sport } = {}) {
 
 const SEND_ORIGIN = db.prepare('SELECT origin FROM outreach_send WHERE id = ?');
 
-const RELATIONSHIP_FOR_OUTREACH = db.prepare(`
-  SELECT o.athlete_id AS athleteId, c.school AS collegeName, c.sport AS sport
-    FROM outreach o
-    JOIN coaches c ON c.id = o.coach_id
-   WHERE o.id = ?
-`);
-
 /**
  * WHICH ATHLETE-SCHOOL-SPORT RELATIONSHIP A CONFIRMED MESSAGE WAS ABOUT, and
  * whether it was a manual one at all.
@@ -228,8 +222,9 @@ const RELATIONSHIP_FOR_OUTREACH = db.prepare(`
  * ---------------------------------------------------------------------------
  * RESOLVED FROM STORED ROWS, NEVER FROM A LABEL THE CALLER HELD.
  *
- * `coaches.school` and `coaches.sport` are where the message actually went —
- * the same columns `programmesReachedBy` consults for the same reason. A
+ * The RECIPIENT's programme is where the message actually went (recipient.js:
+ * `coaches.school` and `coaches.sport` for a coach, the same columns
+ * `programmesReachedBy` consults for the same reason). A
  * caller's own idea of which school a batch was for is exactly the value that
  * can be stale or wrong, and `confirmSends` in particular is confirming a list
  * an operator was shown some minutes ago.
@@ -270,9 +265,11 @@ export function manualRelationshipForConfirmedSend({ outreachId, outreachSendId 
   const origin = SEND_ORIGIN.get(outreachSendId)?.origin ?? null;
   if (origin !== OUTREACH_ORIGIN.MANUAL) return null;
 
-  const row = RELATIONSHIP_FOR_OUTREACH.get(outreachId);
-  if (!row?.athleteId || !row?.collegeName || !row?.sport) return null;
-  return { athleteId: row.athleteId, collegeName: row.collegeName, sport: row.sport };
+  let rel = null;
+  try { rel = recipientForOutreach(outreachId); } catch (err) { if (!(err instanceof RecipientError)) throw err; }
+  const athleteId = rel?.athleteId; const { name: collegeName, sport } = rel?.recipient.programme ?? {};
+  if (!athleteId || !collegeName || !sport) return null;
+  return { athleteId, collegeName, sport };
 }
 
 /**

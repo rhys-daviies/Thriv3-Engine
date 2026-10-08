@@ -314,9 +314,11 @@ export const campaigns = {
    * review stands afterwards, re-derived rather than asserted. A review that is
    * already current comes back unchanged rather than being rewritten.
    */
-  approveFirstTouch(programmeCampaignId, coachId) {
+  approveFirstTouch(programmeCampaignId, coachId, { programmeContactId = null } = {}) {
+    // Phase 1F: the programme inbox a campaign falls back to has its own route, by its own id.
+    const who = programmeContactId ? `programme-contacts/${programmeContactId}` : `coaches/${coachId}`;
     return request(
-      `/api/programme-campaigns/${programmeCampaignId}/coaches/${coachId}/first-touch-approval`,
+      `/api/programme-campaigns/${programmeCampaignId}/${who}/first-touch-approval`,
       { method: 'POST' },
     );
   },
@@ -368,9 +370,10 @@ export const campaigns = {
    * 201 when this call wrote it, 200 when one was already there — both return
    * the same message resource, so a retry after a dropped connection is safe.
    */
-  generateMessage(programmeCampaignId, coachId) {
+  generateMessage(programmeCampaignId, coachId, { programmeContactId = null } = {}) {
+    const who = programmeContactId ? `programme-contacts/${programmeContactId}` : `coaches/${coachId}`;
     return request(
-      `/api/programme-campaigns/${programmeCampaignId}/coaches/${coachId}/message`,
+      `/api/programme-campaigns/${programmeCampaignId}/${who}/message`,
       { method: 'POST' },
     );
   },

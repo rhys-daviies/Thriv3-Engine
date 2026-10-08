@@ -384,8 +384,10 @@ describe('3. prepared is not drafted, queued, scheduled or sent', () => {
     // No content, no recipient frozen, no sender frozen, no time chosen.
     expect(Object.keys(row).sort()).toEqual([
       'coach_id', 'created_at', 'id', 'next_action_at', 'outreach_id',
-      'programme_campaign_id', 'state', 'state_changed_at', 'state_reason', 'step', 'updated_at',
+      'programme_campaign_id', 'programme_contact_id', 'state', 'state_changed_at', 'state_reason', 'step', 'updated_at',
     ]);
+    // Phase 1D: the attempt names its recipient as a coach OR a programme inbox; this one is a coach
+    expect(row.programme_contact_id).toBeNull();
     expect(row.next_action_at).toBeNull();
     expect(row.outreach_id).toBeNull();
     expect(row.state).toBe('planned');

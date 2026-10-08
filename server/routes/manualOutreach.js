@@ -9,6 +9,8 @@ import {
 import { isSendCapped, recentSendCount } from '../lib/sendCap.js';
 import { PER_COACH_MAX_SENDS, PER_COACH_WINDOW_DAYS } from '../lib/config.js';
 import { programmeCoaches } from './programmeCoaches.js';
+import { manualRecipientChoice, assertManualProgrammeInbox, RECIPIENT_SELECTION } from '../lib/recipientSelection.js';
+import { presentRecipient, RECIPIENT_KIND } from '../../shared/recipientPresentation.js';
 import { historyForAthleteProgramme } from '../lib/programmeContactHistory.js';
 import { contactIntelligenceForProgramme } from '../lib/contactIntelligence.js';
 import { sendOutreach } from './sendOutreach.js';
@@ -50,7 +52,27 @@ export const manualOutreachRouter = express.Router();
 const COMPOSE_FIELDS = Object.freeze([
   'coachIds', 'subject', 'body', 'greetingName', 'send',
   'evidenceSelection', 'evidenceStructure', 'bodySource',
+  // Phase 1F: the programme's own inbox, named by id — offered (and accepted) only when no
+  // eligible named coach exists. Never an address: an address does not become an inbox.
+  'programmeContactId',
 ]);
+
+/**
+ * Phase 1F: the programme inbox this route may offer, or null. Only the fallback the hierarchy
+ * selects (no eligible named coach, no named-coach opt-out), shown as "Programme Contact" with
+ * its programme as context — never as a person and never beside a coach.
+ */
+function programmeContactOption({ collegeName, sport }) {
+  const choice = manualRecipientChoice({ collegeName, sport });
+  if (choice.kind !== RECIPIENT_SELECTION.PROGRAMME_INBOX) return null;
+  const c = choice.recipients[0];
+  return {
+    programme_contact_id: c.programmeContactId,
+    ...presentRecipient({ kind: RECIPIENT_KIND.PROGRAMME_INBOX, label: c.label }),
+    email: c.email,
+    contact_role: c.contactRole,
+  };
+}
 
 /**
  * Named so a refusal can say why, rather than "unknown field". Each of these
@@ -148,6 +170,7 @@ manualOutreachRouter.get('/players/:playerId/programmes/:id/outreach', (req, res
       relationship: ctx.relationship,
       college: ctx.college,
       coaches: programmeCoaches({ collegeName: ctx.collegeName, sport: ctx.sport }),
+      programmeContact: programmeContactOption({ collegeName: ctx.collegeName, sport: ctx.sport }),
       contact: decision,
       priorContact: historyForAthleteProgramme({
         athleteId: ctx.playerId, collegeName: ctx.collegeName, sport: ctx.sport,
@@ -233,7 +256,28 @@ manualOutreachRouter.post('/players/:playerId/programmes/:id/outreach', async (r
      */
     const staff = programmeCoaches({ collegeName: ctx.collegeName, sport: ctx.sport });
     const wanted = Array.isArray(body.coachIds) ? body.coachIds : [];
-    if (!wanted.length) {
+    /**
+     * PHASE 1F — THE PROGRAMME'S INBOX, ONLY AS THE FALLBACK. Named by id and proved here to be
+     * the programme's selected fallback right now; never combined with coaches (an inbox is not
+     * a second recipient beside a person). sendOutreach proves it again before anything is
+     * written, because it is the boundary every path shares.
+     */
+    let inboxChoice = null;
+    if (body.programmeContactId != null) {
+      if (wanted.length) {
+        return res.status(400).json({ error: 'A programme contact is written to on its own, only when no coach can be.', code: 'RECIPIENTS_MIXED' });
+      }
+      let inbox;
+      try {
+        inbox = assertManualProgrammeInbox({ programmeContactId: String(body.programmeContactId), collegeName: ctx.collegeName, sport: ctx.sport });
+      } catch (err) {
+        return res.status(422).json({ error: err.message, code: err.code ?? 'PROGRAMME_INBOX_NOT_FALLBACK' });
+      }
+      if (isSendCapped(inbox.email)) {
+        return res.status(422).json({ code: 'RECIPIENT_SEND_CAP_REACHED', error: 'Nothing was drafted. This programme contact has had as many approaches from Thriv3 as the per-inbox cap allows.' });
+      }
+      inboxChoice = inbox;
+    } else if (!wanted.length) {
       return res.status(400).json({ error: 'Name at least one coach to write to.', code: 'NO_COACH_SELECTED' });
     }
     const byId = new Map(staff.map((c) => [c.coach_id, c]));
@@ -244,10 +288,12 @@ manualOutreachRouter.post('/players/:playerId/programmes/:id/outreach', async (r
         code: 'COACH_NOT_AT_PROGRAMME',
       });
     }
-    const coaches = wanted.map((id) => {
-      const c = byId.get(id);
-      return { name: c.name, email: c.email, title: c.title };
-    });
+    const coaches = inboxChoice
+      ? [{ programmeContactId: inboxChoice.contact_id, email: inboxChoice.email, name: null, title: null }]
+      : wanted.map((id) => {
+        const c = byId.get(id);
+        return { name: c.name, email: c.email, title: c.title };
+      });
 
     /**
      * THE RECIPIENT'S OWN PROTECTION, MOVED TO DRAFT TIME — F7b.

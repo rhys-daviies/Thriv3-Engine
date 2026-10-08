@@ -1,0 +1,2222 @@
+{
+ "phase": "1G-PRE",
+ "created_at": "2026-10-08T00:00:00Z",
+ "kind": "PROTECTED_SOURCE_CORRECTION",
+ "rule": "1G-PRE-R1-R5",
+ "approvals": [
+  {
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "approved_by": "user, in the 1G-PRE Protected Identity Repair brief (2026-10-08)",
+   "approved_at": "2026-10-08",
+   "basis": "The 38 Class B WRONG_INSTITUTION rows whose stored owner is proven independently (rule R1-R5): the 2026-09-01 verifier status rule turned the refutation of ANOTHER claimant into the whole row status. The other 11 WRONG_INSTITUTION rows stay unchanged.",
+   "constraints": [
+    "preserve the stored UNITID",
+    "preserve the refused claimant(s) in wrong_mappings",
+    "change only status, athletics_entity_id, ownership_class and notes",
+    "preserve every evidence and provenance column",
+    "applying to the development database requires a separate authorisation"
+   ],
+   "hosts": [
+    "alfredstateathletics.com",
+    "athletics.carthage.edu",
+    "athletics.concordia.edu",
+    "athletics.middlebury.edu",
+    "athletics.stolaf.edu",
+    "bantamsports.com",
+    "battlingbishops.com",
+    "blcvikings.com",
+    "catawbaathletics.com",
+    "drewrangers.com",
+    "gocolumbialions.com",
+    "godustdevils.com",
+    "goeasterneagles.com",
+    "goeulions.com",
+    "gohighlanders.com",
+    "gojacks.com",
+    "gomatadors.com",
+    "gopresidents.com",
+    "gostatesmen.com",
+    "goxavier.com",
+    "gseagles.com",
+    "guhoyas.com",
+    "illinoiscollegeathletics.com",
+    "lcpioneers.com",
+    "lmulions.com",
+    "lynchburgsports.com",
+    "mercyathletics.com",
+    "mlcknights.com",
+    "nguathletics.com",
+    "providence.jwuathletics.com",
+    "saintmaryssports.com",
+    "southwesternpirates.com",
+    "swarthmoreathletics.com",
+    "thielathletics.com",
+    "uncwsports.com",
+    "uwaathletics.com",
+    "uwlathletics.com",
+    "wlcsports.com"
+   ]
+  }
+ ],
+ "excluded": [
+  {
+   "host": "autrojans.com",
+   "failures": [
+    "R2 page name \"Anderson University\" is also a federal registry name of refuted claimant(s) Anderson (SC)",
+    "R5 no observed link from the owner's institution site to the host",
+    "R5 a refuted claimant links or publishes the host: andersonuniversity.edu (217633, the REFUTED claimant) links it 10x; anderson.edu (150066, stored) does not",
+    "R5 verified staff on the host use a refuted claimant's domain (andersonuniversity.edu/217633)"
+   ]
+  },
+  {
+   "host": "benueagles.com",
+   "failures": [
+    "R4 UNITID 145619 is not exactly one SINGLE entity without campuses (1 entity, 1 campus)",
+    "R5 no observed link from the owner's institution site to the host"
+   ]
+  },
+  {
+   "host": "buhuskies.com",
+   "failures": [
+    "R2 page name \"Bloomsburg\" is not a federal registry name of 498562",
+    "R3 no mapping claim agrees with the stored owner",
+    "R4 UNITID 498562 is not exactly one SINGLE entity without campuses (0 entities, 3 campus)",
+    "R5 no observed link from the owner's institution site to the host"
+   ]
+  },
+  {
+   "host": "cornerstone.sidearmsports.com",
+   "failures": [
+    "R3 no mapping claim agrees with the stored owner",
+    "R4 shared platform root",
+    "R5 no observed link from the owner's institution site to the host"
+   ]
+  },
+  {
+   "host": "cuwfalcons.com",
+   "failures": [
+    "R4 a www twin row exists"
+   ]
+  },
+  {
+   "host": "iuindyjags.com",
+   "failures": [
+    "R2 page name \"IU Indy\" is not a federal registry name of 151111",
+    "R4 UNITID 151111 is not exactly one SINGLE entity without campuses (1 entity, 1 campus)",
+    "R5 no observed link from the owner's institution site to the host"
+   ]
+  },
+  {
+   "host": "ncurams.com",
+   "failures": [
+    "R2 page name \"North Central University\" is also a federal registry name of refuted claimant(s) North Central (IL)"
+   ]
+  },
+  {
+   "host": "njcugothicknights.com",
+   "failures": [
+    "R3 no mapping claim agrees with the stored owner",
+    "R4 UNITID 185262 is not exactly one SINGLE entity without campuses (1 entity, 1 campus)",
+    "R5 no observed link from the owner's institution site to the host"
+   ]
+  },
+  {
+   "host": "rattlerathletics.com",
+   "failures": [
+    "R2 page name \"St. Mary's University\" is not a federal registry name of 123554",
+    "R2 page name \"St. Mary's University\" is also a federal registry name of refuted claimant(s) St. Mary's (TX)",
+    "R5 no observed link from the owner's institution site to the host",
+    "R5 a refuted claimant links or publishes the host: neither homepage links it; staff on it publish @stmarytx.edu (228149, REFUTED claimant)",
+    "R5 verified staff on the host use a refuted claimant's domain (stmarytx.edu/228149)"
+   ]
+  },
+  {
+   "host": "ucgoldeneagles.com",
+   "failures": [
+    "R2 page name \"University of Charleston\" is not a federal registry name of 217819",
+    "R2 page name \"University of Charleston\" is also a federal registry name of refuted claimant(s) Charleston (WV)",
+    "R5 no observed link from the owner's institution site to the host",
+    "R5 a refuted claimant links or publishes the host: ucwv.edu (237312, REFUTED claimant) links it; charleston.edu (217819, stored) does not",
+    "R5 verified staff on the host use a refuted claimant's domain (ucwv.edu/237312)"
+   ]
+  },
+  {
+   "host": "unweagles.com",
+   "failures": [
+    "R2 page name \"University of Northwestern\" is not a federal registry name of 147767",
+    "R2 page name \"University of Northwestern\" is also a federal registry name of refuted claimant(s) Northwestern (MN), University of Northwestern-St Paul",
+    "R3 no mapping claim agrees with the stored owner",
+    "R5 no observed link from the owner's institution site to the host",
+    "R5 a refuted claimant links or publishes the host: unwsp.edu (174491, REFUTED claimant) links it 3x; northwestern.edu (147767, stored) does not",
+    "R5 verified staff on the host use a refuted claimant's domain (unwsp.edu/174491)"
+   ]
+  }
+ ],
+ "corrections": [
+  {
+   "action_id": "PC-1G-PRE-alfredstateathletics.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "alfredstateathletics.com",
+   "true_entity": "AE-U196006",
+   "unitid": 196006,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Penn State Behrend",
+     "claimantUnitid": 214591
+    }
+   ],
+   "expected_old": {
+    "domain": "alfredstateathletics.com",
+    "unitid": 196006,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Alfred State\",\"Penn State Behrend\",\"SUNY Alfred State\"]",
+    "claimed_unitids": "[196006,214591]",
+    "wrong_mappings": "[{\"key\":\"Penn State Behrend\",\"claimantUnitid\":214591}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Alfred State College",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://alfredstateathletics.com/splash.aspx?id=splash_1",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.alfredstate.edu/ links alfredstateathletics.com",
+    "host_to_institution": "OG_SITE_NAME 'Alfred State College' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Alfred State College' of UNITID 196006, of no refuted claimant; 4 verified staff published on the host, 4 on alfredstate.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Penn State Behrend\",\"claimantUnitid\":214591}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore SUNY College of Technology at Alfred's own athletics host as authoritative for AE-U196006; refuted claimant(s) Penn State Behrend (214591) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row alfredstateathletics.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-athletics.carthage.edu",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "athletics.carthage.edu",
+   "true_entity": "AE-U238476",
+   "unitid": 238476,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Wisconsin-Platteville",
+     "claimantUnitid": 240462
+    }
+   ],
+   "expected_old": {
+    "domain": "athletics.carthage.edu",
+    "unitid": 238476,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Carthage\",\"Wisconsin-Platteville\",\"Carthage College\"]",
+    "claimed_unitids": "[238476,240462]",
+    "wrong_mappings": "[{\"key\":\"Wisconsin-Platteville\",\"claimantUnitid\":240462}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Carthage College Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://athletics.carthage.edu/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.carthage.edu/ links athletics.carthage.edu",
+    "host_to_institution": "OG_SITE_NAME 'Carthage College Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Carthage College' of UNITID 238476, of no refuted claimant; 4 verified staff published on the host, 4 on carthage.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Wisconsin-Platteville\",\"claimantUnitid\":240462}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Carthage College's own athletics host as authoritative for AE-U238476; refuted claimant(s) Wisconsin-Platteville (240462) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row athletics.carthage.edu only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-athletics.concordia.edu",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "athletics.concordia.edu",
+   "true_entity": "AE-U224004",
+   "unitid": 224004,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Concordia (MN)",
+     "claimantUnitid": 173300
+    },
+    {
+     "key": "Concordia (MI)",
+     "claimantUnitid": 169363
+    },
+    {
+     "key": "Concordia (NE)",
+     "claimantUnitid": 180984
+    }
+   ],
+   "expected_old": {
+    "domain": "athletics.concordia.edu",
+    "unitid": 224004,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Concordia (MN)\",\"Concordia Texas\",\"Concordia (Texas)\",\"Concordia (MI)\",\"Concordia (NE)\",\"Concordia University-Texas\"]",
+    "claimed_unitids": "[169363,173300,180984,224004]",
+    "wrong_mappings": "[{\"key\":\"Concordia (MN)\",\"claimantUnitid\":173300},{\"key\":\"Concordia (MI)\",\"claimantUnitid\":169363},{\"key\":\"Concordia (NE)\",\"claimantUnitid\":180984}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Concordia University Texas Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://athletics.concordia.edu/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.concordia.edu/ links athletics.concordia.edu",
+    "host_to_institution": "OG_SITE_NAME 'Concordia University Texas Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Concordia University Texas' of UNITID 224004, of no refuted claimant; 5 verified staff published on the host, 3 on concordia.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Concordia (MN)\",\"claimantUnitid\":173300},{\"key\":\"Concordia (MI)\",\"claimantUnitid\":169363},{\"key\":\"Concordia (NE)\",\"claimantUnitid\":180984}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Concordia University Texas's own athletics host as authoritative for AE-U224004; refuted claimant(s) Concordia (MN) (173300), Concordia (MI) (169363), Concordia (NE) (180984) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row athletics.concordia.edu only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-athletics.middlebury.edu",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "athletics.middlebury.edu",
+   "true_entity": "AE-U230959",
+   "unitid": 230959,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Bridgewater State",
+     "claimantUnitid": 165024
+    }
+   ],
+   "expected_old": {
+    "domain": "athletics.middlebury.edu",
+    "unitid": 230959,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Bridgewater State\",\"Middlebury\",\"Middlebury College\"]",
+    "claimed_unitids": "[165024,230959]",
+    "wrong_mappings": "[{\"key\":\"Bridgewater State\",\"claimantUnitid\":165024}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Middlebury College",
+    "identity_method": "EXACT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://athletics.middlebury.edu/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.middlebury.edu/college/ links athletics.middlebury.edu",
+    "host_to_institution": "OG_SITE_NAME 'Middlebury College' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Middlebury College' of UNITID 230959, of no refuted claimant; 5 verified staff published on the host, 5 on middlebury.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Bridgewater State\",\"claimantUnitid\":165024}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Middlebury College's own athletics host as authoritative for AE-U230959; refuted claimant(s) Bridgewater State (165024) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row athletics.middlebury.edu only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-athletics.stolaf.edu",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "athletics.stolaf.edu",
+   "true_entity": "AE-U174844",
+   "unitid": 174844,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Wisconsin-Eau Claire",
+     "claimantUnitid": 240268
+    }
+   ],
+   "expected_old": {
+    "domain": "athletics.stolaf.edu",
+    "unitid": 174844,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Saint Olaf\",\"Wisconsin-Eau Claire\",\"St. Olaf\",\"St Olaf College\"]",
+    "claimed_unitids": "[174844,240268]",
+    "wrong_mappings": "[{\"key\":\"Wisconsin-Eau Claire\",\"claimantUnitid\":240268}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "St. Olaf College Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://athletics.stolaf.edu/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://wp.stolaf.edu/admissions/students/community/athletics/ links athletics.stolaf.edu",
+    "host_to_institution": "OG_SITE_NAME 'St. Olaf College Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'St. Olaf College' of UNITID 174844, of no refuted claimant; 8 verified staff published on the host, 8 on stolaf.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Wisconsin-Eau Claire\",\"claimantUnitid\":240268}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore St Olaf College's own athletics host as authoritative for AE-U174844; refuted claimant(s) Wisconsin-Eau Claire (240268) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row athletics.stolaf.edu only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-bantamsports.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "bantamsports.com",
+   "true_entity": "AE-U130590",
+   "unitid": 130590,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Framingham State",
+     "claimantUnitid": 165866
+    }
+   ],
+   "expected_old": {
+    "domain": "bantamsports.com",
+    "unitid": 130590,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Framingham State\",\"Trinity (CT)\",\"Trinity (Conn.)\",\"Trinity College\"]",
+    "claimed_unitids": "[130590,165866]",
+    "wrong_mappings": "[{\"key\":\"Framingham State\",\"claimantUnitid\":165866}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Trinity College",
+    "identity_method": "EXACT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://bantamsports.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.trincoll.edu/ links bantamsports.com",
+    "host_to_institution": "OG_SITE_NAME 'Trinity College' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Trinity College' of UNITID 130590, of no refuted claimant; 3 verified staff published on the host, 3 on trincoll.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Framingham State\",\"claimantUnitid\":165866}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Trinity College's own athletics host as authoritative for AE-U130590; refuted claimant(s) Framingham State (165866) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row bantamsports.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-battlingbishops.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "battlingbishops.com",
+   "true_entity": "AE-U204909",
+   "unitid": 204909,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Ohio Northern",
+     "claimantUnitid": 204635
+    }
+   ],
+   "expected_old": {
+    "domain": "battlingbishops.com",
+    "unitid": 204909,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Ohio Northern\",\"Ohio Wesleyan\",\"Ohio Wesleyan University\"]",
+    "claimed_unitids": "[204635,204909]",
+    "wrong_mappings": "[{\"key\":\"Ohio Northern\",\"claimantUnitid\":204635}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Ohio Wesleyan University Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://battlingbishops.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.owu.edu/ links battlingbishops.com",
+    "host_to_institution": "OG_SITE_NAME 'Ohio Wesleyan University Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Ohio Wesleyan University' of UNITID 204909, of no refuted claimant; 6 verified staff published on the host, 6 on owu.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Ohio Northern\",\"claimantUnitid\":204635}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Ohio Wesleyan University's own athletics host as authoritative for AE-U204909; refuted claimant(s) Ohio Northern (204635) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row battlingbishops.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-blcvikings.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "blcvikings.com",
+   "true_entity": "AE-U173142",
+   "unitid": 173142,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Bethany (WV)",
+     "claimantUnitid": 237181
+    }
+   ],
+   "expected_old": {
+    "domain": "blcvikings.com",
+    "unitid": 173142,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Bethany (WV)\",\"Bethany Lutheran\",\"Bethany Lutheran College\"]",
+    "claimed_unitids": "[173142,237181]",
+    "wrong_mappings": "[{\"key\":\"Bethany (WV)\",\"claimantUnitid\":237181}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Bethany Lutheran College Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://blcvikings.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://blc.edu/ links https://www.blcvikings.com/ (observed in a browser: the site challenges scripted fetches)",
+    "host_to_institution": "OG_SITE_NAME 'Bethany Lutheran College Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Bethany Lutheran College' of UNITID 173142, of no refuted claimant; 3 verified staff published on the host, 3 on blc.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Bethany (WV)\",\"claimantUnitid\":237181}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Bethany Lutheran College's own athletics host as authoritative for AE-U173142; refuted claimant(s) Bethany (WV) (237181) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row blcvikings.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-catawbaathletics.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "catawbaathletics.com",
+   "true_entity": "AE-U198215",
+   "unitid": 198215,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Coker",
+     "claimantUnitid": 217907
+    }
+   ],
+   "expected_old": {
+    "domain": "catawbaathletics.com",
+    "unitid": 198215,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Catawba\",\"Coker\"]",
+    "claimed_unitids": "[198215,217907]",
+    "wrong_mappings": "[{\"key\":\"Coker\",\"claimantUnitid\":217907}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Catawba College",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://catawbaathletics.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.catawba.edu/ links catawbaathletics.com",
+    "host_to_institution": "OG_SITE_NAME 'Catawba College' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Catawba College' of UNITID 198215, of no refuted claimant; 3 verified staff published on the host, 3 on catawba.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Coker\",\"claimantUnitid\":217907}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Catawba College's own athletics host as authoritative for AE-U198215; refuted claimant(s) Coker (217907) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row catawbaathletics.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-drewrangers.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "drewrangers.com",
+   "true_entity": "AE-U184348",
+   "unitid": 184348,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "FDU-Florham",
+     "claimantUnitid": 184694
+    }
+   ],
+   "expected_old": {
+    "domain": "drewrangers.com",
+    "unitid": 184348,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Drew\",\"FDU-Florham\",\"Drew University\"]",
+    "claimed_unitids": "[184348,184694]",
+    "wrong_mappings": "[{\"key\":\"FDU-Florham\",\"claimantUnitid\":184694}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Drew University Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://drewrangers.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.drew.edu/ links drewrangers.com",
+    "host_to_institution": "OG_SITE_NAME 'Drew University Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Drew University' of UNITID 184348, of no refuted claimant; 6 verified staff published on the host, 6 on drew.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"FDU-Florham\",\"claimantUnitid\":184694}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Drew University's own athletics host as authoritative for AE-U184348; refuted claimant(s) FDU-Florham (184694) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row drewrangers.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-gocolumbialions.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "gocolumbialions.com",
+   "true_entity": "AE-U190150",
+   "unitid": 190150,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Columbia (MO)",
+     "claimantUnitid": 177065
+    }
+   ],
+   "expected_old": {
+    "domain": "gocolumbialions.com",
+    "unitid": 190150,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Columbia\",\"Columbia (MO)\"]",
+    "claimed_unitids": "[177065,190150]",
+    "wrong_mappings": "[{\"key\":\"Columbia (MO)\",\"claimantUnitid\":177065}]",
+    "evidence_kind": "PAGE_TITLE",
+    "evidence_text": "Columbia University Athletics - Official Athletics Website",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://gocolumbialions.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.columbia.edu/ links https://gocolumbialions.com/ (observed in a browser: the site challenges scripted fetches)",
+    "host_to_institution": "PAGE_TITLE 'Columbia University Athletics - Official Athletics Website' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Columbia University' of UNITID 190150, of no refuted claimant; 0 verified staff published on the host, 0 on columbia.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Columbia (MO)\",\"claimantUnitid\":177065}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Columbia University in the City of New York's own athletics host as authoritative for AE-U190150; refuted claimant(s) Columbia (MO) (177065) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row gocolumbialions.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-godustdevils.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "godustdevils.com",
+   "true_entity": "AE-U226152",
+   "unitid": 226152,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Lone Star",
+     "claimantUnitid": 227182
+    }
+   ],
+   "expected_old": {
+    "domain": "godustdevils.com",
+    "unitid": 226152,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Texas A&M International\",\"Lone Star\"]",
+    "claimed_unitids": "[226152,227182]",
+    "wrong_mappings": "[{\"key\":\"Lone Star\",\"claimantUnitid\":227182}]",
+    "evidence_kind": "PAGE_TITLE",
+    "evidence_text": "Texas A&M International University Athletics - Official Athletics Website",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://godustdevils.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.tamiu.edu/ links godustdevils.com",
+    "host_to_institution": "PAGE_TITLE 'Texas A&M International University Athletics - Official Athletics Website' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Texas A&M International University' of UNITID 226152, of no refuted claimant; 4 verified staff published on the host, 4 on tamiu.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Lone Star\",\"claimantUnitid\":227182}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Texas A & M International University's own athletics host as authoritative for AE-U226152; refuted claimant(s) Lone Star (227182) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row godustdevils.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-goeasterneagles.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "goeasterneagles.com",
+   "true_entity": "AE-U212133",
+   "unitid": 212133,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Atlantic Cape",
+     "claimantUnitid": 183655
+    }
+   ],
+   "expected_old": {
+    "domain": "goeasterneagles.com",
+    "unitid": 212133,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Eastern (PA)\",\"Atlantic Cape\",\"Eastern University\"]",
+    "claimed_unitids": "[183655,212133]",
+    "wrong_mappings": "[{\"key\":\"Atlantic Cape\",\"claimantUnitid\":183655}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Eastern University Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://goeasterneagles.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.eastern.edu/ links goeasterneagles.com",
+    "host_to_institution": "OG_SITE_NAME 'Eastern University Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Eastern University' of UNITID 212133, of no refuted claimant; 5 verified staff published on the host, 5 on eastern.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Atlantic Cape\",\"claimantUnitid\":183655}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Eastern University's own athletics host as authoritative for AE-U212133; refuted claimant(s) Atlantic Cape (183655) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row goeasterneagles.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-goeulions.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "goeulions.com",
+   "true_entity": "AE-U139630",
+   "unitid": 139630,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Emmanuel (MA)",
+     "claimantUnitid": 165671
+    }
+   ],
+   "expected_old": {
+    "domain": "goeulions.com",
+    "unitid": 139630,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Emmanuel (GA)\",\"Emmanuel (MA)\",\"Emmanuel\"]",
+    "claimed_unitids": "[139630,165671]",
+    "wrong_mappings": "[{\"key\":\"Emmanuel (MA)\",\"claimantUnitid\":165671}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Emmanuel University (Ga.)",
+    "identity_method": "QUALIFIER_DISAMBIGUATED",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://goeulions.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://eu.edu/athletics/ links https://goeulions.com/ (observed in a browser: the site challenges scripted fetches)",
+    "host_to_institution": "OG_SITE_NAME 'Emmanuel University (Ga.)' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Emmanuel University' of UNITID 139630, of no refuted claimant; 5 verified staff published on the host, 0 on eu.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Emmanuel (MA)\",\"claimantUnitid\":165671}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Emmanuel University's own athletics host as authoritative for AE-U139630; refuted claimant(s) Emmanuel (MA) (165671) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row goeulions.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-gohighlanders.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "gohighlanders.com",
+   "true_entity": "AE-U110671",
+   "unitid": 110671,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Riverside",
+     "claimantUnitid": 121901
+    }
+   ],
+   "expected_old": {
+    "domain": "gohighlanders.com",
+    "unitid": 110671,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"UC Riverside\",\"Riverside\"]",
+    "claimed_unitids": "[110671,121901]",
+    "wrong_mappings": "[{\"key\":\"Riverside\",\"claimantUnitid\":121901}]",
+    "evidence_kind": "PAGE_TITLE",
+    "evidence_text": "UC Riverside Athletics - Official Athletics Website",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://gohighlanders.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.ucr.edu/ links gohighlanders.com",
+    "host_to_institution": "PAGE_TITLE 'UC Riverside Athletics - Official Athletics Website' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'UC Riverside' of UNITID 110671, of no refuted claimant; 7 verified staff published on the host, 7 on ucr.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Riverside\",\"claimantUnitid\":121901}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore University of California-Riverside's own athletics host as authoritative for AE-U110671; refuted claimant(s) Riverside (121901) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row gohighlanders.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-gojacks.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "gojacks.com",
+   "true_entity": "AE-U219356",
+   "unitid": 219356,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Dakota State",
+     "claimantUnitid": 219082
+    }
+   ],
+   "expected_old": {
+    "domain": "gojacks.com",
+    "unitid": 219356,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"South Dakota State\",\"Dakota State\"]",
+    "claimed_unitids": "[219082,219356]",
+    "wrong_mappings": "[{\"key\":\"Dakota State\",\"claimantUnitid\":219082}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "South Dakota State University Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://gojacks.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.sdstate.edu/ links gojacks.com",
+    "host_to_institution": "OG_SITE_NAME 'South Dakota State University Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'South Dakota State University' of UNITID 219356, of no refuted claimant; 3 verified staff published on the host, 3 on sdstate.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Dakota State\",\"claimantUnitid\":219082}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore South Dakota State University's own athletics host as authoritative for AE-U219356; refuted claimant(s) Dakota State (219082) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row gojacks.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-gomatadors.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "gomatadors.com",
+   "true_entity": "AE-U110608",
+   "unitid": 110608,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Concordia Irvine",
+     "claimantUnitid": 112075
+    }
+   ],
+   "expected_old": {
+    "domain": "gomatadors.com",
+    "unitid": 110608,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Cal State Northridge\",\"Concordia Irvine\",\"CSUN\"]",
+    "claimed_unitids": "[110608,112075]",
+    "wrong_mappings": "[{\"key\":\"Concordia Irvine\",\"claimantUnitid\":112075}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "CSUN Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://gomatadors.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.csun.edu/ links gomatadors.com",
+    "host_to_institution": "OG_SITE_NAME 'CSUN Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'CSUN' of UNITID 110608, of no refuted claimant; 6 verified staff published on the host, 6 on csun.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Concordia Irvine\",\"claimantUnitid\":112075}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore California State University-Northridge's own athletics host as authoritative for AE-U110608; refuted claimant(s) Concordia Irvine (112075) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row gomatadors.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-gopresidents.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "gopresidents.com",
+   "true_entity": "AE-U216667",
+   "unitid": 216667,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Jefferson (NY)",
+     "claimantUnitid": 192022
+    }
+   ],
+   "expected_old": {
+    "domain": "gopresidents.com",
+    "unitid": 216667,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Washington & Jefferson\",\"Jefferson (NY)\",\"Washington & Jefferson College\"]",
+    "claimed_unitids": "[192022,216667]",
+    "wrong_mappings": "[{\"key\":\"Jefferson (NY)\",\"claimantUnitid\":192022}]",
+    "evidence_kind": "PAGE_TITLE",
+    "evidence_text": "Washington & Jefferson College Athletics - Official Athletics Website",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://gopresidents.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.washjeff.edu/ links gopresidents.com",
+    "host_to_institution": "PAGE_TITLE 'Washington & Jefferson College Athletics - Official Athletics Website' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Washington & Jefferson College' of UNITID 216667, of no refuted claimant; 4 verified staff published on the host, 4 on washjeff.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Jefferson (NY)\",\"claimantUnitid\":192022}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Washington & Jefferson College's own athletics host as authoritative for AE-U216667; refuted claimant(s) Jefferson (NY) (192022) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row gopresidents.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-gostatesmen.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "gostatesmen.com",
+   "true_entity": "AE-U175616",
+   "unitid": 175616,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Mississippi Delta",
+     "claimantUnitid": 176008
+    }
+   ],
+   "expected_old": {
+    "domain": "gostatesmen.com",
+    "unitid": 175616,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Delta State\",\"Mississippi Delta\"]",
+    "claimed_unitids": "[175616,176008]",
+    "wrong_mappings": "[{\"key\":\"Mississippi Delta\",\"claimantUnitid\":176008}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Delta State University Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://gostatesmen.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.deltastate.edu/ links https://www.gostatesmen.com/ (observed in a browser: the site challenges scripted fetches)",
+    "host_to_institution": "OG_SITE_NAME 'Delta State University Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Delta State University' of UNITID 175616, of no refuted claimant; 3 verified staff published on the host, 3 on deltastate.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Mississippi Delta\",\"claimantUnitid\":176008}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Delta State University's own athletics host as authoritative for AE-U175616; refuted claimant(s) Mississippi Delta (176008) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row gostatesmen.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-goxavier.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "goxavier.com",
+   "true_entity": "AE-U206622",
+   "unitid": 206622,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Xavier (LA)",
+     "claimantUnitid": 160904
+    }
+   ],
+   "expected_old": {
+    "domain": "goxavier.com",
+    "unitid": 206622,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Xavier\",\"Xavier (LA)\"]",
+    "claimed_unitids": "[160904,206622]",
+    "wrong_mappings": "[{\"key\":\"Xavier (LA)\",\"claimantUnitid\":160904}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Xavier University Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://goxavier.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.xavier.edu/ links goxavier.com",
+    "host_to_institution": "OG_SITE_NAME 'Xavier University Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Xavier University' of UNITID 206622, of no refuted claimant; 8 verified staff published on the host, 8 on xavier.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Xavier (LA)\",\"claimantUnitid\":160904}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Xavier University's own athletics host as authoritative for AE-U206622; refuted claimant(s) Xavier (LA) (160904) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row goxavier.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-gseagles.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "gseagles.com",
+   "true_entity": "AE-U139931",
+   "unitid": 139931,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Georgia Military",
+     "claimantUnitid": 485111
+    }
+   ],
+   "expected_old": {
+    "domain": "gseagles.com",
+    "unitid": 139931,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Georgia Southern\",\"Georgia Military\"]",
+    "claimed_unitids": "[139931,485111]",
+    "wrong_mappings": "[{\"key\":\"Georgia Military\",\"claimantUnitid\":485111}]",
+    "evidence_kind": "PAGE_TITLE",
+    "evidence_text": "Georgia Southern University Athletics - Official Athletics Website",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://gseagles.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.georgiasouthern.edu/ links gseagles.com",
+    "host_to_institution": "PAGE_TITLE 'Georgia Southern University Athletics - Official Athletics Website' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Georgia Southern University' of UNITID 139931, of no refuted claimant; 7 verified staff published on the host, 7 on georgiasouthern.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Georgia Military\",\"claimantUnitid\":485111}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Georgia Southern University's own athletics host as authoritative for AE-U139931; refuted claimant(s) Georgia Military (485111) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row gseagles.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-guhoyas.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "guhoyas.com",
+   "true_entity": "AE-U131496",
+   "unitid": 131496,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Georgetown (KY)",
+     "claimantUnitid": 156745
+    }
+   ],
+   "expected_old": {
+    "domain": "guhoyas.com",
+    "unitid": 131496,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Georgetown\",\"Georgetown (KY)\"]",
+    "claimed_unitids": "[131496,156745]",
+    "wrong_mappings": "[{\"key\":\"Georgetown (KY)\",\"claimantUnitid\":156745}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Georgetown University Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://guhoyas.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.georgetown.edu/ links guhoyas.com",
+    "host_to_institution": "OG_SITE_NAME 'Georgetown University Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Georgetown University' of UNITID 131496, of no refuted claimant; 7 verified staff published on the host, 7 on georgetown.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Georgetown (KY)\",\"claimantUnitid\":156745}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Georgetown University's own athletics host as authoritative for AE-U131496; refuted claimant(s) Georgetown (KY) (156745) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row guhoyas.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-illinoiscollegeathletics.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "illinoiscollegeathletics.com",
+   "true_entity": "AE-U145691",
+   "unitid": 145691,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Illinois Springfield",
+     "claimantUnitid": 148654
+    }
+   ],
+   "expected_old": {
+    "domain": "illinoiscollegeathletics.com",
+    "unitid": 145691,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Illinois Springfield\",\"Illinois College\"]",
+    "claimed_unitids": "[145691,148654]",
+    "wrong_mappings": "[{\"key\":\"Illinois Springfield\",\"claimantUnitid\":148654}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Illinois College Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://illinoiscollegeathletics.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.ic.edu/ links illinoiscollegeathletics.com",
+    "host_to_institution": "OG_SITE_NAME 'Illinois College Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Illinois College' of UNITID 145691, of no refuted claimant; 2 verified staff published on the host, 2 on ic.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Illinois Springfield\",\"claimantUnitid\":148654}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Illinois College's own athletics host as authoritative for AE-U145691; refuted claimant(s) Illinois Springfield (148654) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row illinoiscollegeathletics.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-lcpioneers.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "lcpioneers.com",
+   "true_entity": "AE-U209056",
+   "unitid": 209056,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Lewis & Clark (ID)",
+     "claimantUnitid": 142328
+    }
+   ],
+   "expected_old": {
+    "domain": "lcpioneers.com",
+    "unitid": 209056,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Lewis & Clark\",\"Lewis & Clark (ID)\"]",
+    "claimed_unitids": "[142328,209056]",
+    "wrong_mappings": "[{\"key\":\"Lewis & Clark (ID)\",\"claimantUnitid\":142328}]",
+    "evidence_kind": "PAGE_TITLE",
+    "evidence_text": "Lewis & Clark College - Official Athletics Website",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://golcathletics.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.lclark.edu/ links lcpioneers.com",
+    "host_to_institution": "PAGE_TITLE 'Lewis & Clark College - Official Athletics Website' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Lewis & Clark College' of UNITID 209056, of no refuted claimant; 9 verified staff published on the host, 9 on lclark.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Lewis & Clark (ID)\",\"claimantUnitid\":142328}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Lewis & Clark College's own athletics host as authoritative for AE-U209056; refuted claimant(s) Lewis & Clark (ID) (142328) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row lcpioneers.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-lmulions.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "lmulions.com",
+   "true_entity": "AE-U117946",
+   "unitid": 117946,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Marymount (VA)",
+     "claimantUnitid": 232706
+    }
+   ],
+   "expected_old": {
+    "domain": "lmulions.com",
+    "unitid": 117946,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Loyola Marymount\",\"Marymount (VA)\"]",
+    "claimed_unitids": "[117946,232706]",
+    "wrong_mappings": "[{\"key\":\"Marymount (VA)\",\"claimantUnitid\":232706}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Loyola Marymount University Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://lmulions.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.lmu.edu/ links lmulions.com (9 links)",
+    "host_to_institution": "OG_SITE_NAME 'Loyola Marymount University Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Loyola Marymount University' of UNITID 117946, of no refuted claimant; 0 verified staff published on the host, 0 on lmu.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Marymount (VA)\",\"claimantUnitid\":232706}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Loyola Marymount University's own athletics host as authoritative for AE-U117946; refuted claimant(s) Marymount (VA) (232706) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row lmulions.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-lynchburgsports.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "lynchburgsports.com",
+   "true_entity": "AE-U232609",
+   "unitid": 232609,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Washington & Lee",
+     "claimantUnitid": 234207
+    }
+   ],
+   "expected_old": {
+    "domain": "lynchburgsports.com",
+    "unitid": 232609,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Washington & Lee\",\"Lynchburg\",\"University of Lynchburg\"]",
+    "claimed_unitids": "[232609,234207]",
+    "wrong_mappings": "[{\"key\":\"Washington & Lee\",\"claimantUnitid\":234207}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "University of Lynchburg",
+    "identity_method": "EXACT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://lynchburgsports.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.lynchburg.edu/ links lynchburgsports.com",
+    "host_to_institution": "OG_SITE_NAME 'University of Lynchburg' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'University of Lynchburg' of UNITID 232609, of no refuted claimant; 3 verified staff published on the host, 3 on lynchburg.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Washington & Lee\",\"claimantUnitid\":234207}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore University of Lynchburg's own athletics host as authoritative for AE-U232609; refuted claimant(s) Washington & Lee (234207) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row lynchburgsports.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-mercyathletics.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "mercyathletics.com",
+   "true_entity": "AE-U193016",
+   "unitid": 193016,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "District of Columbia",
+     "claimantUnitid": 131399
+    }
+   ],
+   "expected_old": {
+    "domain": "mercyathletics.com",
+    "unitid": 193016,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"District of Columbia\",\"Mercy\"]",
+    "claimed_unitids": "[131399,193016]",
+    "wrong_mappings": "[{\"key\":\"District of Columbia\",\"claimantUnitid\":131399}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Mercy University Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://mercyathletics.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.mercy.edu/ links mercyathletics.com",
+    "host_to_institution": "OG_SITE_NAME 'Mercy University Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Mercy University' of UNITID 193016, of no refuted claimant; 8 verified staff published on the host, 8 on mercy.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"District of Columbia\",\"claimantUnitid\":131399}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Mercy University's own athletics host as authoritative for AE-U193016; refuted claimant(s) District of Columbia (131399) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row mercyathletics.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-mlcknights.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "mlcknights.com",
+   "true_entity": "AE-U173452",
+   "unitid": 173452,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Luther",
+     "claimantUnitid": 153834
+    }
+   ],
+   "expected_old": {
+    "domain": "mlcknights.com",
+    "unitid": 173452,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Luther\",\"Martin Luther\",\"Martin Luther College\"]",
+    "claimed_unitids": "[153834,173452]",
+    "wrong_mappings": "[{\"key\":\"Luther\",\"claimantUnitid\":153834}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Martin Luther College Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://mlcknights.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://mlc-wels.edu/ links mlcknights.com",
+    "host_to_institution": "OG_SITE_NAME 'Martin Luther College Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Martin Luther College' of UNITID 173452, of no refuted claimant; 2 verified staff published on the host, 2 on mlc-wels.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Luther\",\"claimantUnitid\":153834}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Martin Luther College's own athletics host as authoritative for AE-U173452; refuted claimant(s) Luther (153834) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row mlcknights.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-nguathletics.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "nguathletics.com",
+   "true_entity": "AE-U218441",
+   "unitid": 218441,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Greenville",
+     "claimantUnitid": 145372
+    }
+   ],
+   "expected_old": {
+    "domain": "nguathletics.com",
+    "unitid": 218441,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"North Greenville\",\"Greenville\"]",
+    "claimed_unitids": "[145372,218441]",
+    "wrong_mappings": "[{\"key\":\"Greenville\",\"claimantUnitid\":145372}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "North Greenville University",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://nguathletics.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://ngu.edu/ links nguathletics.com",
+    "host_to_institution": "OG_SITE_NAME 'North Greenville University' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'North Greenville University' of UNITID 218441, of no refuted claimant; 3 verified staff published on the host, 3 on ngu.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Greenville\",\"claimantUnitid\":145372}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore North Greenville University's own athletics host as authoritative for AE-U218441; refuted claimant(s) Greenville (145372) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row nguathletics.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-providence.jwuathletics.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "providence.jwuathletics.com",
+   "true_entity": "AE-U217235",
+   "unitid": 217235,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Saint Joseph's (ME)",
+     "claimantUnitid": 161518
+    }
+   ],
+   "expected_old": {
+    "domain": "providence.jwuathletics.com",
+    "unitid": 217235,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Johnson & Wales (Providence)\",\"Saint Joseph's (ME)\",\"Johnson & Wales University-Providence\"]",
+    "claimed_unitids": "[161518,217235]",
+    "wrong_mappings": "[{\"key\":\"Saint Joseph's (ME)\",\"claimantUnitid\":161518}]",
+    "evidence_kind": "PAGE_TITLE",
+    "evidence_text": "Johnson & Wales University Providence - Official Athletics Website",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://providence.jwuathletics.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.jwu.edu/student-life/providence/athletics/ links https://providence.jwuathletics.com/ (observed in a browser: the site challenges scripted fetches)",
+    "host_to_institution": "PAGE_TITLE 'Johnson & Wales University Providence - Official Athletics Website' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Johnson & Wales University Providence' of UNITID 217235, of no refuted claimant; 3 verified staff published on the host, 3 on jwu.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Saint Joseph's (ME)\",\"claimantUnitid\":161518}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Johnson & Wales University-Providence's own athletics host as authoritative for AE-U217235; refuted claimant(s) Saint Joseph's (ME) (161518) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row providence.jwuathletics.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-saintmaryssports.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "saintmaryssports.com",
+   "true_entity": "AE-U174817",
+   "unitid": 174817,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Saint Mary's College (IN)",
+     "claimantUnitid": 152390
+    }
+   ],
+   "expected_old": {
+    "domain": "saintmaryssports.com",
+    "unitid": 174817,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Saint Mary's (MN)\",\"Saint Mary's College (IN)\",\"Saint Mary's University of Minnesota\"]",
+    "claimed_unitids": "[152390,174817]",
+    "wrong_mappings": "[{\"key\":\"Saint Mary's College (IN)\",\"claimantUnitid\":152390}]",
+    "evidence_kind": "PAGE_TITLE",
+    "evidence_text": "Saint Mary's University of Minnesota Athletics - Official Athletics Website",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://saintmaryssports.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.smumn.edu/athletics/ links saintmaryssports.com",
+    "host_to_institution": "PAGE_TITLE 'Saint Mary's University of Minnesota Athletics - Official Athletics Website' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Saint Mary's University of Minnesota' of UNITID 174817, of no refuted claimant; 4 verified staff published on the host, 4 on smumn.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Saint Mary's College (IN)\",\"claimantUnitid\":152390}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Saint Mary's University of Minnesota's own athletics host as authoritative for AE-U174817; refuted claimant(s) Saint Mary's College (IN) (152390) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row saintmaryssports.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-southwesternpirates.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "southwesternpirates.com",
+   "true_entity": "AE-U228343",
+   "unitid": 228343,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Southwestern (CA)",
+     "claimantUnitid": 123800
+    }
+   ],
+   "expected_old": {
+    "domain": "southwesternpirates.com",
+    "unitid": 228343,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Southwestern (TX)\",\"Southwestern\",\"Southwestern (CA)\",\"Southwestern University\"]",
+    "claimed_unitids": "[123800,228343]",
+    "wrong_mappings": "[{\"key\":\"Southwestern (CA)\",\"claimantUnitid\":123800}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Southwestern University",
+    "identity_method": "EXACT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://southwesternpirates.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.southwestern.edu/ links southwesternpirates.com",
+    "host_to_institution": "OG_SITE_NAME 'Southwestern University' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Southwestern University' of UNITID 228343, of no refuted claimant; 4 verified staff published on the host, 4 on southwestern.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Southwestern (CA)\",\"claimantUnitid\":123800}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Southwestern University's own athletics host as authoritative for AE-U228343; refuted claimant(s) Southwestern (CA) (123800) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row southwesternpirates.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-swarthmoreathletics.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "swarthmoreathletics.com",
+   "true_entity": "AE-U216287",
+   "unitid": 216287,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Vernon",
+     "claimantUnitid": 229504
+    }
+   ],
+   "expected_old": {
+    "domain": "swarthmoreathletics.com",
+    "unitid": 216287,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Swarthmore\",\"Vernon\",\"Swarthmore College\"]",
+    "claimed_unitids": "[216287,229504]",
+    "wrong_mappings": "[{\"key\":\"Vernon\",\"claimantUnitid\":229504}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Swarthmore College Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://swarthmoreathletics.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.swarthmore.edu/campus-life/athletics-recreation links swarthmoreathletics.com (27)",
+    "host_to_institution": "OG_SITE_NAME 'Swarthmore College Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Swarthmore College' of UNITID 216287, of no refuted claimant; 2 verified staff published on the host, 2 on swarthmore.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Vernon\",\"claimantUnitid\":229504}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Swarthmore College's own athletics host as authoritative for AE-U216287; refuted claimant(s) Vernon (229504) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row swarthmoreathletics.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-thielathletics.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "thielathletics.com",
+   "true_entity": "AE-U216357",
+   "unitid": 216357,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "La Roche",
+     "claimantUnitid": 213358
+    }
+   ],
+   "expected_old": {
+    "domain": "thielathletics.com",
+    "unitid": 216357,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"La Roche\",\"Thiel\",\"Thiel College\"]",
+    "claimed_unitids": "[213358,216357]",
+    "wrong_mappings": "[{\"key\":\"La Roche\",\"claimantUnitid\":213358}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Thiel College Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://thielathletics.com/splash.aspx?id=splash_83",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.thiel.edu/ links thielathletics.com",
+    "host_to_institution": "OG_SITE_NAME 'Thiel College Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Thiel College' of UNITID 216357, of no refuted claimant; 3 verified staff published on the host, 3 on thiel.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"La Roche\",\"claimantUnitid\":213358}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Thiel College's own athletics host as authoritative for AE-U216357; refuted claimant(s) La Roche (213358) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row thielathletics.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-uncwsports.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "uncwsports.com",
+   "true_entity": "AE-U199218",
+   "unitid": 199218,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Wilmington (DE)",
+     "claimantUnitid": 131113
+    },
+    {
+     "key": "Wilmington (OH)",
+     "claimantUnitid": 206507
+    }
+   ],
+   "expected_old": {
+    "domain": "uncwsports.com",
+    "unitid": 199218,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"UNCW\",\"Wilmington (DE)\",\"Wilmington (OH)\",\"UNC Wilmington\"]",
+    "claimed_unitids": "[131113,199218,206507]",
+    "wrong_mappings": "[{\"key\":\"Wilmington (DE)\",\"claimantUnitid\":131113},{\"key\":\"Wilmington (OH)\",\"claimantUnitid\":206507}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "UNC Wilmington Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://uncwsports.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.uncw.edu/ links uncwsports.com",
+    "host_to_institution": "OG_SITE_NAME 'UNC Wilmington Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'UNC Wilmington' of UNITID 199218, of no refuted claimant; 7 verified staff published on the host, 7 on uncw.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Wilmington (DE)\",\"claimantUnitid\":131113},{\"key\":\"Wilmington (OH)\",\"claimantUnitid\":206507}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore University of North Carolina Wilmington's own athletics host as authoritative for AE-U199218; refuted claimant(s) Wilmington (DE) (131113), Wilmington (OH) (206507) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row uncwsports.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-uwaathletics.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "uwaathletics.com",
+   "true_entity": "AE-U101587",
+   "unitid": 101587,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Alabama Huntsville",
+     "claimantUnitid": 100706
+    }
+   ],
+   "expected_old": {
+    "domain": "uwaathletics.com",
+    "unitid": 101587,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Alabama Huntsville\",\"West Alabama\"]",
+    "claimed_unitids": "[100706,101587]",
+    "wrong_mappings": "[{\"key\":\"Alabama Huntsville\",\"claimantUnitid\":100706}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "University of West Alabama Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://uwaathletics.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.uwa.edu/ links uwaathletics.com",
+    "host_to_institution": "OG_SITE_NAME 'University of West Alabama Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'University of West Alabama' of UNITID 101587, of no refuted claimant; 3 verified staff published on the host, 3 on uwa.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Alabama Huntsville\",\"claimantUnitid\":100706}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore University of West Alabama's own athletics host as authoritative for AE-U101587; refuted claimant(s) Alabama Huntsville (100706) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row uwaathletics.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-uwlathletics.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "uwlathletics.com",
+   "true_entity": "AE-U240329",
+   "unitid": 240329,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Wisconsin-Stevens Point",
+     "claimantUnitid": 240480
+    }
+   ],
+   "expected_old": {
+    "domain": "uwlathletics.com",
+    "unitid": 240329,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Wisconsin-Stevens Point\",\"Wisconsin-La Crosse\",\"University of Wisconsin-La Crosse\"]",
+    "claimed_unitids": "[240329,240480]",
+    "wrong_mappings": "[{\"key\":\"Wisconsin-Stevens Point\",\"claimantUnitid\":240480}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "University of Wisconsin La Crosse Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://uwlathletics.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.uwlax.edu/ links uwlathletics.com",
+    "host_to_institution": "OG_SITE_NAME 'University of Wisconsin La Crosse Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'University of Wisconsin La Crosse' of UNITID 240329, of no refuted claimant; 6 verified staff published on the host, 6 on uwlax.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Wisconsin-Stevens Point\",\"claimantUnitid\":240480}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore University of Wisconsin-La Crosse's own athletics host as authoritative for AE-U240329; refuted claimant(s) Wisconsin-Stevens Point (240480) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row uwlathletics.com only (status, athletics_entity_id, ownership_class, notes)"
+  },
+  {
+   "action_id": "PC-1G-PRE-wlcsports.com",
+   "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+   "host": "wlcsports.com",
+   "true_entity": "AE-U240338",
+   "unitid": 240338,
+   "transition": {
+    "from_status": "WRONG_INSTITUTION",
+    "to_status": "VERIFIED",
+    "from_ownership_class": null,
+    "to_ownership_class": "ENTITY_OWNED"
+   },
+   "wrong_claimants": [
+    {
+     "key": "Wisconsin-La Crosse",
+     "claimantUnitid": 240329
+    }
+   ],
+   "expected_old": {
+    "domain": "wlcsports.com",
+    "unitid": 240338,
+    "status": "WRONG_INSTITUTION",
+    "role": "ATHLETICS_SITE",
+    "claimed_keys": "[\"Wisconsin-La Crosse\",\"Wisconsin Lutheran\",\"Wisconsin Lutheran College\"]",
+    "claimed_unitids": "[240329,240338]",
+    "wrong_mappings": "[{\"key\":\"Wisconsin-La Crosse\",\"claimantUnitid\":240329}]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Wisconsin Lutheran College Athletics",
+    "identity_method": "VARIANT",
+    "identity_strength": "WHOLE_NAME",
+    "platform": "SIDEARM",
+    "http_status": 200,
+    "final_url": "https://wlcsports.com/",
+    "verification_method": "PAGE_SELF_IDENTIFICATION",
+    "confidence": "CERTAIN",
+    "notes": null,
+    "checked_at": "2026-09-01T09:28:40.920Z",
+    "athletics_entity_id": null,
+    "ownership_class": null
+   },
+   "evidence": {
+    "rule": "1G-PRE-R1-R5",
+    "institution_to_host": "https://www.wlc.edu/ links wlcsports.com",
+    "host_to_institution": "OG_SITE_NAME 'Wisconsin Lutheran College Athletics' (WHOLE_NAME, CERTAIN, checked 2026-09-01T09:28:40.920Z) is federal registry name 'Wisconsin Lutheran College' of UNITID 240338, of no refuted claimant; 1 verified staff published on the host, 1 on wlc.edu, none on a refuted claimant's domain"
+   },
+   "original_adjudication": {
+    "tool": "server/scripts/verifyAthleticsDomains.js --apply (commit 735092b)",
+    "timestamp": "2026-09-01T09:28:40.920Z",
+    "decision": "WRONG_INSTITUTION; wrong_mappings [{\"key\":\"Wisconsin-La Crosse\",\"claimantUnitid\":240329}]",
+    "why_wrong": "domain status rule (wrong.length ? WRONG_INSTITUTION : ...) turned the refutation of ANOTHER claimant into the whole row status although the host self-identifies as the stored UNITID and a claim agrees (decision logic, not evidence)"
+   },
+   "reason": "restore Wisconsin Lutheran College's own athletics host as authoritative for AE-U240338; refuted claimant(s) Wisconsin-La Crosse (240329) remain refused via wrong_mappings",
+   "blast_radius": "athletics_domains row wlcsports.com only (status, athletics_entity_id, ownership_class, notes)"
+  }
+ ],
+ "fixture_hash": "6355a18886f7bdf49a9d269375e2a68e1e777591d52a28236a6164fd0049d344"
+}

@@ -1,4 +1,5 @@
 import db from '../db/client.js';
+import { programmeNamesForInboxAddress } from './recipient.js';
 
 /**
  * WHETHER THIS ATHLETE MAY BE WRITTEN TO AT THIS PROGRAMME.
@@ -96,6 +97,10 @@ export function programmesReachedBy({ collegeName, sport, coachEmails = [] }) {
     const email = String(raw ?? '').trim().toLowerCase();
     if (!email) continue;
     for (const row of lookup.all({ email, sport: sport ?? null })) names.add(row.school);
+    // Phase 1D: an address that is (or was) a PROGRAMME's own inbox reaches that programme,
+    // every spelling of it — so a do-not-contact on a programme is never sidestepped because
+    // the message goes to its inbox rather than to a coach (recipient.js)
+    for (const name of programmeNamesForInboxAddress({ email, sport: sport ?? null })) names.add(name);
   }
   return [...names];
 }

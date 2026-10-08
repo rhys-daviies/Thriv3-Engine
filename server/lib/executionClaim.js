@@ -25,6 +25,8 @@ import { RUN_ID } from './executionRun.js';
  */
 import { resolveWireContent } from './executionContent.js';
 import { OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
+import { assertProgrammeInbox } from './recipientSelection.js';
+import { recipientEqualsSql, recipientParams } from './recipient.js';
 
 /**
  * TAKE ONE REVIEWED MESSAGE FOR EXECUTION — D4.5. TXN 1, and nothing after it.
@@ -157,7 +159,9 @@ const ATHLETE_FOR_CONTENT = db.prepare(
   'SELECT full_name, public_slug FROM players WHERE id = ?',
 );
 /** The lifetime relationship, if there already is one. B3 needs it to see a revocation. */
-const OUTREACH_FOR = db.prepare('SELECT id FROM outreach WHERE athlete_id = ? AND coach_id = ?');
+// Phase 1F: the relationship with this RECIPIENT (coach or programme inbox).
+const OUTREACH_FOR_STMT = db.prepare(`SELECT id FROM outreach o WHERE o.athlete_id = @athleteId AND ${recipientEqualsSql('o')}`);
+const OUTREACH_FOR = { get: (athleteId, who) => OUTREACH_FOR_STMT.get({ athleteId, ...recipientParams(who) }) };
 /** Has this exact composition already been executed, and how did it end? — D4.8. */
 const EXECUTION_FOR_MESSAGE = db.prepare(
   'SELECT id, state FROM outreach_send WHERE programme_message_id = ?',
@@ -322,6 +326,15 @@ export function assertExecutionSafety({
   message, context, operatorUserId, connectedMailboxId, onDate, window,
 }) {
   /**
+   * ---- 0. the recipient — Phase 1F ----------------------------------------
+   *
+   * A coach (unchanged) or a programme inbox, read from the stored message's own columns —
+   * exactly one, and the recipient-agreement trigger has already held the message to its
+   * attempt. Every check below is asked of THIS recipient; an inbox never passes through the
+   * coaches table and never becomes a coach.
+   */
+  const who = recipientParams(message);
+  /**
    * ---- 1b. nothing unresolved is in flight to this coach — D4.8 ----------
    *
    * ASKED BEFORE THE PLAN, AND THE ORDER IS THE POINT. A relationship holding
@@ -339,7 +352,7 @@ export function assertExecutionSafety({
    * Read through the EXISTING relationship. A campaign's first message has none
    * yet and so has nothing to be blocked by.
    */
-  const existingRelationship = OUTREACH_FOR.get(context.athleteId, message.coach_id);
+  const existingRelationship = OUTREACH_FOR.get(context.athleteId, who);
   if (unresolvedSendFor(existingRelationship?.id ?? null)) {
     throw fail(CLAIM_REFUSAL.RELATIONSHIP_HAS_UNRESOLVED_SEND,
       'An earlier message to this coach is unresolved — we do not know whether the provider '
@@ -392,11 +405,11 @@ export function assertExecutionSafety({
    * RELATIONSHIP_DO_NOT_CONTACT, RELATIONSHIP_MANUAL_ONLY, OUTREACH_REVOKED —
    * quoted, never respelled.
    */
-  const existingOutreach = OUTREACH_FOR.get(context.athleteId, message.coach_id);
+  const existingOutreach = OUTREACH_FOR.get(context.athleteId, who);
   const decision = campaignContactDecision({
     programmeCampaignId: context.programmeCampaignId,
     athleteId: context.athleteId,
-    coachId: message.coach_id,
+    ...who,
     outreachId: existingOutreach?.id ?? null,
     onDate,
   });
@@ -409,7 +422,8 @@ export function assertExecutionSafety({
     throw fail(CLAIM_REFUSAL.NO_ACTION_TO_EXECUTE,
       `${context.collegeName}: this campaign has no cold action for anybody here right now.`);
   }
-  if (plan.current.coachId !== message.coach_id) {
+  if ((plan.current.coachId ?? null) !== who.coachId
+    || (plan.current.programmeContactId ?? null) !== who.programmeContactId) {
     /**
      * Reached only when B3 PERMITS this coach and the campaign has still moved
      * past them — an earlier coach replied, or the pursuit was restructured.
@@ -469,45 +483,69 @@ export function assertExecutionSafety({
   }
 
   /* ---- 3. the recipient is still the recipient --------------------------- */
-  const coach = COACH.get(message.coach_id);
-  if (!coach) throw fail('COACH_NOT_FOUND', `No coach ${message.coach_id}`);
-  if (!sameEmail(coach.email, message.recipient_email)) {
-    /**
-     * A coach row is mutable and an address corrected between review and send
-     * would silently change WHO an operator approved a message for. The id says
-     * which person; the frozen address says which inbox was agreed. Neither is
-     * trusted alone.
+  let coach = null;
+  let recipient;
+  if (who.programmeContactId) {
+    /*
+     * A PROGRAMME INBOX (Phase 1F): still this programme's, still eligible under the 1B floor
+     * NOW, still at the address the approved message names, and under the per-inbox cap.
+     * Stance and suppression were asked of its own address by campaignContactDecision above.
      */
-    throw fail(CLAIM_REFUSAL.RECIPIENT_EMAIL_CHANGED,
-      'This coach\'s address has changed since the message was approved. Somebody needs to look '
-      + 'at it rather than send to an inbox nobody agreed to.');
-  }
-  // SEND TIME: the full floor, unconditionally — no operator flag reaches this line
-  const floor = coachIneligibility(coach, { fresh: true });
-  if (floor) {
-    /**
-     * PHASE 8A — re-checked at claim time, not only when the plan was built: a coach can be
-     * PROVEN_STALE or lose a verified address between approval and send, and an attempt
-     * materialised before 8A may name an inferred address. Refused before any capacity is
-     * spent. The floor includes the CANONICAL decision at the coach's filed programme and the
-     * activation holds (canonicalCoachEligibility.js), read fresh now — so a message prepared
-     * while a coach was eligible is refused if the coach is no longer eligible, or is held.
-     * NO FLAG LIFTS IT: THRIV3_ALLOW_LEGACY_COACHES widens what is OFFERED, never what is sent.
-     */
-    throw fail(CLAIM_REFUSAL.COACH_NOT_OUTREACH_ELIGIBLE,
-      `This coach is not outreach-eligible (${floor}). Nothing was claimed and no capacity was spent.`);
-  }
-  if (isSendCapped(coach.email)) {
-    /**
-     * THE RECIPIENT'S PROTECTION, NOT THE SENDER'S BUDGET, and it is the one
-     * check here that is about somebody outside this campaign entirely: how
-     * many athletes have written to this inbox lately. Read-only, keyed on the
-     * address, and counted from `outreach.sent_at` — so a message merely
-     * claimed does not count against it, which is right, because it has
-     * reached nobody.
-     */
-    throw fail(CLAIM_REFUSAL.SEND_CAP_REACHED,
-      `${coach.email} has had as many approaches as the per-inbox cap allows in the window.`);
+    let inbox;
+    try {
+      inbox = assertProgrammeInbox(who.programmeContactId, { collegeName: context.collegeName, sport: context.sport });
+    } catch (err) { throw fail(err.code, `${err.message} Nothing was claimed.`); }
+    if (!sameEmail(inbox.email, message.recipient_email)) {
+      throw fail(CLAIM_REFUSAL.RECIPIENT_EMAIL_CHANGED,
+        'This programme inbox\'s address has changed since the message was approved. Nothing was claimed.');
+    }
+    if (isSendCapped(inbox.email)) {
+      throw fail(CLAIM_REFUSAL.SEND_CAP_REACHED,
+        `${inbox.email} has had as many approaches as the per-inbox cap allows in the window.`);
+    }
+    recipient = { coachId: null, programmeContactId: who.programmeContactId, email: inbox.email };
+  } else {
+    coach = COACH.get(message.coach_id);
+    if (!coach) throw fail('COACH_NOT_FOUND', `No coach ${message.coach_id}`);
+    if (!sameEmail(coach.email, message.recipient_email)) {
+      /**
+       * A coach row is mutable and an address corrected between review and send
+       * would silently change WHO an operator approved a message for. The id says
+       * which person; the frozen address says which inbox was agreed. Neither is
+       * trusted alone.
+       */
+      throw fail(CLAIM_REFUSAL.RECIPIENT_EMAIL_CHANGED,
+        'This coach\'s address has changed since the message was approved. Somebody needs to look '
+        + 'at it rather than send to an inbox nobody agreed to.');
+    }
+    // SEND TIME: the full floor, unconditionally — no operator flag reaches this line
+    const floor = coachIneligibility(coach, { fresh: true });
+    if (floor) {
+      /**
+       * PHASE 8A — re-checked at claim time, not only when the plan was built: a coach can be
+       * PROVEN_STALE or lose a verified address between approval and send, and an attempt
+       * materialised before 8A may name an inferred address. Refused before any capacity is
+       * spent. The floor includes the CANONICAL decision at the coach's filed programme and the
+       * activation holds (canonicalCoachEligibility.js), read fresh now — so a message prepared
+       * while a coach was eligible is refused if the coach is no longer eligible, or is held.
+       * NO FLAG LIFTS IT: THRIV3_ALLOW_LEGACY_COACHES widens what is OFFERED, never what is sent.
+       */
+      throw fail(CLAIM_REFUSAL.COACH_NOT_OUTREACH_ELIGIBLE,
+        `This coach is not outreach-eligible (${floor}). Nothing was claimed and no capacity was spent.`);
+    }
+    if (isSendCapped(coach.email)) {
+      /**
+       * THE RECIPIENT'S PROTECTION, NOT THE SENDER'S BUDGET, and it is the one
+       * check here that is about somebody outside this campaign entirely: how
+       * many athletes have written to this inbox lately. Read-only, keyed on the
+       * address, and counted from `outreach.sent_at` — so a message merely
+       * claimed does not count against it, which is right, because it has
+       * reached nobody.
+       */
+      throw fail(CLAIM_REFUSAL.SEND_CAP_REACHED,
+        `${coach.email} has had as many approaches as the per-inbox cap allows in the window.`);
+    }
+    recipient = { coachId: coach.id, programmeContactId: null, email: coach.email };
   }
 
   /* ---- 4. the mailbox, as durable identity and nothing more -------------- */
@@ -543,7 +581,7 @@ export function assertExecutionSafety({
   }
   const identity = normaliseSendingIdentity(box.email_address);
 
-  return { plan, coach, box, identity };
+  return { plan, coach, recipient, box, identity };
 }
 
 const CLAIM = db.transaction(({
@@ -574,7 +612,7 @@ const CLAIM = db.transaction(({
       + 'content, not a repeat of this one. Nothing was claimed.');
   }
 
-  const { plan, coach, box, identity } = assertExecutionSafety({
+  const { plan, recipient, box, identity } = assertExecutionSafety({
     message, context, operatorUserId, connectedMailboxId, onDate, window,
   });
 
@@ -587,7 +625,8 @@ const CLAIM = db.transaction(({
    */
   const outreach = createOutreach({
     athleteId: context.athleteId,
-    coachId: coach.id,
+    coachId: recipient.coachId,
+    programmeContactId: recipient.programmeContactId,
     programmeCampaignId: context.programmeCampaignId,
     onDate,
   });
@@ -658,7 +697,8 @@ const CLAIM = db.transaction(({
   const { id: sendId } = recordDraft({
     outreachId: outreach.id,
     athleteId: context.athleteId,
-    coachId: coach.id,
+    coachId: recipient.coachId,
+    programmeContactId: recipient.programmeContactId,
     collegeName: context.collegeName,
     sport: context.sport,
     programmeCampaignId: context.programmeCampaignId,

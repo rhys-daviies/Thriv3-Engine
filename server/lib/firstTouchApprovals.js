@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
+import { recipientEqualsSql, recipientParams } from './recipient.js';
 import { utcNow } from './time.js';
 
 /**
@@ -44,10 +45,16 @@ export const APPROVAL_STATUS = Object.freeze({
   STALE: 'stale',
 });
 
-const BY_PAIR = db.prepare(`
-  SELECT * FROM campaign_first_touch_approvals
-   WHERE programme_campaign_id = @programmeCampaignId AND coach_id = @coachId
+// Phase 1E: keyed on the RECIPIENT — a coach, or a programme inbox (recipientParams).
+const BY_PAIR_STMT = db.prepare(`
+  SELECT * FROM campaign_first_touch_approvals a
+   WHERE a.programme_campaign_id = @programmeCampaignId AND ${recipientEqualsSql('a')}
 `);
+const BY_PAIR = {
+  get: ({ programmeCampaignId, coachId = null, programmeContactId = null }) => BY_PAIR_STMT.get({
+    programmeCampaignId, ...recipientParams({ coachId, programmeContactId }),
+  }),
+};
 
 const UPSERT = db.prepare(`
   INSERT INTO campaign_first_touch_approvals (
@@ -58,6 +65,26 @@ const UPSERT = db.prepare(`
     @reviewedCount, @reviewedLastAt
   )
   ON CONFLICT (programme_campaign_id, coach_id) DO UPDATE SET
+    approved_by_operator_id = excluded.approved_by_operator_id,
+    approved_at = excluded.approved_at,
+    reviewed_confirmed_send_count = excluded.reviewed_confirmed_send_count,
+    reviewed_last_confirmed_send_at = excluded.reviewed_last_confirmed_send_at
+`);
+
+/*
+ * The inbox half. SQLite will only take a PARTIAL unique index as an upsert target when the
+ * conflict clause repeats its WHERE, so it is a statement of its own; a NULL coach_id never
+ * conflicts under the coach constraint above.
+ */
+const UPSERT_INBOX = db.prepare(`
+  INSERT INTO campaign_first_touch_approvals (
+    id, programme_campaign_id, programme_contact_id, approved_by_operator_id, approved_at,
+    reviewed_confirmed_send_count, reviewed_last_confirmed_send_at
+  ) VALUES (
+    @id, @programmeCampaignId, @programmeContactId, @operatorId, @at,
+    @reviewedCount, @reviewedLastAt
+  )
+  ON CONFLICT (programme_campaign_id, programme_contact_id) WHERE programme_contact_id IS NOT NULL DO UPDATE SET
     approved_by_operator_id = excluded.approved_by_operator_id,
     approved_at = excluded.approved_at,
     reviewed_confirmed_send_count = excluded.reviewed_confirmed_send_count,
@@ -99,9 +126,9 @@ function matches(row, priorContact) {
  * @param {object} args.priorContact the F6c fact, as it is on the plan.
  * @returns {{status: string, approvedAt: string|null, approvedByOperatorId: string|null}}
  */
-export function approvalStatus({ programmeCampaignId, coachId, priorContact }) {
-  if (!programmeCampaignId || !coachId) return NO_APPROVAL;
-  const row = BY_PAIR.get({ programmeCampaignId, coachId });
+export function approvalStatus({ programmeCampaignId, coachId = null, programmeContactId = null, priorContact }) {
+  if (!programmeCampaignId || (!coachId && !programmeContactId)) return NO_APPROVAL;
+  const row = BY_PAIR.get({ programmeCampaignId, coachId, programmeContactId });
   if (!row) return NO_APPROVAL;
   return {
     status: matches(row, priorContact ?? {})
@@ -113,8 +140,8 @@ export function approvalStatus({ programmeCampaignId, coachId, priorContact }) {
 }
 
 /** The stored row, for a caller that needs to report it back verbatim. */
-export function existingApproval({ programmeCampaignId, coachId }) {
-  return BY_PAIR.get({ programmeCampaignId, coachId }) ?? null;
+export function existingApproval({ programmeCampaignId, coachId = null, programmeContactId = null }) {
+  return BY_PAIR.get({ programmeCampaignId, coachId, programmeContactId }) ?? null;
 }
 
 /**
@@ -131,16 +158,17 @@ export function existingApproval({ programmeCampaignId, coachId }) {
  * second click cannot reattribute somebody else's decision.
  */
 export function approveFirstTouch({
-  programmeCampaignId, coachId, operatorId, priorContact, at = utcNow(),
+  programmeCampaignId, coachId = null, programmeContactId = null, operatorId, priorContact, at = utcNow(),
 }) {
-  UPSERT.run({
+  const who = recipientParams({ coachId, programmeContactId });
+  (who.coachId ? UPSERT : UPSERT_INBOX).run({
     id: randomUUID(),
     programmeCampaignId,
-    coachId,
+    ...(who.coachId ? { coachId: who.coachId } : { programmeContactId: who.programmeContactId }),
     operatorId,
     at,
     reviewedCount: priorContact.confirmedSendCount,
     reviewedLastAt: priorContact.lastConfirmedSendAt ?? null,
   });
-  return BY_PAIR.get({ programmeCampaignId, coachId });
+  return BY_PAIR.get({ programmeCampaignId, ...who });
 }

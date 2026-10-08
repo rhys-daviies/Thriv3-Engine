@@ -216,7 +216,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_coaches_identity ON coaches(email, school,
 CREATE TABLE IF NOT EXISTS outreach (
   id TEXT PRIMARY KEY,
   athlete_id TEXT NOT NULL REFERENCES players(id),
-  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  coach_id TEXT REFERENCES coaches(id),
+  -- Phase 1D: OR a programme's own inbox — never both, never neither (CHECK below). The
+  -- inbox half of each coach uniqueness rule lives in migrate.js (extendOutreachRecipients).
+  programme_contact_id TEXT REFERENCES programme_contacts(contact_id),
   token TEXT NOT NULL UNIQUE,
   match_id TEXT,          -- links back to the Tab 2 recommendation; Phase 5 reads it
 
@@ -238,6 +241,7 @@ CREATE TABLE IF NOT EXISTS outreach (
   revoked_at TEXT,
   created_at TEXT NOT NULL,
 
+  CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL)),
   UNIQUE (athlete_id, coach_id)
 );
 
@@ -350,7 +354,10 @@ CREATE TABLE IF NOT EXISTS outreach_send (
   -- Denormalised from the relationship so a snapshot reads without a join and
   -- survives a coach row being merged or a programme renamed.
   athlete_id TEXT NOT NULL REFERENCES players(id),
-  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  coach_id TEXT REFERENCES coaches(id),
+  -- Phase 1D: OR a programme's own inbox — never both, never neither (CHECK below). The
+  -- inbox half of each coach uniqueness rule lives in migrate.js (extendOutreachRecipients).
+  programme_contact_id TEXT REFERENCES programme_contacts(contact_id),
   college_name TEXT,
   sport TEXT,
 
@@ -378,6 +385,7 @@ CREATE TABLE IF NOT EXISTS outreach_send (
 
   created_at TEXT NOT NULL,
 
+  CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL)),
   -- Repeated execution must not silently create a second send.
   UNIQUE (outreach_id, sequence)
 );
@@ -1002,7 +1010,10 @@ CREATE TABLE IF NOT EXISTS programme_contact_attempts (
   -- means the delete is refused — matching every other reference to `coaches`
   -- in this schema (outreach.coach_id, outreach_send.coach_id). Deleting a
   -- coach out from under live campaign state should fail loudly.
-  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  coach_id TEXT REFERENCES coaches(id),
+  -- Phase 1D: OR a programme's own inbox — never both, never neither (CHECK below). The
+  -- inbox half of each coach uniqueness rule lives in migrate.js (extendOutreachRecipients).
+  programme_contact_id TEXT REFERENCES programme_contacts(contact_id),
 
   /**
    * The lifetime relationship this attempt executes through, once it has one.
@@ -1070,6 +1081,7 @@ CREATE TABLE IF NOT EXISTS programme_contact_attempts (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
 
+  CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL)),
   /**
    * ONE ATTEMPT PER COACH PER CAMPAIGN.
    *
@@ -1562,6 +1574,104 @@ CREATE INDEX IF NOT EXISTS idx_asl_host ON athletics_source_locations(host);
 CREATE INDEX IF NOT EXISTS idx_asl_entity ON athletics_source_locations(athletics_entity_id);
 
 -- ===========================================================================
+-- programme_contacts — A VERIFIED COMMUNICATION ENDPOINT OWNED BY A PROGRAMME (Phase 1B).
+--
+-- COACH INTELLIGENCE IS NOT PROGRAMME CONTACT INTELLIGENCE. A coach is a person with a
+-- verified employment relationship; a row here is an address ("menssoccer@...") that the
+-- programme itself publishes. They never share a table: a team inbox stored as a nameless
+-- coach is how 169 legacy rows came to carry a person's currentness, a person's greeting
+-- and, in 15 cases, the other sex's title. Nothing here is a person and nothing here may
+-- become one.
+--
+-- WRITTEN ONLY BY integrity:promote (CREATE_PROGRAMME_CONTACT / REFRESH_PROGRAMME_CONTACT).
+-- Eligibility is server/lib/programmeContactEligibility.js — its own fail-closed floor,
+-- never coachIneligibility. Legacy `coaches.email_status='generic'` rows are re-acquisition
+-- LEADS (server/scripts/programmeContactLeads.js), never evidence.
+--
+-- NOT A SEND TARGET IN THIS BUILD. No outreach table can reference a row here (their
+-- recipient is coach_id NOT NULL), and a test fails if any send path reads this table.
+--
+-- PROGRAMME IDENTITY is the logical programme (athletics_entity_id, sport) — the same key
+-- the integrity measure counts programmes by — with college_id naming its canonical row.
+-- sport is deliberately not an enum here: a CHECK cannot be widened without a rebuild, and
+-- the validator already requires sport to equal the programme row's own sport.
+CREATE TABLE IF NOT EXISTS programme_contacts (
+  contact_id TEXT PRIMARY KEY,            -- deterministic: PC- + sha256(entity|sport|email)
+  athletics_entity_id TEXT NOT NULL,
+  college_id TEXT NOT NULL REFERENCES colleges(id),
+  sport TEXT NOT NULL,
+  email TEXT NOT NULL,                    -- lower case, trimmed
+  label TEXT NOT NULL,                    -- "Cornell Men's Soccer": derived from the registry, never page text
+  contact_role TEXT NOT NULL,             -- TEAM_INBOX | RECRUITING_INBOX
+  observed_on_url TEXT NOT NULL,          -- the official page the exact address was published on
+  observed_at TEXT NOT NULL,              -- when that page was fetched
+  source TEXT NOT NULL,                   -- refresh:<parser_version>
+  source_kind TEXT NOT NULL,              -- sourceAuthority SOURCE_KINDS (entity-hosted official kinds only)
+  source_tier TEXT NOT NULL,
+  status TEXT NOT NULL,                   -- VERIFIED | HISTORICAL
+  currentness_checked_at TEXT NOT NULL,
+  provenance TEXT NOT NULL,               -- the refresh observation that established it
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  CHECK (email = lower(trim(email)) AND email LIKE '_%@_%._%' AND email NOT LIKE '% %' AND email NOT LIKE '%@%@%'),
+  CHECK (contact_role IN ('TEAM_INBOX', 'RECRUITING_INBOX')),
+  CHECK (status IN ('VERIFIED', 'HISTORICAL')),
+  CHECK (source_tier = 'A'),
+  CHECK (observed_on_url LIKE 'https://%'),
+  CHECK (length(trim(label)) > 0 AND length(trim(sport)) > 0),
+  UNIQUE (athletics_entity_id, sport, email)
+);
+CREATE INDEX IF NOT EXISTS idx_pc_programme ON programme_contacts(athletics_entity_id, sport, status);
+CREATE INDEX IF NOT EXISTS idx_pc_college ON programme_contacts(college_id);
+CREATE INDEX IF NOT EXISTS idx_pc_email ON programme_contacts(email);
+
+-- ===========================================================================
+-- legacy_contact_reconciliation — Phase 1G-B (B5). APPEND-ONLY LEDGER.
+--
+-- How each legacy generic `coaches` row (email_status 'generic', the nameless "Team Email" rows)
+-- is accounted for once programme contacts exist. A legacy row is never converted, rewritten or
+-- deleted to make the data look clean: a VERIFIED programme_contacts row is created by promotion,
+-- and the legacy row is RECONCILED here, beside it, with the evidence for the decision.
+--
+--   SUPERSEDED           a VERIFIED programme contact for the same programme and address exists
+--   RETAINED_REFERENCED  historical outreach/sends/tracking point at the row: it is kept forever
+--                        (foreign keys forbid deleting it anyway); may also name its replacement
+--   BLOCKED              a rule stands in the way (department inbox, camp, unproven mail domain…)
+--   INVALID              the row is wrong (another institution's address, a malformed address)
+--   UNRESOLVED           nothing has been decided yet
+--
+-- Entries are only ever added: a later decision is a new entry with a new run_id. No UPDATE, no
+-- DELETE (triggers below). Nothing writes this table in Phase 1G-B: the planner and report are
+-- read-only dry runs.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS legacy_contact_reconciliation (
+  entry_id TEXT PRIMARY KEY,              -- deterministic: LCR- + sha256(run_id|coach_id|disposition|programme_contact_id)
+  run_id TEXT NOT NULL,                   -- the reconciliation run that decided it
+  coach_id TEXT NOT NULL,                 -- the legacy coaches row; deliberately NOT a foreign key: the
+                                          -- ledger is history and must outlive an approved retirement of the row
+  disposition TEXT NOT NULL,
+  programme_contact_id TEXT REFERENCES programme_contacts(contact_id),
+  cohort TEXT NOT NULL,                   -- the lead-queue status when decided
+  reason TEXT NOT NULL,
+  evidence_json TEXT NOT NULL,
+  rule_version TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  CHECK (disposition IN ('SUPERSEDED', 'RETAINED_REFERENCED', 'BLOCKED', 'INVALID', 'UNRESOLVED')),
+  CHECK (disposition <> 'SUPERSEDED' OR programme_contact_id IS NOT NULL),
+  CHECK (json_valid(evidence_json)),
+  UNIQUE (run_id, coach_id)
+);
+CREATE INDEX IF NOT EXISTS idx_lcr_coach ON legacy_contact_reconciliation(coach_id);
+CREATE TRIGGER IF NOT EXISTS trg_lcr_no_update BEFORE UPDATE ON legacy_contact_reconciliation
+BEGIN
+  SELECT RAISE(ABORT, 'legacy_contact_reconciliation is append-only');
+END;
+CREATE TRIGGER IF NOT EXISTS trg_lcr_no_delete BEFORE DELETE ON legacy_contact_reconciliation
+BEGIN
+  SELECT RAISE(ABORT, 'legacy_contact_reconciliation is append-only');
+END;
+
+-- ===========================================================================
 -- PLAYER HISTORY IDENTITY (Phase 8B.1A) — an observation is not a person.
 --
 -- `roster_players` rows are ROSTER OBSERVATIONS: a name on programme P's official
@@ -1676,7 +1786,7 @@ CREATE TABLE IF NOT EXISTS refresh_batches (
 CREATE TABLE IF NOT EXISTS refresh_observations (
   observation_id TEXT PRIMARY KEY,   -- deterministic: sha of batch + dataset + source key
   batch_id TEXT NOT NULL,
-  dataset TEXT NOT NULL,             -- COACH | ROSTER | PROGRAMME | DOMAIN
+  dataset TEXT NOT NULL,             -- COACH | ROSTER | PROGRAMME | DOMAIN | PROGRAMME_CONTACT
   source_url TEXT,
   source_host TEXT,
   source_kind TEXT,
@@ -1703,7 +1813,7 @@ CREATE TABLE IF NOT EXISTS refresh_observations (
   review_status TEXT,                -- NULL | APPROVED | REJECTED
   review_note TEXT,
   promoted_at TEXT,
-  CHECK (dataset IN ('COACH', 'ROSTER', 'PROGRAMME', 'DOMAIN')),
+  CHECK (dataset IN ('COACH', 'ROSTER', 'PROGRAMME', 'DOMAIN', 'PROGRAMME_CONTACT')),
   CHECK (classification IN ('CONFIRMED_UNCHANGED', 'NEW_RECORD', 'VERIFIED_UPDATE', 'POSSIBLE_CHANGE',
                             'CONTRADICTION', 'STALE_CANDIDATE', 'IDENTITY_AMBIGUOUS', 'SOURCE_UNTRUSTED',
                             'DISAPPEARED_FROM_SOURCE')),
@@ -2596,7 +2706,10 @@ CREATE TABLE IF NOT EXISTS campaign_first_touch_approvals (
   -- REFERENCED, not owned, and with no ON DELETE clause — so deleting a coach
   -- out from under a live approval is refused, matching every other reference
   -- to `coaches` in this schema.
-  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  coach_id TEXT REFERENCES coaches(id),
+  -- Phase 1D: OR a programme's own inbox — never both, never neither (CHECK below). The
+  -- inbox half of each coach uniqueness rule lives in migrate.js (extendOutreachRecipients).
+  programme_contact_id TEXT REFERENCES programme_contacts(contact_id),
 
   -- WHO decided. The authenticated operator, never a name a request supplied.
   -- No ON DELETE: an approval whose approver vanished is an unattributable
@@ -2620,6 +2733,7 @@ CREATE TABLE IF NOT EXISTS campaign_first_touch_approvals (
   -- ONE CURRENT APPROVAL PER COACH PER CAMPAIGN. Re-approving replaces it
   -- rather than appending: this slice records the decision in force, and an
   -- audit trail of superseded reviews is a separate question.
+  CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL)),
   UNIQUE (programme_campaign_id, coach_id)
 );
 
@@ -2715,7 +2829,10 @@ CREATE TABLE IF NOT EXISTS programme_messages (
    * this column that way. The writer reads the address from the `coaches` row
    * the ATTEMPT names, and refuses a composition made for anybody else.
    */
-  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  coach_id TEXT REFERENCES coaches(id),
+  -- Phase 1D: OR a programme's own inbox — never both, never neither (CHECK below). The
+  -- inbox half of each coach uniqueness rule lives in migrate.js (extendOutreachRecipients).
+  programme_contact_id TEXT REFERENCES programme_contacts(contact_id),
   recipient_email TEXT NOT NULL,
 
   /**
@@ -2833,6 +2950,7 @@ CREATE TABLE IF NOT EXISTS programme_messages (
    * refused, because the stored row is durable evidence of what was composed
    * first and overwriting it would erase the thing it exists to prove.
    */
+  CHECK ((coach_id IS NULL) <> (programme_contact_id IS NULL)),
   UNIQUE (programme_contact_attempt_id, step)
 );
 

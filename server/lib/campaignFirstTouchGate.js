@@ -69,7 +69,7 @@ export { FIRST_TOUCH_REVIEW_REQUIRED };
  * @param {string|null} args.programmeCampaignId the VERIFIED id, or null.
  * @throws {Error} with `code = CAMPAIGN_FIRST_TOUCH_REVIEW_REQUIRED`.
  */
-export function assertFirstTouchReviewed({ programmeCampaignId, coachId }) {
+export function assertFirstTouchReviewed({ programmeCampaignId, coachId = null, programmeContactId = null }) {
   if (!programmeCampaignId) return null;
 
   const plan = programmePursuitPlan({ programmeCampaignId });
@@ -80,7 +80,9 @@ export function assertFirstTouchReviewed({ programmeCampaignId, coachId }) {
    * the programme is not the first touch the hold is about, and refusing it
    * here would be this module inventing a rule of its own.
    */
-  if (plan.current?.coachId !== coachId) return null;
+  // Phase 1F: the review applies to the plan's current RECIPIENT, coach or programme inbox.
+  if ((plan.current?.coachId ?? null) !== (coachId ?? null)
+    || (plan.current?.programmeContactId ?? null) !== (coachId ? null : (programmeContactId ?? null))) return null;
   if (plan.nextAction !== PURSUIT_ACTION.INITIAL_OUTREACH) return null;
   if (!plan.firstTouchReview?.required) return null;
 

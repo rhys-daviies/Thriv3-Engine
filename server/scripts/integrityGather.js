@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';
 import { loadRefreshContext } from '../lib/refresh/context.js';
-import { rosterAdapter, staffAdapter, programmeAdapter, ADAPTER_VERSION } from '../lib/refresh/adapters/gatherers.js';
+import { rosterAdapter, staffAdapter, programmeAdapter, programmeContactAdapter, ADAPTER_VERSION } from '../lib/refresh/adapters/gatherers.js';
 
 const argv = process.argv.slice(2);
 const arg = (n) => { const i = argv.indexOf(`--${n}`); return i > -1 ? argv[i + 1] : null; };
@@ -33,14 +33,17 @@ const ownsHost = (h, e) => ctx.resolver.hostOwnedBy(h, e);
 // Phase 8B.1: URL-level ownership — a host owned by the entity OR a verified host + path-scope location
 const ownsSource = (u, e, sport) => ctx.resolver.sourceOwnedBy(u, e, { sport });
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-const pages = []; const refusals = []; const counts = { ROSTER: 0, COACH: 0 };
+const pages = []; const refusals = []; const counts = { ROSTER: 0, COACH: 0, PROGRAMME_CONTACT: 0 };
 for (const t of plan.targets || []) {
   for (const kind of t.kinds || ['ROSTER', 'COACH']) {
     await wait(Number(process.env.DELAY_MS || 2500));
-    const target = { ...t, season, prior_count: kind === 'ROSTER' ? priorRoster.get(t.athletics_entity_id, t.sport, season - 1)?.n : priorStaff.get(t.athletics_entity_id, t.sport)?.n };
-    const r = kind === 'ROSTER' ? await rosterAdapter(target, { ownsHost, ownsSource, url: t.roster_url }) : await staffAdapter(target, { ownsHost, ownsSource, url: t.staff_url });
+    const target = { ...t, season, prior_count: kind === 'PROGRAMME_CONTACT' ? null : kind === 'ROSTER' ? priorRoster.get(t.athletics_entity_id, t.sport, season - 1)?.n : priorStaff.get(t.athletics_entity_id, t.sport)?.n };
+    // PROGRAMME_CONTACT is HOST-ONLY (Phase 1G-B): the programme-contact validator accepts no path-scoped source
+    const r = kind === 'ROSTER' ? await rosterAdapter(target, { ownsHost, ownsSource, url: t.roster_url })
+      : kind === 'PROGRAMME_CONTACT' ? await programmeContactAdapter(target, { ownsHost, url: t.staff_url })
+        : await staffAdapter(target, { ownsHost, ownsSource, url: t.staff_url });
     if (r.page) { pages.push(r.page); counts[kind]++; } else refusals.push({ kind, ...r.refusal });
-    console.log(`${kind.padEnd(6)} ${t.institution_label} [${t.sport}] -> ${r.page ? `${(r.page.players || r.page.people).length} records` : `REFUSED ${r.refusal.code} (${r.refusal.detail})`}`);
+    console.log(`${kind.padEnd(6)} ${t.institution_label} [${t.sport}] -> ${r.page ? `${(r.page.players || r.page.people || r.page.contacts).length} records` : `REFUSED ${r.refusal.code} (${r.refusal.detail})`}`);
   }
 }
 const programme = plan.programme_listing ? programmeAdapter(plan.programme_listing, { season }) : { pages: [], history: [] };

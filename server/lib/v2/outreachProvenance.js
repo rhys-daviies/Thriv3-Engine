@@ -124,7 +124,7 @@ const SELECTION_BY_ID = `
  * One validator, two callers, one writer each in its own domain.
  */
 export function assertSelectionMatchesSend(db, {
-  selectionId, athleteId, coachId, collegeName, sport,
+  selectionId, athleteId, coachId = null, programmeContactId = null, collegeName, sport,
 } = {}) {
   const selection = db.prepare(SELECTION_BY_ID).get(selectionId);
   if (!selection) throw fail('SELECTION_NOT_FOUND', `No matchmaking selection ${selectionId}.`);
@@ -145,6 +145,19 @@ export function assertSelectionMatchesSend(db, {
     throw fail('SELECTION_PROGRAMME_MISMATCH',
       `That selection is for ${selection.college_name} (${selection.sport}), but the `
       + `message was written for ${collegeName} (${sport}).`);
+  }
+
+  // Phase 1F: a programme inbox is checked against the selection's programme by its athletics
+  // entity and sport — it has no `school` — and never through the coaches table.
+  if (!coachId && programmeContactId) {
+    const inbox = db.prepare('SELECT athletics_entity_id, sport FROM programme_contacts WHERE contact_id = ?').get(programmeContactId);
+    if (!inbox) throw fail('PROGRAMME_CONTACT_NOT_FOUND', `No programme contact ${programmeContactId}.`);
+    const programme = db.prepare('SELECT athletics_entity_id FROM colleges WHERE name = ? AND sport = ?').get(selection.college_name, selection.sport);
+    if (!programme?.athletics_entity_id || programme.athletics_entity_id !== inbox.athletics_entity_id || inbox.sport !== selection.sport) {
+      throw fail('RECIPIENT_PROGRAMME_MISMATCH',
+        `That programme inbox is not filed under ${selection.college_name} (${selection.sport}).`);
+    }
+    return selection;
   }
 
   const coach = db.prepare('SELECT id, school, sport FROM coaches WHERE id = ?').get(coachId);

@@ -3,7 +3,7 @@ import {
   programmePursuitPlan, contactAttemptPreparation, PREPARATION_REFUSAL,
 } from './pursuitPolicy.js';
 import { BLOCKER_CODE } from './campaignExecution.js';
-import { attemptForCoach, ATTEMPT_STATE } from './contactAttempts.js';
+import { attemptForRecipient, ATTEMPT_STATE } from './contactAttempts.js';
 import { unresolvedSendFor } from './outreachSend.js';
 import { composeProgrammeMessage } from './programmeMessage.js';
 import { createProgrammeMessage, messageForStep } from './programmeMessages.js';
@@ -205,7 +205,7 @@ const PROGRAMME_CAMPAIGN_EXISTS = db.prepare(
  * @throws with `err.code` — see GENERATION_REFUSAL, PREPARATION_REFUSAL and
  *   CONTACT_REFUSAL. Nothing is written on any refusal.
  */
-export function generateProgrammeMessage({ programmeCampaignId, coachId, at = utcNow() } = {}) {
+export function generateProgrammeMessage({ programmeCampaignId, coachId, programmeContactId = null, at = utcNow() } = {}) {
   /**
    * ---- 1. an intent exists, and is still being pursued ----
    *
@@ -218,7 +218,20 @@ export function generateProgrammeMessage({ programmeCampaignId, coachId, at = ut
     throw fail('PROGRAMME_CAMPAIGN_NOT_FOUND', `No programme campaign ${programmeCampaignId}`);
   }
 
-  const attempt = attemptForCoach(programmeCampaignId, coachId);
+  /**
+   * ---- 0. one recipient: a coach, or (Phase 1F) a programme inbox ----
+   *
+   * Everything below is asked of the RECIPIENT — its prepared attempt, whether the campaign
+   * still names it, its step — so a programme inbox generates through exactly the same checks a
+   * coach does, keyed on its programme_contact_id. Composition greets it "Hi Coach," and never
+   * a name (programmeMessage.composeForProgrammeInbox).
+   */
+  const recipient = { coachId: coachId ?? null, programmeContactId: coachId ? null : (programmeContactId ?? null) };
+  if (coachId && programmeContactId) {
+    throw fail('RECIPIENT_OUTREACH_DOUBLY_ADDRESSED', 'A message is generated for one recipient.');
+  }
+
+  const attempt = (recipient.coachId || recipient.programmeContactId) ? attemptForRecipient(programmeCampaignId, recipient) : null;
   if (!attempt) {
     throw fail(
       GENERATION_REFUSAL.CONTACT_ATTEMPT_REQUIRED,
@@ -269,7 +282,9 @@ export function generateProgrammeMessage({ programmeCampaignId, coachId, at = ut
    * and unhelpful, where NO_ELIGIBLE_COACH says what actually happened. So the
    * absence is handed to the decision below rather than answered here.
    */
-  if (plan.current && plan.current.coachId !== coachId) {
+  if (plan.current && (
+    (plan.current.coachId ?? null) !== recipient.coachId
+    || (plan.current.programmeContactId ?? null) !== recipient.programmeContactId)) {
     throw fail(
       GENERATION_REFUSAL.COACH_NO_LONGER_CURRENT,
       'This campaign is no longer approaching that coach at this programme. The prepared '
@@ -336,7 +351,7 @@ export function generateProgrammeMessage({ programmeCampaignId, coachId, at = ut
   if (existing) return { created: false, message: existing };
 
   // ---- 6. compose, then freeze ----
-  const composition = composeProgrammeMessage({ programmeCampaignId, coachId });
+  const composition = composeProgrammeMessage({ programmeCampaignId, ...recipient });
   return createProgrammeMessage({
     programmeContactAttemptId: attempt.id,
     composition,

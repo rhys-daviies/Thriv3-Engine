@@ -7,6 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { pickBestContact } from '@shared/coachRoles.js';
+import {
+  RECIPIENT_KIND, inboxSubject, InboxCompositionError, PROGRAMME_CONTACT_HINT,
+} from '@shared/recipientPresentation.js';
 import EmailRiskBadge from '@/components/EmailRiskBadge';
 import { useCoachEmailStatus, statusOf } from '@/lib/useCoachEmailStatus';
 import {
@@ -83,17 +86,39 @@ export default function EmailComposer({
   context = null,
   /** One line under the title saying which kind of outreach this is. */
   subtitle = RECOMMENDATION_DIALOG_HINT,
+  /**
+   * PHASE 1F — THE PROGRAMME'S OWN INBOX, when the server offers it: only where no eligible
+   * named coach exists. `{ programme_contact_id, primary: 'Programme Contact', secondary, email }`.
+   * It is the ONE recipient then — never listed beside a coach — composed with no name and
+   * greeted "Hi Coach,", and posted back by id, never as an address.
+   */
+  programmeContact = null,
 }) {
   const validCoaches = useMemo(
     () => (college?.coaching_staff || []).filter((c) => c.email && c.email !== 'N/A'),
     [college]
   );
+  const inboxMode = validCoaches.length === 0 && Boolean(programmeContact?.programme_contact_id);
+  const recipientKind = inboxMode ? RECIPIENT_KIND.PROGRAMME_INBOX : RECIPIENT_KIND.COACH;
+  /**
+   * A template that names the coach outside its greeting cannot be sent to an inbox (there is
+   * no name to put there) — composition refuses, and the composer says so instead of sending.
+   */
+  const compose = (evidence) => {
+    try {
+      const composed = emailBodyFor(player, college, initialGreetingName, { evidence, recipientKind });
+      return { ...composed, subject: fillTemplate(inboxMode ? inboxSubject(player.email_subject || DEFAULT_EMAIL_SUBJECT) : (player.email_subject || DEFAULT_EMAIL_SUBJECT), composed.context), refusal: null };
+    } catch (err) {
+      if (err instanceof InboxCompositionError) return { body: '', subject: '', context: buildEmailContext(player, college, null), source: null, refusal: err.message };
+      throw err;
+    }
+  };
   // coaching_staff carries no provenance, so the address beside a coach's
   // name said nothing about whether it had ever been seen to work.
   const { statuses } = useCoachEmailStatus(player.sport || 'mens-soccer');
 
   const [selected, setSelected] = useState(() => new Set(validCoaches.map((c) => c.email)));
-  const initialGreetingName = greetingSeed(validCoaches)?.name || 'Coach';
+  const initialGreetingName = inboxMode ? null : (greetingSeed(validCoaches)?.name || 'Coach');
 
   // What the programme's own data supports saying. Fetched rather than
   // computed here: the strongest evidence spans five seasons of roster rows
@@ -165,13 +190,9 @@ export default function EmailComposer({
 
   // Fall back to the defaults rather than opening an empty compose window for
   // an athlete who has no saved template.
-  const [subject, setSubject] = useState(() => fillTemplate(
-    player.email_subject || DEFAULT_EMAIL_SUBJECT,
-    buildEmailContext(player, college, initialGreetingName)
-  ));
-  const [body, setBody] = useState(() => emailBodyFor(
-    player, college, initialGreetingName
-  ).body);
+  const [subject, setSubject] = useState(() => compose(null).subject);
+  const [body, setBody] = useState(() => compose(null).body);
+  const [compositionRefusal, setCompositionRefusal] = useState(() => compose(null).refusal);
   // Which route produced the body now on screen. Logged with the send so a
   // later analysis can separate an assembled email from a templated one.
   const [bodySource, setBodySource] = useState(null);
@@ -204,13 +225,13 @@ export default function EmailComposer({
     // The whole body, not just the evidence paragraph: with a structure the
     // evidence is placed THROUGH the email, so there is no one paragraph to
     // swap and re-rendering from the structure is the only correct answer.
-    const composed = emailBodyFor(player, college, initialGreetingName, { evidence });
+    const composed = compose(evidence);
     setBodySource(composed.source);
+    setCompositionRefusal(composed.refusal);
     if (!bodyEdited) setBody(composed.body);
-    if (!subjectEdited) {
-      setSubject(fillTemplate(player.email_subject || DEFAULT_EMAIL_SUBJECT, composed.context));
-    }
-  }, [evidence, player, college, initialGreetingName, bodyEdited, subjectEdited]);
+    if (!subjectEdited) setSubject(composed.subject);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [evidence, player, college, initialGreetingName, bodyEdited, subjectEdited, recipientKind]);
   const [results, setResults] = useState({}); // email -> { status, error, url, handoff }
   const [sending, setSending] = useState(false);
   const [sendImmediately, setSendImmediately] = useState(false);
@@ -257,16 +278,21 @@ export default function EmailComposer({
 
   async function handleSend() {
     const selectedCoaches = validCoaches.filter((c) => selected.has(c.email));
-    if (selectedCoaches.length === 0) return;
+    if (!inboxMode && selectedCoaches.length === 0) return;
+    if (inboxMode && compositionRefusal) return;
 
     setSending(true);
     setError(null);
     try {
       const composed = {
-        coaches: selectedCoaches.map((c) => ({ name: c.name, email: c.email, title: c.title })),
+        coaches: inboxMode
+          ? []
+          : selectedCoaches.map((c) => ({ name: c.name, email: c.email, title: c.title })),
+        // Phase 1F: the programme inbox goes back BY ID; the route resolves its address.
+        ...(inboxMode ? { programmeContactId: programmeContact.programme_contact_id } : {}),
         subject,
         body,
-        greetingName: initialGreetingName,
+        greetingName: inboxMode ? 'Coach' : initialGreetingName,
         send: immediate,
         // Kinds and a structure key — never sentences, never facts. The server
         // validates each against the evidence it generated for this pairing,
@@ -424,7 +450,26 @@ export default function EmailComposer({
                   )}
                 </label>
               ))}
-              {validCoaches.length === 0 && (
+              {inboxMode && (
+                <div className="text-sm" data-testid="programme-contact-recipient">
+                  <span className="block font-medium">{programmeContact.primary}</span>
+                  {programmeContact.secondary && (
+                    <span className="block text-xs text-muted-foreground">{programmeContact.secondary}</span>
+                  )}
+                  <span className="block text-xs text-muted-foreground">
+                    {PROGRAMME_CONTACT_HINT} ({programmeContact.email})
+                  </span>
+                  {results[programmeContact.email]?.status && (
+                    <span className="block text-xs text-muted-foreground" role="status">
+                      {results[programmeContact.email].status === 'drafted' ? 'prepared' : (results[programmeContact.email].reason || results[programmeContact.email].status)}
+                    </span>
+                  )}
+                  {compositionRefusal && (
+                    <p className="text-xs text-destructive mt-1" role="alert" data-testid="inbox-composition-refusal">{compositionRefusal}</p>
+                  )}
+                </div>
+              )}
+              {validCoaches.length === 0 && !inboxMode && (
                 <p className="text-xs text-muted-foreground italic">No coaches with a verified email on file for this program.</p>
               )}
             </div>
@@ -532,7 +577,7 @@ export default function EmailComposer({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
-          <Button onClick={handleSend} disabled={sending || selected.size === 0}>
+          <Button onClick={handleSend} disabled={sending || (inboxMode ? Boolean(compositionRefusal) : selected.size === 0)}>
             <Send className="h-3.5 w-3.5 mr-1.5" />
             {sending
               ? 'Working…'
@@ -545,7 +590,7 @@ export default function EmailComposer({
                   will. Preparing is the thing this button actually does: it
                   composes, validates and records the DRAFT.
                 */
-                : PREPARE_EMAILS(selected.size)}
+                : PREPARE_EMAILS(inboxMode ? 1 : selected.size)}
           </Button>
         </DialogFooter>
       </DialogContent>

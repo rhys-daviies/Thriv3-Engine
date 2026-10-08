@@ -13,7 +13,11 @@ import {
 } from './contactAttempts.js';
 import { outboundBudgetDecision, outboundBudgetDecisionForAthlete } from './outboundBudget.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
-import { priorContactForCoaches, priorContactOf } from './contactIntelligence.js';
+import {
+  priorContactForCoaches, priorContactForProgrammeContacts, priorContactOf, programmePriorContact,
+} from './contactIntelligence.js';
+import { RECIPIENT_KIND, recipientEqualsSql, recipientParams, recipientKey } from './recipient.js';
+import { chooseRecipients, TEAM_ROW_SUPERSEDED, RECIPIENT_SELECTION } from './recipientSelection.js';
 import { approvalStatus, APPROVAL_STATUS } from './firstTouchApprovals.js';
 import { utcNow, utcToday } from './time.js';
 
@@ -242,10 +246,11 @@ const NO_FIRST_TOUCH_REVIEW = Object.freeze({
  */
 function firstTouchReviewFor(nextAction, coach, programmeCampaignId) {
   if (nextAction !== PURSUIT_ACTION.INITIAL_OUTREACH) return NO_FIRST_TOUCH_REVIEW;
-  if (coach?.priorContact?.hasConfirmedSend !== true) return NO_FIRST_TOUCH_REVIEW;
+  const review = coach?.reviewContact ?? coach?.priorContact;
+  if (review?.hasConfirmedSend !== true) return NO_FIRST_TOUCH_REVIEW;
 
   const approval = approvalStatus({
-    programmeCampaignId, coachId: coach.coachId, priorContact: coach.priorContact,
+    programmeCampaignId, ...recipientParams(coach), priorContact: review,
   });
   return Object.freeze({
     /**
@@ -258,6 +263,33 @@ function firstTouchReviewFor(nextAction, coach, programmeCampaignId) {
       ? null
       : FIRST_TOUCH_REVIEW.PRIOR_CONFIRMED_CONTACT,
     approval,
+  });
+}
+
+/**
+ * THE HISTORY A FIRST-TOUCH REVIEW IS ABOUT — Phase 1E. Person-level and programme-level kept
+ * apart, then combined only for this one question:
+ *
+ *   COACH            their own history (unchanged), plus any message this athlete already sent
+ *                    the programme's INBOX — that reached the programme, and the coach reads it
+ *   PROGRAMME_INBOX  every confirmed message to anyone at the programme, itself included
+ *
+ * A coach at a programme whose inbox was never written to gets back exactly `own`, so every
+ * existing plan, review and approval snapshot is unchanged.
+ */
+function reviewContactFor(c, own, programmeHistory) {
+  const extra = programmeHistory.recipients.filter((r) => (c.recipientKind === RECIPIENT_KIND.COACH
+    ? r.kind === RECIPIENT_KIND.PROGRAMME_INBOX
+    : !(r.kind === RECIPIENT_KIND.PROGRAMME_INBOX && r.id === c.programmeContactId)));
+  if (!extra.length) return own;
+  const times = [own.lastConfirmedSendAt, ...extra.map((r) => r.lastConfirmedSendAt)].filter(Boolean).sort();
+  return Object.freeze({
+    hasConfirmedSend: true,
+    confirmedSendCount: own.confirmedSendCount + extra.reduce((n, r) => n + r.confirmedSendCount, 0),
+    firstConfirmedSendAt: own.firstConfirmedSendAt ?? null,
+    lastConfirmedSendAt: times.length ? times[times.length - 1] : null,
+    origins: own.origins,
+    programmeRecipients: Object.freeze(extra.map((r) => Object.freeze({ kind: r.kind, id: r.id }))),
   });
 }
 
@@ -284,7 +316,7 @@ export const INELIGIBLE_REASON = Object.freeze({
  * A goalkeeper coach is pursued only for a goalkeeper, which is `shouldContact`'s
  * existing rule and is applied here through the athlete's own position.
  */
-const PURSUED_ROLES = Object.freeze(['head', 'associate-head', 'assistant']);
+export const PURSUED_ROLES = Object.freeze(['head', 'associate-head', 'assistant']);
 
 /**
  * A shared team inbox is a LAST RESORT, never one of several approaches.
@@ -339,8 +371,8 @@ const STAFF = db.prepare(
  * one would let an unsent draft consume a coach's allowance.
  */
 const ACCEPTED_FOR_COACH = db.prepare(`
-  SELECT COUNT(*) AS n, MAX(sent_at) AS last_accepted_at FROM outreach_send
-  WHERE coach_id = @coachId AND athlete_id = @athleteId
+  SELECT COUNT(*) AS n, MAX(sent_at) AS last_accepted_at FROM outreach_send s
+  WHERE ${recipientEqualsSql('s')} AND athlete_id = @athleteId
     AND programme_campaign_id = @programmeCampaignId
     AND state = '${MESSAGE_STATE.ACCEPTED}'
 `);
@@ -370,8 +402,8 @@ const EXECUTION_OUTCOMES_FOR_COACH = db.prepare(`
     SUM(CASE WHEN state = '${MESSAGE_STATE.FAILED}' THEN 1 ELSE 0 END) AS failed,
     SUM(CASE WHEN state = '${MESSAGE_STATE.UNKNOWN_PROVIDER_RESULT}' THEN 1 ELSE 0 END) AS unresolved,
     MAX(CASE WHEN state = '${MESSAGE_STATE.FAILED}' THEN drafted_at END) AS last_failed_at
-  FROM outreach_send
-  WHERE coach_id = @coachId AND athlete_id = @athleteId
+  FROM outreach_send s
+  WHERE ${recipientEqualsSql('s')} AND athlete_id = @athleteId
     AND programme_campaign_id = @programmeCampaignId
 `);
 
@@ -386,14 +418,16 @@ const EXECUTION_OUTCOMES_FOR_COACH = db.prepare(`
 const RESPONDED = db.prepare(`
   SELECT r.responded_at FROM engagement_rollup r
   JOIN outreach o ON o.id = r.outreach_id
-  WHERE o.athlete_id = @athleteId AND o.coach_id = @coachId
+  WHERE o.athlete_id = @athleteId AND ${recipientEqualsSql('o')}
     AND r.responded_at IS NOT NULL
   ORDER BY r.responded_at LIMIT 1
 `);
 
-const OUTREACH_FOR = db.prepare(
-  'SELECT id FROM outreach WHERE athlete_id = ? AND coach_id = ?',
+/** Phase 1E: the relationship with this RECIPIENT — a coach, or a programme inbox. */
+const OUTREACH_FOR_STMT = db.prepare(
+  `SELECT id FROM outreach o WHERE o.athlete_id = @athleteId AND ${recipientEqualsSql('o')}`,
 );
+const OUTREACH_FOR = { get: (athleteId, recipient) => OUTREACH_FOR_STMT.get({ athleteId, ...recipientParams(recipient) }) };
 
 /* -------------------------------------------------------------------------- */
 /* Eligibility and ordering                                                    */
@@ -468,6 +502,7 @@ function candidates(staff, { athletePosition }) {
   const isKeeper = String(athletePosition || '').toUpperCase().startsWith('GOALKEEP');
 
   const rows = staff.map((c) => ({
+    recipientKind: RECIPIENT_KIND.COACH,
     coachId: c.id,
     name: c.full_name,
     email: c.email,
@@ -529,20 +564,46 @@ function candidates(staff, { athletePosition }) {
     else eligible.push(c);
   }
 
-  // The shared inbox joins the list only when there is nobody else, and then
-  // only one of them. 35 programmes have nothing else on file.
-  if (!eligible.length && fallback.length) {
-    eligible.push(fallback[0]);
-    for (const c of fallback.slice(1)) {
-      ineligible.push({ ...c, reason: INELIGIBLE_REASON.TEAM_INBOX_NOT_NEEDED });
-    }
-  } else {
-    for (const c of fallback) {
-      ineligible.push({ ...c, reason: INELIGIBLE_REASON.TEAM_INBOX_NOT_NEEDED });
-    }
-  }
+  // WHICH RECIPIENTS — Phase 1E. Not decided here: the hierarchy (named coach -> verified
+  // programme inbox -> nobody) lives in recipientSelection.js, the one place that may choose
+  // an inbox. This returns the named coaches and the legacy team-inbox rows separately.
+  return { eligible, fallback, ineligible };
+}
 
-  return { eligible, ineligible };
+/**
+ * THE RECIPIENTS THIS PROGRAMME IS PURSUED THROUGH, and the team rows' fate — Phase 1E.
+ *
+ * Named coaches when there are any (exactly as before). Otherwise recipientSelection decides:
+ * one verified programme inbox, or — under the legacy opt-in only, and only with no verified
+ * inbox — the first legacy team-inbox coach row (the pre-1E behaviour), or nobody. Every team
+ * row that is not pursued is reported, as before, with why.
+ */
+function selectRecipients(pc, staff, { eligible, fallback, ineligible }) {
+  const choice = chooseRecipients({
+    collegeName: pc.college_name, sport: pc.sport, named: eligible, teamRows: fallback, staff,
+  });
+  const chosenTeamRow = choice.kind === RECIPIENT_SELECTION.COACH && !eligible.length ? choice.recipients[0] : null;
+  for (const c of fallback) {
+    if (c === chosenTeamRow) continue;
+    ineligible.push({
+      ...c,
+      reason: choice.teamRowsSuperseded ? TEAM_ROW_SUPERSEDED : INELIGIBLE_REASON.TEAM_INBOX_NOT_NEEDED,
+    });
+  }
+  return {
+    recipients: choice.recipients,
+    ineligible,
+    selection: {
+      kind: choice.kind,
+      inbox: {
+        considered: choice.inbox.considered,
+        blockedBy: choice.inbox.blockedBy,
+        refused: (choice.inbox.refused || []).map((r) => ({
+          programmeContactId: r.row.contact_id, reason: r.reason, problems: r.problems,
+        })),
+      },
+    },
+  };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -582,13 +643,15 @@ export function programmePursuitPlan({
   }
 
   const staff = STAFF.all(pc.college_name, pc.sport);
-  const { eligible, ineligible } = candidates(staff, { athletePosition: pc.athlete_position });
+  const { recipients: eligible, ineligible, selection } = selectRecipients(
+    pc, staff, candidates(staff, { athletePosition: pc.athlete_position }),
+  );
 
   // Attempts already on file, for explainability. The plan does NOT depend on
   // them: policy reads execution history, so a plan is right even where
   // nothing has advanced B4's counter. See `step` below.
   const attempts = attemptsForProgrammeCampaign(programmeCampaignId);
-  const attemptByCoach = new Map(attempts.map((a) => [a.coach_id, a]));
+  const attemptByRecipient = new Map(attempts.map((a) => [recipientKey(a), a]));
 
   /**
    * WHERE EACH CANDIDATE STANDS, from what actually happened.
@@ -616,16 +679,24 @@ export function programmePursuitPlan({
   const priorContact = priorContactForCoaches({
     athleteId: pc.athlete_id, coachIds: pursued.map((c) => c.coachId),
   });
+  // Phase 1E: an inbox's own history (endpoint-level), and the programme's (any recipient).
+  const inboxPriorContact = priorContactForProgrammeContacts({
+    athleteId: pc.athlete_id, programmeContactIds: pursued.map((c) => c.programmeContactId),
+  });
+  const programmeHistory = programmePriorContact({
+    athleteId: pc.athlete_id, collegeName: pc.college_name, sport: pc.sport,
+  });
 
   const withHistory = pursued.map((c, i) => {
+    const who = recipientParams(c);
     const accepted = ACCEPTED_FOR_COACH.get({
-      coachId: c.coachId, athleteId: pc.athlete_id, programmeCampaignId,
+      ...who, athleteId: pc.athlete_id, programmeCampaignId,
     });
     const messagesSent = accepted.n;
     const outcomes = EXECUTION_OUTCOMES_FOR_COACH.get({
-      coachId: c.coachId, athleteId: pc.athlete_id, programmeCampaignId,
+      ...who, athleteId: pc.athlete_id, programmeCampaignId,
     });
-    const responded = RESPONDED.get({ athleteId: pc.athlete_id, coachId: c.coachId })?.responded_at ?? null;
+    const responded = RESPONDED.get({ athleteId: pc.athlete_id, ...who })?.responded_at ?? null;
     /**
      * A RESPONSE COUNTS ONLY IF IT CAME AFTER THIS CAMPAIGN STARTED.
      *
@@ -638,7 +709,8 @@ export function programmePursuitPlan({
      */
     const respondedThisCampaign = Boolean(responded)
       && String(responded).slice(0, 10) >= pc.starts_on;
-    const attempt = attemptByCoach.get(c.coachId) ?? null;
+    const attempt = attemptByRecipient.get(recipientKey(c)) ?? null;
+    const own = who.coachId ? priorContactOf(priorContact, c.coachId) : priorContactOf(inboxPriorContact, c.programmeContactId);
     return {
       ...c,
       order: i + 1,
@@ -675,7 +747,14 @@ export function programmePursuitPlan({
        * campaign who was written to by hand last month has `messagesSent: 0`
        * and `priorContact.hasConfirmedSend: true`, and both are correct.
        */
-      priorContact: priorContactOf(priorContact, c.coachId),
+      priorContact: own,
+      /**
+       * WHAT A FIRST-TOUCH REVIEW IS ABOUT — Phase 1E. For a coach it is their own history,
+       * plus any message this athlete already sent the PROGRAMME'S INBOX (which that coach
+       * very likely reads). For an inbox it is everything this athlete ever sent anyone at the
+       * programme. Identical to `priorContact` for a coach at a programme no inbox was written to.
+       */
+      reviewContact: reviewContactFor(c, own, programmeHistory),
       attemptId: attempt?.id ?? null,
       attemptState: attempt?.state ?? null,
       attemptStep: attempt?.step ?? null,
@@ -703,9 +782,17 @@ export function programmePursuitPlan({
     },
     campaign: { id: pc.campaign_id, athleteId: pc.athlete_id, state: pc.campaign_state },
     coachDepth: depth,
+    /**
+     * Phase 1E. Who this programme is pursued through: COACH, PROGRAMME_INBOX or NO_RECIPIENT,
+     * and what became of any programme inbox. `recipients` is the typed list `current` is drawn
+     * from; `coaches` keeps meaning named-coach rows only, so an inbox is never listed as one.
+     */
+    recipientSelection: selection,
+    recipients: withHistory,
+    programmePriorContact: programmeHistory,
     messagesPerCoach: MESSAGES_PER_COACH,
     followUpDelayDays: FOLLOW_UP_DELAY_DAYS,
-    coaches: withHistory,
+    coaches: withHistory.filter((c) => c.recipientKind === RECIPIENT_KIND.COACH),
     beyondDepth,
     ineligible,
     attempts,
@@ -850,14 +937,14 @@ function safetyAndBudget({ pc, coach, onDate, sendingIdentity, window }) {
    * contactable — the plan would have proposed a message whose tracking link
    * deliberately no longer resolves.
    */
-  const relationshipForSafety = OUTREACH_FOR.get(pc.athlete_id, coach.coachId);
+  const relationshipForSafety = OUTREACH_FOR.get(pc.athlete_id, coach);
 
   let safety;
   try {
     const decision = campaignContactDecision({
       programmeCampaignId: pc.id,
       athleteId: pc.athlete_id,
-      coachId: coach.coachId,
+      ...recipientParams(coach),
       outreachId: relationshipForSafety?.id ?? null,
       ...(onDate === undefined ? {} : { onDate }),
     });
@@ -923,7 +1010,7 @@ function prohibitionFrom(safety, { pc, coach, outreachId }) {
   return standingProhibition({
     programmeCampaignId: pc.id,
     athleteId: pc.athlete_id,
-    coachId: coach.coachId,
+    ...recipientParams(coach),
     outreachId,
   });
 }
@@ -948,7 +1035,7 @@ function prohibitionFrom(safety, { pc, coach, outreachId }) {
 function budgetStatus({ pc, coach, sendingIdentity, window }) {
   if (!sendingIdentity) return { evaluated: false, reason: 'NO_SENDING_IDENTITY_SUPPLIED' };
 
-  const relationship = OUTREACH_FOR.get(pc.athlete_id, coach.coachId);
+  const relationship = OUTREACH_FOR.get(pc.athlete_id, coach);
   const decision = relationship
     ? outboundBudgetDecision({
       outreachId: relationship.id,
@@ -1160,7 +1247,7 @@ export function materialiseNextContactAttempt({ programmeCampaignId, at = utcNow
 
   const attempt = createContactAttempt({
     programmeCampaignId,
-    coachId: plan.current.coachId,
+    ...recipientParams(plan.current),
     athleteId: plan.campaign.athleteId,
     step: plan.step,
     at,
@@ -1191,3 +1278,11 @@ export function materialiseNextContactAttempt({ programmeCampaignId, at = utcNow
 
 /** Today, for a caller that wants B3 evaluated against a specific date. */
 export { utcToday };
+
+/**
+ * Phase 1E: the recipient vocabulary a plan reader needs, re-exported so a read-only consumer
+ * (campaignExecution's dry run) takes it from the module it already reads plans from.
+ */
+export { RECIPIENT_KIND };
+/** Phase 1F: the one recipient presentation model, for the same read-only consumers. */
+export { presentRecipient } from '../../shared/recipientPresentation.js';

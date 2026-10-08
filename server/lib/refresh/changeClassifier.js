@@ -24,6 +24,9 @@ import { SHARED_PLATFORM_ROOT } from './identityResolver.js';
 import { hostOf } from '../athleticsEntity.js';
 import { normaliseInstitution } from '../../../shared/institutionIdentity.js';
 import { classRank } from '../../../shared/lifecycle/lifecycle.js';
+import { SPORT_PROFILES } from '../../../shared/sportProfiles.js';
+import { programmeContactId, programmeContactProblems, contextFromRefresh, PC_INELIGIBLE } from '../programmeContactEligibility.js';
+import { PROGRAMME_CONTACT_SOURCE_KINDS } from './sourceAuthority.js';
 
 export const CLASSIFICATIONS = Object.freeze(['CONFIRMED_UNCHANGED', 'NEW_RECORD', 'VERIFIED_UPDATE', 'POSSIBLE_CHANGE',
   'CONTRADICTION', 'STALE_CANDIDATE', 'IDENTITY_AMBIGUOUS', 'SOURCE_UNTRUSTED', 'DISAPPEARED_FROM_SOURCE']);
@@ -98,7 +101,12 @@ function pageGate(page, ctx, season, field) {
   const res = ctx.resolver.resolve({ athletics_entity_id: page.athletics_entity_id, source_url: page.source_url, raw_name: page.institution_label, sport: page.sport, unitid: page.unitid });
   const urlSport = sportOfUrl(page.source_url);
   if (urlSport && page.sport && urlSport !== page.sport) return { res, src: { tier: 'D', reasons: [] }, stop: 'CONTRADICTION', why: [`wrong-sport source: the page is a ${urlSport} page, staged for ${page.sport}`] };
-  const src = res.entity_id ? classifySource({ url: page.source_url, kind: page.source_kind, observedSeason: page.observed_season, pageSeason: page.page_season }, sourceContext(ctx, res.entity_id, season, page.sport)) : classifySource({ url: page.source_url, kind: page.source_kind }, {});
+  // Phase 1G-B: a programme contact is judged HOST-ONLY, exactly as its validator judges it (a
+  // path-scoped location never qualifies an inbox), so the classifier and the floor cannot disagree.
+  // Coach and roster pages keep URL-level (path-aware) source ownership.
+  const sc = res.entity_id ? sourceContext(ctx, res.entity_id, season, page.sport) : null;
+  const srcCtx = sc && field === 'programme_contact' ? { ...sc, ownsSource: null } : sc;
+  const src = res.entity_id ? classifySource({ url: page.source_url, kind: page.source_kind, observedSeason: page.observed_season, pageSeason: page.page_season }, srcCtx) : classifySource({ url: page.source_url, kind: page.source_kind }, {});
   const why = [];
   if (res.decision !== 'RESOLVED') return { res, src, stop: res.method === 'CONTRADICTION' ? 'CONTRADICTION' : 'IDENTITY_AMBIGUOUS', why: [...(res.contradictions || []), ...(res.candidates || []).map((c) => `candidate ${c.name} (${Math.round(c.confidence * 100)}%)`)] };
   if (!res.college_id) return { res, src, stop: 'IDENTITY_AMBIGUOUS', why: [`entity ${res.entity_id} has no single active ${page.sport} programme (${res.programme_reason})`] };
@@ -422,8 +430,122 @@ export function classifyDomainObservation(page, ctx) {
   return [obs(b, 'NEW_RECORD', 'ASSIGN_DOMAIN', { proposed_json: { domain: host, athletics_entity_id: entity, unitid: e?.federal_unitid ?? e?.parent_unitid ?? null, status: hasPrimary ? 'VERIFIED_ALIAS' : 'VERIFIED', role: 'ATHLETICS_SITE', ownership_class: hasPrimary ? 'CURRENT_ALIAS' : 'CURRENT_PRIMARY', evidence_text: page.self_identification, final_url: `https://${host}/` }, expected_old_json: { domain: host, held: heldRow ? { status: heldRow.status, unitid: heldRow.unitid, athletics_entity_id: heldRow.athletics_entity_id } : null }, evidence_json: evidence })];
 }
 
+// ---------------------------------------------------------------------------- PROGRAMME_CONTACT
+/**
+ * Phase 1B. A programme's OWN published address (menssoccer@...), never a person's.
+ *
+ * page: { dataset:'PROGRAMME_CONTACT', source_url, source_kind, fetched_at, observed_season, page_season?,
+ *         page_title?, institution_label, sport, athletics_entity_id?, unitid?, source_complete?, parser_version,
+ *         contacts:[{ email, email_origin:'PUBLISHED_ON_SOURCE'|..., attached_to_person?: <name or null>,
+ *                     context_text?: <the words the page put beside it> }] }
+ *
+ * The page must pass the same gate a staff page does (identity RESOLVED to one programme, the
+ * host owned by that programme's entity, tier A for the current season) AND prove its sport
+ * positively — an unresolved sport is not a pass. Each address is then judged by the
+ * programme-contact floor itself (programmeContactProblems), so nothing can be staged as
+ * promotable that the validator, the gate or the read path would refuse. Legacy generic coach
+ * rows are never consulted as evidence: they are leads for a gatherer, not facts here.
+ */
+const PC_CONTRADICTIONS = new Set([PC_INELIGIBLE.NAMED_PERSON_ADDRESS, PC_INELIGIBLE.ADDRESS_DOMAIN_OTHER_ENTITY, PC_INELIGIBLE.ADDRESS_AT_OTHER_PROGRAMME,
+  PC_INELIGIBLE.SEX_CONFLICT, PC_INELIGIBLE.SPORT_MISMATCH, PC_INELIGIBLE.ENTITY_MISMATCH]);
+const PC_AMBIGUOUS = new Set([PC_INELIGIBLE.ADDRESS_DOMAIN_PARENT_ONLY, PC_INELIGIBLE.PROGRAMME_ROW_NOT_CANONICAL]);
+
+/**
+ * WHERE THE ADDRESS WAS PUBLISHED (Phase 1G-B). A programme contact needs the place it sat on the
+ * page (adapters/programmeContactSlots.js): SHARED by two or more named people, an explicit team or
+ * recruiting slot, or a programme contact block. A slot is necessary, never sufficient — the
+ * address must still pass the whole programme-contact floor. PERSON is refused upstream.
+ */
+export const PC_EVIDENCE_RULE = 'PC-SLOT-EVIDENCE-1';
+const QUALIFYING_SLOTS = new Set(['SHARED', 'TEAM_SLOT', 'RECRUITING_SLOT', 'CONTACT_BLOCK']);
+function slotRefusal(c) {
+  if (!c.slot) return 'the place the address was published is unstated — a programme contact needs its slot (shared, team/recruiting slot or contact block)';
+  if (!QUALIFYING_SLOTS.has(c.slot)) return `slot ${c.slot} cannot carry a programme contact`;
+  if (c.slot === 'SHARED' && !(Number(c.person_count) >= 2)) return `a SHARED slot needs two or more distinct named people (got ${c.person_count ?? 'none'})`;
+  return null;
+}
+/** The deterministic evidence record every programme-contact observation carries. */
+export function programmeContactSlotEvidence(page, c) {
+  return {
+    rule: PC_EVIDENCE_RULE, slot: c.slot ?? null, person_count: c.person_count ?? null, labels: Array.isArray(c.labels) ? c.labels.slice(0, 4) : [],
+    context_text: c.context_text ? String(c.context_text).slice(0, 200) : null, page_sha256: page.adapter_evidence?.sha256 ?? null,
+    parser_version: page.parser_version ?? null, staff_rows: page.adapter_evidence?.staff_rows ?? null,
+  };
+}
+
+export function programmeContactLabel(programmeName, sport) {
+  return `${programmeName} ${SPORT_PROFILES[sport]?.label || sport}`;
+}
+
+export function classifyProgrammeContactPage(page, ctx, { season, now } = {}) {
+  const out = [];
+  const contacts = page.contacts || [];
+  const keyOf = (c, entity) => (entity ? programmeContactId(entity, page.sport, c.email) : `${page.institution_label}|${page.sport}|?`);
+  const stopAll = (res, src, cls, why) => {
+    for (const c of contacts) out.push(obs(base(page, 'PROGRAMME_CONTACT', res, src, { target_table: 'programme_contacts', evidence_json: { why } }), cls, null, { target_key: keyOf(c, res?.entity_id) }));
+    return out;
+  };
+  if (!PROGRAMME_CONTACT_SOURCE_KINDS.includes(page.source_kind)) return stopAll(null, { tier: 'D' }, 'SOURCE_UNTRUSTED', [`source kind ${page.source_kind} cannot carry a programme contact`]);
+  const g = pageGate(page, ctx, season, 'programme_contact');
+  if (g.stop) return stopAll(g.res, g.src, g.stop, g.why);
+  // the sport must be PROVEN by the page, not merely uncontradicted
+  const se = sportEvidence({ url: page.source_url, title: page.page_title ?? null, sport: page.sport });
+  if (se.status === SPORT_STATUS.CONTRADICTED) return stopAll(g.res, g.src, 'CONTRADICTION', [`page names ${se.sport_observed}: ${se.detail}`]);
+  if (se.status !== SPORT_STATUS.CONFIRMED) return stopAll(g.res, g.src, 'SOURCE_UNTRUSTED', [`the page does not establish ${page.sport}: ${se.detail}`]);
+  if (!page.fetched_at) return stopAll(g.res, g.src, 'SOURCE_UNTRUSTED', ['no fetch timestamp — an observation without a time proves nothing about now']);
+
+  const programme = ctx.colleges.find((c) => c.id === g.res.college_id);
+  const entity = programme.athletics_entity_id;
+  const pcCtx = contextFromRefresh(ctx);
+  const nowDate = now || new Date();
+  const held = (ctx.programmeContacts || []).filter((c) => c.athletics_entity_id === entity && c.sport === page.sport);
+  const seen = new Set();
+  for (const c of contacts) {
+    const email = lc(c.email);
+    const id = programmeContactId(entity, page.sport, email);
+    const b = base(page, 'PROGRAMME_CONTACT', g.res, g.src, { target_table: 'programme_contacts', target_key: id });
+    if (seen.has(id)) continue; // the same address listed twice on one page is one observation
+    seen.add(id);
+    if (c.email_origin !== 'PUBLISHED_ON_SOURCE') { out.push(obs(b, 'SOURCE_UNTRUSTED', null, { evidence_json: { why: [`address origin ${c.email_origin || 'unstated'} — only an address published on the page is ever staged`] } })); continue; }
+    const slotEvidence = programmeContactSlotEvidence(page, c);
+    if (c.attached_to_person || c.slot === 'PERSON') { out.push(obs(b, 'CONTRADICTION', null, { requires_review: 1, evidence_json: { ...slotEvidence, why: ['the page lists this address against ONE named person — a person\'s address is coach intelligence, never a programme contact'] } })); continue; }
+    const slotWhy = slotRefusal(c);
+    if (slotWhy) { out.push(obs(b, 'SOURCE_UNTRUSTED', null, { evidence_json: { ...slotEvidence, why: [slotWhy] } })); continue; }
+    const notes = [];
+    const recruiting = c.slot === 'RECRUITING_SLOT' || c.recruiting === true || /recruit/i.test(email.split('@')[0]);
+    const proposed = {
+      contact_id: id, athletics_entity_id: entity, college_id: programme.id, sport: page.sport, email,
+      label: programmeContactLabel(programme.name, page.sport), contact_role: recruiting ? 'RECRUITING_INBOX' : 'TEAM_INBOX',
+      observed_on_url: page.source_url, observed_at: page.fetched_at, source: `refresh:${page.parser_version || 'unversioned'}`,
+      source_kind: page.source_kind, source_tier: g.src.tier, status: 'VERIFIED', currentness_checked_at: page.fetched_at,
+    };
+    const problems = programmeContactProblems(proposed, pcCtx, { now: nowDate });
+    if (problems.length) {
+      const cls = problems.some((p) => PC_CONTRADICTIONS.has(p)) ? 'CONTRADICTION' : problems.some((p) => PC_AMBIGUOUS.has(p)) ? 'IDENTITY_AMBIGUOUS' : 'SOURCE_UNTRUSTED';
+      out.push(obs(b, cls, null, { requires_review: cls === 'CONTRADICTION' ? 1 : 0, evidence_json: { ...slotEvidence, why: problems } }));
+      continue;
+    }
+    const cur = held.find((h) => h.contact_id === id);
+    if (!cur) {
+      out.push(obs(b, 'NEW_RECORD', 'CREATE_PROGRAMME_CONTACT', { proposed_json: proposed, expected_old_json: { absent: true, contact_id: id, athletics_entity_id: entity, sport: page.sport, email, college_id: programme.id }, evidence_json: { ...slotEvidence, notes } }));
+      continue;
+    }
+    if (cur.status !== 'VERIFIED') { out.push(obs(b, 'POSSIBLE_CHANGE', null, { requires_review: 1, expected_old_json: { contact_id: id, status: cur.status }, evidence_json: { why: [`held as ${cur.status}; reinstatement is not automatic`] } })); continue; }
+    const upd = { observed_on_url: page.source_url, observed_at: page.fetched_at, currentness_checked_at: page.fetched_at, source: proposed.source, source_kind: page.source_kind };
+    out.push(obs(b, 'CONFIRMED_UNCHANGED', 'REFRESH_PROGRAMME_CONTACT', { proposed_json: upd, expected_old_json: { contact_id: id, status: 'VERIFIED', email, athletics_entity_id: entity, sport: page.sport }, evidence_json: { ...slotEvidence, notes } }));
+  }
+  if (page.source_complete) {
+    for (const h of held) {
+      if (seen.has(h.contact_id) || h.status !== 'VERIFIED') continue;
+      out.push(obs(base(page, 'PROGRAMME_CONTACT', g.res, g.src, { target_table: 'programme_contacts', target_key: h.contact_id }), 'DISAPPEARED_FROM_SOURCE', 'INVESTIGATE_PROGRAMME_CONTACT', { requires_review: 1, expected_old_json: { contact_id: h.contact_id }, evidence_json: { why: ['held programme contact absent from a complete official page; single-source absence is investigated, never deleted'] } }));
+    }
+  }
+  return out;
+}
+
 export function classifyPage(page, ctx, opts) {
   switch (page.dataset) {
+    case 'PROGRAMME_CONTACT': return classifyProgrammeContactPage(page, ctx, opts);
     case 'COACH': return classifyCoachPage(page, ctx, opts);
     case 'ROSTER': return classifyRosterPage(page, ctx, opts);
     case 'PROGRAMME': return classifyProgrammeObservation(page, ctx, opts);

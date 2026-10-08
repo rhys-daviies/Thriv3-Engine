@@ -57,6 +57,20 @@ export function measureDatabase(src, opts = {}) {
 }
 
 /**
+ * Phase 1B. Programme contacts as the gate and the post-apply re-measure see them: a digest
+ * per contact over everything but its write timestamps. created_at/updated_at are stamped at
+ * apply time, so a simulation and the live apply of the SAME batch differ only there — hashing
+ * them would make every promotion's live re-measure disagree with its simulation and revert.
+ */
+const PC_VOLATILE = new Set(['created_at', 'updated_at']);
+export function measureProgrammeContacts(rows = []) {
+  const digests = {};
+  for (const r of rows) digests[r.contact_id] = sha(JSON.stringify(Object.keys(r).sort().filter((k) => !PC_VOLATILE.has(k)).map((k) => [k, r[k]])));
+  const ids = Object.keys(digests).sort();
+  return { rows: rows.length, verified: rows.filter((r) => r.status === 'VERIFIED').length, hash: sha(ids.map((id) => `${id}:${digests[id]}`).join(',')), digests };
+}
+
+/**
  * The same measurement on an OPEN connection, without copying or writing anything: the reconciler
  * runs in-process (server/lib/coachReconciler.js, the engine the CLI uses) and every table is read
  * through `db`. On a connection holding an uncommitted transaction this measures the uncommitted
@@ -76,6 +90,7 @@ export function measureReconciled(db, rc) {
   const doms = db.prepare('SELECT domain, unitid, status FROM athletics_domains').all(); const domBy = new Map(doms.map((d) => [d.domain.toLowerCase(), d]));
   const has = (t) => !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(t);
   const links = has('programme_row_links') ? db.prepare('SELECT * FROM programme_row_links').all() : [];
+  const pcs = has('programme_contacts') ? db.prepare('SELECT * FROM programme_contacts ORDER BY contact_id').all() : [];
   const linked = new Set(links.map((l) => l.college_id));
   const pkey = (c) => `${c.athletics_entity_id || `ROW:${c.id}`}|${c.sport}`;
   const elig = rc.filter((r) => r.outreach_eligibility === 'YES');
@@ -113,6 +128,7 @@ export function measureReconciled(db, rc) {
     ncaa_truthful_hash: sha(ncaaT.join(',')), ncaa_truthful: ncaaT, ncaa_legacy_hash: sha(ncaaL.join(',')), ncaa_legacy: ncaaL,
     naia: { logical: naiaUniverse.size, active_rows: universe.NAIA.rows, covered: covered.size, covered_keys: [...covered].sort(), uncovered_keys: [...naiaUniverse].filter((k) => !covered.has(k)).sort(), eligible: membership.NAIA.eligible, strict_path: strict.filter((r) => truthDiv(r) === 'NAIA').length, strict_evidence_complete: complete },
     integrity,
+    programme_contacts: measureProgrammeContacts(pcs),
     canon: Object.fromEntries(rc.map((r) => [r.coach_id, r.canonical_college_id])),
     eligible_detail: Object.fromEntries(elig.map((r) => [r.coach_id, { college_id: r.canonical_college_id, entity: r.canonical_entity_id, email_seen_host: emailSeenHost[r.coach_id] }])),
   };
@@ -121,6 +137,7 @@ export function measureReconciled(db, rc) {
 /** Compact form for reports (drops id lists). */
 export function stripMeasure(m) {
   const { eligible_ids, ncaa_truthful, ncaa_legacy, canon, eligible_detail, ...rest } = m;
+  if (rest.programme_contacts) rest.programme_contacts = { rows: rest.programme_contacts.rows, verified: rest.programme_contacts.verified, hash: rest.programme_contacts.hash };
   return { ...rest,
     membership: Object.fromEntries(Object.entries(m.membership).map(([d, v]) => [d, { eligible: v.eligible, hash: v.hash }])),
     universe: Object.fromEntries(Object.entries(m.universe).map(([d, v]) => [d, { rows: v.rows, logical: v.logical, hash: v.hash }])),

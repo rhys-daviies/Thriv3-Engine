@@ -1,5 +1,6 @@
 import db from '../db/client.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
+import { outreachRecipientSql } from './recipient.js';
 
 /**
  * WHAT HAS ALREADY BEEN SENT TO THIS PROGRAMME FOR THIS ATHLETE.
@@ -49,12 +50,26 @@ import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
  * not. See the note on coach identity in docs terms: collapsing them safely
  * needs a coach identity model this does not have.
  */
+/**
+ * THE RECIPIENT, NOT A JOIN OF ITS OWN (recipient.js). A line is one relationship with one
+ * recipient: `recipient_kind` / `recipient_id` / `recipient_label` / `recipient_email` say which.
+ * The coach_* fields are COACH facts and stay exactly what they always were for a coach; for a
+ * programme inbox they are NULL — an inbox has no name, no title and no personal address, and
+ * nothing here fills one in. The inbox's address is `recipient_email`, its label
+ * `recipient_label` ("Cornell Men's Soccer").
+ */
+const R = outreachRecipientSql({ as: 'c' });
+
 const HISTORY = db.prepare(`
   SELECT
-    c.id                AS coach_id,
-    c.full_name         AS coach_name,
-    c.email             AS coach_email,
-    c.position_title,
+    ${R.coachId}        AS coach_id,
+    ${R.coachName}      AS coach_name,
+    ${R.coachEmail}     AS coach_email,
+    ${R.coachTitle}     AS position_title,
+    ${R.kind}           AS recipient_kind,
+    ${R.id}             AS recipient_id,
+    ${R.label}          AS recipient_label,
+    ${R.email}          AS recipient_email,
     o.created_at        AS relationship_opened_at,
     o.drafted_at        AS last_drafted_at,
     -- NAMED FOR WHAT IT IS. First-wins, by design in markOutreachSent.
@@ -69,9 +84,9 @@ const HISTORY = db.prepare(`
     (SELECT MAX(s.sent_at) FROM outreach_send s
       WHERE s.outreach_id = o.id AND s.state = @accepted)          AS last_confirmed_send_at
   FROM outreach o
-  JOIN coaches c ON c.id = o.coach_id
-  WHERE o.athlete_id = @athleteId AND c.school = @collegeName AND c.sport = @sport
-  ORDER BY COALESCE(o.sent_at, o.drafted_at, o.created_at) DESC, c.id
+  ${R.join}
+  WHERE o.athlete_id = @athleteId AND ${R.programmeName} = @collegeName AND ${R.sport} = @sport
+  ORDER BY COALESCE(o.sent_at, o.drafted_at, o.created_at) DESC, ${R.id}
 `);
 
 /**
@@ -88,9 +103,9 @@ const ORIGINS = db.prepare(`
 `);
 
 const OUTREACH_IDS = db.prepare(`
-  SELECT o.id, o.coach_id FROM outreach o
-    JOIN coaches c ON c.id = o.coach_id
-   WHERE o.athlete_id = @athleteId AND c.school = @collegeName AND c.sport = @sport
+  SELECT o.id, ${R.kind} AS recipient_kind, ${R.id} AS recipient_id FROM outreach o
+    ${R.join}
+   WHERE o.athlete_id = @athleteId AND ${R.programmeName} = @collegeName AND ${R.sport} = @sport
 `);
 
 /**
@@ -101,10 +116,12 @@ export function historyForAthleteProgramme({ athleteId, collegeName, sport }) {
   if (!athleteId || !collegeName || !sport) return [];
   const params = { athleteId, collegeName, sport };
 
-  const originsByCoach = new Map();
+  // keyed by RECIPIENT (kind + id): one relationship per athlete per recipient, of either kind
+  const key = (row) => `${row.recipient_kind}:${row.recipient_id}`;
+  const originsByRecipient = new Map();
   for (const row of OUTREACH_IDS.all(params)) {
-    originsByCoach.set(
-      row.coach_id,
+    originsByRecipient.set(
+      key(row),
       ORIGINS.all({ outreachId: row.id }).map((r) => r.origin),
     );
   }
@@ -123,6 +140,6 @@ export function historyForAthleteProgramme({ athleteId, collegeName, sport }) {
      * body was written, never that a coach received one.
      */
     has_confirmed_send: row.accepted_count > 0 || Boolean(row.first_confirmed_send_at),
-    origins: originsByCoach.get(row.coach_id) ?? [],
+    origins: originsByRecipient.get(key(row)) ?? [],
   }));
 }

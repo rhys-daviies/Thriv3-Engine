@@ -8,6 +8,7 @@ import { UNDECLARED_BUDGET } from '../../shared/matching/constants.js';
 import { majorLabelFor } from '../../shared/academicMajors.js';
 import { conferenceLabel } from '../../shared/conference.js';
 import { SLOT_TOKENS } from '../../shared/email/blocks.js';
+import { RECIPIENT_KIND, inboxTemplate } from '../../shared/recipientPresentation.js';
 
 // Section 11: The Email Template System — ported exactly.
 
@@ -631,15 +632,23 @@ export const BODY_SOURCE = Object.freeze({
  * whose evidence lookup failed still gets the email they always got.
  */
 export function emailBodyFor(player, college, coachName, {
-  profileUrl = null, evidence = null, structured = null,
+  profileUrl = null, evidence = null, structured = null, recipientKind = RECIPIENT_KIND.COACH,
 } = {}) {
-  const context = buildEmailContext(player, college, coachName, { profileUrl, evidence });
+  /**
+   * Phase 1F: a PROGRAMME INBOX has no name. It is composed with none — so no token can resolve
+   * to one — and its template's greeting line becomes "Hi Coach,"; a template that names the
+   * coach anywhere else refuses (InboxCompositionError) rather than inventing somebody.
+   * A coach is composed exactly as before.
+   */
+  const inbox = recipientKind === RECIPIENT_KIND.PROGRAMME_INBOX;
+  const context = buildEmailContext(player, college, inbox ? null : coachName, { profileUrl, evidence });
   const composed = evidence?.composition?.template || null;
   const allowed = structured === null ? canComposeStructured(player) : Boolean(structured);
   const useStructure = Boolean(allowed && composed);
-  const template = useStructure
+  const chosen = useStructure
     ? composed
     : (player.email_template || DEFAULT_EMAIL_TEMPLATE);
+  const template = inbox ? inboxTemplate(chosen) : chosen;
   return {
     body: fillTemplate(template, context),
     source: useStructure ? BODY_SOURCE.STRUCTURED : BODY_SOURCE.TEMPLATE,

@@ -329,21 +329,27 @@ describe('the write happens once, last, and never silently', () => {
     for (const m of composed) expect(m.send).toBe(false);
   });
 
-  it('greets the first coach, the one the preview greeted', async () => {
+  it('greets each coach by their own name; the first exactly as the preview did', async () => {
     /**
      * With several contacts at a programme the body is composed ONCE, greeting
-     * the most senior — `draftOutreach` sorts by seniority before choosing —
-     * and the same body goes to each. Greeting anyone else would put a
-     * different name in front of the operator than the one they approved.
+     * the most senior — `draftOutreach` sorts by seniority before choosing.
+     *
+     * PHASE 1F.1: it used to go to every coach with that FIRST coach's greeting,
+     * because the send path only re-personalised "Dear X,". Now the greeting line —
+     * and only that line — is re-rendered for each recipient in the same form
+     * (first name, falling back to the full name). The first coach still receives
+     * exactly the previewed body; everything after the greeting is identical for all.
      */
     const athlete = makeAthlete();
     const evidence = evidenceOf(athlete, 'hookOnly');
     await draftOne({ athlete, college: COLLEGE, coaches: COACHES, evidence });
-    for (const m of composed) {
-      expect(m.body).toContain(`Hi ${COACHES[0].name.split(' ')[0]},`);
-      expect(m.body).not.toContain(COACHES[1].name.split(' ')[0] + ',');
-    }
+    expect(composed[0].body).toContain(`Hi ${COACHES[0].name.split(' ')[0]},`);
     expect(unwrap(composed[0].body)).toBe(preview(athlete, evidence).body);
+    // "J. Marsden" has no usable first name, so the composer's own fallback: the full name
+    expect(composed[1].body.split('\n')[0]).toBe(`Hi ${COACHES[1].name},`);
+    expect(composed[1].body).not.toContain(`Hi ${COACHES[0].name.split(' ')[0]},`);
+    const afterGreeting = (b) => unwrap(b).slice(unwrap(b).indexOf('\n'));
+    expect(afterGreeting(composed[1].body)).toBe(afterGreeting(composed[0].body));
   });
 
   it('writes nothing when composition cannot produce a body', async () => {

@@ -6,6 +6,7 @@ import { recordManualOutboundAttempt } from './outboundBudget.js';
 import { establishManualOnlyForConfirmedSend } from './manualContactStance.js';
 import { MESSAGE_STATE, ACCEPTED_SOURCE, OPEN_STATES } from '../../shared/outreachMessageState.js';
 import { OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
+import { sendRecipientSql } from './recipient.js';
 
 /**
  * ONE DRAFT, ONE OPERATOR, ONE ASSERTION — F7b.
@@ -292,6 +293,7 @@ const OPEN_LIST = OPEN_STATES.map((s) => `'${s}'`).join(', ');
  * MANUAL ONLY. A campaign draft is not something an operator confirms by hand,
  * and including one would put an action on screen that the route below refuses.
  */
+const PR = sendRecipientSql({ send: 's', as: 'c' });
 const PENDING = db.prepare(`
   SELECT
     s.id            AS send_id,
@@ -303,11 +305,14 @@ const PENDING = db.prepare(`
     s.drafted_at,
     s.state,
     s.origin,
-    c.full_name     AS coach_name,
-    c.position_title
+    ${PR.coachName} AS coach_name,
+    ${PR.coachTitle} AS position_title,
+    ${PR.kind} AS recipient_kind,
+    ${PR.id} AS recipient_id,
+    ${PR.label} AS recipient_label
   FROM outreach_send s
   JOIN outreach o ON o.id = s.outreach_id
-  LEFT JOIN coaches c ON c.id = s.coach_id
+  ${PR.join}
   WHERE s.athlete_id = @athleteId
     AND s.origin = @manual
     AND s.state IN (${OPEN_LIST})

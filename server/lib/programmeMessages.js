@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import { bodyHash } from '../../shared/evidence/sendSnapshot.js';
 import { utcNow } from './time.js';
+import { assertInboxBody } from '../../shared/recipientPresentation.js';
 
 /**
  * THE MESSAGE A CAMPAIGN INTENDS TO SEND, MADE DURABLE — F10b-2.
@@ -68,13 +69,19 @@ const FOR_ATTEMPT = db.prepare(
   'SELECT * FROM programme_messages WHERE programme_contact_attempt_id = ? ORDER BY step',
 );
 
-/** The attempt, with the coach it is pursuing and the campaign it belongs to. */
+/**
+ * The attempt, with the RECIPIENT it is pursuing and the campaign it belongs to — Phase 1F: a
+ * coach (as before) or a programme inbox. `coach_email` is that record's own address, never one
+ * a caller supplied; an attempt whose recipient record cannot be read is not found.
+ */
 const ATTEMPT = db.prepare(`
-  SELECT a.id, a.programme_campaign_id, a.coach_id, a.state AS attempt_state,
-         c.email AS coach_email, c.full_name AS coach_name
+  SELECT a.id, a.programme_campaign_id, a.coach_id, a.programme_contact_id, a.state AS attempt_state,
+         CASE WHEN a.coach_id IS NOT NULL THEN c.email ELSE pc.email END AS coach_email,
+         c.full_name AS coach_name
   FROM programme_contact_attempts a
-  JOIN coaches c ON c.id = a.coach_id
-  WHERE a.id = ?
+  LEFT JOIN coaches c ON c.id = a.coach_id
+  LEFT JOIN programme_contacts pc ON pc.contact_id = a.programme_contact_id
+  WHERE a.id = ? AND (c.id IS NOT NULL OR pc.contact_id IS NOT NULL)
 `);
 
 /** Rows leave this module with their snapshot parsed, never as stored JSON. */
@@ -131,8 +138,12 @@ export function messagesForAttempt(programmeContactAttemptId) {
 export function currentMessagesForAttempts(requests = []) {
   const wanted = new Map();
   for (const r of requests ?? []) {
-    if (r?.attemptId && Number.isInteger(r.step) && r.coachId) {
-      wanted.set(String(r.attemptId), { step: r.step, coachId: String(r.coachId) });
+    // Phase 1F: the current recipient is a coach or a programme inbox — exactly one.
+    if (r?.attemptId && Number.isInteger(r.step) && (r.coachId || r.programmeContactId)) {
+      wanted.set(String(r.attemptId), {
+        step: r.step, coachId: r.coachId ? String(r.coachId) : null,
+        programmeContactId: r.coachId ? null : String(r.programmeContactId),
+      });
     }
   }
 
@@ -149,20 +160,22 @@ export function currentMessagesForAttempts(requests = []) {
   for (let i = 0; i < ids.length; i += CURRENT_MESSAGE_CHUNK) {
     const chunk = ids.slice(i, i + CURRENT_MESSAGE_CHUNK);
     const rows = db.prepare(
-      `SELECT id, programme_contact_attempt_id, step, coach_id, state, generated_at
+      `SELECT id, programme_contact_attempt_id, step, coach_id, programme_contact_id, state, generated_at
        FROM programme_messages
        WHERE programme_contact_attempt_id IN (${chunk.map(() => '?').join(',')})`,
     ).all(...chunk);
 
     for (const row of rows) {
       const ask = wanted.get(row.programme_contact_attempt_id);
-      if (!ask || row.step !== ask.step || row.coach_id !== ask.coachId) continue;
+      if (!ask || row.step !== ask.step || (row.coach_id ?? null) !== ask.coachId
+        || (row.programme_contact_id ?? null) !== ask.programmeContactId) continue;
       out.set(row.programme_contact_attempt_id, {
         id: row.id,
         state: row.state,
         generatedAt: row.generated_at,
         step: row.step,
         coachId: row.coach_id,
+        programmeContactId: row.programme_contact_id ?? null,
       });
     }
   }
@@ -190,7 +203,8 @@ const CURRENT_MESSAGE_CHUNK = 400;
  */
 const WITH_CONTEXT = db.prepare(`
   SELECT m.*,
-         a.programme_campaign_id, a.coach_id AS attempt_coach_id, a.state AS attempt_state,
+         a.programme_campaign_id, a.coach_id AS attempt_coach_id,
+         a.programme_contact_id AS attempt_programme_contact_id, a.state AS attempt_state,
          a.step AS attempt_step,
          pc.campaign_id, pc.college_name, pc.sport, pc.state AS programme_state,
          pc.matchmaking_selection_id,
@@ -299,12 +313,18 @@ export function createProgrammeMessage({
     );
   }
   if (composedFor.programmeCampaignId !== attempt.programme_campaign_id
-    || composedFor.coachId !== attempt.coach_id) {
+    || (composedFor.coachId ?? null) !== (attempt.coach_id ?? null)
+    || (composedFor.programmeContactId ?? null) !== (attempt.programme_contact_id ?? null)) {
     throw fail(
       'COMPOSITION_ATTEMPT_MISMATCH',
       'This message was composed for a different coach or programme campaign than the attempt '
       + 'it is being filed under. Nothing was written.',
     );
+  }
+
+  // Phase 1F: what is frozen for a programme inbox opens "Hi Coach," and names nobody.
+  if (attempt.programme_contact_id) {
+    try { assertInboxBody(composition.body); } catch (err) { throw fail(err.code, err.message); }
   }
 
   const step = composition.step;
@@ -340,7 +360,9 @@ export function createProgrammeMessage({
     programme_contact_attempt_id: programmeContactAttemptId,
     step,
     coach_id: attempt.coach_id,
-    /** The SERVER's address for the coach this pursuit names. Never a caller's. */
+    // Phase 1F: or the programme inbox this pursuit names (exactly one of the two is set).
+    programme_contact_id: attempt.programme_contact_id ?? null,
+    /** The SERVER's address for the recipient this pursuit names. Never a caller's. */
     recipient_email: attempt.coach_email,
 
     generated_subject: composition.subject,
@@ -366,13 +388,13 @@ export function createProgrammeMessage({
 
   db.prepare(`
     INSERT INTO programme_messages (
-      id, programme_contact_attempt_id, step, coach_id, recipient_email,
+      id, programme_contact_attempt_id, step, coach_id, programme_contact_id, recipient_email,
       generated_subject, generated_body, subject, body,
       generated_body_hash, body_hash,
       evidence_snapshot, body_source, structure, policy_version, sequence_policy_version,
       state, generated_at, updated_at, reviewed_by_operator_id, reviewed_at
     ) VALUES (
-      @id, @programme_contact_attempt_id, @step, @coach_id, @recipient_email,
+      @id, @programme_contact_attempt_id, @step, @coach_id, @programme_contact_id, @recipient_email,
       @generated_subject, @generated_body, @subject, @body,
       @generated_body_hash, @body_hash,
       @evidence_snapshot, @body_source, @structure, @policy_version, @sequence_policy_version,
@@ -421,6 +443,10 @@ export function editProgrammeMessage(id, { subject, body, at = utcNow() } = {}) 
   const nextBody = body === undefined ? row.body : String(body ?? '');
   if (!nextSubject.trim()) throw fail('EMPTY_SUBJECT', 'A message needs a subject.');
   if (!nextBody.trim()) throw fail('EMPTY_BODY', 'A message needs a body.');
+  // Phase 1F: an operator's edit to a programme-inbox message keeps "Hi Coach," and names nobody.
+  if (row.programme_contact_id) {
+    try { assertInboxBody(nextBody); } catch (err) { throw fail(err.code, err.message); }
+  }
 
   // Nothing changed is not a write. A no-op edit must not restamp a timestamp
   // that dates a real one — the convention every writer in this build follows.

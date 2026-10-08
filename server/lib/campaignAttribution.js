@@ -2,6 +2,8 @@ import db from '../db/client.js';
 import { utcToday } from './time.js';
 import { isSuppressed } from './suppressions.js';
 import { campaignStanceDecision, CONTACT_REFUSAL as STANCE_REFUSAL } from './manualOutreachSafety.js';
+import { RECIPIENT_ERROR } from './recipient.js';
+import { assertProgrammeInbox } from './recipientSelection.js';
 
 /**
  * THE ONE CHECK THAT MAKES CAMPAIGN ATTRIBUTION MEAN ANYTHING.
@@ -47,6 +49,9 @@ const PROGRAMME_CAMPAIGN = db.prepare(`
 // `email` is selected because the gate checks suppression, which is keyed on
 // the address. Without it `isSuppressed(undefined)` quietly answered false.
 const COACH = db.prepare('SELECT id, full_name, email, school, sport FROM coaches WHERE id = ?');
+// Phase 1E: a programme inbox's address, for stance and suppression. `full_name` is NULL —
+// an inbox has no person's name and none is borrowed.
+const INBOX = { get: (id) => db.prepare('SELECT contact_id AS id, NULL AS full_name, email, NULL AS school, sport FROM programme_contacts WHERE contact_id = ?').get(id) };
 
 /**
  * Resolve a programme campaign and prove it belongs to this athlete and this
@@ -67,7 +72,7 @@ const COACH = db.prepare('SELECT id, full_name, email, school, sport FROM coache
  *
  * @returns {{id, campaign_id, athlete_id, college_name, sport}} the verified row.
  */
-export function resolveProgrammeCampaignFor({ programmeCampaignId, athleteId, coachId }) {
+export function resolveProgrammeCampaignFor({ programmeCampaignId, athleteId, coachId = null, programmeContactId = null }) {
   const pc = PROGRAMME_CAMPAIGN.get(programmeCampaignId);
   if (!pc) {
     throw fail('PROGRAMME_CAMPAIGN_NOT_FOUND', `No programme campaign ${programmeCampaignId}`);
@@ -80,6 +85,21 @@ export function resolveProgrammeCampaignFor({ programmeCampaignId, athleteId, co
       `Programme campaign ${programmeCampaignId} belongs to a different athlete's campaign. `
       + 'Outreach is attributed to the campaign of the athlete it is sent for.',
     );
+  }
+
+  /*
+   * Phase 1E: the recipient is a coach OR a programme inbox, never both, never neither. An
+   * inbox is proved to be THIS programme's by its athletics entity and sport (it has no
+   * `school` string); nothing here converts one kind into the other.
+   */
+  if (coachId && programmeContactId) throw fail(RECIPIENT_ERROR.OUTREACH_DOUBLY_ADDRESSED, 'A campaign contact names exactly one recipient: a coach or a programme inbox, not both.');
+  if (!coachId && programmeContactId) {
+    try {
+      assertProgrammeInbox(programmeContactId, { collegeName: pc.college_name, sport: pc.sport }, { requireEligible: false });
+    } catch (err) {
+      throw fail(err.code === 'PROGRAMME_CONTACT_NOT_FOUND' ? 'PROGRAMME_CONTACT_NOT_FOUND' : 'CAMPAIGN_PROGRAMME_MISMATCH', err.message);
+    }
+    return pc;
   }
 
   const coach = COACH.get(coachId);
@@ -213,7 +233,7 @@ const OUTREACH_BY_ID = db.prepare('SELECT id, revoked_at FROM outreach WHERE id 
  * @returns {{allowed: boolean, reason: string|null, programmeCampaign: object|null}}
  */
 export function campaignContactDecision({
-  programmeCampaignId, athleteId, coachId, outreachId = null, onDate = utcToday(),
+  programmeCampaignId, athleteId, coachId = null, programmeContactId = null, outreachId = null, onDate = utcToday(),
   /**
    * WHETHER THE THREE DATE AND LIFECYCLE CHECKS APPLY — see `standingProhibition`.
    *
@@ -227,7 +247,7 @@ export function campaignContactDecision({
   // the programme campaign exists, belongs to this athlete, and is for this
   // coach's programme and sport. Throws, because a mismatched id is a caller
   // bug rather than a state that changes with time.
-  const pc = resolveProgrammeCampaignFor({ programmeCampaignId, athleteId, coachId });
+  const pc = resolveProgrammeCampaignFor({ programmeCampaignId, athleteId, coachId, programmeContactId });
 
   const refuse = (reason, kind = refusalKindOf(reason)) => ({
     allowed: false, reason, kind, programmeCampaign: pc,
@@ -289,7 +309,9 @@ export function campaignContactDecision({
     if (row?.revoked_at) return refuse(CONTACT_REFUSAL.OUTREACH_REVOKED);
   }
 
-  const coach = COACH.get(coachId);
+  // The recipient's address: the coach's, or (Phase 1E) the programme inbox's. Stance and
+  // suppression are keyed on it either way.
+  const coach = coachId ? COACH.get(coachId) : (programmeContactId ? INBOX.get(programmeContactId) : null);
 
   /**
    * THE ATHLETE'S OWN STANCE ON THIS PROGRAMME — F6a.
@@ -427,11 +449,11 @@ function refusalMessage({ reason, programmeCampaign: pc, stanceProgramme = null 
  * campaign and is deliberately left exactly as it was.
  */
 export function authorisedProgrammeCampaignId({
-  programmeCampaignId, athleteId, coachId, outreachId = null, onDate = undefined,
+  programmeCampaignId, athleteId, coachId = null, programmeContactId = null, outreachId = null, onDate = undefined,
 }) {
   if (programmeCampaignId === null || programmeCampaignId === undefined) return null;
   return assertCampaignContactAllowed({
-    programmeCampaignId, athleteId, coachId, outreachId,
+    programmeCampaignId, athleteId, coachId, programmeContactId, outreachId,
     ...(onDate === undefined ? {} : { onDate }),
   }).id;
 }

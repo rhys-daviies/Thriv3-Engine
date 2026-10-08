@@ -1,0 +1,13 @@
+{
+ "approval_id": "APPROVAL-1GPRE-CLASS-B-38",
+ "approved_by": "user, in the 1G-PRE Protected Identity Repair brief (2026-10-08)",
+ "approved_at": "2026-10-08",
+ "basis": "The 38 Class B WRONG_INSTITUTION rows whose stored owner is proven independently (rule R1-R5): the 2026-09-01 verifier status rule turned the refutation of ANOTHER claimant into the whole row status. The other 11 WRONG_INSTITUTION rows stay unchanged.",
+ "constraints": [
+  "preserve the stored UNITID",
+  "preserve the refused claimant(s) in wrong_mappings",
+  "change only status, athletics_entity_id, ownership_class and notes",
+  "preserve every evidence and provenance column",
+  "applying to the development database requires a separate authorisation"
+ ]
+}

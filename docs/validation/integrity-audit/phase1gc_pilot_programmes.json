@@ -1,0 +1,14 @@
+{
+ "phase": "1G-B / 1G-C pilot",
+ "approved": "user, 1G-PRE brief Q7 and 1G-B brief decision 4 (2026-10-08)",
+ "note": "The seven approved pilot programmes. Read-only live fetching is approved for these pages; staging, promotion rehearsal and tests run on isolated database copies only.",
+ "programmes": [
+  { "athletics_entity_id": "AE-U190415", "sport": "mens-soccer", "label": "Cornell men" },
+  { "athletics_entity_id": "AE-U173124", "sport": "womens-soccer", "label": "Bemidji State women" },
+  { "athletics_entity_id": "AE-U216764", "sport": "womens-soccer", "label": "West Chester women" },
+  { "athletics_entity_id": "AE-U130697", "sport": "womens-soccer", "label": "Wesleyan women" },
+  { "athletics_entity_id": "AE-U170301", "sport": "mens-soccer", "label": "Hope men" },
+  { "athletics_entity_id": "AE-U164924", "sport": "womens-soccer", "label": "Boston College women" },
+  { "athletics_entity_id": "AE-U231174", "sport": "mens-soccer", "label": "Vermont men" }
+ ]
+}

@@ -9,6 +9,11 @@ import { persistTransportResult } from './executionResult.js';
  */
 import { productionTransport } from './productionTransport.js';
 import { reclaimRefusedExecution } from './executionRetry.js';
+import { isProgrammeInboxAddress, PROGRAMME_INBOX_ADDRESS_NOT_TYPED } from './recipientSelection.js';
+import { isSuppressed } from './suppressions.js';
+import db from '../db/client.js';
+
+const programmeContactRow = (id) => db.prepare('SELECT contact_id, email, status FROM programme_contacts WHERE contact_id = ?').get(id);
 
 /**
  * SENDING ONE REVIEWED MESSAGE, END TO END — D4.9.
@@ -184,6 +189,28 @@ async function transmitClaimed(claimed, { transport, at, message }) {
   if (!snapshot?.complete) {
     throw fail(EXECUTION_REFUSAL.EXECUTION_SNAPSHOT_INCOMPLETE,
       'The claim did not leave a complete frozen execution, so there is nothing safe to send.');
+  }
+
+  /**
+   * ---- 4b. the address is the recipient's own — Phase 1F ------------------
+   *
+   * The last look before the provider. A send addressed to a PROGRAMME INBOX goes only to that
+   * programme contact's own verified address, and not if it has opted out since the claim. An
+   * address that is any programme's inbox is never reached by a COACH-kind send: an inbox is
+   * written to as what it is, or not at all.
+   */
+  if (claimed.send?.programme_contact_id) {
+    const inboxRow = programmeContactRow(claimed.send.programme_contact_id);
+    if (!inboxRow || String(inboxRow.email).toLowerCase() !== String(snapshot.recipientEmail ?? '').trim().toLowerCase()) {
+      throw fail('RECIPIENT_EMAIL_CHANGED',
+        'This send is addressed to a programme inbox at a different address than the inbox on file. The provider was not called.');
+    }
+    if (isSuppressed(snapshot.recipientEmail)) {
+      throw fail('SUPPRESSED', 'This programme inbox has opted out of Thriv3. The provider was not called.');
+    }
+  } else if (isProgrammeInboxAddress(snapshot.recipientEmail)) {
+    throw fail(PROGRAMME_INBOX_ADDRESS_NOT_TYPED,
+      'This address is a programme inbox, and this send does not address it as one. The provider was not called.');
   }
 
   /* ---- 5. one provider attempt, outside every transaction --------------- */

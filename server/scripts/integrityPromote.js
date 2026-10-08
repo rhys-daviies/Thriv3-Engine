@@ -35,7 +35,7 @@ if (!dbPath) fail('Give --db.');
 if (/^\/data\//.test(path.resolve(dbPath))) fail('Refusing production /data path.');
 
 /** Metrics the live re-measure must reproduce exactly. */
-const fingerprint = (m) => JSON.stringify({ mem: Object.fromEntries(Object.entries(m.membership).map(([d, v]) => [d, v.hash])), uni: Object.fromEntries(Object.entries(m.universe).map(([d, v]) => [d, v.hash])), naia: [m.naia.logical, m.naia.covered, m.naia.eligible, m.naia.strict_path], integ: m.integrity });
+const fingerprint = (m) => JSON.stringify({ mem: Object.fromEntries(Object.entries(m.membership).map(([d, v]) => [d, v.hash])), uni: Object.fromEntries(Object.entries(m.universe).map(([d, v]) => [d, v.hash])), naia: [m.naia.logical, m.naia.covered, m.naia.eligible, m.naia.strict_path], integ: m.integrity, pc: m.programme_contacts?.hash ?? null });
 
 if (arg('revert')) {
   const db = new Database(dbPath, { fileMustExist: true, readonly: !apply });
