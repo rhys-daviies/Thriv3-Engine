@@ -96,7 +96,27 @@ export default function DecisionTab() {
     return matching.slice(0, shown);
   }, [list, query, shown]);
 
-  const names = useMemo(() => filtered.map((r) => r.name), [filtered]);
+  /**
+   * OPENED FROM A V2 MATCH CARD — Phase 3.
+   *
+   * This page's list is the previous engine's analysis; a Matcher V2 card can
+   * name a programme that list never held, or an athlete may have no such
+   * analysis at all. Then the named programme is assessed on its own - the
+   * evidence route takes any programme by name - rather than the page saying
+   * "run the analysis first" about a programme the operator is looking at.
+   *
+   * Only with `source=v2`, so a V1 card's link behaves exactly as before (a
+   * filter over the list), and only until the operator edits the filter.
+   */
+  const fromV2 = belongsToThisAthlete && searchParams.get('source') === 'v2';
+  const directName = fromV2 && preselected && query === preselected
+    && !list.some((r) => r.name === preselected) ? preselected : null;
+  const directDivision = directName ? (searchParams.get('division') ?? '') : '';
+
+  const names = useMemo(
+    () => (directName ? [directName] : filtered.map((r) => r.name)),
+    [directName, filtered],
+  );
   const { data, loading, failed } = useOperatorEvidence(player?.id, names);
 
   /**
@@ -105,6 +125,36 @@ export default function DecisionTab() {
    * operator removed cannot appear for the paint between the analysis arriving
    * and the relationships arriving.
    */
+  if (directName) {
+    return (
+      <div className="space-y-4" data-testid="decision-direct">
+        <div>
+          <h2 className="font-heading text-lg font-semibold">Decision Evidence</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            Opened from a Matcher V2 match card. This programme is assessed on its own because the
+            previous engine&rsquo;s analysis list does not include it.
+          </p>
+        </div>
+        <section className="rounded-lg border border-border p-4">
+          <div className="flex items-baseline justify-between gap-2 pb-3">
+            <h3 className="font-heading text-sm font-semibold">{directName}</h3>
+            {directDivision && <span className="text-xs text-muted-foreground">{directDivision}</span>}
+          </div>
+          <ProgrammeDecision
+            model={operatorEvidenceForCollege(data, directName)}
+            loading={loading}
+            failed={failed}
+          />
+        </section>
+        {list.length > 0 && (
+          <button type="button" onClick={() => setQuery('')} className="text-xs underline underline-offset-2 text-muted-foreground">
+            Show the full list instead
+          </button>
+        )}
+      </div>
+    );
+  }
+
   if (isActionablePending(actionableStatus)) {
     return <ActionableRecommendationsState status={actionableStatus} onRetry={reload} />;
   }

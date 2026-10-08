@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Disclosure } from '@/components/ui/Disclosure';
@@ -93,6 +94,13 @@ function LayerMeter({ layer }) {
  * decided; it chooses layout.
  * ===========================================================================
  */
+/** The programme's Decision Evidence, opened directly from a V2 card. */
+export function decisionEvidenceHref(playerId, programme) {
+  const q = new URLSearchParams({ college: programme.name, source: 'v2' });
+  if (programme.division) q.set('division', programme.division);
+  return `/player/${playerId}/decision?${q.toString()}`;
+}
+
 export default function MatchmakingResultCard({
   programme,
   /** Ratings, cost and roster departures, from the page's one bounded read. */
@@ -109,6 +117,7 @@ export default function MatchmakingResultCard({
   onExpand = null,
 }) {
   const [open, setOpen] = useState(false);
+  const { id: playerId } = useParams();
   const band = bandPresentation(programme.band);
   const state = statusPresentation(programme.status);
 
@@ -240,6 +249,24 @@ export default function MatchmakingResultCard({
           <p className="text-xs text-muted-foreground" data-testid="explanation-loading">
             Loading the explanation for this ranking…
           </p>
+        )}
+
+        {/*
+          Phase 3: Decision Evidence is off the primary tabs, so each card opens
+          it for its own programme. `source=v2` asks that page to show this
+          programme even when the previous engine's list never held it; the
+          name is the engine's own, encoded whole (Davis & Elkins, Mount St.
+          Mary's). Only under a player route - a card rendered anywhere else
+          has no athlete to open evidence for.
+        */}
+        {open && playerId && (
+          <Link
+            to={decisionEvidenceHref(playerId, programme)}
+            className="inline-block text-xs underline underline-offset-2 text-muted-foreground hover:text-foreground"
+            data-testid="view-full-evidence"
+          >
+            View full evidence
+          </Link>
         )}
       </Disclosure>
     </Card>
