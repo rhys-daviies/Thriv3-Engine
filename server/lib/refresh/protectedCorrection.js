@@ -122,29 +122,47 @@ export function applyProtectedCorrections(db, fx, { apply = false, now = new Dat
   if (problems.length) throw Object.assign(new Error(`protected correction refused: ${problems.length} problem(s)`), { problems });
   const before = plan.map((p) => p.row); const after = plan.map((p) => correctedRow(p, { now, fixture_hash }));
   if (!apply) return { applied: 0, manifest: null, before, after, dryRun: true };
-  const manifest = [];
+  let r;
   db.exec('BEGIN IMMEDIATE');
   try {
-    // Re-read inside the transaction: nothing may have moved between plan and write.
-    const again = planProtectedCorrections(db, fx);
-    if (again.problems.length) throw Object.assign(new Error('preconditions changed before write'), { problems: again.problems });
-    plan.forEach((p, i) => {
-      const nu = after[i];
-      const set = Object.fromEntries(MUTABLE_FIELDS.map((k) => [k, nu[k]]));
-      const res = db.prepare(`UPDATE athletics_domains SET ${MUTABLE_FIELDS.map((k) => `${k}=@${k}`).join(', ')} WHERE domain=@__domain AND status=@__status AND athletics_entity_id IS NULL`).run({ ...set, __domain: p.host, __status: p.row.status });
-      if (res.changes !== 1) throw new Error(`${p.action.action_id}: row changed during the write`);
-      manifest.push({ observation_id: p.action.action_id, action: 'PROTECTED_SOURCE_CORRECTION', entries: [{ kind: 'UPDATE', table: 'athletics_domains', key: { domain: p.host }, old: Object.fromEntries(MUTABLE_FIELDS.map((k) => [k, p.row[k] ?? null])), new: set }] });
-    });
-    for (const p of plan) {
-      const cur = db.prepare('SELECT * FROM athletics_domains WHERE domain = ?').get(p.host);
-      const changed = Object.keys(cur).filter((k) => !same(cur[k], p.row[k]));
-      if (changed.some((k) => !MUTABLE_FIELDS.includes(k))) throw new Error(`${p.host}: a non-mutable field changed (${changed.join(', ')})`);
-    }
-    if (postcheck) postcheck(db, plan);
+    r = applyProtectedCorrectionsInTransaction(db, fx, { now, postcheck });
     const integ = db.pragma('integrity_check', { simple: true }); if (integ !== 'ok') throw new Error(`integrity ${integ}`);
     db.exec('COMMIT');
   } catch (err) { try { db.exec('ROLLBACK'); } catch { /* */ } throw err; }
-  return { applied: plan.length, manifest: { phase: 'PROTECTED_SOURCE_CORRECTION', fixture_hash, applied_at: now, before, manifest }, before, after };
+  return { applied: r.applied, manifest: { phase: 'PROTECTED_SOURCE_CORRECTION', fixture_hash, applied_at: now, before: r.before, manifest: r.manifest }, before: r.before, after: r.after };
+}
+
+/**
+ * The write half of applyProtectedCorrections, for a caller that OWNS the transaction (the composite
+ * correction writer, Phase 8D.3C). It never opens, commits or rolls back: it refuses unless `db` is
+ * already inside a transaction, and it throws on any failure so the caller rolls back everything.
+ * Every rule is the same: the plan is (re-)read here, inside the transaction; only MUTABLE_FIELDS may
+ * change; `postcheck(db, plan)` runs after the writes. Returns { applied, manifest (promotion revert
+ * entries), before, after, plan }.
+ */
+export function applyProtectedCorrectionsInTransaction(db, fx, { now = new Date().toISOString(), postcheck = null, onAction = null } = {}) {
+  if (!db.inTransaction) throw new Error('applyProtectedCorrectionsInTransaction needs a caller-owned open transaction');
+  const fixture_hash = fixtureHash(fx);
+  // Read inside the transaction: nothing may have moved between plan and write.
+  const { plan, problems } = planProtectedCorrections(db, fx);
+  if (problems.length) throw Object.assign(new Error(`protected correction refused: ${problems.length} problem(s)`), { problems });
+  const before = plan.map((p) => p.row); const after = plan.map((p) => correctedRow(p, { now, fixture_hash }));
+  const manifest = [];
+  plan.forEach((p, i) => {
+    const nu = after[i];
+    const set = Object.fromEntries(MUTABLE_FIELDS.map((k) => [k, nu[k]]));
+    const res = db.prepare(`UPDATE athletics_domains SET ${MUTABLE_FIELDS.map((k) => `${k}=@${k}`).join(', ')} WHERE domain=@__domain AND status=@__status AND athletics_entity_id IS NULL`).run({ ...set, __domain: p.host, __status: p.row.status });
+    if (res.changes !== 1) throw new Error(`${p.action.action_id}: row changed during the write`);
+    manifest.push({ observation_id: p.action.action_id, action: 'PROTECTED_SOURCE_CORRECTION', entries: [{ kind: 'UPDATE', table: 'athletics_domains', key: { domain: p.host }, old: Object.fromEntries(MUTABLE_FIELDS.map((k) => [k, p.row[k] ?? null])), new: set }] });
+    if (onAction) onAction(p, i);
+  });
+  for (const p of plan) {
+    const cur = db.prepare('SELECT * FROM athletics_domains WHERE domain = ?').get(p.host);
+    const changed = Object.keys(cur).filter((k) => !same(cur[k], p.row[k]));
+    if (changed.some((k) => !MUTABLE_FIELDS.includes(k))) throw new Error(`${p.host}: a non-mutable field changed (${changed.join(', ')})`);
+  }
+  if (postcheck) postcheck(db, plan);
+  return { applied: plan.length, manifest, before, after, plan };
 }
 
 /**
