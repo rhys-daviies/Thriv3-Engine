@@ -11,6 +11,7 @@
  *
  * STAGE TYPES (rank = the only order allowed; equal ranks may repeat):
  *   1 COACH_CURRENTNESS / withhold_before_A   — disproven currentness -> PROVEN_STALE
+ *   1 COACH_EMAIL_ABSENCE                      — recorded address positively unpublished (8D.3D) -> observation row
  *   2 COACH_INSTITUTION                        — coach filed at the wrong programme -> right one
  *   3 COACH_CURRENTNESS / reinstate_after_B   — PROVEN_STALE -> CURRENT on the coach's own page
  *   4 PROTECTED_SOURCE_CORRECTION             — WRONG_INSTITUTION -> VERIFIED (protectedCorrection)
@@ -37,7 +38,7 @@
  */
 import crypto from 'node:crypto';
 import { fixtureHash, applyProtectedCorrectionsInTransaction, ownershipPostcheck, PROTECTED_CORRECTION_KIND } from './protectedCorrection.js';
-import { applyCoachInstitutionInTransaction, applyCoachCurrentnessInTransaction, COACH_INSTITUTION_KIND, COACH_CURRENTNESS_KIND, CURRENTNESS_GROUPS } from './coachCorrection.js';
+import { applyCoachInstitutionInTransaction, applyCoachCurrentnessInTransaction, applyCoachEmailAbsenceInTransaction, COACH_INSTITUTION_KIND, COACH_CURRENTNESS_KIND, COACH_EMAIL_ABSENCE_KIND, CURRENTNESS_GROUPS } from './coachCorrection.js';
 import { measureInProcess, DIVISIONS } from './integrityMeasure.js';
 import { revertManifest } from './promotion.js';
 import { loadRefreshContext } from './context.js';
@@ -51,6 +52,7 @@ export const idSetHash = (ids) => sha([...ids].sort().join(','));
 
 /** Stage type + group -> its rank in the only permitted order. */
 export function stageRank(s) {
+  if (s.type === COACH_EMAIL_ABSENCE_KIND) return 1; // a withhold: positive email absence (8D.3D)
   if (s.type === COACH_CURRENTNESS_KIND && s.group === 'withhold_before_A') return 1;
   if (s.type === COACH_INSTITUTION_KIND) return 2;
   if (s.type === COACH_CURRENTNESS_KIND && s.group === 'reinstate_after_B') return 3;
@@ -106,7 +108,9 @@ function stageGate(db, ctx) {
   const rc = loadRefreshContext(db);
   const dis = hostOwnershipDisagreements({ resolver: rc.resolver, domains: rc.domains, entities: [...new Set(rc.entities.map((e) => e.athletics_entity_id))] });
   if ((dis.length ?? dis) !== 0) throw fail(`host ownership disagreements: ${dis.length ?? dis}`);
-  const fk = [...db.prepare('PRAGMA foreign_key_check(coaches)').all(), ...db.prepare('PRAGMA foreign_key_check(athletics_domains)').all()];
+  const hasAbs = !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='coach_email_absence_observations'").get();
+  const fk = [...db.prepare('PRAGMA foreign_key_check(coaches)').all(), ...db.prepare('PRAGMA foreign_key_check(athletics_domains)').all(),
+    ...(hasAbs ? db.prepare('PRAGMA foreign_key_check(coach_email_absence_observations)').all() : [])];
   if (fk.length) throw fail(`foreign_key_check: ${fk.length} violation(s)`);
   return ctx;
 }
@@ -144,11 +148,12 @@ export function runCompositeCorrection(db, stages, approval, { apply = false, no
       let r;
       if (s.type === PROTECTED_CORRECTION_KIND) r = applyProtectedCorrectionsInTransaction(db, s.fixture, { now, postcheck: ownershipPostcheck, onAction });
       else if (s.type === COACH_INSTITUTION_KIND) r = applyCoachInstitutionInTransaction(db, s.fixture, { onAction });
+      else if (s.type === COACH_EMAIL_ABSENCE_KIND) r = applyCoachEmailAbsenceInTransaction(db, s.fixture, { now, onAction });
       else r = applyCoachCurrentnessInTransaction(db, s.fixture, s.group, { now, onAction });
       const entries = r.manifest.reduce((n, m) => n + m.entries.length, 0);
       if (total() - t0 !== entries) throw fail(`${s.stage_id}: ${total() - t0} row change(s) but ${entries} manifest entr(ies) — an unaccounted write`);
       if (s.type === COACH_INSTITUTION_KIND) r.plan.forEach((p) => relabelled.set(p.row.id, p.target.id));
-      if (s.type === COACH_CURRENTNESS_KIND && s.group === 'withhold_before_A') r.plan.forEach((p) => withheld.add(p.row.id));
+      if ((s.type === COACH_CURRENTNESS_KIND && s.group === 'withhold_before_A') || s.type === COACH_EMAIL_ABSENCE_KIND) r.plan.forEach((p) => withheld.add(p.row.id));
       hit(`stage:${s.stage_id}:written`);
       stageGate(db, {});
       hit(`stage:${s.stage_id}:eligibility`);

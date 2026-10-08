@@ -23,6 +23,8 @@
 import { fixtureHash } from './protectedCorrection.js';
 import { normHost } from './identityResolver.js';
 import { isHeldDomain } from '../../../shared/heldDomainAdjudications.js';
+import { cycleOf } from './freshness.js';
+import { absenceObservationId, publicationConflicts } from '../emailPublication.js';
 
 export const COACH_INSTITUTION_KIND = 'COACH_INSTITUTION_CORRECTION';
 export const COACH_CURRENTNESS_KIND = 'COACH_CURRENTNESS';
@@ -167,4 +169,73 @@ export function applyCoachCurrentnessInTransaction(db, fx, group, { now = new Da
   const { plan, problems } = planCoachCurrentness(db, fx, group, { now });
   if (problems.length) throw Object.assign(new Error(`coach currentness (${group}) refused: ${problems.length} problem(s)`), { problems });
   return { applied: plan.length, plan, manifest: writePlan(db, plan, CURRENTNESS_MUTABLE, `${COACH_CURRENTNESS_KIND}:${group}`, onAction) };
+}
+
+// ---------------------------------------------------------------------------- EMAIL ABSENCE (8D.3D)
+export const COACH_EMAIL_ABSENCE_KIND = 'COACH_EMAIL_ABSENCE';
+const ABSENCE_FIELDS = ['observation_id', 'coach_id', 'email', 'observed_at', 'page_season', 'source_url', 'source_host', 'page_unitid', 'page_sport', 'parser_version', 'evidence_sha256',
+  'parse_status', 'staff_records', 'emails_published', 'coach_name_found', 'coach_email_found'];
+
+/**
+ * Plan a COACH_EMAIL_ABSENCE fixture: each action carries one `observation` produced by
+ * classifyEmailPublication (POSITIVELY_ABSENT). Every condition of the definition is re-checked here
+ * against the database as it stands — the coach's address, filing and sport, the host's own
+ * self-identification, the page season, and conflicting publication evidence. Never writes.
+ */
+export function planCoachEmailAbsence(db, fx, { now = new Date().toISOString() } = {}) {
+  const actions = fx?.actions; const problems = []; const plan = [];
+  if (fx?.kind !== COACH_EMAIL_ABSENCE_KIND) problems.push(`fixture kind must be ${COACH_EMAIL_ABSENCE_KIND} (got ${fx?.kind ?? 'none'})`);
+  if (!fx?.fixture_hash || fixtureHash(fx) !== fx.fixture_hash) problems.push('fixture_hash does not match the fixture body');
+  if (!Array.isArray(actions) || !actions.length) problems.push('no actions');
+  if (!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='coach_email_absence_observations'").get()) problems.push('coach_email_absence_observations does not exist (migrate the database first)');
+  if (problems.length) return { plan, problems };
+  const ids = new Set();
+  for (const a of actions) {
+    const o = a?.observation || {};
+    const label = a?.action_id || '?';
+    const missing = ['action_id', 'coach_id', 'coach', 'expected_old', 'observation', 'evidence', 'reason'].filter((k) => a?.[k] == null || a[k] === '');
+    if (missing.length) { problems.push(`${label}: missing ${missing.join(', ')}`); continue; }
+    const omiss = ABSENCE_FIELDS.filter((k) => o[k] == null || o[k] === '');
+    if (omiss.length) { problems.push(`${label}: observation missing ${omiss.join(', ')}`); continue; }
+    if (ids.has(o.observation_id)) { problems.push(`${label}: duplicate observation`); continue; } ids.add(o.observation_id);
+    if (o.coach_id !== a.coach_id) { problems.push(`${label}: observation is for another coach`); continue; }
+    if (absenceObservationId(o) !== o.observation_id) { problems.push(`${label}: observation_id does not reproduce`); continue; }
+    if (o.parse_status !== 'COMPLETE' || o.staff_records < 1 || o.emails_published < 1 || o.coach_name_found !== 1 || o.coach_email_found !== 0) { problems.push(`${label}: not a positive absence (parse ${o.parse_status}, records ${o.staff_records}, emails ${o.emails_published}, name ${o.coach_name_found}, email ${o.coach_email_found})`); continue; }
+    if (!/^[0-9a-f]{64}$/.test(o.evidence_sha256) || !/^https:\/\//.test(o.source_url)) { problems.push(`${label}: evidence hash / https source required`); continue; }
+    if (Number(o.page_season) !== cycleOf(o.observed_at)) { problems.push(`${label}: page season ${o.page_season} is not the cycle it was observed in (${cycleOf(o.observed_at)})`); continue; }
+    const row = coachRow(db, a.coach_id);
+    if (!row) { problems.push(`${label}: coach ${a.coach_id} ABSENT`); continue; }
+    if (row.full_name !== a.coach) { problems.push(`${label}: coach name "${row.full_name}" != "${a.coach}"`); continue; }
+    const pin = ['email', 'school', 'sport'].filter((k) => !(k in a.expected_old));
+    if (pin.length) { problems.push(`${label}: expected_old must pin ${pin.join(', ')}`); continue; }
+    if (!checkExpectedOld(row, a, problems)) continue;
+    if (String(row.email || '').trim().toLowerCase() !== o.email) { problems.push(`${label}: the observation is for ${o.email}, the coach's address is different`); continue; }
+    if (o.page_sport !== row.sport) { problems.push(`${label}: wrong sport (page ${o.page_sport}, coach ${row.sport})`); continue; }
+    const prog = programme(db, row.school, row.sport);
+    if (!prog || prog.active !== 1 || Number(prog.unitid) !== Number(o.page_unitid)) { problems.push(`${label}: wrong institution (page UNITID ${o.page_unitid}, coach filed at ${prog?.name ?? '?'} ${prog?.unitid ?? '?'})`); continue; }
+    const host = normHost(o.source_host);
+    const d = db.prepare('SELECT unitid, status FROM athletics_domains WHERE domain IN (?, ?)').all(host, host.replace(/^www\./, ''));
+    if (isHeldDomain(host) || !d.some((x) => SELF_IDENTIFIED.includes(x.status) && Number(x.unitid) === Number(o.page_unitid))) { problems.push(`${label}: ${host} does not self-identify as UNITID ${o.page_unitid}`); continue; }
+    if (hostOfUrl(o.source_url) !== host) { problems.push(`${label}: source_url host is not source_host`); continue; }
+    if (publicationConflicts(row, o.observed_at)) { problems.push(`${label}: conflicting official evidence — the address was observed published in this cycle or later`); continue; }
+    if (db.prepare('SELECT 1 FROM coach_email_absence_observations WHERE observation_id = ?').get(o.observation_id)) { problems.push(`${label}: observation already recorded`); continue; }
+    const insert = { ...Object.fromEntries(ABSENCE_FIELDS.map((k) => [k, o[k]])), other_email_for_coach: o.other_email_for_coach ?? null, fixture_hash: fx.fixture_hash, action_id: a.action_id, recorded_at: now };
+    plan.push({ action: a, row, insert });
+  }
+  return { plan, problems };
+}
+
+/** Record positive-absence observations inside a caller-owned transaction. Throws to refuse. */
+export function applyCoachEmailAbsenceInTransaction(db, fx, { now = new Date().toISOString(), onAction = null } = {}) {
+  if (!db.inTransaction) throw new Error('applyCoachEmailAbsenceInTransaction needs a caller-owned open transaction');
+  const { plan, problems } = planCoachEmailAbsence(db, fx, { now });
+  if (problems.length) throw Object.assign(new Error(`coach email absence refused: ${problems.length} problem(s)`), { problems });
+  const manifest = [];
+  plan.forEach((p, i) => {
+    const cols = Object.keys(p.insert);
+    db.prepare(`INSERT INTO coach_email_absence_observations (${cols.join(',')}) VALUES (${cols.map((k) => `@${k}`).join(',')})`).run(p.insert);
+    manifest.push({ observation_id: p.action.action_id, action: COACH_EMAIL_ABSENCE_KIND, entries: [{ kind: 'INSERT', table: 'coach_email_absence_observations', key: { observation_id: p.insert.observation_id }, new: p.insert }] });
+    if (onAction) onAction(p, i);
+  });
+  return { applied: plan.length, plan, manifest };
 }
