@@ -77,6 +77,9 @@ const ALLOWED = new Set([
   // Phase 1G-B: the READ-ONLY legacy reconciliation dry run — finds each legacy row's verified
   // replacement and checks it against the floor; opens its database query_only and writes nothing
   'server/scripts/legacyReconciliationReport.js',
+  // Phase 1G-E: the legacy reconciliation APPLY — writes only legacy_contact_reconciliation; names
+  // programme_contacts solely to fingerprint it as a table the apply must leave unchanged
+  'server/scripts/legacyReconciliationApply.js',
   // Phase 1G-D: the batch acquisition orchestrator — reads which programmes already hold a VERIFIED
   // contact (idempotency) on its OWN copies; every write goes through integrity:promote, never here
   'server/scripts/programmeContactAcquire.js',
