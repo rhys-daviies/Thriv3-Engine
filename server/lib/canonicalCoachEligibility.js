@@ -32,6 +32,8 @@ import { reconcileCoachRows } from './coachReconciler.js';
 import { ABSENCE_REASON } from './emailPublication.js';
 
 export const HOLDS_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../data/seeds/coach_activation_holds.json');
+/** The one input the reconciler reads from outside the database (coachReconciler.js reads it on every run). */
+export const DUP_MAP_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs/validation/generated/duplicate_unitid_canonical_map.json');
 
 export const CANONICAL_INELIGIBLE = Object.freeze({
   NO_CANONICAL_DECISION: 'COACH_NO_CANONICAL_DECISION',
@@ -61,20 +63,24 @@ function validHolds(seed) {
   return index;
 }
 
+const readOrNull = (file) => { try { return fs.readFileSync(file, 'utf8'); } catch { return null; } };
+
 let holdsMemo = null;
-/** coach_id -> hold row. Read once; a missing, malformed or inconsistent file fails CLOSED (every coach is treated as held). */
+/**
+ * coach_id -> hold row, from the file's CURRENT CONTENT. The file (~35 KB) is read on every call
+ * and compared byte for byte with what was last validated; only the parse and validation are
+ * reused, and only for identical content. No timestamp or size is trusted: an edit that keeps the
+ * file's size and modification time still takes effect on the very next check. A missing,
+ * malformed or inconsistent file fails CLOSED (every coach is treated as held).
+ */
 export function activationHolds(file = HOLDS_PATH) {
-  // re-read whenever the file changes, so a hold added to a running process applies to the next send
-  let stamp = null;
-  try { const st = fs.statSync(file); stamp = `${st.mtimeMs}:${st.size}`; } catch { stamp = 'missing'; }
-  if (holdsMemo && holdsMemo.file === file && holdsMemo.stamp === stamp) return holdsMemo.index;
-  let index;
-  try {
-    index = validHolds(JSON.parse(fs.readFileSync(file, 'utf8')));
-  } catch {
-    index = null; // fail closed: see activationHold
+  const content = readOrNull(file);
+  if (holdsMemo && holdsMemo.file === file && holdsMemo.content === content) return holdsMemo.index;
+  let index = null;
+  if (content !== null) {
+    try { index = validHolds(JSON.parse(content)); } catch { index = null; } // fail closed: see activationHold
   }
-  holdsMemo = { file, stamp, index };
+  holdsMemo = { file, content, index };
   return index;
 }
 /** The hold on a coach, or null. With no readable holds file every coach is held. */
@@ -91,13 +97,18 @@ function writeToken(handle) {
 }
 
 /**
- * The reconciler's decision for every coach on `handle`, fresh as of the connection's last write.
- * -> Map(coach_id -> reconciled row), plus `programmeOf` (colleges id -> logical programme id).
+ * The reconciler's decision for every coach on `handle`.
+ *   fresh: true   SEND TIME — always recomputed from the database and files as they are now
+ *                 (~90 ms); no cache is consulted. Every actual send boundary asks this way.
+ *   otherwise     selection (picker, plans, staff list) — reused until the connection observes a
+ *                 write of its own (total_changes) or another connection's commit (data_version),
+ *                 the scope changes, or the content of the reconciler's external map changes.
+ * -> { byCoach: Map(coach_id -> reconciled row), logical(collegeId), filedId(school, sport) }
  */
-export function canonicalDecisions(handle, { scope = process.env.STRICT_CORROB_SCOPE || 'NAIA' } = {}) {
-  const token = `${writeToken(handle)}|${scope}`;
+export function canonicalDecisions(handle, { scope = process.env.STRICT_CORROB_SCOPE || 'NAIA', fresh = false } = {}) {
+  const token = `${writeToken(handle)}|${scope}|${readOrNull(DUP_MAP_PATH)}`;
   const hit = memo.get(handle);
-  if (hit && hit.token === token) return hit.value;
+  if (!fresh && hit && hit.token === token) return hit.value;
   const byCoach = new Map(reconcileCoachRows(handle, { scope }).map((r) => [r.coach_id, r]));
   const hasLinks = !!handle.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='programme_row_links'").get();
   const canonOf = new Map(hasLinks ? handle.prepare('SELECT college_id, canonical_college_id FROM programme_row_links').all().map((l) => [l.college_id, l.canonical_college_id]) : []);
@@ -109,13 +120,14 @@ export function canonicalDecisions(handle, { scope = process.env.STRICT_CORROB_S
 
 /**
  * Why `row` (a coaches row: id, email, school, sport) is NOT canonically eligible at its filed
- * programme, or null. Read-only.
+ * programme, or null. Read-only. Pass { fresh: true } at send time.
  */
-export function canonicalIneligibility(row, handle, opts = {}) {
+export function canonicalIneligibility(row, handle, { decisions = null, ...opts } = {}) {
   if (!row?.id) return CANONICAL_INELIGIBLE.NO_CANONICAL_DECISION;
   const held = activationHold(row.id);
   if (held) return `${CANONICAL_INELIGIBLE.ACTIVATION_HELD}:${held.hold}`;
-  const d = canonicalDecisions(handle, opts);
+  // `decisions`: one fresh computation shared by the checks of a single send (recipientIneligibility)
+  const d = decisions || canonicalDecisions(handle, opts);
   const r = d.byCoach.get(row.id);
   if (!r) return CANONICAL_INELIGIBLE.NO_CANONICAL_DECISION;
   if (r.outreach_eligibility !== 'YES') {
