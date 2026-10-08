@@ -7,6 +7,7 @@ import { templateVariant } from '../../shared/evidence/templateVariant.js';
 import {
   emailBodyFor, fillTemplate, DEFAULT_EMAIL_SUBJECT,
 } from '../../src/lib/emailTemplate.js';
+import { withRepresentative } from '../db/entities/representative.js';
 
 /**
  * WHAT THIS CAMPAIGN WOULD ACTUALLY WRITE, COMPOSED ON THE SERVER — F10b-1.
@@ -201,7 +202,7 @@ function composeForProgrammeInbox(pc, programmeContactId) {
   try {
     assertProgrammeInbox(programmeContactId, { collegeName: pc.college_name, sport: pc.sport });
   } catch (err) { throw fail(err.code, err.message); }
-  const athlete = ATHLETE.get(pc.athlete_id);
+  const athlete = withRepresentative(ATHLETE.get(pc.athlete_id));
   if (!athlete) throw fail('ATHLETE_NOT_FOUND', `No athlete ${pc.athlete_id}`);
   const evidence = evidenceFor(athlete, pc.college_name, {
     sport: pc.sport, programmeCampaignId: pc.id, programmeContactId,
@@ -303,7 +304,7 @@ export function composeProgrammeMessage({ programmeCampaignId, coachId = null, p
     );
   }
 
-  const athlete = ATHLETE.get(pc.athlete_id);
+  const athlete = withRepresentative(ATHLETE.get(pc.athlete_id));
   if (!athlete) throw fail('ATHLETE_NOT_FOUND', `No athlete ${pc.athlete_id}`);
 
   /**

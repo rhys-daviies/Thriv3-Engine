@@ -9,6 +9,7 @@ import { majorLabelFor } from '../../shared/academicMajors.js';
 import { conferenceLabel } from '../../shared/conference.js';
 import { SLOT_TOKENS } from '../../shared/email/blocks.js';
 import { RECIPIENT_KIND, inboxTemplate } from '../../shared/recipientPresentation.js';
+import { representativeTokens } from '../../shared/representative.js';
 
 // Section 11: The Email Template System — ported exactly.
 
@@ -86,6 +87,10 @@ export const TEMPLATE_VARIABLES = [
 
 
   { token: 'player_name', label: 'Player Name' },
+  // Phase 2: the athlete's representative (falls back to the long-standing sign-off when none is assigned).
+  { token: 'representative_name', label: "Representative's name" },
+  { token: 'representative_email', label: "Representative's email" },
+  { token: 'representative_phone', label: "Representative's phone" },
   { token: 'player_first_name', label: 'Player First Name (for use after the introduction)' },
   { token: 'player_position', label: 'Player Position' },
   { token: 'player_position_plural', label: 'Position, plural (defenders)' },
@@ -176,6 +181,9 @@ export const DEFAULT_EMAIL_SUBJECT = '{{player_name}} | {{player_position}} | {{
  * has nothing, the email says nothing about the programme — which is what a
  * generic email is.
  */
+// Signed by the athlete's representative (Phase 2, shared/representative.js);
+// with none assigned the tokens give back the sign-off and number this
+// template always carried, so the rendered email is unchanged.
 export const DEFAULT_EMAIL_TEMPLATE = `Hi {{coach_name}},
 
 I'm reaching out regarding {{player_name}}, a {{player_position|lowercase}}{{#if has_nationality}} from {{player_nationality}}{{/if}} who is exploring opportunities for the {{player_class_year}} recruiting class.
@@ -189,11 +197,11 @@ I'm reaching out regarding {{player_name}}, a {{player_position|lowercase}}{{#if
 Profile and highlight film:
 {{player_profile_url}}
 
-Would you be open to taking a look at the profile and highlight film? If there\'s interest you can contact me directly via WhatsApp [[+64 21 920 775](tel:+6421920775)] to chat more.
+Would you be open to taking a look at the profile and highlight film? If there\'s interest{{#if has_representative_phone}} you can contact me directly via WhatsApp [[{{representative_phone}}](tel:{{representative_phone_tel}})] to chat more{{else}}, just reply to this email{{/if}}.
 
 Best regards,
-Rhys Davies
-Striv3 Elite Sports Management`;
+{{representative_name}}{{#if has_representative_organisation}}
+{{representative_organisation}}{{/if}}`;
 
 /**
  * Builds the token-resolution context from the player profile, a matched
@@ -464,6 +472,13 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
      * mononym renders as itself rather than as nothing.
      */
     player_first_name: (player.full_name || '').trim().split(/\s+/)[0] || '',
+    /**
+     * Phase 2: the athlete's representative, who signs the email and is the
+     * person a coach is told to contact. `player.representative` is attached by
+     * the server on every athlete read; absent, these are the sign-off values
+     * every email carried before representatives existed (shared/representative.js).
+     */
+    ...representativeTokens(player.representative ?? null),
     // The person, not the stored key. These read as prose in every template
     // that uses them — "a talented Defense who is exploring" was going out
     // to coaches, and "graduating defense(s) this season" under it.

@@ -148,9 +148,11 @@ function printEvidence(evidence) {
 
 function findAthlete(needle) {
   if (!needle) return null;
-  return Player.get(needle)
+  // Through the entity, so the athlete carries their representative for the sign-off.
+  const row = Player.get(needle)
     || db.prepare('SELECT * FROM players WHERE lower(full_name) = lower(?)').get(needle)
     || db.prepare("SELECT * FROM players WHERE lower(full_name) LIKE lower(?)").get(`%${needle}%`);
+  return row ? Player.get(row.id) : row;
 }
 
 /**

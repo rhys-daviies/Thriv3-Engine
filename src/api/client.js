@@ -127,6 +127,7 @@ export const entities = {
   College: makeEntity('colleges'),
   GraduatingSenior: makeEntity('graduating_seniors'),
   RosterPlayer: makeEntity('roster_players'),
+  Representative: makeEntity('representatives'),
 };
 
 /**

@@ -4,6 +4,7 @@ import { formatTimecode } from '../../shared/timecode.js';
 import { PROFILE_CSS } from './styles.js';
 import { TRACKER_JS } from './tracker.js';
 import { classYearOf } from '../../shared/athlete.js';
+import { telHref } from '../../shared/representative.js';
 
 /**
  * Renders one athlete into a self-contained public profile page.
@@ -27,6 +28,19 @@ const REQUIRED_CORE = [
   // a field that no longer exists.
   { key: 'recruiting_class_year', label: 'recruiting class year', test: (a) => present(classYearOf(a)) },
   { key: 'video_id', label: 'video', test: (a) => present(a.video_id) },
+  /*
+   * UNCHANGED BY PHASE 2, ON PURPOSE. The athlete's email is no longer printed
+   * on this page (it is private), but the requirement stays exactly as it was:
+   * publishing and sending both read this list, and loosening it would let
+   * outreach go out for athletes it refused before.
+   *
+   * The representative is deliberately NOT added. Requiring one would make
+   * every unassigned athlete's page ungeneratable - and outreach refuses a link
+   * to a page that cannot be generated - so it would silently stop all
+   * outreach until representatives were assigned. Assigned, they are the
+   * page's contact; unassigned, the page tells the coach to reply to the email
+   * that brought them there.
+   */
   { key: 'email', label: 'contact email', test: (a) => present(a.email) },
 ];
 
@@ -230,13 +244,25 @@ function academicsAndContact(athlete) {
     row('Intended major', athlete.intended_major),
   ]);
 
+  /**
+   * REPRESENTATIVE FIRST, AND THE ATHLETE'S OWN DETAILS NOT AT ALL — Phase 2.
+   *
+   * Anyone holding the link sees this page. The athlete's email and phone, and
+   * the guardian's name and email, are personal contact details of (often) a
+   * minor and their family; a coach is pointed to the representative instead.
+   * All of it stays in the operator workspace. The club coach stays: a
+   * professional reference a recruiting coach expects to be able to call.
+   */
+  const representative = athlete.representative ?? null;
+  const tel = representative ? telHref(representative.phone) : null;
   const contact = card('Contact', [
-    row('Athlete', athlete.full_name, { href: `mailto:${athlete.email}` }),
-    row('Guardian', athlete.guardian_name, athlete.guardian_email ? { href: `mailto:${athlete.guardian_email}` } : {}),
+    row('Representative', representative
+      ? [representative.full_name, representative.title, representative.organisation].filter(present).join(' · ')
+      : null, { mono: false }),
+    row('Email', representative?.email, representative?.email ? { href: `mailto:${representative.email}` } : {}),
+    row('Phone', tel ? representative.phone : null, tel ? { href: `tel:${tel}` } : {}),
     row('Club coach', athlete.club_coach_name, athlete.club_coach_email ? { href: `mailto:${athlete.club_coach_email}` } : {}),
-    row('Phone', athlete.phone),
     row('Time zone', athlete.time_zone),
-    row('Best contact window', athlete.best_contact_window),
   ]);
 
   if (!academics && !contact) return '';
@@ -334,7 +360,7 @@ export function renderProfile(athlete, { endpoint = '/api/track', dryRun = false
   <footer>
     Shared by ${esc(athlete.full_name)} via <span class="wordmark">Thriv<span>3</span></span>. This page
     records which film segments are viewed so the athlete knows their material reached you —
-    see the <a href="/privacy">privacy notice</a>. Reply directly to the contacts above.
+    see the <a href="/privacy">privacy notice</a>. To talk about ${esc(athlete.full_name)}, ${athlete.representative?.full_name ? 'contact their representative above' : 'reply to the email that brought you here'}.
   </footer>
 </div>
 

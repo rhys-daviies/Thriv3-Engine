@@ -66,6 +66,9 @@ function positionOption(stored) {
   return isKnownPosition(stored) ? positionLabel(stored) : stored;
 }
 
+/** Radix Select cannot hold '' as a value, so "none" has a sentinel of its own. */
+const NO_REPRESENTATIVE = '__none__';
+
 /** One picker body: the four groups, each headed, each led by its no-detail choice. */
 function PositionItems({ sport, exclude = null }) {
   return positionOptionGroups(sport).map((g) => (
@@ -118,6 +121,8 @@ function defaultsFrom(initialData) {
     preferred_states: initialData?.preferred_states || [],
     preferred_regions: initialData?.preferred_regions || [],
     preferred_institution_types: initialData?.preferred_institution_types || [],
+    // Phase 2: the coach-facing contact. '' is none; the sanitiser turns it into NULL.
+    representative_id: initialData?.representative_id || '',
     /**
      * READ-ONLY from here on. Kept in form state so the previous answer can be
      * shown as context and so the column survives a save untouched; the
@@ -156,6 +161,21 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
   const [colleges, setColleges] = useState([]);
   const [collegesLoading, setCollegesLoading] = useState(true);
   const [templateError, setTemplateError] = useState(null);
+  const [representatives, setRepresentatives] = useState([]);
+
+  /**
+   * Offered: every active representative, plus whoever this athlete already
+   * has even if they have since been deactivated - so opening the form never
+   * silently drops an assignment the server would have let them keep.
+   */
+  useEffect(() => {
+    let cancelled = false;
+    entities.Representative.list('full_name')
+      .then((rows) => { if (!cancelled) setRepresentatives(Array.isArray(rows) ? rows : []); })
+      .catch(() => { if (!cancelled) setRepresentatives([]); });
+    return () => { cancelled = true; };
+  }, []);
+  const representativeOptions = representatives.filter((r) => r.active || r.id === data.representative_id);
 
   // Conference options are dynamic, sourced from the College collection —
   // fetched once per sport (same bulk-fetch-then-filter-client-side pattern
@@ -672,6 +692,28 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             <p className="text-sm text-muted-foreground mt-1">
               What a college coach sees on the page you send them. Everything here is
               optional — anything left blank is left off the page entirely.
+            </p>
+          </div>
+
+          <div className="space-y-1.5 max-w-md" data-testid="representative-field">
+            <Label>Representative</Label>
+            <Select
+              value={data.representative_id || NO_REPRESENTATIVE}
+              onValueChange={(v) => set('representative_id')(v === NO_REPRESENTATIVE ? '' : v)}
+            >
+              <SelectTrigger data-testid="representative-select"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_REPRESENTATIVE}>No representative yet</SelectItem>
+                {representativeOptions.map((r) => (
+                  <SelectItem key={r.id} value={r.id}>
+                    {r.full_name}{r.active ? '' : ' (inactive)'}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              The person coaches contact about this athlete: shown on the coach-facing page and signing outreach.
+              Emails still send from the athlete&rsquo;s own mailbox. Manage the list under Representatives.
             </p>
           </div>
 

@@ -222,8 +222,15 @@ export const BLOCK_COPY = Object.freeze({
     default: 'Would be great to hear your thoughts on {{player_first_name}} for your'
       + ' {{player_class_year}} group.'
       + '\n\n'
-      + "If it's worth a look I'm happy to send over anything else that would help — you can"
-      + ' also reach me on WhatsApp [[+64 21 920 775](tel:+6421920775)].',
+      + "If it's worth a look I'm happy to send over anything else that would help"
+      /**
+       * The representative's number, not a constant (Phase 2). With no
+       * representative assigned the tokens carry the number this line always
+       * had, so the sentence is unchanged byte for byte; a representative with
+       * no phone ends the sentence at "help." rather than offering nothing.
+       */
+      + '{{#if has_representative_phone}} — you can also reach me on WhatsApp'
+      + ' [[{{representative_phone}}](tel:{{representative_phone_tel}})]{{/if}}.',
 
     /**
      * The follow-up's ask. ONE question, and the same question.
@@ -242,8 +249,15 @@ export const BLOCK_COPY = Object.freeze({
       + ' for your {{player_class_year}} group.',
   },
 
+  /**
+   * Signed by the athlete's representative (Phase 2), who is the person a
+   * coach replies to about the athlete. The email still SENDS from the
+   * athlete's own mailbox; only the signature names the representative. With
+   * none assigned this is the sign-off every email has always carried.
+   */
   [BLOCKS.SIGNOFF]: {
-    default: 'Best regards,\nRhys Davies\nStriv3 Elite Sports Management',
+    default: 'Best regards,\n{{representative_name}}'
+      + '{{#if has_representative_organisation}}\n{{representative_organisation}}{{/if}}',
   },
 });
 

@@ -164,7 +164,33 @@ export default function ProfileTab() {
           </dl>
         </Card>
 
-        <Block title="Contact">
+        {/*
+          THE COACH-FACING CONTACT — Phase 2. Rendered unconditionally, because
+          "nobody assigned" is the state that needs to be seen: it blocks the
+          public page and leaves outreach on the standard sign-off.
+        */}
+        <Card className="p-5" data-testid="profile-representative">
+          <h3 className="font-heading text-sm font-semibold mb-2">Representative</h3>
+          {player.representative ? (
+            <dl>
+              <Row label="Name" value={[player.representative.full_name, player.representative.active ? null : '(inactive)'].filter(Boolean).join(' ')} />
+              <Row label="Title" value={[player.representative.title, player.representative.organisation].filter(Boolean).join(' · ') || null} />
+              <Row label="Email" value={player.representative.email} />
+              <Row label="Phone" value={player.representative.phone} />
+            </dl>
+          ) : (
+            <p className="text-sm text-amber-600" data-testid="no-representative">
+              No representative assigned. The coach-facing page shows no contact (coaches are asked to reply to
+              the email they received), and outreach keeps the standard sign-off. Choose one in Edit Profile.
+            </p>
+          )}
+          <p className="text-[11px] text-muted-foreground mt-2">
+            Coaches are pointed to this person. Outreach still sends from the athlete&rsquo;s own mailbox, and the
+            athlete and guardian contact details below are never shown to coaches.
+          </p>
+        </Card>
+
+        <Block title="Contact (private — not shown to coaches)">
           <Row label="Athlete" value={player.email} href={player.email ? `mailto:${player.email}` : null} />
           <Row label="Phone" value={player.phone} />
           <Row label="Guardian" value={player.guardian_name} />

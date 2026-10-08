@@ -90,7 +90,9 @@ export default function PublicProfileFields({ data, set, sport }) {
       <div>
         <h3 className="font-heading text-sm font-semibold">Contact</h3>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Who a coach should reply to. The athlete's own email and phone come from the first step.
+          Coaches are pointed to the athlete&rsquo;s representative, chosen above. Guardian details and the
+          contact window stay private to Thriv3 and are never shown on the coach-facing page; the club
+          coach and time zone are shown as a reference.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
           <Field label="Guardian name">

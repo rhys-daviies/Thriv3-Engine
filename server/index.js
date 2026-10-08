@@ -9,6 +9,7 @@ import { Player } from './db/entities/player.js';
 import { College } from './db/entities/college.js';
 import { GraduatingSenior } from './db/entities/graduatingSenior.js';
 import { RosterPlayer } from './db/entities/rosterPlayer.js';
+import { Representative } from './db/entities/representative.js';
 
 import { seedD1Schools } from './routes/seedD1Schools.js';
 import { importSoccerScores } from './routes/importSoccerScores.js';
@@ -203,6 +204,7 @@ const ENTITIES = {
   colleges: College,
   graduating_seniors: GraduatingSenior,
   roster_players: RosterPlayer,
+  representatives: Representative,
 };
 
 function parseQuery(reqQuery) {
@@ -268,7 +270,13 @@ app.put('/api/entities/:table/:id', refuseManagedEntityWrite, writing((entity, r
 app.delete('/api/entities/:table/:id', blockPlayerHardDelete, refuseManagedEntityWrite, (req, res) => {
   const entity = ENTITIES[req.params.table];
   if (!entity) return res.status(404).json({ error: 'Unknown entity' });
-  res.json(entity.delete(req.params.id));
+  // An entity may refuse deletion outright (representatives are deactivated,
+  // never deleted) and says which status that is.
+  try {
+    return res.json(entity.delete(req.params.id));
+  } catch (err) {
+    return res.status(err.status ?? 500).json({ error: err.message });
+  }
 });
 
 // ---- Backend functions ----

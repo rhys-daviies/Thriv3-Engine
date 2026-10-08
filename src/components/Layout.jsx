@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Home, Trophy, Users, Database, BookOpen, LogOut } from 'lucide-react';
+import { Home, Trophy, Users, Database, BookOpen, LogOut, Contact } from 'lucide-react';
 import { Thriv3Mark, Thriv3Wordmark } from '@/components/Logo';
 import { useSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'Home', icon: Home },
   { to: '/sports', label: 'Sports', icon: Trophy },
   { to: '/players', label: 'Players', icon: Users },
+  { to: '/representatives', label: 'Representatives', icon: Contact },
   { to: '/colleges', label: 'College DB', icon: Database },
   { to: '/graduating-db', label: 'Graduating DB', icon: BookOpen },
 ];
@@ -38,7 +39,7 @@ export default function Layout() {
                   )}
                 >
                   <Icon className="h-4 w-4" />
-                  <span className="hidden sm:inline">{label}</span>
+                  <span className="hidden sm:inline whitespace-nowrap">{label}</span>
                 </Link>
               );
             })}
@@ -46,7 +47,8 @@ export default function Layout() {
                 orientation for one operator, not a feature. */}
             {operator && (
               <div className="flex items-center gap-1 ml-2 pl-3 border-l border-border">
-                <span className="hidden lg:inline text-xs text-muted-foreground max-w-[14rem] truncate"
+                {/* xl, not lg: with seven sections the address squeezed the labels onto two lines at 1024px. */}
+                <span className="hidden xl:inline text-xs text-muted-foreground max-w-[14rem] truncate"
                   title={operator.email}>
                   {operator.email}
                 </span>
