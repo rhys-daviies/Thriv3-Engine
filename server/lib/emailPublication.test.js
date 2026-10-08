@@ -22,7 +22,7 @@ const OWN = 142001; const OTHER = 320001;
 const SRC = 'https://ownerathletics.test/sports/womens-soccer/coaches';
 const coach = (over = {}) => ({ id: 'k-ab', full_name: 'Abby Example', email: 'ab1@owner.test', sport: 'womens-soccer', email_seen_on_source_at: null, email_seen_on_source_url: null, ...over });
 const prog = { unitid: OWN, sport: 'womens-soccer' };
-const page = (over = {}) => ({ page: { source_url: SRC, fetched_at: FETCHED, observed_season: 2026, sport: 'womens-soccer', source_complete: true, parser_version: 'sidearm-staff-1',
+const page = (over = {}) => ({ page: { source_url: SRC, fetched_at: FETCHED, observed_season: 2026, sport: 'womens-soccer', source_complete: true, parser_version: 'sidearm-staff-2', structure: 'STAFF_TABLE',
   adapter_evidence: { sha256: SHA, title: "2026 Women's Soccer Coaches - Owner College Athletics" },
   people: [{ full_name: 'Abby Example', role: 'Assistant Coach', email: 'ab1-sw@owner.test' }, { full_name: 'Head Person', role: 'Head Coach', email: 'hp@owner.test' }], ...over } });
 const classify = (o = {}) => classifyEmailPublication({ coach: coach(o.coach), programme: o.programme ?? prog, read: o.read === undefined ? page(o.page) : o.read, hostUnitid: 'hostUnitid' in o ? o.hostUnitid : OWN });
@@ -31,7 +31,7 @@ describe('the definition — classifyEmailPublication', () => {
   it('1. confirmed absence: complete, versioned, hashed, own institution and sport, coach named, address absent', () => {
     const r = classify();
     expect(r.status).toBe(POSITIVELY_ABSENT);
-    expect(r.observation).toMatchObject({ coach_id: 'k-ab', email: 'ab1@owner.test', page_unitid: OWN, page_season: 2026, parser_version: 'sidearm-staff-1', evidence_sha256: SHA, staff_records: 2, emails_published: 2, other_email_for_coach: 'ab1-sw@owner.test' });
+    expect(r.observation).toMatchObject({ coach_id: 'k-ab', email: 'ab1@owner.test', page_unitid: OWN, page_season: 2026, parser_version: 'sidearm-staff-2', evidence_sha256: SHA, staff_records: 2, emails_published: 2, other_email_for_coach: 'ab1-sw@owner.test' });
     expect(r.observation.observation_id).toMatch(/^[0-9a-f]{64}$/);
   });
   it('2. confirmed publication: the address on the coach\'s entry, or anywhere on the page', () => {
@@ -66,6 +66,12 @@ describe('the definition — classifyEmailPublication', () => {
     expect(classify({ page: { observed_season: 2025 } }).status).toBe(UNKNOWN);
     expect(classify({ page: { adapter_evidence: { sha256: SHA, title: '2024 Women\'s Soccer Coaches' } } }).status).toBe(UNKNOWN);
     expect(classify({ page: { adapter_evidence: { sha256: SHA, title: 'Women\'s Soccer Coaches' } } }).status).toBe(POSITIVELY_ABSENT);
+  });
+  it('8b. structure: a bio PROFILE can show publication but never absence; an unrecorded structure is not a list', () => {
+    expect(classify({ page: { structure: 'PROFILE', source_complete: false, people: [{ full_name: 'Abby Example', email: 'ab1@owner.test' }] } }).status).toBe(PUBLISHED);
+    expect(classify({ page: { structure: 'PROFILE', source_complete: false, people: [{ full_name: 'Abby Example', email: 'ab1-sw@owner.test' }] } }).status).toBe(UNKNOWN);
+    expect(classify({ page: { structure: undefined } }).status).toBe(UNKNOWN);
+    expect(classify({ page: { emails_on_page: ['ab1@owner.test'] } }).status).toBe(PUBLISHED); // printed elsewhere on the page: not absent
   });
   it('9. identity: the coach not named, or named twice, is UNKNOWN; a page publishing no addresses says nothing', () => {
     expect(classify({ page: { people: [{ full_name: 'Head Person', email: 'hp@owner.test' }] } }).status).toBe(UNKNOWN);

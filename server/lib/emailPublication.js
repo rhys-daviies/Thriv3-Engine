@@ -7,9 +7,10 @@
  *   UNKNOWN            anything less — the treatment of the coach does not change
  *
  * POSITIVELY_ABSENT requires ALL of:
- *   1. the page was fetched (no block, no refusal) and parsed COMPLETELY by a versioned repository
- *      parser (refresh adapters) that read at least one person — a zero-record or partial parse is
- *      UNKNOWN, never absence;
+ *   1. the page was fetched (no block, no refusal) and parsed COMPLETELY, as a recognised staff
+ *      LIST, by a versioned repository parser (sidearm-staff-2) that read at least one person — a
+ *      zero-record, partial or profile (bio page) reading is UNKNOWN, never absence; PUBLISHED needs
+ *      only a verified current page, which may be a bio page;
  *   2. provenance: fetched_at, source_url (https), parser_version and the body's sha256;
  *   3. the host identifies itself as the coach's FILED institution (athletics_domains UNITID) and the
  *      page is for the coach's sport;
@@ -26,6 +27,7 @@
  */
 import crypto from 'node:crypto';
 import { cycleOf } from './refresh/freshness.js';
+import { STAFF_LISTS } from './refresh/adapters/sidearmStaff.js';
 
 export const EMAIL_PUBLICATION = Object.freeze({ PUBLISHED: 'PUBLISHED', POSITIVELY_ABSENT: 'POSITIVELY_ABSENT', UNKNOWN: 'UNKNOWN' });
 export const ABSENCE_REASON = 'recorded email positively not published on the official staff page (EMAIL_POSITIVELY_ABSENT)';
@@ -59,7 +61,6 @@ export function classifyEmailPublication({ coach, programme, read, hostUnitid })
   const page = read.page;
   if (!page) return unknown('no page');
   const people = Array.isArray(page.people) ? page.people : [];
-  if (!page.source_complete || people.length === 0) return unknown('incomplete parse: the parser did not read a complete staff list');
   const sha = page.adapter_evidence?.sha256;
   if (!page.parser_version || !page.fetched_at || !/^https:\/\//.test(page.source_url || '') || !/^[0-9a-f]{64}$/.test(sha || '')) return unknown('missing provenance (parser_version, fetched_at, https source_url, sha256)');
   if (page.sport !== coach.sport) return unknown(`wrong sport: page is ${page.sport}, coach is ${coach.sport}`);
@@ -71,13 +72,19 @@ export function classifyEmailPublication({ coach, programme, read, hostUnitid })
   if (titleYears.length && !titleYears.includes(cycle)) return unknown(`historical page: titled ${titleYears.join('/')}, fetched in cycle ${cycle}`);
   const mine = people.filter((p) => nameKey(p.full_name) && nameKey(p.full_name) === nameKey(coach.full_name));
   const email = lc(coach.email);
-  const published = people.map((p) => lc(p.email)).filter((e) => e.includes('@'));
+  // every address the page prints (sidearm-staff-2 lists all of them), else the people's own
+  const published = [...new Set([...(page.emails_on_page || []).map(lc), ...people.map((p) => lc(p.email))])].filter((e) => e.includes('@'));
+  // publication is positive evidence on any verified, current page — a coach's bio page included
   if (mine.some((p) => lc(p.email) === email) || published.includes(email)) return { status: EMAIL_PUBLICATION.PUBLISHED, reasons: ['address published on the official page'] };
+  // ABSENCE is a statement about a whole staff LIST: complete, recognised as a list, at least one person read
+  if (!page.source_complete || people.length === 0) return unknown(`incomplete parse: the parser did not read a complete staff list${page.incomplete_reason ? ` (${page.incomplete_reason})` : ''}`);
+  if (!STAFF_LISTS.includes(page.structure)) return unknown(`page structure ${page.structure ?? 'unrecorded'} is not a recognised staff list`);
   if (mine.length === 0) return unknown('coach not identified on the page (a currentness question, not an email one)');
   if (mine.length > 1) return unknown('coach name matches more than one person on the page');
   if (published.length === 0) return unknown('the page publishes no addresses at all');
   if (publicationConflicts(coach, page.fetched_at)) return unknown('conflicting official evidence: address observed published in this cycle or later');
-  const other = lc(mine[0].email).includes('@') ? lc(mine[0].email) : null;
+  const allMine = (page.person_emails || []).find((x) => nameKey(x.full_name) === nameKey(coach.full_name))?.emails || [mine[0].email].filter(Boolean);
+  const other = allMine.map(lc).find((e) => e.includes('@') && e !== email) || null;
   const observation = {
     coach_id: coach.id, email, observed_at: page.fetched_at, page_season: cycle, source_url: page.source_url, source_host: hostOfUrl(page.source_url),
     page_unitid: Number(programme.unitid), page_sport: page.sport, parser_version: page.parser_version, evidence_sha256: sha, parse_status: 'COMPLETE',
