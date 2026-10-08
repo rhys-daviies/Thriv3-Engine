@@ -1133,9 +1133,16 @@ function backfillAcademicRatingSource(db) {
   // one of which the modal-value inference below would call `rated`, because
   // 6.0 is nobody's divisional fill. A script that documents its own
   // placeholder should be believed over a statistical guess about it.
+  //
+  // Only rows not ALREADY labelled. SQLite fires an UPDATE trigger for every
+  // row an UPDATE matches, even when the value written equals the value there,
+  // so without this guard every boot rewrote the 28 labelled rows and moved
+  // `corpus_revision` by 28: no data changed, but every revision-gated cache
+  // and every checkpoint's revision read it as a corpus write.
   db.prepare(`
     UPDATE colleges SET academic_rating_source = 'placeholder'
     WHERE academic_rating IS NOT NULL AND identity_notes LIKE '%academic_rating are placeholders%'
+      AND academic_rating_source IS NOT 'placeholder'
   `).run();
 
   const divisions = db.prepare(

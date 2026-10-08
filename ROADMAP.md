@@ -2425,7 +2425,8 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
 ### 4.2 Product
 - [ ] Athlete-program match rating combining the above with Pillar 1's score.
 - [x] **Athlete profile, recruitment preferences and match explanations** —
-      2026-10-09, `feat/athlete-profile-matching` (PR open, not merged).
+      2026-10-09, PR #68, **merged to main as `67e8964`** (not yet deployed;
+      the first production boot adds three nullable `players` columns).
       Detailed primary/secondary positions per sport that resolve to the four
       groups the engine reads (rankings cannot move on detail); preferred
       states/regions reach V2's existing `locationFit`; division, conference,
@@ -2433,6 +2434,14 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
       (inside / outside / not on file), never scored; a "Not known yet" block
       surfaces the engine's unknowns. Engine files untouched; athletes with
       no location preference rank byte-identically to main.
+- [x] **A boot no longer moves `corpus_revision`** — 2026-10-09. The
+      placeholder academic-rating backfill rewrote its 28 already-labelled
+      colleges on every startup; the row triggers counted each as a corpus
+      write. No data changed and no run went stale (staleness reads the
+      content digest), but every boot invalidated other processes' corpus
+      caches (~1.2 s recompute each) and moved the revision every checkpoint
+      and Data Integrity preflight compares. Guarded to unlabelled rows;
+      `server/db/startupRevision.test.js` boots the real corpus twice.
 - [x] **Program-specific reporting** — ONE "Program Report" per school.
       **Rebuilt and frozen as the internal-data Programme Intelligence baseline
       on 2026-08-31**, on `feature/report-v2-lifecycle`: 9 to 30 pages in three
