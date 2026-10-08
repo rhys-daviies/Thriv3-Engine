@@ -17,6 +17,7 @@ import { createResolver, registrableDomain, emailDomain, DECISION } from './inst
 import { normalizeForMatch } from './coachingImport.js';
 import { isHeldDomain } from '../../shared/heldDomainAdjudications.js';
 import { buildEntityIndex, hostOf } from './athleticsEntity.js';
+import { qualifyingAbsence, ABSENCE_REASON } from './emailPublication.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -35,6 +36,11 @@ export function reconcileCoachRows(db, { scope = 'NAIA' } = {}) {
   const coachSel = ['id', 'full_name', 'email', 'school', 'sport', 'position_title', 'email_status', 'email_source_url', 'currentness_status', 'currentness_source_url', 'email_seen_on_source_at', 'email_seen_on_source_url']
     .map((c) => (coachCols.has(c) ? c : `NULL AS ${c}`)).join(', ');
   const coaches = all(`SELECT ${coachSel} FROM coaches`);
+  // PHASE 8D.3D — positive email absence (server/lib/emailPublication.js). No table, or no rows: inert.
+  const absenceByCoach = new Map();
+  if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='coach_email_absence_observations'").get()) {
+    for (const o of all('SELECT * FROM coach_email_absence_observations')) (absenceByCoach.get(o.coach_id) || absenceByCoach.set(o.coach_id, []).get(o.coach_id)).push(o);
+  }
 
   // PHASE 7B.2 — strict authoritative corroboration activation scope. The evidence model
   // is division-agnostic, but activation is gated conservatively (default NAIA-only) so no
@@ -202,6 +208,7 @@ export function reconcileCoachRows(db, { scope = 'NAIA' } = {}) {
     const hasRealEmail = co.email && co.email.includes('@') && co.email.toUpperCase() !== 'N/A';
     const isTeam = !co.full_name || !co.full_name.trim();
     const provenStale = co.currentness_status === 'PROVEN_STALE';
+    const emailAbsent = !!qualifyingAbsence(absenceByCoach.get(co.id), co, progRow);
 
     // the entity named by the SOURCE page itself (never the email domain)
     const srcEntity = src?.entity ?? null;
@@ -229,10 +236,11 @@ export function reconcileCoachRows(db, { scope = 'NAIA' } = {}) {
 
     const corroborated = corroborationMethod != null;
     const eligible = inst === DECISION.RESOLVED && emailStatus === 'verified' && hasRealEmail && !isTeam
-      && ['KEEP', 'REASSIGN'].includes(cls) && corroborated && !provenStale && !!resProg;
+      && ['KEEP', 'REASSIGN'].includes(cls) && corroborated && !provenStale && !emailAbsent && !!resProg;
     let ineligibleReason = '';
     if (!eligible) {
       if (provenStale) ineligibleReason = 'coach proven no longer current (PROVEN_STALE)';
+      else if (emailAbsent) ineligibleReason = ABSENCE_REASON;
       else if (!hasRealEmail || isTeam) ineligibleReason = 'no per-person address';
       else if (emailStatus !== 'verified') ineligibleReason = `email ${emailStatus}`;
       else if (inst !== DECISION.RESOLVED) ineligibleReason = parentOnly && inst === DECISION.WITHHOLD ? 'institution WITHHOLD (parent-only evidence; campus not proven)' : `institution ${inst}`;
@@ -311,6 +319,7 @@ export function reconcileCoachRows(db, { scope = 'NAIA' } = {}) {
     // Currentness fails outreach CLOSED only when a coach is PROVEN_STALE. UNKNOWN
     // (the default for every un-checked row) never disqualifies here.
     const provenStale = co.currentness_status === 'PROVEN_STALE';
+    const emailAbsent = !!qualifyingAbsence(absenceByCoach.get(co.id), co, collByNS.get(`${co.school}|${co.sport}`));
 
     // ---- Corroboration as an explicit, auditable method (Phase 7B.2) ----
     // Existing registry-corruption-immune paths (coach_seasons) are preserved EXACTLY.
@@ -345,10 +354,11 @@ export function reconcileCoachRows(db, { scope = 'NAIA' } = {}) {
 
     const corroborated = corroborationMethod != null;
     const eligible = inst === DECISION.RESOLVED && emailStatus === 'verified' && hasRealEmail && !isTeam
-      && ['KEEP', 'REASSIGN'].includes(cls) && corroborated && !provenStale;
+      && ['KEEP', 'REASSIGN'].includes(cls) && corroborated && !provenStale && !emailAbsent;
     let ineligibleReason = '';
     if (!eligible) {
       if (provenStale) ineligibleReason = 'coach proven no longer current (PROVEN_STALE)';
+      else if (emailAbsent) ineligibleReason = ABSENCE_REASON;
       else if (!hasRealEmail || isTeam) ineligibleReason = 'no per-person address';
       else if (emailStatus !== 'verified') ineligibleReason = `email ${emailStatus}`;
       else if (inst !== DECISION.RESOLVED) ineligibleReason = `institution ${inst}`;

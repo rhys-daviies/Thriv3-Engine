@@ -4,7 +4,8 @@ import path from 'node:path';
 import Database from 'better-sqlite3';
 import { migrate } from '../../db/migrate.js';
 import { fixtureHash, PROTECTED_CORRECTION_KIND, applyProtectedCorrectionsInTransaction } from './protectedCorrection.js';
-import { COACH_INSTITUTION_KIND, COACH_CURRENTNESS_KIND, planCoachCurrentness, planCoachInstitution, applyCoachInstitutionInTransaction } from './coachCorrection.js';
+import { COACH_INSTITUTION_KIND, COACH_CURRENTNESS_KIND, COACH_EMAIL_ABSENCE_KIND, planCoachCurrentness, planCoachInstitution, applyCoachInstitutionInTransaction } from './coachCorrection.js';
+import { absenceObservationId } from '../emailPublication.js';
 import { runCompositeCorrection, revertComposite, approvalHash, idSetHash, validateComposite, COMPOSITE_APPROVAL_KIND } from './compositeCorrection.js';
 import { measureInProcess } from './integrityMeasure.js';
 import { reconcileCoachRows } from '../coachReconciler.js';
@@ -240,5 +241,19 @@ describe('coach correction operations', () => {
     const { db, fx } = setup();
     expect(() => applyCoachInstitutionInTransaction(db, fx.B)).toThrow(/caller-owned/);
     expect(() => applyProtectedCorrectionsInTransaction(db, fx.A)).toThrow(/caller-owned/);
+  });
+});
+
+describe('composite correction — positive email absence as a rank-1 withhold (8D.3D)', () => {
+  it('24. an absence stage before the domain fix keeps that coach out; every other approved addition is unchanged', () => {
+    const { db, fx } = setup();
+    const o = { coach_id: 'k-good', email: 'alice@owner.test', observed_at: '2026-10-07T23:52:41.664Z', page_season: 2026, source_url: `https://${HOST}/sports/mens-soccer/coaches`, source_host: HOST,
+      page_unitid: OWN, page_sport: 'mens-soccer', parser_version: 'sidearm-staff-1', evidence_sha256: 'b'.repeat(64), parse_status: 'COMPLETE', staff_records: 4, emails_published: 3, coach_name_found: 1, coach_email_found: 0 };
+    const D = seal({ kind: COACH_EMAIL_ABSENCE_KIND, phase: 't', created_at: 't', actions: [{ action_id: 'D-good', coach_id: 'k-good', coach: 'Alice Good', expected_old: { email: 'alice@owner.test', school: 'Owner College', sport: 'mens-soccer' }, observation: { ...o, observation_id: absenceObservationId(o) }, evidence: 'staff page', reason: 'address not published' }] });
+    const stages = [{ stage_id: 'S0', type: COACH_EMAIL_ABSENCE_KIND, fixture: D }, ...STAGES(fx)];
+    const r = run(db, stages, approve(db, stages, { eligibility: { S4: ['k-back', 'k-moved'] } }));
+    expect(r.report.stages.map((x) => x.eligibility.added)).toEqual([[], [], [], [], ['k-back', 'k-moved']]);
+    expect(measureInProcess(db).eligible_ids).toEqual(['k-back', 'k-moved', 'k-other']);
+    expect(() => run(world(), [STAGES(fx)[3], stages[0]], approve(world(), [STAGES(fx)[3], stages[0]]))).toThrow(/refused/); // absence after the domain fix: out of order
   });
 });
