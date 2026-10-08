@@ -23,6 +23,7 @@ import {
   RECOMMENDATION_DIALOG_HINT, PREPARE_EMAILS, LINK_NOT_ACTIVATED, LINK_NOT_ACTIVATED_HINT,
 } from '@/lib/outreachLabels';
 import HandoffSection, { handoffsFrom } from '@/components/HandoffSection';
+import RepresentativeSignatureNotice from '@/components/RepresentativeSignatureNotice';
 
 /**
  * Whose name seeds the greeting in the editable draft. Every selected coach
@@ -514,6 +515,7 @@ export default function EmailComposer({
               onChange={(e) => { setBodyEdited(true); setBody(e.target.value); }}
               className="text-sm"
             />
+            <RepresentativeSignatureNotice representative={player?.representative ?? null} body={body} />
           </div>
         </div>
 

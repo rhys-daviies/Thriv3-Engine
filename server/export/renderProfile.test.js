@@ -6,6 +6,7 @@ const COMPLETE = {
   full_name: 'Nikau Brennan',
   position: 'Left Winger',
   secondary_position: 'None',
+  representative: { id: 'rep-1', full_name: 'Alex Morgan', email: 'alex@example.test', phone: '+1 415 555 0134', title: 'Recruiting consultant', organisation: 'Striv3 Elite Sports Management', active: 1 },
   graduation_year: 2027,
   video_id: 'aqz-KE-bpKQ',
   email: 'athlete@example.com',
@@ -155,7 +156,7 @@ describe('missing values omit their block entirely', () => {
 describe('academic record', () => {
   const base = {
     full_name: 'Test Athlete', position: 'Midfield', graduation_year: 2027,
-    email: 'a@b.com', video_id: 'aqz-KE-bpKQ', video_chapters: '[]',
+    email: 'a@b.com', video_id: 'aqz-KE-bpKQ', video_chapters: '[]', representative: COMPLETE.representative,
     public_slug: 'testslug', sport: 'mens-soccer',
   };
   const has = (html, label) => html.includes(`<dt>${label}</dt>`);
@@ -187,7 +188,7 @@ describe('academic record', () => {
 
 describe('class year, after the two fields merged', () => {
   const base = {
-    full_name: 'Test Athlete', position: 'Midfield', email: 'a@b.com',
+    full_name: 'Test Athlete', position: 'Midfield', email: 'a@b.com', representative: COMPLETE.representative,
     video_id: 'aqz-KE-bpKQ', video_chapters: '[]', public_slug: 'x', sport: 'mens-soccer',
   };
 
@@ -317,5 +318,56 @@ describe('detailed positions on the coach-facing page', () => {
     const html = renderProfile({ ...COMPLETE, position: 'Midfielder', secondary_position: 'None' });
     expect(html).toContain('Midfielder');
     expect(html).not.toContain('None');
+  });
+});
+
+describe('representative-first contact on the coach-facing page (Phase 2)', () => {
+  const html = renderProfile({
+    ...COMPLETE, email: 'athlete-private@example.com', phone: '+64 21 000 1111',
+    guardian_name: 'Pat Guardian', guardian_email: 'guardian-private@example.com',
+    best_contact_window: 'Weekday evenings', club_coach_name: 'Club Coach', club_coach_email: 'club@example.org',
+  });
+
+  it('names the representative first, with a mail link and a dialable phone', () => {
+    const contact = html.slice(html.indexOf('<h3>Contact</h3>'));
+    expect(contact.indexOf('Representative')).toBeGreaterThan(-1);
+    expect(contact.indexOf('Representative')).toBeLessThan(contact.indexOf('Club coach'));
+    expect(html).toContain('Alex Morgan · Recruiting consultant · Striv3 Elite Sports Management');
+    expect(html).toContain('href="mailto:alex@example.test"'); // the representative's address
+    expect(html).toContain('href="tel:+14155550134"');
+    expect(html).toContain('contact their representative above');
+  });
+
+  it('leaks no personal contact anywhere in the document - markup, attributes, scripts or tracking config', () => {
+    const page = renderProfile({
+      ...COMPLETE, email: 'zq-athlete@example.com', phone: '+64 21 000 9999', guardian_name: 'Zq Guardian',
+      guardian_email: 'zq-guardian@example.com', best_contact_window: 'Zq window', ncaa_eligibility_id: '2209991111',
+    });
+    for (const secret of ['zq-athlete', '000 9999', '0009999', 'Zq Guardian', 'zq-guardian', 'Zq window', '2209991111']) {
+      expect(page, secret).not.toContain(secret);
+    }
+    const config = JSON.parse(page.match(/<script>[\s\S]*?(\{[\s\S]*?\})\s*,/)?.[1] ?? '{}');
+    expect(Object.keys(config).sort()).toEqual(['athleteId', 'dryRun', 'endpoint', 'priorVisits', 'videoId']);
+  });
+
+  it('keeps the athlete and their family private', () => {
+    for (const secret of ['athlete-private@example.com', '+64 21 000 1111', 'Pat Guardian', 'guardian-private@example.com', 'Weekday evenings']) {
+      expect(html, secret).not.toContain(secret);
+    }
+  });
+
+  it('does not make a representative a requirement, and keeps the existing one', () => {
+    // Requiring a representative would stop outreach for every unassigned athlete
+    // (sending refuses a link to an ungeneratable page). The gate is unchanged.
+    expect(checkRequiredCore({ ...COMPLETE, representative: null })).toEqual([]);
+    expect(checkRequiredCore({ ...COMPLETE, email: null })).toEqual(['contact email']);
+  });
+
+  it('without a representative, keeps the athlete private and points the coach to their email', () => {
+    const bare = renderProfile({ ...COMPLETE, representative: null, email: 'athlete-private@example.com', guardian_email: 'g@example.com' });
+    expect(bare).not.toContain('athlete-private@example.com');
+    expect(bare).not.toContain('g@example.com');
+    expect(bare).toContain('reply to the email that brought you here');
+    expect(bare).not.toContain('>Representative<');
   });
 });

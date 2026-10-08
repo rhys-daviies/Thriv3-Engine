@@ -24,6 +24,7 @@ import RosterGaps from '@/pages/RosterGaps';
 import SeasonTrust from '@/pages/SeasonTrust';
 import GraduatingDatabase from '@/pages/GraduatingDatabase';
 import CSVAgent from '@/pages/CSVAgent';
+import Representatives from '@/pages/Representatives';
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ export default function App() {
               <Route path="*" element={<TabFallback />} />
             </Route>
             <Route path="/colleges" element={<Colleges />} />
+            <Route path="/representatives" element={<Representatives />} />
             <Route path="/colleges/roster-gaps" element={<RosterGaps />} />
             <Route path="/colleges/season-trust" element={<SeasonTrust />} />
             <Route path="/graduating-db" element={<GraduatingDatabase />} />

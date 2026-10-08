@@ -137,6 +137,13 @@ const PLAYER_COLUMNS = [
   ['preferred_states', 'TEXT'],
   ['preferred_regions', 'TEXT'],
   ['preferred_institution_types', 'TEXT'],
+
+  /**
+   * Phase 2: the representative coaches are told to contact (representatives.id).
+   * NULL on every existing row: nobody has been assigned, and assigning one is an
+   * operator decision, not a backfill.
+   */
+  ['representative_id', 'TEXT'],
 ];
 
 /**

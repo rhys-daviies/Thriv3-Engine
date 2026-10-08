@@ -3869,3 +3869,34 @@ CREATE TRIGGER IF NOT EXISTS trg_corpus_rev_arrivals_delete
 AFTER DELETE ON recruiting_arrivals BEGIN
   UPDATE corpus_revision SET revision = revision + 1 WHERE id = 1;
 END;
+
+-- ---------------------------------------------------------------------------
+-- REPRESENTATIVES — the consultant a college coach should contact about an
+-- athlete (Immediate-changes roadmap, Phase 2: representative-first contact).
+--
+-- A representative is a PERSON coaches are pointed to, not an account: it is
+-- deliberately separate from operator_users, which holds sign-in credentials
+-- and nothing a coach should see. Several representatives can exist, and each
+-- athlete names one in players.representative_id.
+--
+-- Contact only. A representative changes what coach-facing pages and emails SAY
+-- about who to contact; it never changes which mailbox sends or how OAuth is
+-- authorised - outreach still leaves from the athlete's connected mailbox.
+--
+-- Never hard-deleted (athletes and sent emails refer to them); `active = 0`
+-- retires one from new assignments while history keeps its name.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS representatives (
+  id TEXT PRIMARY KEY,
+  created_date TEXT NOT NULL,
+  updated_date TEXT NOT NULL,
+  created_by_id TEXT,
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  title TEXT,
+  organisation TEXT,
+  active INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_representatives_email ON representatives(email);

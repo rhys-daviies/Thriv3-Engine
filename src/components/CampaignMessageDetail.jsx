@@ -8,6 +8,7 @@ import {
   MESSAGE_COPY, messageStateLabel, evidenceSentences, shortDate, ROLE_COPY,
 } from '@/lib/campaignLabels';
 import { PROGRAMME_CONTACT_LABEL, PROGRAMME_CONTACT_HINT } from '@shared/recipientPresentation.js';
+import RepresentativeSignatureNotice from '@/components/RepresentativeSignatureNotice';
 
 /**
  * ONE EMAIL, READ THE WAY A PERSON READS AN EMAIL.
@@ -100,6 +101,8 @@ export default function CampaignMessageDetail({
   onRetry = null,
   onSave,
   onReview,
+  /** Phase 2: the athlete's current representative, for the signature notice. */
+  representative = null,
 }) {
   /**
    * THE OPERATOR'S DRAFT, HELD LOCALLY AND SENT ONLY WHEN THEY SAY SO.
@@ -421,6 +424,8 @@ export default function CampaignMessageDetail({
               data-testid="message-body"
             />
           )}
+          {/* Read from the stored body: it keeps the signature it was composed with. */}
+          <RepresentativeSignatureNotice representative={representative} body={reviewed ? message.body : body} />
         </Field>
 
         {/*

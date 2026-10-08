@@ -6,6 +6,7 @@ import { contributionPairError } from '../../../shared/matching/v2/financialRule
 import { PREFERENCE_FIELD_NAMES, normalisePriority } from '../../../shared/matching/v2/athletePreferences.js';
 import { isKnownPosition, hasSecondaryPosition } from '../../../shared/positions.js';
 import { preferenceListError } from '../../../shared/recruitmentPreferences.js';
+import { withRepresentative, representativeAssignmentError } from './representative.js';
 
 const columns = [
   'full_name', 'email', 'phone', 'graduation_year', 'recruiting_class_year', 'match_weights', 'criterion_ranking', 'origin', 'academic_minimum', 'high_school', 'city', 'state',
@@ -33,6 +34,9 @@ const columns = [
 
   // Recruitment preferences (shared/recruitmentPreferences.js)
   'preferred_states', 'preferred_regions', 'preferred_institution_types',
+
+  // Phase 2: who coaches contact about this athlete (representatives.id)
+  'representative_id',
 ];
 
 const jsonFields = [
@@ -146,6 +150,18 @@ function checkPositionsAndPreferences(data) {
   return data;
 }
 
+/**
+ * A representative named on a write must exist, and a retired one cannot be
+ * newly assigned (an athlete who already has them keeps them). Empty clears it.
+ */
+function checkRepresentative(data, existing = null) {
+  if (!data || !Object.prototype.hasOwnProperty.call(data, 'representative_id')) return data;
+  const next = data.representative_id === '' ? null : data.representative_id;
+  const err = representativeAssignmentError(next, existing?.representative_id ?? null);
+  if (err) throw new Error(err);
+  return next === data.representative_id ? data : { ...data, representative_id: next };
+}
+
 const slugTaken = (candidate) => !!db.prepare('SELECT 1 FROM players WHERE public_slug = ?').get(candidate);
 
 /**
@@ -159,10 +175,27 @@ function withSlug(data) {
   return { ...data, public_slug: generateUnique(generateSlug, slugTaken) };
 }
 
+/**
+ * Every athlete read carries `representative` - the public fields of the
+ * consultant `representative_id` names, or null - so the profile, the
+ * coach-facing page and every email composer see the same person without
+ * each looking them up. It is not a column: a write that echoes it back is
+ * filtered out by the entity's column list like any other unknown key.
+ */
+const read = (rows) => rows.map(withRepresentative);
+
 export const Player = {
   ...base,
-  create: (data) => base.create(withSlug(deriveVideoId(checkPriorities(checkContribution(checkPositionsAndPreferences(data)))))),
-  update: (id, data) => base.update(id, deriveVideoId(checkPriorities(checkContribution(checkPositionsAndPreferences(data), base.get(id))))),
+  get: (id) => withRepresentative(base.get(id)),
+  list: (sort, limit) => read(base.list(sort, limit)),
+  filter: (query, sort, limit) => read(base.filter(query, sort, limit)),
+  create: (data) => withRepresentative(base.create(withSlug(deriveVideoId(checkPriorities(checkContribution(
+    checkRepresentative(checkPositionsAndPreferences(data)))))))),
+  update: (id, data) => {
+    const existing = base.get(id);
+    return withRepresentative(base.update(id, deriveVideoId(checkPriorities(checkContribution(
+      checkRepresentative(checkPositionsAndPreferences(data), existing), existing)))));
+  },
 
   /**
    * The athletes currently being represented.
@@ -179,6 +212,6 @@ export const Player = {
    * So the screen asks for what the screen means, and nothing else changes.
    */
   listActive(sort, limit) {
-    return base.filter({ archived_at: null }, sort, limit);
+    return read(base.filter({ archived_at: null }, sort, limit));
   },
 };

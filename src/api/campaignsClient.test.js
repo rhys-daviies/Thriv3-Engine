@@ -92,7 +92,8 @@ describe('campaigns are not generic CRUD', () => {
    */
   it('offers no campaign entity', () => {
     expect(Object.keys(entities).sort()).toEqual([
-      'College', 'GraduatingSenior', 'Player', 'RosterPlayer',
+      // Representative: Phase 2's consultants, plain contact records (never deleted).
+      'College', 'GraduatingSenior', 'Player', 'Representative', 'RosterPlayer',
     ]);
     for (const key of Object.keys(entities)) expect(key).not.toMatch(/campaign|programme/i);
   });

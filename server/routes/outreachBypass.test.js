@@ -143,10 +143,12 @@ describe('there is exactly one coach-contact path', () => {
    * their email, their guardian's, their club coach's — are legitimately
    * mail links on their own profile and are not coach outreach, so those
    * fields are named as the permitted exceptions rather than the whole
-   * pattern being waved through.
+   * pattern being waved through. Phase 2 adds the athlete's REPRESENTATIVE -
+   * their own consultant, printed on their own coach-facing page in place of
+   * the athlete's personal email - by the same rule: named, not waved through.
    */
   it('has no mailto: built from a coach address', () => {
-    const ATHLETE_CONTACT = /(athlete|player|guardian|club_coach)/i;
+    const ATHLETE_CONTACT = /(athlete|player|guardian|club_coach|representative)/i;
     const offenders = [];
     for (const f of FILES) {
       if (allowed(f)) continue;
@@ -175,7 +177,7 @@ describe('there is exactly one coach-contact path', () => {
    * A construction anywhere else — a component, a hook, a worker, a script —
    * fails here whatever the allowlist says.
    */
-  const ATHLETE_CONTACT_LINE = /(athlete|player|guardian|club_coach|contactEmail)/i;
+  const ATHLETE_CONTACT_LINE = /(athlete|player|guardian|club_coach|contactEmail|representative)/i;
   const BUILDS_MAILTO = /(`|'|")mailto:[^'"`]*\$\{|(`|'|")mailto:['"`]\s*\+/;
 
   const linesBuildingMailto = (f) => read(f).split('\n')
