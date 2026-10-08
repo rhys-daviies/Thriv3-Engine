@@ -338,6 +338,18 @@ describe('representative-first contact on the coach-facing page (Phase 2)', () =
     expect(html).toContain('contact their representative above');
   });
 
+  it('leaks no personal contact anywhere in the document - markup, attributes, scripts or tracking config', () => {
+    const page = renderProfile({
+      ...COMPLETE, email: 'zq-athlete@example.com', phone: '+64 21 000 9999', guardian_name: 'Zq Guardian',
+      guardian_email: 'zq-guardian@example.com', best_contact_window: 'Zq window', ncaa_eligibility_id: '2209991111',
+    });
+    for (const secret of ['zq-athlete', '000 9999', '0009999', 'Zq Guardian', 'zq-guardian', 'Zq window', '2209991111']) {
+      expect(page, secret).not.toContain(secret);
+    }
+    const config = JSON.parse(page.match(/<script>[\s\S]*?(\{[\s\S]*?\})\s*,/)?.[1] ?? '{}');
+    expect(Object.keys(config).sort()).toEqual(['athleteId', 'dryRun', 'endpoint', 'priorVisits', 'videoId']);
+  });
+
   it('keeps the athlete and their family private', () => {
     for (const secret of ['athlete-private@example.com', '+64 21 000 1111', 'Pat Guardian', 'guardian-private@example.com', 'Weekday evenings']) {
       expect(html, secret).not.toContain(secret);

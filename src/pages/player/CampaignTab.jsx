@@ -727,6 +727,7 @@ export default function CampaignTab() {
         {noticeCard}
         <CampaignMessageDetail
           message={selected.message}
+          representative={player?.representative ?? null}
           programme={programmes.find(
             (p) => p.programmeCampaignId === selected.programmeCampaignId,
           ) ?? null}

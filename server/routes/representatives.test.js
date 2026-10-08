@@ -119,6 +119,35 @@ describe('assigning a representative to an athlete', () => {
   });
 });
 
+describe('assignment, deactivation and reassignment keep history', () => {
+  it('a representative survives deactivation; the athlete keeps them, then moves to another; nothing is lost', () => {
+    const a = Representative.create({ full_name: 'Alex Morgan', email: 'alex@example.test', phone: '+1 415 555 0134' });
+    const b = Representative.create({ full_name: 'Sam Lee', email: 'sam@example.test' });
+    const p = athlete({ representative_id: a.id, evaluation: 'Strong in the air' });
+    const college = { name: 'Example College', division: 'NCAA D1' };
+    // An email composed while Alex represents the athlete - stored text, as a programme message is.
+    const before = composeMessage({ athlete: Player.get(p.id), college, coachName: 'Pat' }).body;
+
+    Representative.update(a.id, { active: false });
+    expect(Player.get(p.id).representative).toMatchObject({ full_name: 'Alex Morgan', active: 0 });
+
+    Player.update(p.id, { representative_id: b.id });
+    const after = Player.get(p.id);
+    expect(after.representative.full_name).toBe('Sam Lee');
+    expect(after.evaluation).toBe('Strong in the air');
+    // The retired representative's record is intact, and cannot be newly re-assigned.
+    expect(Representative.get(a.id)).toMatchObject({ full_name: 'Alex Morgan', email: 'alex@example.test', active: 0 });
+    expect(() => Player.update(p.id, { representative_id: a.id })).toThrow(/no longer active/);
+    // Reactivated, they can be assigned again.
+    Representative.update(a.id, { active: true });
+    expect(Player.update(p.id, { representative_id: a.id }).representative.full_name).toBe('Alex Morgan');
+
+    // What was already written keeps the signature it was written with.
+    expect(before).toMatch(/Alex Morgan$/);
+    expect(composeMessage({ athlete: Player.get(p.id), college, coachName: 'Pat' }).body).toMatch(/Alex Morgan$/);
+  });
+});
+
 describe('server-composed emails', () => {
   const college = { name: 'Example College', division: 'NCAA D1' };
 

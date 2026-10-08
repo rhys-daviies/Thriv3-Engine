@@ -20,6 +20,7 @@ import {
 import { outreach } from '@/api/client';
 import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
 import EvidencePanel from '@/components/EvidencePanel';
+import RepresentativeSignatureNotice from '@/components/RepresentativeSignatureNotice';
 
 /**
  * One draft per programme on the page, addressed to its head coach.
@@ -399,6 +400,8 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
                     each. Read the preview below to see one rendered.</>}
             </p>
             <Textarea rows={10} value={body} onChange={(e) => setBody(e.target.value)} className="text-sm" disabled={busy} />
+            {/* The template is unrendered here, so the notice reads the assignment, not the body. */}
+            <RepresentativeSignatureNotice representative={player?.representative ?? null} />
             {!perProgramme && canComposeStructured(player) && body !== pristineTemplate && (
               <button
                 type="button"

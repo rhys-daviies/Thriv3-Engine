@@ -91,3 +91,39 @@ export function representativeError(data, existing = null) {
   }
   return null;
 }
+
+/** The legacy sign-off as it appears in a composed body. */
+const LEGACY_SIGNATURE = `${LEGACY_REPRESENTATIVE.full_name}\n${LEGACY_REPRESENTATIVE.organisation}`;
+
+export const SIGNATURE = Object.freeze({
+  LEGACY: 'LEGACY',                 // the long-standing consultant signature
+  REPRESENTATIVE: 'REPRESENTATIVE', // signed by the athlete's representative
+  OTHER: 'OTHER',                   // edited or custom; neither of the above
+});
+
+/**
+ * Which signature an operator is about to send, for the notice beside every
+ * composer. Read from the BODY when there is one, because a stored campaign
+ * message was composed earlier and keeps the signature it was written with,
+ * whoever is assigned now. Without a body it is what composition will produce.
+ */
+export function signatureState({ representative = null, body = null } = {}) {
+  const assigned = representative && present(representative.full_name);
+  if (body === null || body === undefined) {
+    return assigned
+      ? { kind: SIGNATURE.REPRESENTATIVE, name: representative.full_name }
+      : { kind: SIGNATURE.LEGACY, name: LEGACY_REPRESENTATIVE.full_name, reason: 'UNASSIGNED' };
+  }
+  const text = String(body);
+  if (text.includes(LEGACY_SIGNATURE) || text.includes(LEGACY_REPRESENTATIVE.phone)) {
+    return {
+      kind: SIGNATURE.LEGACY,
+      name: LEGACY_REPRESENTATIVE.full_name,
+      reason: assigned ? 'COMPOSED_BEFORE_ASSIGNMENT' : 'UNASSIGNED',
+    };
+  }
+  if (assigned && text.includes(`\n${String(representative.full_name).trim()}`)) {
+    return { kind: SIGNATURE.REPRESENTATIVE, name: representative.full_name };
+  }
+  return { kind: SIGNATURE.OTHER, name: null };
+}

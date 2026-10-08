@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   LEGACY_REPRESENTATIVE, representativeTokens, representativeError, telHref, publicRepresentative,
+  signatureState, SIGNATURE,
 } from './representative.js';
 import { fragmentFor } from './email/blocks.js';
 import { BLOCKS } from './evidence/structures.js';
@@ -87,5 +88,23 @@ describe('the fallback template (no evidence) is signed the same way', () => {
     expect(body({ ...ATHLETE, representative: REP })).toMatch(/\[\[\+1 \(415\) 555-0134\]\(tel:\+14155550134\)\] to chat more\.\n\nBest regards,\nAlex Morgan\nStriv3 Elite Sports Management$/);
     expect(body({ ...ATHLETE, representative: { ...REP, phone: null, organisation: null } }))
       .toMatch(/If there's interest, just reply to this email\.\n\nBest regards,\nAlex Morgan$/);
+  });
+});
+
+describe('which signature an operator is about to send', () => {
+  const legacyBody = fill(BLOCKS.SIGNOFF, ATHLETE);
+  const repBody = fill(BLOCKS.SIGNOFF, { ...ATHLETE, representative: REP });
+
+  it('warns LEGACY for an unassigned athlete, before and after composing', () => {
+    expect(signatureState({})).toMatchObject({ kind: SIGNATURE.LEGACY, reason: 'UNASSIGNED' });
+    expect(signatureState({ body: legacyBody })).toMatchObject({ kind: SIGNATURE.LEGACY, reason: 'UNASSIGNED' });
+  });
+  it('reads a stored message by its body: written before assignment still says LEGACY', () => {
+    expect(signatureState({ representative: REP, body: legacyBody })).toMatchObject({ kind: SIGNATURE.LEGACY, reason: 'COMPOSED_BEFORE_ASSIGNMENT' });
+  });
+  it('recognises the representative\'s own sign-off, and calls anything else OTHER', () => {
+    expect(signatureState({ representative: REP, body: repBody })).toMatchObject({ kind: SIGNATURE.REPRESENTATIVE, name: 'Alex Morgan' });
+    expect(signatureState({ representative: REP })).toMatchObject({ kind: SIGNATURE.REPRESENTATIVE });
+    expect(signatureState({ representative: REP, body: 'Cheers,\nSomeone else' }).kind).toBe(SIGNATURE.OTHER);
   });
 });

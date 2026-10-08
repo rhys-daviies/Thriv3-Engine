@@ -19,6 +19,8 @@ Detailed primary and secondary athlete positions are done (PR #68, main `67e8964
 
 Status: implemented on `feat/representative-contact` (PR open, not merged). A representative is recommended for every athlete, not enforced: making it a publish requirement would block all outreach for unassigned athletes, because sending refuses links to ungeneratable pages. With none assigned, emails keep the long-standing sign-off and the coach page shows no personal contact.
 
+**Sending and replies (unchanged by Phase 2).** Outreach is still sent from the athlete's own connected mailbox under the athlete's OAuth grant. The message sets `From` to that mailbox and sets no `Reply-To`, `Cc` or `Bcc` (`server/lib/rfc822.js`). **A coach who replies is therefore writing to the athlete's mailbox, not to the representative.** The representative is reached through the details in the email signature and on the coach-facing page. Every outreach review surface says this in its signature notice, and warns, without blocking, when the long-standing consultant signature will be used. Routing replies to representatives would be a separate design decision, not part of Phase 2.
+
 ## Phase 3 — Player Navigation & Conference Preferences
 
 Reorganize the player workspace into:
