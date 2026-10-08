@@ -316,7 +316,7 @@ export const INELIGIBLE_REASON = Object.freeze({
  * A goalkeeper coach is pursued only for a goalkeeper, which is `shouldContact`'s
  * existing rule and is applied here through the athlete's own position.
  */
-const PURSUED_ROLES = Object.freeze(['head', 'associate-head', 'assistant']);
+export const PURSUED_ROLES = Object.freeze(['head', 'associate-head', 'assistant']);
 
 /**
  * A shared team inbox is a LAST RESORT, never one of several approaches.
