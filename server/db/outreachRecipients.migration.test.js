@@ -10,6 +10,7 @@ import { createOutreach } from '../lib/outreach.js';
 import { recordDraft } from '../lib/outreachSend.js';
 import { confirmSent } from '../lib/confirmSends.js';
 import { findOrCreateCoach } from '../lib/coaches.js';
+import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
 
 /**
  * PHASE 1D — THE FIVE-TABLE TYPED-RECIPIENT REBUILD, ON A DATABASE SHAPED LIKE THE REAL ONE.
@@ -69,8 +70,10 @@ beforeAll(() => {
   db.prepare("INSERT INTO campaigns (id, athlete_id, sport, state, starts_on, created_at, updated_at, snapshot_taken_at, programme_count) VALUES ('mig-camp', ?, 'mens-soccer', 'active', '2020-01-01', ?, ?, ?, 0)").run(ATHLETE, T, T, T);
   db.prepare("INSERT INTO programme_campaigns (id, campaign_id, college_name, sport, rank, match_score, tier, tier_source, state, created_at, updated_at) VALUES ('mig-pc', 'mig-camp', 'Alpha', 'mens-soccer', 1, 82, 'A', 'AUTO', 'queued', ?, ?)").run(T, T);
   const coaches = [0, 1].map((i) => findOrCreateCoach({ full_name: `${'AB'[i]} Coach`, email: `c${i}@alpha.edu`, school: 'Alpha', sport: 'mens-soccer', division: 'NCAA D1', position_title: i ? 'Assistant Coach' : 'Head Coach' }));
-  // verified addresses, so the Phase 8A floor pursues them through the real planner
+  // verified addresses, so the Phase 8A floor pursues them through the real planner — and the
+  // corroboration the canonical send floor requires (PR #64), or no attempt is prepared for them
   db.prepare("UPDATE coaches SET email_status = 'verified', currentness_status = 'CURRENT' WHERE school = 'Alpha'").run();
+  corroborateFixtureCoaches(db, { ids: coaches.map((c) => c.id) });
   materialiseNextContactAttempt({ programmeCampaignId: 'mig-pc' });
   generateProgrammeMessage({ programmeCampaignId: 'mig-pc', coachId: coaches[0].id });
   db.prepare("INSERT INTO campaign_first_touch_approvals (id, programme_campaign_id, coach_id, approved_by_operator_id, approved_at, reviewed_confirmed_send_count) VALUES ('mig-fta', 'mig-pc', ?, 'op-1', ?, 0)").run(coaches[1].id, T);
