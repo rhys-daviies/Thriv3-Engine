@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import db from '../db/client.js';
+import { makeCoachesSendable } from '../testCanonicalCoaches.js';
 import { materialiseNextContactAttempt } from './pursuitPolicy.js';
 import { generateProgrammeMessage } from './programmeMessageGeneration.js';
 import { reviewProgrammeMessage, programmeMessage } from './programmeMessages.js';
@@ -24,11 +25,10 @@ import { findOrCreateCoach } from './coaches.js';
 import { attemptForCoach } from './contactAttempts.js';
 import { MESSAGE_STATE, ACCEPTED_SOURCE, SEND_EVENT_TYPE } from '../../shared/outreachMessageState.js';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
+// Fixture coaches are made genuinely sendable (verified address + coach_seasons corroboration,
+// via server/testCanonicalCoaches.js): the send-time floor, including the canonical decision,
+// always applies and no operator flag lifts it. The floor itself is tested in
 // server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
 
 
 /**
@@ -108,6 +108,7 @@ function programme(campaignId, { id = `pc-${++seq}`, college = COLLEGE, staff = 
       position_title: i === 0 ? 'Head Coach' : 'Assistant Coach',
     }));
   }
+  makeCoachesSendable(db, coaches.map((c) => c.id));
   return { id, coaches };
 }
 
@@ -249,6 +250,7 @@ function anotherSendOnSameMailbox(mailboxId, { athleteId = ATHLETE } = {}) {
     division: 'NCAA D1',
     position_title: 'Assistant Coach',
   });
+  makeCoachesSendable(db, [coach.id]);
   const id = randomUUID();
   db.prepare('INSERT INTO outreach (id, athlete_id, coach_id, token, created_at) VALUES (?, ?, ?, ?, ?)')
     .run(id, athleteId, coach.id, `tok-${randomUUID().slice(0, 8)}`, NOW);
@@ -909,6 +911,7 @@ describe('the legacy path', () => {
       full_name: 'Legacy Coach', email: `legacy${++seq}@duke.edu`, school: COLLEGE,
       sport: 'mens-soccer', division: 'NCAA D1', position_title: 'Head Coach',
     });
+    makeCoachesSendable(db, [coach.id]);
     const o = db.prepare(
       'INSERT INTO outreach (id, athlete_id, coach_id, token, created_at) VALUES (?, ?, ?, ?, ?)',
     );

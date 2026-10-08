@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
+// Every coach this file sends to is seeded genuinely sendable (seedCoaches below: verified
+// address, filed at Butler, with coach_seasons corroboration): the send floor applies the
+// canonical decision at send time with no operator override, so a refusal here (suppressed,
+// rate-capped, budget) is refused for that reason and no other. The floor itself is tested in
 // server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
 
 
 /**
@@ -39,6 +39,7 @@ const { utcDayWindow, utcToday } = await import('../lib/time.js');
 const { OUTLOOK_FROM_ADDRESS, ATHLETE_DAILY_OUTBOUND_LIMIT } = await import('../lib/config.js');
 const { sendsForOutreach } = await import('../lib/outreachSend.js');
 const { recentSendCount } = await import('../lib/sendCap.js');
+const { seedSendableCoach } = await import('../testCanonicalCoaches.js');
 
 const MAILBOX = OUTLOOK_FROM_ADDRESS.trim().toLowerCase();
 /** Today's window, because the send path stamps `utcNow()` and cannot be told otherwise. */
@@ -51,6 +52,17 @@ const COACHES = [
 const BODY = 'Dear A. Whitfield,\n\nI am writing about Nikau Brennan.\n\nBest regards,\nThriv3';
 
 let seq = 0;
+
+/** File each coach at the programme the request names, sendable, so the boundary accepts them. */
+function seedCoaches(list) {
+  for (const c of list) {
+    seedSendableCoach(db, {
+      name: c.name, email: c.email, title: c.title,
+      school: 'Butler University', sport: 'mens-soccer', division: 'NCAA D1',
+    });
+  }
+  return list;
+}
 
 function makeAthlete(overrides = {}) {
   const id = randomUUID();
@@ -113,6 +125,7 @@ beforeEach(() => {
            DELETE FROM outreach_send; DELETE FROM outreach;
            DELETE FROM programme_campaigns; DELETE FROM campaigns;
            DELETE FROM players; DELETE FROM coaches; DELETE FROM suppressions;`);
+  seedCoaches(COACHES);
 });
 
 // ---------------------------------------------------------------------------
@@ -255,9 +268,9 @@ describe('nothing already refused ever spends budget', () => {
 describe('an exhausted budget', () => {
   it('reaches no transport, and says which budget it was', async () => {
     const athleteId = makeAthlete();
-    const many = Array.from({ length: ATHLETE_DAILY_OUTBOUND_LIMIT }, (_, i) => ({
+    const many = seedCoaches(Array.from({ length: ATHLETE_DAILY_OUTBOUND_LIMIT }, (_, i) => ({
       name: `Coach ${i}`, email: `filler${i}@example.edu`, title: 'Assistant Coach',
-    }));
+    })));
     await sendOutreach(request(athleteId, { coaches: many, send: true }));
     expect(athleteUsage(athleteId, today())).toBe(ATHLETE_DAILY_OUTBOUND_LIMIT);
     composed.length = 0;
@@ -277,9 +290,9 @@ describe('an exhausted budget', () => {
     // A campaign that runs out mid-list must keep what it did and name what it
     // did not, so the operator knows where to pick up tomorrow.
     const athleteId = makeAthlete();
-    const coaches = Array.from({ length: ATHLETE_DAILY_OUTBOUND_LIMIT + 3 }, (_, i) => ({
+    const coaches = seedCoaches(Array.from({ length: ATHLETE_DAILY_OUTBOUND_LIMIT + 3 }, (_, i) => ({
       name: `Coach ${i}`, email: `run${i}@example.edu`, title: 'Assistant Coach',
-    }));
+    })));
 
     const { results } = await sendOutreach(request(athleteId, { coaches, send: true }));
 
@@ -291,9 +304,9 @@ describe('an exhausted budget', () => {
 
   it('still lets the same mailbox send for a different athlete', async () => {
     const first = makeAthlete();
-    const many = Array.from({ length: ATHLETE_DAILY_OUTBOUND_LIMIT }, (_, i) => ({
+    const many = seedCoaches(Array.from({ length: ATHLETE_DAILY_OUTBOUND_LIMIT }, (_, i) => ({
       name: `Coach ${i}`, email: `f${i}@example.edu`, title: 'Assistant Coach',
-    }));
+    })));
     await sendOutreach(request(first, { coaches: many, send: true }));
 
     const second = makeAthlete({ public_slug: randomUUID().slice(0, 10) });

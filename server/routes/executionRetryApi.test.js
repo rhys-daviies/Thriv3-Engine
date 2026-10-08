@@ -2,12 +2,12 @@ import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import express from 'express';
 import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
+import { makeCoachesSendable } from '../testCanonicalCoaches.js';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
-// server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+// Every coach this file sends to is seeded genuinely sendable (verified address + independent
+// coach_seasons corroboration, via makeCoachesSendable): the send floor applies the canonical
+// decision at send time with no operator override, so no legacy opt-in is needed or honoured.
+// The floor itself is tested in server/lib/coachEligibility.test.js.
 
 
 /**
@@ -180,6 +180,7 @@ function reviewed({ athleteId = ATHLETE } = {}) {
       i === 0 ? 'Head Coach' : 'Assistant Coach');
     return id;
   });
+  makeCoachesSendable(db, coaches);
   materialiseNextContactAttempt({ programmeCampaignId: pc });
   const { message } = generateProgrammeMessage({ programmeCampaignId: pc, coachId: coaches[0] });
   reviewProgrammeMessage(message.id, { operatorId: OPERATOR });

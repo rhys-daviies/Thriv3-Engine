@@ -4,11 +4,10 @@ import {
 import express from 'express';
 import { randomUUID } from 'node:crypto';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
-// server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+// The send floor (verified address, not PROVEN_STALE, canonically eligible at this programme,
+// not held) applies at send time whatever any operator flag says, so the coach this file drafts
+// to is made genuinely sendable in beforeEach (makeCoachesSendable). No legacy opt-in is needed.
+// The floor itself is tested in server/lib/coachEligibility.test.js.
 
 
 /**
@@ -31,6 +30,7 @@ const db = (await import('../db/client.js')).default;
 const { manualOutreachRouter } = await import('./manualOutreach.js');
 const { programmeCoachesRouter } = await import('./programmeCoaches.js');
 const { upsertAthleteProgramme, updateAthleteProgramme, findRelationship } = await import('../lib/athleteProgrammes.js');
+const { makeCoachesSendable } = await import('../testCanonicalCoaches.js');
 
 /**
  * F5b's DIRECT-SEND SEAM, AND WHAT F7b DID TO IT.
@@ -131,6 +131,7 @@ beforeEach(() => {
     INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
     VALUES (?, 'x', 'A Coach', 'a@duke.test', 'Duke', 'NCAA D1', ?, 'Head Coach')
   `).run(coachId, SPORT);
+  makeCoachesSendable(db, [coachId]);
 
   relationshipId = upsertAthleteProgramme(ATHLETE, { college_id: collegeId }).programme.id;
 });

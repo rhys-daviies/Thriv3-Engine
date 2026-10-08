@@ -2,17 +2,17 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import db from '../db/client.js';
+import { makeCoachesSendable } from '../testCanonicalCoaches.js';
 import { materialiseNextContactAttempt } from './pursuitPolicy.js';
 import { generateProgrammeMessage } from './programmeMessageGeneration.js';
 import { reviewProgrammeMessage } from './programmeMessages.js';
 import { claimProgrammeMessageForExecution, executionSnapshot } from './executionClaim.js';
 import { createConnectedMailbox, storeMailboxCredential } from './connectedMailboxes.js';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
+// Fixture coaches are made genuinely sendable (verified address + coach_seasons corroboration,
+// via server/testCanonicalCoaches.js): the send-time floor, including the canonical decision,
+// always applies and no operator flag lifts it. The floor itself is tested in
 // server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
 
 
 /**
@@ -103,6 +103,7 @@ function claimed({ operatorId = OPERATOR } = {}) {
     INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
     VALUES (?, 'x', ?, ?, ?, 'NCAA D1', ?, 'Head Coach')
   `).run(coachId, `Coach ${++seq}`, `k${seq}@duke.edu`, COLLEGE, SPORT);
+  makeCoachesSendable(db, [coachId]);
   materialiseNextContactAttempt({ programmeCampaignId: pc });
   const { message } = generateProgrammeMessage({ programmeCampaignId: pc, coachId });
   reviewProgrammeMessage(message.id, { operatorId: OPERATOR });

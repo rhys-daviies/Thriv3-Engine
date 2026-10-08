@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
-// server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+// The send floor (verified address, not PROVEN_STALE, canonically eligible at this programme,
+// not held) applies at send time whatever any operator flag says, so the coach this file sends
+// to is seeded genuinely sendable in beforeEach (seedSendableCoach). The floor itself is tested
+// in server/lib/coachEligibility.test.js.
 
 
 // Same interception as sendOutreach.test.js: the orchestration is what is
@@ -24,6 +23,7 @@ const { utcNow } = await import('../lib/time.js');
 const { sendOutreach } = await import('./sendOutreach.js');
 const { suppress } = await import('../lib/suppressions.js');
 const { OUTREACH_ORIGIN } = await import('../../shared/outreachOrigin.js');
+const { seedSendableCoach } = await import('../testCanonicalCoaches.js');
 
 /**
  * THE GUARANTEE, AS OPPOSED TO THE DOORWAY.
@@ -87,6 +87,7 @@ beforeEach(() => {
            DELETE FROM outreach_send; DELETE FROM outreach;
            DELETE FROM athlete_programmes; DELETE FROM suppressions;
            DELETE FROM players; DELETE FROM coaches;`);
+  seedSendableCoach(db, { name: 'A Coach', email: 'a@duke.test', school: 'Duke', sport: 'mens-soccer' });
 });
 
 // ---------------------------------------------------------------------------
@@ -241,6 +242,11 @@ describe('ADVERSARIAL — the programme label cannot be swapped', () => {
    * the label alone was a stance on a school nobody was writing to. Duke's
    * do-not-contact was never consulted.
    */
+  // These tests build their own coaches rows, so the sendable Duke coach seeded for the rest of
+  // the file is removed: a refusal here must come from the row each test names (e.g. the one
+  // with no sport), not from a men's-soccer Duke row it never asked for.
+  beforeEach(() => { db.exec('DELETE FROM coaches;'); });
+
   function canonicalCoach({ email, school, sport = 'mens-soccer' }) {
     db.prepare(`
       INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
@@ -309,6 +315,8 @@ describe('ADVERSARIAL — the programme label cannot be swapped', () => {
   it('does NOT block across sports', async () => {
     const athlete = makeAthlete();   // mens-soccer
     canonicalCoach({ email: 'a@duke.test', school: 'Duke', sport: 'womens-soccer' });
+    // The men's-soccer coach this send goes to, genuinely sendable.
+    seedSendableCoach(db, { name: 'A Coach', email: 'a@duke.test', school: 'Duke', sport: 'mens-soccer' });
     relate(athlete, 'Duke', 'default');
     db.prepare(`
       INSERT INTO athlete_programmes (id, athlete_id, college_name, sport, request_state,
@@ -354,11 +362,8 @@ describe('a revoked outreach record is not writeable through', () => {
    * contact stance, the visibility, the flag or the request state.
    */
   function revokedOutreach(athleteId, email = 'a@duke.test') {
-    const coachId = randomUUID();
-    db.prepare(`
-      INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
-      VALUES (?, '2026-09-11T00:00:00.000Z', 'A Coach', ?, 'Duke', 'NCAA D1', 'mens-soccer', 'Head Coach')
-    `).run(coachId, email);
+    // Otherwise sendable, so the refusal is the revocation and nothing else.
+    const coachId = seedSendableCoach(db, { name: 'A Coach', email, school: 'Duke', sport: 'mens-soccer' });
     db.prepare(`
       INSERT INTO outreach (id, athlete_id, coach_id, token, created_at, revoked_at)
       VALUES (?, ?, ?, ?, '2026-09-01T00:00:00.000Z', '2026-09-05T00:00:00.000Z')
@@ -421,10 +426,7 @@ describe('a revoked outreach record is not writeable through', () => {
   it('does not stop the other recipients in the same call', async () => {
     const athlete = makeAthlete();
     revokedOutreach(athlete, 'revoked@duke.test');
-    db.prepare(`
-      INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
-      VALUES (?, '2026-09-11T00:00:00.000Z', 'Fine Coach', 'fine@duke.test', 'Duke', 'NCAA D1', 'mens-soccer', 'Assistant')
-    `).run(randomUUID());
+    seedSendableCoach(db, { name: 'Fine Coach', email: 'fine@duke.test', school: 'Duke', sport: 'mens-soccer', title: 'Assistant' });
 
     // Revocation is a fact about one athlete-coach pair, not about the run.
     const result = await run(athlete, {
@@ -455,10 +457,7 @@ describe('a revoked outreach record is not writeable through', () => {
 
 describe('the manual path still obeys every shared control', () => {
   const withCoach = (athleteId) => {
-    db.prepare(`
-      INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
-      VALUES (?, '2026-09-11T00:00:00.000Z', 'A Coach', 'a@duke.test', 'Duke', 'NCAA D1', 'mens-soccer', 'Head Coach')
-    `).run(randomUUID());
+    seedSendableCoach(db, { name: 'A Coach', email: 'a@duke.test', school: 'Duke', sport: 'mens-soccer' });
     return athleteId;
   };
 

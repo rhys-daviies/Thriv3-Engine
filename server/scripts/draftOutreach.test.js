@@ -2,11 +2,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
-// PHASE 8A: this file models drafting mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
-// server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+// The send floor (verified address, not PROVEN_STALE, canonically eligible at this programme,
+// not held) applies at send time whatever any operator flag says, so the coaches this file drafts
+// to are seeded genuinely sendable at Jacksonville in beforeEach (seedSendableCoach). No legacy
+// opt-in is needed. The floor itself is tested in server/lib/coachEligibility.test.js.
 
 /**
  * The one production path that WRITES, and the last one with no test.
@@ -48,6 +47,7 @@ const { draftOne } = await import('./draftOutreach.js');
 const { sendOutreach } = await import('../routes/sendOutreach.js');
 const { selectEvidence } = await import('../../shared/evidence/index.js');
 const { emailBodyFor, fillTemplate, DEFAULT_EMAIL_SUBJECT } = await import('../../src/lib/emailTemplate.js');
+const { seedSendableCoach } = await import('../testCanonicalCoaches.js');
 
 const COACHES = [
   { name: 'Ali Simmons', email: 'asimmons@example.edu', title: 'Head Coach' },
@@ -164,6 +164,8 @@ beforeEach(() => {
   composed.length = 0;
   failNext = null;
   db.exec('DELETE FROM outreach_evidence; DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches; DELETE FROM suppressions;');
+  // Every fixture college is COLLEGE.name; the coaches drafted to there are genuinely sendable.
+  for (const c of COACHES) seedSendableCoach(db, { ...c, school: COLLEGE.name, sport: 'mens-soccer' });
 });
 
 // ---------------------------------------------------------------------------

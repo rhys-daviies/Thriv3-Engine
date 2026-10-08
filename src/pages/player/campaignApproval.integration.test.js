@@ -11,6 +11,7 @@ import db from '../../../server/db/client.js';
 import { campaignsRouter } from '../../../server/routes/campaigns.js';
 import { suppress } from '../../../server/lib/suppressions.js';
 import { MESSAGE_STATE } from '../../../shared/outreachMessageState.js';
+import { corroborateFixtureCoaches } from '../../../server/testCanonicalCoaches.js';
 
 /**
  * F8c — THE WHOLE PATH, WITH NOTHING PRETENDED.
@@ -89,6 +90,7 @@ function coach({ school = 'Duke', email, name = 'John Smith', title = 'Head Coac
       email_status)
     VALUES (?, ?, ?, ?, ?, 'NCAA D1', 'mens-soccer', ?, 'verified')
   `).run(id, NOW, name, email ?? `c${++seq}@duke.edu`, school, title);
+  corroborateFixtureCoaches(db, { ids: [id] });
   return id;
 }
 
@@ -437,6 +439,7 @@ describe('the page re-resolves rather than believing what it last saw', () => {
       VALUES (?, ?, 'Bb Assistant', 'a@duke.edu', 'Duke', 'NCAA D1', 'mens-soccer',
         'Assistant Coach', 'verified')
     `).run(randomUUID(), NOW);
+    corroborateFixtureCoaches(db);
     for (const at of ['2026-09-02T11:00:00.000Z', '2026-09-03T11:00:00.000Z']) {
       db.prepare(`
         INSERT INTO outreach_send (id, outreach_id, sequence, drafted_at, sent_at, athlete_id,
