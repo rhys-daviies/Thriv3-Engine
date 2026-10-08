@@ -519,7 +519,7 @@ export function assertExecutionSafety({
         + 'at it rather than send to an inbox nobody agreed to.');
     }
     // SEND TIME: the full floor, unconditionally — no operator flag reaches this line
-    const floor = coachIneligibility(coach);
+    const floor = coachIneligibility(coach, { fresh: true });
     if (floor) {
       /**
        * PHASE 8A — re-checked at claim time, not only when the plan was built: a coach can be

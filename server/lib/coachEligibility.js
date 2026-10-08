@@ -25,7 +25,7 @@
  * here reads or changes deployment configuration.
  */
 import db from '../db/client.js';
-import { canonicalIneligibility, activationHold, CANONICAL_INELIGIBLE } from './canonicalCoachEligibility.js';
+import { canonicalIneligibility, canonicalDecisions, activationHold, CANONICAL_INELIGIBLE } from './canonicalCoachEligibility.js';
 
 export { CANONICAL_INELIGIBLE };
 
@@ -60,8 +60,8 @@ export function coachRowIneligibility(row) {
  * filed programme and the activation holds (canonicalCoachEligibility.js), read on `handle` —
  * fresh as of that connection's last write, so a send-time call sees the current answer.
  */
-export function coachIneligibility(row, { handle = db } = {}) {
-  return coachRowIneligibility(row) || canonicalIneligibility(row, handle);
+export function coachIneligibility(row, { handle = db, fresh = false, decisions = null } = {}) {
+  return coachRowIneligibility(row) || canonicalIneligibility(row, handle, { fresh, decisions });
 }
 export const isCoachEligible = (row, opts) => coachIneligibility(row, opts) === null;
 
@@ -119,5 +119,7 @@ export function recipientIneligibility({ email, collegeName, sport }, { handle =
   // an address held by ANY coach row is refused, even if another row with it would pass
   const held = rows.map((r) => activationHold(r.id)).find(Boolean);
   if (held) return `${CANONICAL_INELIGIBLE.ACTIVATION_HELD}:${held.hold}`;
-  return here.some((r) => isCoachEligible(r, { handle })) ? null : coachIneligibility(here[0], { handle });
+  // SEND TIME: one canonical computation from the data as it is now, no cache
+  const decisions = canonicalDecisions(handle, { fresh: true });
+  return here.some((r) => isCoachEligible(r, { handle, decisions })) ? null : coachIneligibility(here[0], { handle, decisions });
 }
