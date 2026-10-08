@@ -54,6 +54,10 @@ jobs:
     # jobs stay on Linux, so the critical suites run on both.
     runs-on: macos-latest
     timeout-minutes: 30
+    env:
+      # Bytecode caches are interpreter noise, not test output. Suppressing them
+      # keeps the checkout-unchanged check about what tests actually write.
+      PYTHONDONTWRITEBYTECODE: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
