@@ -82,8 +82,12 @@ describe('send path recipient gate (recipientIneligibility)', () => {
     expect(r('stale@example.edu')).toBe(INELIGIBLE.COACH_PROVEN_STALE);
     expect(r('soccer@example.edu')).toMatch(/EMAIL_NOT_VERIFIED:generic/);
   });
-  it('is bypassed only by the explicit opt-in', () => {
+  it('is NOT bypassed by the legacy opt-in: no flag reaches send time', () => {
     process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
-    expect(recipientIneligibility({ email: 'nobody@example.edu', collegeName: 'Floor College', sport: 'mens-soccer' })).toBeNull();
+    const r = (email) => recipientIneligibility({ email, collegeName: 'Floor College', sport: 'mens-soccer' });
+    expect(r('nobody@example.edu')).toBe(INELIGIBLE.UNKNOWN_ADDRESS);
+    expect(r('inferred@example.edu')).toMatch(/EMAIL_NOT_VERIFIED/);
+    expect(r('stale@example.edu')).toBe(INELIGIBLE.COACH_PROVEN_STALE);
+    expect(r('ok@example.edu')).toBeNull();
   });
 });

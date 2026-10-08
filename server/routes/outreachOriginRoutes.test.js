@@ -2,11 +2,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import express from 'express';
 import { randomUUID } from 'node:crypto';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
-// server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+// The send floor (verified address, not PROVEN_STALE, canonically eligible at this programme,
+// not held) applies at send time whatever any operator flag says, so canonicalCoach below seeds
+// a genuinely sendable coach (seedSendableCoach). No legacy opt-in is needed. The floor itself is
+// tested in server/lib/coachEligibility.test.js.
 
 
 const composed = [];
@@ -24,6 +23,7 @@ const { sendOutreach } = await import('./sendOutreach.js');
 const { manualOutreachRouter } = await import('./manualOutreach.js');
 const { OUTREACH_ORIGIN } = await import('../../shared/outreachOrigin.js');
 const { upsertAthleteProgramme } = await import('../lib/athleteProgrammes.js');
+const { seedSendableCoach } = await import('../testCanonicalCoaches.js');
 
 /**
  * WHERE PROVENANCE COMES FROM, PATH BY PATH.
@@ -84,12 +84,7 @@ function makeAthlete() {
 }
 
 function canonicalCoach({ email, school = 'Duke', sport = 'mens-soccer' }) {
-  const id = randomUUID();
-  db.prepare(`
-    INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
-    VALUES (?, '2026-09-11T00:00:00.000Z', 'A Coach', ?, ?, 'NCAA D1', ?, 'Head Coach')
-  `).run(id, email, school, sport);
-  return id;
+  return seedSendableCoach(db, { name: 'A Coach', email, school, sport, id: randomUUID() });
 }
 
 const origins = () => db.prepare('SELECT origin FROM outreach_send').all().map((r) => r.origin);

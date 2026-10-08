@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { randomUUID, createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
 
 /**
@@ -118,10 +119,41 @@ describe('the holds file', () => {
     expect(activationHold('647c575f-b199-4669-9dff-3542cd607029')).toMatchObject({ hold: 'POSITIVE_EMAIL_ABSENCE' });
     expect(activationHolds().size).toBe(135);
   });
-  it('fails CLOSED when the file cannot be read: every coach is treated as held', () => {
-    const missing = path.join(os.tmpdir(), `no-such-holds-${randomUUID()}.json`);
-    expect(activationHold('anyone', missing)).toMatchObject({ hold: 'HOLDS_FILE_UNREADABLE' });
+  it('fails CLOSED when the file is missing, malformed, emptied or inconsistent: every coach is treated as held', () => {
+    const tmp = (content) => { const f = path.join(os.tmpdir(), `holds-${randomUUID()}.json`); fs.writeFileSync(f, content); return f; };
+    const ok = { kind: 'COACH_ACTIVATION_HOLDS', counts: { PENDING_SEND_TIME_VERIFICATION: 1 }, holds: [{ coach_id: 'c1', hold: 'PENDING_SEND_TIME_VERIFICATION' }] };
+    const bad = {
+      missing: path.join(os.tmpdir(), `no-such-holds-${randomUUID()}.json`),
+      notJson: tmp('{ "kind": "COACH_ACTIVATION_HOLDS", "holds": ['),
+      wrongKind: tmp(JSON.stringify({ ...ok, kind: 'SOMETHING_ELSE' })),
+      noHolds: tmp(JSON.stringify({ kind: 'COACH_ACTIVATION_HOLDS', counts: {} })),
+      emptied: tmp(JSON.stringify({ kind: 'COACH_ACTIVATION_HOLDS', counts: {}, holds: [] })),
+      countsDisagree: tmp(JSON.stringify({ ...ok, counts: { PENDING_SEND_TIME_VERIFICATION: 2 } })),
+      duplicate: tmp(JSON.stringify({ ...ok, counts: { PENDING_SEND_TIME_VERIFICATION: 2 }, holds: [ok.holds[0], ok.holds[0]] })),
+      badRow: tmp(JSON.stringify({ ...ok, holds: [{ coach_id: '', hold: 'PENDING_SEND_TIME_VERIFICATION' }] })),
+    };
+    for (const [why, f] of Object.entries(bad)) expect(activationHold('anyone-at-all', f), why).toMatchObject({ hold: 'HOLDS_FILE_UNREADABLE' });
+    // a well-formed file holds exactly its coaches
+    const good = tmp(JSON.stringify(ok));
+    expect(activationHold('c1', good)).toMatchObject({ hold: 'PENDING_SEND_TIME_VERIFICATION' });
+    expect(activationHold('someone-else', good)).toBeNull();
     activationHolds(); // restore the memo to the real file for the rest of the suite
+  });
+  it('a hold added to the file applies to the very next check, without a restart', () => {
+    const f = path.join(os.tmpdir(), `holds-${randomUUID()}.json`);
+    const write = (holds) => fs.writeFileSync(f, JSON.stringify({ kind: 'COACH_ACTIVATION_HOLDS', counts: { PENDING_SEND_TIME_VERIFICATION: holds.length }, holds: holds.map((id) => ({ coach_id: id, hold: 'PENDING_SEND_TIME_VERIFICATION' })) }));
+    write(['c1']);
+    expect(activationHold('c2', f)).toBeNull();
+    write(['c1', 'c2-newly-held']);
+    expect(activationHold('c2-newly-held', f)).toMatchObject({ hold: 'PENDING_SEND_TIME_VERIFICATION' });
+    activationHolds();
+  });
+  it('is committed: tracked by git and not ignored, so a deploy built from the repository carries it', () => {
+    const rel = 'server/data/seeds/coach_activation_holds.json';
+    const cwd = path.resolve(import.meta.dirname, '../..');
+    expect(execFileSync('git', ['ls-files', '--error-unmatch', rel], { cwd, encoding: 'utf8' }).trim()).toBe(rel);
+    let ignored = true; try { execFileSync('git', ['check-ignore', '-q', rel], { cwd }); } catch { ignored = false; }
+    expect(ignored).toBe(false);
   });
 });
 

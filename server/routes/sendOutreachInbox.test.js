@@ -4,10 +4,11 @@ import { randomUUID } from 'node:crypto';
 /**
  * PHASE 1E (T) — THE MANUAL SEND BOUNDARY NEVER WRITES TO A PROGRAMME INBOX.
  *
- * Run under the pre-8A legacy opt-in on purpose: it is the weakest mode, where the coach floor
- * is off and sendOutreach would otherwise mint a `coaches` row for any address it is handed.
- * A programme's inbox must be refused before that can happen — no coach row, no relationship,
- * no compose — while a coach address in the same request goes through exactly as before.
+ * Run with the legacy opt-in set on purpose: it is the widest mode an operator can choose. That
+ * flag now widens only what is OFFERED, never what is sent — the send floor applies in full
+ * either way — and a programme's inbox must still be refused before any coach row could be
+ * minted for it — no coach row, no relationship, no compose — while a genuinely sendable coach
+ * (seeded below) in the same request goes through exactly as before.
  */
 process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
 
@@ -21,6 +22,7 @@ const db = (await import('../db/client.js')).default;
 const { sendOutreach } = await import('./sendOutreach.js');
 const { programmeContactId } = await import('../lib/programmeContactEligibility.js');
 const { PROGRAMME_INBOX_ADDRESS_NOT_TYPED } = await import('../lib/recipientSelection.js');
+const { seedSendableCoach } = await import('../testCanonicalCoaches.js');
 
 const T = '2026-09-20T10:00:00.000Z';
 const INBOX = 'msoccer@butlerathletics.example';
@@ -36,6 +38,7 @@ describe('T. sendOutreach refuses a programme inbox, whatever mode the floor is 
     db.prepare(`INSERT INTO programme_contacts (contact_id, athletics_entity_id, college_id, sport, email, label, contact_role, observed_on_url, observed_at, source, source_kind, source_tier, status, currentness_checked_at, provenance, created_at, updated_at)
       VALUES (?, 'AE-U950001', 'col-butler', 'mens-soccer', ?, 'Butler University Men''s Soccer', 'TEAM_INBOX', 'https://butlerathletics.example/sports/mens-soccer/coaches', ?, 'refresh:test', 'OFFICIAL_STAFF_DIRECTORY', 'A', 'VERIFIED', ?, 'test', ?, ?)`)
       .run(programmeContactId('AE-U950001', 'mens-soccer', INBOX), INBOX, T, T, T, T);
+    seedSendableCoach(db, { name: 'A. Whitfield', email: 'awhitfield@example.edu', school: 'Butler University', sport: 'mens-soccer' });
 
     const { results } = await sendOutreach({
       athleteId,

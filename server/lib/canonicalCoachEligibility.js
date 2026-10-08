@@ -43,18 +43,38 @@ export const CANONICAL_INELIGIBLE = Object.freeze({
 
 const lc = (s) => String(s ?? '').trim().toLowerCase();
 
+/**
+ * A holds file is trusted only whole: the right kind, a non-empty `holds` array of {coach_id, hold},
+ * no duplicate coach, and per-kind `counts` that agree with the list. Anything else — truncated,
+ * hand-edited into a different shape, emptied — is unreadable, and unreadable holds everyone.
+ */
+function validHolds(seed) {
+  if (!seed || seed.kind !== 'COACH_ACTIVATION_HOLDS' || !Array.isArray(seed.holds) || seed.holds.length === 0) return null;
+  const index = new Map(); const counts = {};
+  for (const h of seed.holds) {
+    if (!h || typeof h.coach_id !== 'string' || !h.coach_id || typeof h.hold !== 'string' || !h.hold || index.has(h.coach_id)) return null;
+    index.set(h.coach_id, h); counts[h.hold] = (counts[h.hold] || 0) + 1;
+  }
+  const declared = seed.counts || {};
+  const kinds = new Set([...Object.keys(declared), ...Object.keys(counts)]);
+  for (const k of kinds) if (declared[k] !== counts[k]) return null;
+  return index;
+}
+
 let holdsMemo = null;
-/** coach_id -> hold row. Read once; an unreadable file fails CLOSED (every coach is treated as held). */
+/** coach_id -> hold row. Read once; a missing, malformed or inconsistent file fails CLOSED (every coach is treated as held). */
 export function activationHolds(file = HOLDS_PATH) {
-  if (holdsMemo && holdsMemo.file === file) return holdsMemo.index;
+  // re-read whenever the file changes, so a hold added to a running process applies to the next send
+  let stamp = null;
+  try { const st = fs.statSync(file); stamp = `${st.mtimeMs}:${st.size}`; } catch { stamp = 'missing'; }
+  if (holdsMemo && holdsMemo.file === file && holdsMemo.stamp === stamp) return holdsMemo.index;
   let index;
   try {
-    const seed = JSON.parse(fs.readFileSync(file, 'utf8'));
-    index = new Map((seed.holds || []).map((h) => [h.coach_id, h]));
+    index = validHolds(JSON.parse(fs.readFileSync(file, 'utf8')));
   } catch {
     index = null; // fail closed: see activationHold
   }
-  holdsMemo = { file, index };
+  holdsMemo = { file, stamp, index };
   return index;
 }
 /** The hold on a coach, or null. With no readable holds file every coach is held. */

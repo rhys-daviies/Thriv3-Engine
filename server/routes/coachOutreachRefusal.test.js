@@ -294,26 +294,47 @@ describe('an eligible coach is unaffected', () => {
   });
 });
 
-describe('THRIV3_ALLOW_LEGACY_COACHES is the explicit, and only, override', () => {
+describe('THRIV3_ALLOW_LEGACY_COACHES never reaches send time', () => {
   beforeEach(() => { planBlind.on = true; });   // isolate the claim-time check, as in the block above
 
-  it('=1 lets an unverified coach through (the pre-8A behaviour), and only because it was asked for', async () => {
+  /**
+   * THE INVARIANT: no operator flag may bypass eligibility at the moment of sending. The legacy
+   * opt-in once let an unverified coach be claimed and sent (pre-8A); it now widens only what is
+   * offered, and the claim applies the full floor whatever it is set to.
+   */
+  it('=1 does NOT let an unverified coach be claimed or sent', async () => {
     const m = approvedForVerifiedCoach();
+    const before = durable(m);
     setCoach(m.coachId, { email_status: 'inferred' });
     process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
 
     const res = await send(m.messageId, { bodyHash: m.bodyHash, connectedMailboxId: mailbox() });
 
-    expect(res.status).toBe(200);
-    expect(res.body.state).toBe('ACCEPTED');
-    expect(count('outreach_send')).toBe(1);
+    expect(res.status).toBe(422);
+    expect(res.body.code).toBe('COACH_NOT_OUTREACH_ELIGIBLE');
+    expect(durable(m)).toEqual(before);
+    expect(count('outreach_send')).toBe(0);
+    expect(transportBehaviour.calls).toHaveLength(0);
   });
 
-  it('removing it restores the refusal; falsy or unrecognised values are not an override', async () => {
+  it('=1 does NOT let a canonically ineligible (uncorroborated) coach with a verified address be sent', async () => {
+    const m = approvedForVerifiedCoach();
+    db.prepare('DELETE FROM coach_seasons WHERE lower(coach_name) = lower((SELECT full_name FROM coaches WHERE id = ?))').run(m.coachId);
+    process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+
+    const res = await send(m.messageId, { bodyHash: m.bodyHash, connectedMailboxId: mailbox() });
+
+    expect(res.status).toBe(422);
+    expect(res.body.error).toContain('COACH_NOT_CANONICALLY_ELIGIBLE');
+    expect(count('outreach_send')).toBe(0);
+    expect(transportBehaviour.calls).toHaveLength(0);
+  });
+
+  it('every value of the flag gives the same refusal', async () => {
     const m = approvedForVerifiedCoach();
     const mb = mailbox();
     setCoach(m.coachId, { email_status: 'inferred' });
-    for (const value of [undefined, '0', 'no', 'off', '']) {
+    for (const value of [undefined, '0', 'no', 'off', '', '1', 'true', 'yes', 'on']) {
       if (value === undefined) delete process.env.THRIV3_ALLOW_LEGACY_COACHES; else process.env.THRIV3_ALLOW_LEGACY_COACHES = value;
 
       const res = await send(m.messageId, { bodyHash: m.bodyHash, connectedMailboxId: mb });

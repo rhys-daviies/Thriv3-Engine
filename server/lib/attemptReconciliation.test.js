@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import db from '../db/client.js';
+import { makeCoachesSendable } from '../testCanonicalCoaches.js';
 import { materialiseNextContactAttempt, programmePursuitPlan, PURSUIT_ACTION, PURSUIT_REASON,
   MESSAGES_PER_COACH, TIER_COACH_DEPTH, FOLLOW_UP_DELAY_DAYS } from './pursuitPolicy.js';
 import { followUpTiming } from './followUpTiming.js';
@@ -20,11 +21,10 @@ import { sendById, claimSendForExecution, unresolvedSendFor } from './outreachSe
 import { findOrCreateCoach } from './coaches.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
+// Fixture coaches are made genuinely sendable (verified address + coach_seasons corroboration,
+// via server/testCanonicalCoaches.js): the send-time floor, including the canonical decision,
+// always applies and no operator flag lifts it. The floor itself is tested in
 // server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
 
 
 /**
@@ -109,6 +109,7 @@ function programme(campaignId, { id = `pc-${++seq}`, college = COLLEGE, staff = 
       position_title: i === 0 ? 'Head Coach' : 'Assistant Coach',
     }));
   }
+  makeCoachesSendable(db, coaches.map((c) => c.id));
   return { id, coaches };
 }
 

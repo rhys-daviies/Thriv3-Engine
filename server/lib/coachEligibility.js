@@ -65,8 +65,10 @@ export function coachIneligibility(row, { handle = db } = {}) {
 export const isCoachEligible = (row, opts) => coachIneligibility(row, opts) === null;
 
 /**
- * The floor as every outreach path applies it. Under the explicit legacy opt-in the pre-8A
- * unfiltered offer is kept — EXCEPT an activation hold, which no flag lifts.
+ * The floor for what is OFFERED (selection: the manual picker, campaign pursuit, the staff list).
+ * Under the explicit legacy opt-in the pre-8A unfiltered offer is kept — except an activation
+ * hold, which no flag lifts. SEND TIME never calls this: the claim (executionClaim) and the send
+ * boundary (recipientIneligibility, inside sendOutreach) apply coachIneligibility unconditionally.
  */
 export function outreachIneligibility(row, { handle = db, env = process.env } = {}) {
   if (legacyCoachesAllowed(env)) {
@@ -100,13 +102,10 @@ export function programmeNames(collegeName, sport) {
  * outside the coaches table (the recommendation blob, a client body). The address must
  * belong to an eligible coach row at this programme (any of its linked spellings).
  */
-export function recipientIneligibility({ email, collegeName, sport }, { env = process.env, handle = db } = {}) {
+export function recipientIneligibility({ email, collegeName, sport }, { handle = db } = {}) {
+  // SEND TIME (sendOutreach, which every manual send and draft passes): the full floor. No flag is
+  // read here — THRIV3_ALLOW_LEGACY_COACHES widens what is offered, never what is sent.
   const rows = usable(email) ? handle.prepare('SELECT * FROM coaches WHERE lower(trim(email)) = lower(trim(?)) AND sport = ?').all(email, sport) : [];
-  if (legacyCoachesAllowed(env)) {
-    // the legacy opt-in keeps its unfiltered offer, but no flag lifts an activation hold
-    const held = rows.map((r) => activationHold(r.id)).find(Boolean);
-    return held ? `${CANONICAL_INELIGIBLE.ACTIVATION_HELD}:${held.hold}` : null;
-  }
   if (!usable(email)) return INELIGIBLE.NO_USABLE_EMAIL;
   if (!rows.length) return INELIGIBLE.UNKNOWN_ADDRESS;
   const names = new Set(programmeNames(collegeName, sport));

@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
-// server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+// The send floor (verified address, not PROVEN_STALE, canonically eligible at this programme,
+// not held) applies at send time whatever any operator flag says, so the coaches this file sends
+// to are seeded genuinely sendable in beforeEach (seedSendableCoach). The floor itself is tested
+// in server/lib/coachEligibility.test.js.
 
 
 /**
@@ -49,6 +48,7 @@ const { suppress } = await import('../lib/suppressions.js');
 const { OUTREACH_ORIGIN } = await import('../../shared/outreachOrigin.js');
 const { textToHtml } = await import('../../shared/emailHtml.js');
 const { bodyHash } = await import('../../shared/evidence/sendSnapshot.js');
+const { seedSendableCoach } = await import('../testCanonicalCoaches.js');
 
 const CHAPTERS = [{ t: 10, label: 'Opening' }];
 
@@ -100,6 +100,7 @@ beforeEach(() => {
            DELETE FROM outreach_send; DELETE FROM outreach;
            DELETE FROM athlete_programmes; DELETE FROM suppressions;
            DELETE FROM players; DELETE FROM coaches;`);
+  for (const c of TWO) seedSendableCoach(db, { ...c, school: 'Duke', sport: 'mens-soccer' });
 });
 
 /* ========================================================================== */
@@ -451,6 +452,8 @@ describe('a coach address that cannot go in a URL', () => {
   it('records the draft but refuses to hand over an injectable recipient', async () => {
     const athlete = makeAthlete();
     relate(athlete, 'Duke');
+    // The bad address is already a (verified, corroborated) coaches row, as from a CSV import.
+    seedSendableCoach(db, { name: 'Bad', email: 'coach?bcc=attacker@evil.example', school: 'Duke', sport: 'mens-soccer' });
 
     const r = await sendOutreach({
       athleteId: athlete,

@@ -26,3 +26,31 @@ export function corroborateFixtureCoaches(db, { ids = null } = {}) {
   }
   return added;
 }
+
+/**
+ * A coach a test may SEND to: no operator flag reaches send time, so a test that drafts, sends or
+ * claims for a coach must seed one that is genuinely eligible — a real, verified, current address,
+ * filed at the programme, with the corroboration the engine requires. Inserts the row when the
+ * address is not already a coach of that programme; otherwise makes the existing row sendable.
+ * Returns the coach id.
+ */
+export function seedSendableCoach(db, { name, email, school, sport = 'mens-soccer', title = 'Head Coach', division = 'NCAA D1', id = null }) {
+  const found = db.prepare('SELECT id FROM coaches WHERE lower(email) = lower(?) AND sport = ? AND school = ?').get(email, sport, school);
+  const coachId = found?.id || id || `sendable-${Math.random().toString(36).slice(2, 12)}`;
+  if (!found) {
+    db.prepare(`INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title, email_status, currentness_status)
+      VALUES (?, '2026-01-01T00:00:00Z', ?, ?, ?, ?, ?, ?, 'verified', 'CURRENT')`).run(coachId, name, email, school, division, sport, title);
+  } else {
+    db.prepare("UPDATE coaches SET email_status = 'verified' WHERE id = ?").run(coachId);
+  }
+  corroborateFixtureCoaches(db, { ids: [coachId] });
+  return coachId;
+}
+
+/** Make existing fixture coach rows sendable (verified address + corroboration). Returns how many. */
+export function makeCoachesSendable(db, ids) {
+  const set = db.prepare("UPDATE coaches SET email_status = 'verified' WHERE id = ? AND coalesce(currentness_status, '') != 'PROVEN_STALE'");
+  for (const id of ids) set.run(id);
+  corroborateFixtureCoaches(db, { ids });
+  return ids.length;
+}

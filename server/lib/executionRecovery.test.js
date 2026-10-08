@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import db from '../db/client.js';
+import { makeCoachesSendable } from '../testCanonicalCoaches.js';
 import { createOutreach } from './outreach.js';
 import { findOrCreateCoach } from './coaches.js';
 import {
@@ -20,11 +21,10 @@ import {
   blocksRelationship,
 } from '../../shared/outreachMessageState.js';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
+// Fixture coaches are made genuinely sendable (verified address + coach_seasons corroboration,
+// via server/testCanonicalCoaches.js): the send-time floor, including the canonical decision,
+// always applies and no operator flag lifts it. The floor itself is tested in
 // server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
 
 
 /**
@@ -71,7 +71,7 @@ function operator(id = OPERATOR) {
 
 /** A fresh coach every time: one relationship may hold only one open message. */
 function coach() {
-  return findOrCreateCoach({
+  const c = findOrCreateCoach({
     full_name: `Coach ${++seq}`,
     email: `c${seq}@duke.edu`,
     school: 'Duke',
@@ -79,6 +79,8 @@ function coach() {
     division: 'NCAA D1',
     position_title: 'Head Coach',
   });
+  makeCoachesSendable(db, [c.id]);
+  return c;
 }
 
 /** A DRAFT on its own relationship. */

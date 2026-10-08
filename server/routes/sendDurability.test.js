@@ -6,11 +6,10 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { workingCorpusCopy } from '../testCorpus.js';
 
-// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
-// current address — the pre-8A coach offer. It opts in to that explicitly; the default
-// runtime floor (verified address, coach not PROVEN_STALE) is tested in
-// server/lib/coachEligibility.test.js.
-process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+// The coach this file sends to is seeded genuinely sendable (seedSendableCoach: verified
+// address, filed at the programme the request names, with coach_seasons corroboration): the
+// send floor applies the canonical decision at send time with no operator override. The floor
+// itself is tested in server/lib/coachEligibility.test.js.
 
 
 /**
@@ -113,6 +112,7 @@ dbRef.value = db;
 const { utcNow } = await import('../lib/time.js');
 const { sendOutreach } = await import('./sendOutreach.js');
 const { sendsForOutreach } = await import('../lib/outreachSend.js');
+const { seedSendableCoach } = await import('../testCanonicalCoaches.js');
 
 const COACH = { name: 'A. Whitfield', email: 'awhitfield@example.edu', title: 'Head Coach' };
 const BODY = 'Dear A. Whitfield,\n\nI am writing about Nikau Brennan.\n\nBest regards,\nThriv3';
@@ -144,7 +144,8 @@ const request = (athleteId, over = {}) => ({
   body: BODY,
   greetingName: 'A. Whitfield',
   /**
-   * A programme the test fixture holds nothing for. It is NOT what makes the
+   * A programme the test fixture holds nothing for beyond the one sendable
+   * coach the send boundary requires (seeded in beforeEach). It is NOT what makes the
    * evidence absent — measured, and the engine answers generically even for a
    * school it has never heard of — so the absence is produced by the mock
    * above, which is the condition under test.
@@ -162,6 +163,10 @@ beforeEach(() => {
   db.exec(`DELETE FROM outreach_evidence; DELETE FROM engagement_rollup; DELETE FROM tracking_events;
            DELETE FROM outbound_send_attempt; DELETE FROM outreach_send_event; DELETE FROM outreach_send;
            DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches; DELETE FROM suppressions;`);
+  seedSendableCoach(db, {
+    name: COACH.name, email: COACH.email, title: COACH.title,
+    school: 'Nowhere State University', sport: 'mens-soccer', division: 'NCAA D1',
+  });
 });
 
 /* -------------------------------------------------------------------------- */
