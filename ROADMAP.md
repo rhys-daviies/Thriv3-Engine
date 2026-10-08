@@ -2424,6 +2424,15 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
 
 ### 4.2 Product
 - [ ] Athlete-program match rating combining the above with Pillar 1's score.
+- [x] **Athlete profile, recruitment preferences and match explanations** —
+      2026-10-09, `feat/athlete-profile-matching` (PR open, not merged).
+      Detailed primary/secondary positions per sport that resolve to the four
+      groups the engine reads (rankings cannot move on detail); preferred
+      states/regions reach V2's existing `locationFit`; division, conference,
+      public/private and academic minimum are checked on every match card
+      (inside / outside / not on file), never scored; a "Not known yet" block
+      surfaces the engine's unknowns. Engine files untouched; athletes with
+      no location preference rank byte-identically to main.
 - [x] **Program-specific reporting** — ONE "Program Report" per school.
       **Rebuilt and frozen as the internal-data Programme Intelligence baseline
       on 2026-08-31**, on `feature/report-v2-lifecycle`: 9 to 30 pages in three
