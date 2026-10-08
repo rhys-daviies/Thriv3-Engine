@@ -35,11 +35,11 @@ function world() {
   db.prepare("INSERT INTO coach_seasons (school, sport, season, coach_name, source_url, imported_at) VALUES ('Owner College','mens-soccer',2025,'Somebody Else',?, 't')").run(`https://${HOST}/sports/mens-soccer/coaches`);
   const coach = db.prepare("INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title, email_status, email_source_url, currentness_status, currentness_source_url) VALUES (?, 't', ?, ?, ?, 'NCAA D3', 'mens-soccer', 'Assistant Coach', 'verified', ?, ?, ?)");
   const src = `https://${HOST}/sports/mens-soccer/coaches`;
-  coach.run('k-good', 'Alice Good', 'alice@owner.edu', 'Owner College', src, null, null); // becomes eligible with the domain fix
-  coach.run('k-gone', 'Bob Gone', 'bob@owner.edu', 'Owner College', src, null, null); // left: withheld first
-  coach.run('k-moved', 'Carl Moved', 'carl@owner.edu', 'Wrong Label College', src, null, null); // misfiled: relabelled first
-  coach.run('k-back', 'Dana Back', 'dana@owner.edu', 'Owner College', src, 'PROVEN_STALE', 'https://otherathletics.com/sports/mens-soccer/coaches'); // stale judged on another school's page
-  coach.run('k-other', 'Eve Other', 'eve@other.edu', 'Other College', 'https://otherathletics.com/sports/mens-soccer/coaches', null, null);
+  coach.run('k-good', 'Alice Good', 'alice@owner.test', 'Owner College', src, null, null); // becomes eligible with the domain fix
+  coach.run('k-gone', 'Bob Gone', 'bob@owner.test', 'Owner College', src, null, null); // left: withheld first
+  coach.run('k-moved', 'Carl Moved', 'carl@owner.test', 'Wrong Label College', src, null, null); // misfiled: relabelled first
+  coach.run('k-back', 'Dana Back', 'dana@owner.test', 'Owner College', src, 'PROVEN_STALE', 'https://otherathletics.com/sports/mens-soccer/coaches'); // stale judged on another school's page
+  coach.run('k-other', 'Eve Other', 'eve@other.test', 'Other College', 'https://otherathletics.com/sports/mens-soccer/coaches', null, null);
   db.prepare("INSERT INTO coach_seasons (school, sport, season, coach_name, source_url, imported_at) VALUES ('Other College','mens-soccer',2025,'Eve Other','https://otherathletics.com/sports/mens-soccer/coaches','t')").run();
   db.pragma('foreign_keys = OFF');
   db.prepare("INSERT INTO outreach (id, athlete_id, coach_id, token, created_at) VALUES ('o-1','p-1','k-back','tok-1','2026-08-27')").run();
@@ -55,7 +55,7 @@ function fixtures(db) {
     withhold_before_A: [{ action_id: 'C-W-gone', coach_id: 'k-gone', coach: 'Bob Gone', expected_old: { currentness_status: null }, proposed: { currentness_status: 'PROVEN_STALE', currentness_source_url: `https://${HOST}/sports/mens-soccer/coaches`, currentness_reason: 'absent from the 2026 staff page' }, evidence: 'staff page', reason: 'absent' }],
     reinstate_after_B: [{ action_id: 'C-R-back', coach_id: 'k-back', coach: 'Dana Back', expected_old: { currentness_status: 'PROVEN_STALE', school: 'Owner College' }, proposed: { currentness_status: 'CURRENT', currentness_source_url: `https://${HOST}/sports/mens-soccer/coaches`, currentness_reason: 'listed with email on the 2026 staff page' }, evidence: 'staff page', reason: 'stale mark came from another school' }] });
   const B = seal({ kind: COACH_INSTITUTION_KIND, phase: 't', created_at: 't',
-    actions: [{ action_id: 'B-moved', coach_id: 'k-moved', coach: 'Carl Moved', expected_old: { school: 'Wrong Label College', division: 'NCAA D3', sport: 'mens-soccer', email: 'carl@owner.edu', email_status: 'verified' }, proposed: { school: 'Owner College', division: 'NCAA D3' }, evidence: 'staff page', reason: 'email + source are Owner College' }] });
+    actions: [{ action_id: 'B-moved', coach_id: 'k-moved', coach: 'Carl Moved', expected_old: { school: 'Wrong Label College', division: 'NCAA D3', sport: 'mens-soccer', email: 'carl@owner.test', email_status: 'verified' }, proposed: { school: 'Owner College', division: 'NCAA D3' }, evidence: 'staff page', reason: 'email + source are Owner College' }] });
   const A = seal({ kind: PROTECTED_CORRECTION_KIND, phase: 't', created_at: 't',
     approvals: [{ approval_id: 'AP-A', approved_by: 'reviewer', approved_at: '2026-10-08', basis: 'test', hosts: [HOST] }],
     corrections: [{ action_id: `PC-${HOST}`, approval_id: 'AP-A', host: HOST, true_entity: 'AE-OWN', unitid: OWN,
@@ -231,9 +231,9 @@ describe('coach correction operations', () => {
     const { db, fx } = setup(); const a = fx.B.actions[0];
     const p = (act) => planCoachInstitution(db, seal({ ...fx.B, actions: [act] })).problems.join(' ');
     expect(p({ ...a, proposed: { school: 'Retired College' } })).toMatch(/not active/);
-    expect(p({ ...a, proposed: { school: 'Owner College', email: 'x@y.z' } })).toMatch(/non-institution field/);
+    expect(p({ ...a, proposed: { school: 'Owner College', email: 'x@y.test' } })).toMatch(/non-institution field/);
     expect(p({ ...a, expected_old: { school: 'Wrong Label College' } })).toMatch(/must pin/);
-    db.prepare("INSERT INTO coaches (id, created_at, full_name, email, school, sport, email_status) VALUES ('dup','t','Carl Moved','carl@owner.edu','Owner College','mens-soccer','verified')").run();
+    db.prepare("INSERT INTO coaches (id, created_at, full_name, email, school, sport, email_status) VALUES ('dup','t','Carl Moved','carl@owner.test','Owner College','mens-soccer','verified')").run();
     expect(p(a)).toMatch(/duplicate, not a relabel/);
   });
   it('23. the transaction-compatible operations refuse to run outside a caller-owned transaction', () => {
