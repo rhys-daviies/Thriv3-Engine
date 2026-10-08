@@ -622,6 +622,53 @@ CREATE TABLE IF NOT EXISTS coach_seasons (
 
 CREATE INDEX IF NOT EXISTS idx_coach_seasons_prog ON coach_seasons(school, sport);
 
+-- coach_email_absence_observations — Phase 8D.3D. POSITIVE ABSENCE of a coach's recorded email
+-- address on that coach's own official current-season staff page. Withholds outreach eligibility
+-- (server/lib/coachReconciler.js) and nothing else. It is NOT a currentness stamp: the refresh
+-- classifier rewrites coaches.currentness_status to CURRENT whenever it sees the coach's name, which
+-- would silently undo an absence held there. A later publication of the same address on an official
+-- page (coaches.email_seen_on_source_at in the same or a later cycle) supersedes the observation, so
+-- the ordinary refresh path lifts it without anyone editing this table.
+--
+-- Written only by the guarded composite correction writer (fixture kind COACH_EMAIL_ABSENCE). The
+-- CHECKs are the definition: a complete, parsed, versioned, hashed page that names the coach, publishes
+-- addresses, and does not publish this one. An inaccessible, partial or unparsed page never gets here.
+-- Rows are never edited; a revert of the writer's manifest may delete the rows it inserted.
+CREATE TABLE IF NOT EXISTS coach_email_absence_observations (
+  observation_id TEXT PRIMARY KEY,          -- sha256(coach_id|email|source_url|evidence_sha256)
+  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  email TEXT NOT NULL,                      -- the recorded address found absent (exact, lower-case)
+  observed_at TEXT NOT NULL,                -- when the page was fetched
+  page_season INTEGER NOT NULL,             -- the season the page is for; must be the cycle of observed_at
+  source_url TEXT NOT NULL,
+  source_host TEXT NOT NULL,
+  page_unitid INTEGER NOT NULL,             -- the institution the host identifies itself as
+  page_sport TEXT NOT NULL,
+  parser_version TEXT NOT NULL,
+  evidence_sha256 TEXT NOT NULL,            -- sha256 of the fetched page body
+  parse_status TEXT NOT NULL,
+  staff_records INTEGER NOT NULL,           -- people the parser read from the page
+  emails_published INTEGER NOT NULL,        -- addresses the page publishes for anyone
+  coach_name_found INTEGER NOT NULL,
+  coach_email_found INTEGER NOT NULL,
+  other_email_for_coach TEXT,               -- a DIFFERENT address published for this coach, if any (an email-change lead)
+  fixture_hash TEXT NOT NULL,
+  action_id TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  CHECK (parse_status = 'COMPLETE'),
+  CHECK (staff_records >= 1 AND emails_published >= 1),
+  CHECK (coach_name_found = 1 AND coach_email_found = 0),
+  CHECK (length(evidence_sha256) = 64 AND length(parser_version) > 0),
+  CHECK (source_url LIKE 'https://%'),
+  CHECK (email = lower(email) AND instr(email, '@') > 1)
+);
+CREATE INDEX IF NOT EXISTS idx_coach_email_absence_coach ON coach_email_absence_observations(coach_id);
+CREATE TRIGGER IF NOT EXISTS trg_coach_email_absence_no_update
+BEFORE UPDATE ON coach_email_absence_observations
+BEGIN
+  SELECT RAISE(ABORT, 'coach_email_absence_observations is append-only');
+END;
+
 -- ===========================================================================
 -- CAMPAIGNS — Phase A1. Additive DDL only.
 --

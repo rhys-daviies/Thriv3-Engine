@@ -23,6 +23,7 @@
  * raw name, role, and an email ONLY when printed on the page (email_origin PUBLISHED_ON_SOURCE).
  */
 import { fetchPage } from './fetchPage.js';
+import { parseSidearmStaffPage } from './sidearmStaff.js';
 import { parseRosterTable, parseStaffTable, SPORT_PRESTO, pageTitle } from './presto.js';
 import { detectPlatform, parseSidearmRosterStrict, parseSidearmStaff } from './sidearm.js';
 import { parseRosterTableStrict, STRUCTURE, prestoListViewHref, prestoCardNames, crossCheckCards, parsePrestoCardsStrict } from './rosterStructure.js';
@@ -142,15 +143,19 @@ export async function staffAdapter(target, { ownsHost, ownsSource, fetch = fetch
   const u = url || staffUrl(target.host, target.platform, target.sport);
   const p = await fetch(u);
   const platform = target.platform || detectPlatform(p.body);
-  const people = p.block ? [] : (platform === 'SIDEARM' ? parseSidearmStaff(p.body) : parseStaffTable(p.body));
+  // SIDEARM: sidearm-staff-2 (Phase 8D.3E), person-centred with completeness; sidearm-staff-1 read 0 people on every current page.
+  // An address printed against two or more people is a shared inbox, never staged as a person's own address.
+  const sa = !p.block && platform === 'SIDEARM' ? parseSidearmStaffPage(p.body) : null;
+  const people = p.block ? [] : (sa ? sa.people.map((x) => { const own = x.emails.find((e) => !x.shared_emails.includes(e)) || null; return { full_name: x.full_name, role: x.role, email: own, email_origin: own ? 'PUBLISHED_ON_SOURCE' : 'NONE' }; }) : parseStaffTable(p.body));
   const refusal = refusePage(p, { kind: 'COACH', sport: target.sport, season: null, entityOwnsHost: ownsHost ? (h) => ownsHost(h, target.athletics_entity_id) : null, entityOwnsUrl: ownsSource ? (u) => ownsSource(u, target.athletics_entity_id, target.sport) : null }, people, target.prior_count ? { count: target.prior_count } : null);
   const meta = { source_url: p.final_url || u, fetched_at: p.fetched_at, http: p.status, platform, title: p.block ? null : pageTitle(p.body).slice(0, 120), sha256: p.sha256 };
   if (refusal) return { refusal: { ...refusal, target: { entity: target.athletics_entity_id, sport: target.sport }, ...meta } };
   return { page: {
     dataset: 'COACH', source_kind: 'OFFICIAL_STAFF_DIRECTORY', source_url: meta.source_url, fetched_at: meta.fetched_at, observed_season: target.season,
     institution_label: target.institution_label, raw_programme: `${target.institution_label} ${target.sport}`, sport: target.sport, athletics_entity_id: target.athletics_entity_id,
-    source_complete: true, parser_version: `${platform.toLowerCase()}-staff-1`, adapter_version: ADAPTER_VERSION, adapter_evidence: { platform, title: meta.title, sha256: meta.sha256, records: people.length },
+    source_complete: sa ? sa.complete : true, parser_version: sa ? sa.parser_version : `${platform.toLowerCase()}-staff-1`, adapter_version: ADAPTER_VERSION, adapter_evidence: { platform, title: meta.title, sha256: meta.sha256, records: people.length },
     people: people.map((x) => ({ full_name: x.full_name, role: x.role, email: x.email_origin === 'PUBLISHED_ON_SOURCE' ? x.email : null, email_origin: x.email_origin })),
+    ...(sa ? { structure: sa.structure, incomplete_reason: sa.incomplete_reason, emails_on_page: sa.emails_on_page, labels: sa.labels, person_emails: sa.people.map((x) => ({ full_name: x.full_name, emails: x.emails, shared_emails: x.shared_emails })) } : {}),
   } };
 }
 

@@ -72,6 +72,10 @@ const ALLOWED = new Map([
   ['server/lib/refresh/adapters/programmeContactSlots.js', 'Phase 1G-B: parses printed staff addresses, builds no link'],
   ['server/lib/refresh/adapters/programmeContactSlots.test.js', 'Phase 1G-B: fixture staff pages for the slot reader'],
   ['server/lib/refresh/adapters/programmeContactGather.test.js', 'Phase 1G-B: fixture staff pages for the gatherer'],
+  // PHASE 8D.3E sidearm-staff-2: the same kind of reader for the current Sidearm staff layouts,
+  // and its fixture pages. Reads printed addresses into staging/evidence; builds no link, sends nothing.
+  ['server/lib/refresh/adapters/sidearmStaff.js', 'Phase 8D.3E: parses printed staff addresses, builds no link'],
+  ['server/lib/refresh/adapters/sidearmStaff.test.js', 'Phase 8D.3E: fixture staff pages for sidearm-staff-2'],
   // Local fixtures: 24 fake outreach rows so the engagement screens have
   // something to render. No send primitive exists anywhere under server/seed/,
   // which the test below asserts rather than assumes.
