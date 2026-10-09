@@ -697,17 +697,17 @@ describe('the recipient cap and the sender budget are different things', () => {
   });
 
   it('counts a confirmed send inside the window and not one outside it, at an injected clock', () => {
-    const coach = makeCoach({ email: 'windowed@duke.edu' });
+    const coach = makeCoach({ email: 'windowed@example.test' });
     const o = createOutreach({ athleteId: ATHLETE, coachId: coach.id });
     markOutreachDrafted(o.id);
     confirmSent([o.id], { at: at('10:00') });
     const sentAt = Date.parse(at('10:00'));
     const day = 86_400_000;
     // 29 days later the send is still in the 30-day window; 31 days later it has left it.
-    expect(recentSendCount('windowed@duke.edu', { now: sentAt + 29 * day })).toBe(1);
-    expect(recentSendCount('windowed@duke.edu', { now: sentAt + 31 * day })).toBe(0);
-    expect(isSendCapped('windowed@duke.edu', { now: sentAt + 29 * day, max: 1 })).toBe(true);
-    expect(isSendCapped('windowed@duke.edu', { now: sentAt + 31 * day, max: 1 })).toBe(false);
+    expect(recentSendCount('windowed@example.test', { now: sentAt + 29 * day })).toBe(1);
+    expect(recentSendCount('windowed@example.test', { now: sentAt + 31 * day })).toBe(0);
+    expect(isSendCapped('windowed@example.test', { now: sentAt + 29 * day, max: 1 })).toBe(true);
+    expect(isSendCapped('windowed@example.test', { now: sentAt + 31 * day, max: 1 })).toBe(false);
   });
 
   it('leaves sendCap saying exactly what it said before', () => {
