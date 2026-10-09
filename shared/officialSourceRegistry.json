@@ -31,7 +31,7 @@
       "publisher": "synthetic regression fixture",
       "url": "https://nces.ed.gov/ipeds/test-fixture",
       "fixture": "server/lib/refresh/__fixtures__/di03d/ipeds_test.csv",
-      "sha256": "d11982c6e93edc3a4b973a311f0116fe1bc8c13a45cbe36198b3d0244a10c79c",
+      "sha256": "bea86ec3b2968c03ac9e4d51bf1f77528803c8b569f6884b867c29c845a1fcb2",
       "retrieved_at": "2026-10-08T00:00:00Z"
     },
     {
@@ -41,7 +41,7 @@
       "publisher": "synthetic regression fixture",
       "url": "https://web3.ncaa.org/test-fixture",
       "fixture": "server/lib/refresh/__fixtures__/di03d/ncaa_test.json",
-      "sha256": "b25d64107ee26e6f9e167bc77d6038a09674ca8cac4334d6744340a7cad14913",
+      "sha256": "2b46a19cb41c0a0b60e53e51ac7a582c49c0ab70c3ca5bea04469d3a1f3dec88",
       "academic_year": 2027,
       "retrieved_at": "2026-10-08T00:00:00Z"
     }

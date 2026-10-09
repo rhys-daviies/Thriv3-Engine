@@ -1,9 +1,24 @@
 {
   "kind": "CORRECTION_REVIEWERS",
-  "version": 1,
-  "note": "Who may authorise a data correction (DI-03D). Changing this file is itself a T2 change. scope ANY: may authorise a correction of a runtime database (a checkout's server/data). scope DISPOSABLE_ONLY: may authorise a correction only of a disposable copy (rehearsal); refused for any runtime database.",
+  "version": 2,
+  "note": "Who may authorise a data correction or revert (DI-03F). Identity is a SIGNING KEY, not a name: an approval is an OpenSSH signature (ssh-keygen -Y sign -n thriv3-correction-approval@v1) over the approval body, verified against the keys enrolled here (server/lib/refresh/approvalValidator.js). Enrolling or removing a key, or changing a scope or the policy, is itself a T2 change. scopes: the database classes (server/lib/refresh/correctionTarget.js) a reviewer may authorise. Prefer a FIDO hardware key (sk-ssh-ed25519@openssh.com): its signature also proves a physical touch, which no agent or script running under the reviewer's account can produce. A reviewer with no enrolled key cannot approve anything.",
+  "policy": {
+    "min_distinct_signers": { "DISPOSABLE": 1, "SHARED_DEV": 1, "PRODUCTION": 2 }
+  },
   "reviewers": [
-    { "reviewer_id": "rhys-davies", "name": "Rhys Davies", "scope": "ANY" },
-    { "reviewer_id": "data-integrity-rehearsal", "name": "Data Integrity rehearsal (Claude)", "scope": "DISPOSABLE_ONLY" }
+    {
+      "reviewer_id": "rhys-davies",
+      "name": "Rhys Davies",
+      "scopes": ["DISPOSABLE", "SHARED_DEV", "PRODUCTION"],
+      "keys": [],
+      "enrolment": "PENDING: no signing key enrolled yet. Until one is, no SHARED_DEV or PRODUCTION correction can be approved."
+    },
+    {
+      "reviewer_id": "data-integrity-rehearsal",
+      "name": "Data Integrity rehearsal",
+      "scopes": ["DISPOSABLE"],
+      "keys": ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqqEPrC4MtXOGy903Nt+YZkpw6G9RXQ9tC9HJ0J/AHw data-integrity-rehearsal (DISPOSABLE only)"],
+      "enrolment": "The private half is derived from a public seed (server/lib/refresh/correctionTestKit.js): anyone can sign with it, so it is scoped to disposable copies only and can never authorise the shared or production database."
+    }
   ]
 }

@@ -25,7 +25,8 @@
  *     is the owner's (same state, an official website host in common) and is for the current year;
  *   - that an official record lists EXACTLY this host (normalised host equality — never a suffix or
  *     registrable-domain match) for the owner; shared hosting platforms are refused;
- *   - that NO other institution's official record lists this host (an unresolved contradiction refuses);
+ *   - that NO other institution's official record lists this host — in EVERY registered source of the
+ *     cited scope, cited or not (DI-03F); only a signed contradiction_resolution settles one;
  *   - that the host's own page (https, 200, landing on this host, within MAX_EVIDENCE_DAYS) names the
  *     owner more specifically than any rival (the previous owner, every other claimant) — and, for a
  *     REASSIGN, carries the owner's city and state;
@@ -38,7 +39,8 @@
  * The code-level hold stays until a committed manifest proves the correction (heldDomainAdjudications).
  *
  * Only status, unitid, athletics_entity_id, ownership_class, role (only from UNKNOWN/empty),
- * wrong_mappings and notes change; every evidence column is preserved. The plan is re-read inside the
+ * wrong_mappings, confidence / verification_method / checked_at (the new decision, DI-03F F12) and notes
+ * change; every evidence column is preserved. The plan is re-read inside the
  * caller's transaction, each UPDATE matches the complete expected row, and the manifest is in the
  * promotion revert format.
  */
@@ -46,14 +48,26 @@ import { fixtureHash } from './protectedCorrection.js';
 import { normHost, hostOwnershipDisagreements, SHARED_PLATFORM_ROOT } from './identityResolver.js';
 import { loadRefreshContext } from './context.js';
 import { cycleOf } from './freshness.js';
-import { officialSource, pageText, nameScore, locatedAt, MAX_EVIDENCE_DAYS } from './officialEvidence.js';
+import { officialSource, registeredSources, pageText, nameScore, locatedAt, MAX_EVIDENCE_DAYS } from './officialEvidence.js';
 import { isHeldDomain, holdRecord, holdReleaseProblems } from '../../../shared/heldDomainAdjudications.js';
+import { isGrant, asInstant } from './approvalValidator.js';
+import { classifyDatabase } from './correctionTarget.js';
 
 export const DOMAIN_OWNERSHIP_KIND = 'DOMAIN_OWNERSHIP_CORRECTION';
 export const OPERATIONS = Object.freeze(['REASSIGN_OWNER', 'RESTORE_OWNER', 'PROMOTE_UNOWNED', 'CONFIRM']);
 export const TRUSTED_TARGETS = Object.freeze(['VERIFIED', 'VERIFIED_ALIAS']);
-/** The only columns this module may change. */
-export const OWNERSHIP_MUTABLE = Object.freeze(['status', 'unitid', 'athletics_entity_id', 'ownership_class', 'role', 'wrong_mappings', 'notes']);
+/**
+ * The only columns this module may change. DI-03F (F12): a corrected row carries the CURRENT decision —
+ * confidence CORROBORATED (owner listed by a pinned official source + the host's own page, the
+ * standard of OFFICIAL_DIRECTORY_AND_PAGE_SELF_IDENTIFICATION), verification_method
+ * DOMAIN_OWNERSHIP_CORRECTION and checked_at = the commit instant — instead of keeping the confidence
+ * of the decision it overturns. The HISTORICAL evidence (evidence_kind, evidence_text, identity_*,
+ * platform, http_status, final_url, claimed_*) is never touched; the historical decision (previous
+ * status, owner, confidence, method, checked_at) is kept in the ledger manifest and summarised in notes.
+ */
+export const OWNERSHIP_MUTABLE = Object.freeze(['status', 'unitid', 'athletics_entity_id', 'ownership_class', 'role', 'wrong_mappings', 'confidence', 'verification_method', 'checked_at', 'notes']);
+export const CORRECTED_CONFIDENCE = 'CORROBORATED';
+export const CORRECTION_METHOD = 'DOMAIN_OWNERSHIP_CORRECTION';
 const FROM = Object.freeze({ REASSIGN_OWNER: ['VERIFIED', 'VERIFIED_ALIAS', 'WRONG_INSTITUTION'], RESTORE_OWNER: ['WRONG_INSTITUTION'], PROMOTE_UNOWNED: ['INSUFFICIENT_EVIDENCE'], CONFIRM: TRUSTED_TARGETS });
 const ROLES = new Set(['ATHLETICS_SITE', 'INSTITUTION_SITE']);
 const HEX64 = /^[0-9a-f]{64}$/;
@@ -95,15 +109,15 @@ function dbNames(db, unitid) {
  * Derive and check the action's evidence. Returns { problems, derived }.
  * `rivals`: UNITIDs whose names the page must NOT match as specifically as the owner's.
  */
-function evidenceProblems(db, a, host, label, { store, target, now, rivals, requireLocation, needEquivalence }) {
-  const p = []; const derived = { listed_by: [], official: [] }; const ev = a.evidence || {};
+function evidenceProblems(db, a, host, label, { store, target, now, rivals, requireLocation, needEquivalence, resolutions = [] }) {
+  const p = []; const derived = { listed_by: [], official: [], sources: [], pages: [], contradictions: [] }; const ev = a.evidence || {};
   const B = Number(a.owner.unitid);
   if (SHARED_PLATFORM_ROOT.test(host)) return { problems: [`${label}: ${host} is a shared hosting platform — it can never identify an institution`], derived };
   const refs = Array.isArray(ev.official) ? ev.official : [];
   let ipeds = null; let ipedsSrc = null; const orgs = [];
   for (const r of refs) {
     let src; try { src = officialSource(r?.source_id, store, { target, now }); } catch (e) { p.push(`${label}: ${e.message}`); continue; }
-    derived.official.push(r.source_id);
+    derived.official.push(r.source_id); derived.sources.push({ source_id: r.source_id, sha256: src.entry.sha256, scope: src.entry.scope });
     if (src.kind === 'IPEDS_HD') { ipedsSrc = src; ipeds = src.data.byUnitid.get(B) || null; if (!ipeds) p.push(`${label}: UNITID ${B} is not in ${r.source_id}`); }
     if (src.kind === 'NCAA_DIRECTORY_MEMBERLIST') {
       const o = src.data.byOrg.get(r.org_id);
@@ -124,14 +138,34 @@ function evidenceProblems(db, a, host, label, { store, target, now, rivals, requ
   if (ipeds.hosts.includes(host)) derived.listed_by.push(`IPEDS ${B}`);
   for (const { o } of orgs) if ([...o.web_hosts, ...o.athletic_hosts].includes(host)) derived.listed_by.push(`NCAA org ${o.org_id}`);
   if (!derived.listed_by.length) p.push(`${label}: no official record lists ${host} for UNITID ${B} (exact host; IPEDS lists ${ipeds.hosts.join(', ') || 'none'}${orgs.length ? `; NCAA lists ${orgs.flatMap(({ o }) => [...o.web_hosts, ...o.athletic_hosts]).join(', ')}` : ''})`);
-  // no other institution's official record lists the host
-  const otherU = [...(ipedsSrc.data.byHost.get(host) || [])].filter((u) => u !== B);
-  if (otherU.length) p.push(`${label}: IPEDS also lists ${host} for UNITID ${otherU.join(', ')} — unresolved contradictory evidence`);
-  for (const { src, o } of orgs) { const others = [...(src.data.byHost.get(host) || [])].filter((x) => x !== o.org_id); if (others.length) p.push(`${label}: the NCAA directory also lists ${host} for org ${others.join(', ')} — unresolved contradictory evidence`); }
+  // no other institution's official record lists the host — searched in EVERY registered source of the
+  // cited scope, not only the cited ones (DI-03E MAJOR-4: ewu.edu). A contradiction stands unless the
+  // signed approval resolves exactly it (contradiction_resolutions: { host, source_id, claimant }).
+  const scopes = [...new Set(derived.sources.map((x) => x.scope))];
+  if (scopes.length !== 1) p.push(`${label}: cited official sources must share one registry scope (got ${scopes.join(', ')})`);
+  else {
+    const fam = registeredSources(scopes[0], store, { target, now });
+    p.push(...fam.problems.map((x) => `${label}: ${x}`));
+    for (const src of fam.sources) {
+      for (const u of src.kind === 'IPEDS_HD' ? [...(src.data.byHost.get(host) || [])].filter((x) => x !== B) : []) derived.contradictions.push({ source_id: src.entry.source_id, claimant: `UNITID:${u}`, name: src.data.byUnitid.get(u)?.name });
+      if (src.kind === 'NCAA_DIRECTORY_MEMBERLIST') {
+        for (const org of [...(src.data.byHost.get(host) || [])]) {
+          const o = src.data.byOrg.get(org);
+          const bound = o && o.state === ipeds.state && o.web_hosts.some((h) => ipeds.hosts.includes(h));
+          if (!bound) derived.contradictions.push({ source_id: src.entry.source_id, claimant: `ORG:${org}`, name: o?.name });
+        }
+      }
+    }
+    for (const c of derived.contradictions) {
+      const ok = resolutions.some((r) => normHost(r?.host || '') === host && r.source_id === c.source_id && r.claimant === c.claimant);
+      if (!ok) p.push(`${label}: ${c.source_id} also lists ${host} for ${c.claimant} (${c.name ?? '?'}) — unresolved contradictory evidence (only a signed contradiction_resolution for exactly this claim settles it)`);
+    }
+  }
   // host -> institution: the page names the owner more specifically than any rival
   const hti = ev.host_to_institution;
   const hf = fetchProblems(hti, host, `${label}: host_to_institution`, { store, now });
   p.push(...hf.problems);
+  if (hti?.sha256) derived.pages.push(hti.sha256);
   if (!hf.problems.length && hf.bytes) {
     const pg = pageText(hf.bytes);
     const ownerNames = [ipeds.name, ...ipeds.aliases, ...orgs.map(({ o }) => o.name), ...dbNames(db, B)];
@@ -158,6 +192,7 @@ function evidenceProblems(db, a, host, label, { store, target, now, rivals, requ
     if (!eq) p.push(`${label}: two forms of ${host} are involved — evidence.equivalence (bare + www fetches) is required`);
     else {
       const ep = [...fetchProblems(eq.bare, host, `${label}: equivalence.bare`, { store, now }).problems, ...fetchProblems(eq.www, host, `${label}: equivalence.www`, { store, now }).problems];
+      derived.pages.push(...[eq.bare?.sha256, eq.www?.sha256].filter(Boolean));
       if (!ep.length) {
         if (hostOfUrl(eq.bare.url) !== host || hostOfUrl(eq.www.url) !== `www.${host}`) ep.push(`${label}: equivalence fetches must be https://${host}/ and https://www.${host}/`);
         if (pathOfUrl(eq.bare.final_url) !== pathOfUrl(eq.www.final_url)) ep.push(`${label}: the two forms land on different pages`);
@@ -171,21 +206,24 @@ function evidenceProblems(db, a, host, label, { store, target, now, rivals, requ
 
 /**
  * Check every action against the database and the evidence store. Returns { plan, problems }.
- * Never writes. `ctx`: { store (evidenceStore), target ('RUNTIME'|'DISPOSABLE'), now }.
+ * Never writes. `ctx`: { store (evidenceStore), target (the database class: PRODUCTION | SHARED_DEV |
+ * DISPOSABLE), now, approvalId (the signed composite approval every fixture approval and release must
+ * name), resolutions (the signed approval's contradiction_resolutions) }.
  */
-export function planDomainOwnership(db, fx, { store = null, target = null, now = new Date() } = {}) {
+export function planDomainOwnership(db, fx, { store = null, target = null, now = new Date(), approvalId = null, resolutions = [] } = {}) {
   const problems = []; const plan = [];
-  const n = now instanceof Date ? now : new Date(now);
+  const n = asInstant(now);
   if (fx?.kind !== DOMAIN_OWNERSHIP_KIND) return { plan, problems: [`fixture kind must be ${DOMAIN_OWNERSHIP_KIND} (got ${fx?.kind ?? 'none'})`] };
   if (!fx.fixture_hash || fixtureHash(fx) !== fx.fixture_hash) problems.push('fixture_hash does not match the fixture body');
   if (!store) problems.push('an evidence store is required (evidence is read and verified, never declared)');
-  if (!['RUNTIME', 'DISPOSABLE'].includes(target)) problems.push('the correction target (RUNTIME | DISPOSABLE) is required');
+  if (!['PRODUCTION', 'SHARED_DEV', 'DISPOSABLE'].includes(target)) problems.push('the correction target class (PRODUCTION | SHARED_DEV | DISPOSABLE) is required');
   if (problems.length) return { plan, problems };
   const actions = Array.isArray(fx.corrections) ? fx.corrections : [];
   if (!actions.length) problems.push('fixture has no corrections');
   const approvals = Array.isArray(fx.approvals) ? fx.approvals : [];
   // an approval's scope is exactly the hosts of the actions that cite it
   for (const ap of approvals) {
+    if (approvalId && ap?.approval_id !== approvalId) problems.push(`fixture approval ${ap?.approval_id} is not the signed composite approval ${approvalId} — one approval id end to end`);
     const cited = actions.filter((a) => a?.approval_id === ap?.approval_id).map((a) => normHost(a.host)).sort();
     const listed = (ap?.hosts || []).map(normHost).sort();
     if (cited.join(',') !== listed.join(',')) problems.push(`approval ${ap?.approval_id}: hosts ${listed.join(', ')} are not exactly the hosts of the actions it authorises (${cited.join(', ') || 'none'})`);
@@ -276,7 +314,7 @@ export function planDomainOwnership(db, fx, { store = null, target = null, now =
     if (reassign && !Number.isInteger(Number(a.previous_owner?.unitid))) { problems.push(`${label}: previous_owner required`); continue; }
     if (!reassign && a.previous_owner) { problems.push(`${label}: previous_owner given but no row is reassigned`); continue; }
     if (!items.some((i) => i.set)) { problems.push(`${label}: nothing to correct`); continue; }
-    const { problems: ep, derived } = evidenceProblems(db, a, host, label, { store, target, now: n, rivals: [...rivals], requireLocation: reassign, needEquivalence: family.length > 1 || items.length > 1 });
+    const { problems: ep, derived } = evidenceProblems(db, a, host, label, { store, target, now: n, rivals: [...rivals], requireLocation: reassign, needEquivalence: family.length > 1 || items.length > 1, resolutions });
     if (ep.length) { problems.push(...ep); continue; }
     // hold: only a release bound to this hold, this action and this action's verified evidence
     const hold = holdRecord(host); const rel = releases.filter((x) => normHost(x?.domain || '') === host);
@@ -288,6 +326,7 @@ export function planDomainOwnership(db, fx, { store = null, target = null, now =
       if (Number(rel[0].released_to_unitid) !== B) rp.push(`release settles on ${rel[0].released_to_unitid}, the action on ${B}`);
       if (rel[0].applies_to_action !== a.action_id) rp.push(`release applies_to_action ${rel[0].applies_to_action} is not ${a.action_id}`);
       if (rel[0].approval_id !== a.approval_id) rp.push(`release approval ${rel[0].approval_id} is not the action's ${a.approval_id}`);
+      if (approvalId && rel[0].approval_id !== approvalId) rp.push(`release approval ${rel[0].approval_id} is not the signed composite approval ${approvalId}`);
       if (rel[0].evidence?.self_identification_sha256 !== a.evidence.host_to_institution.sha256) rp.push('release self-identification is not the page this action verified');
       const ids = rel[0].evidence?.official_source_ids || [];
       if (!ids.length || ids.some((x) => !derived.official.includes(x))) rp.push('release official sources are not the sources this action verified');
@@ -302,21 +341,30 @@ export function planDomainOwnership(db, fx, { store = null, target = null, now =
 }
 
 /** The values a planned row is written with (OWNERSHIP_MUTABLE only). */
-function writtenValues(item, { now, fixture_hash, action, release }) {
-  const note = `DOMAIN_OWNERSHIP ${action.action_id} ${item.r.operation} @ ${now} (fixture ${String(fixture_hash).slice(0, 12)}, approval ${action.approval_id}): `
-    + `${item.row.status}@${item.row.unitid ?? 'none'} -> ${item.set.status}@${item.set.unitid} (${item.set.athletics_entity_id})${release ? `; hold release ${release.release_id}` : ''}; ${action.reason}`;
-  return { ...item.set, notes: (item.row.notes ? `${item.row.notes} | ${note}` : note).slice(0, 2000) };
+function writtenValues(item, { now, fixture_hash, action, release, ledger_id }) {
+  const was = `${item.row.status}@${item.row.unitid ?? 'none'} ${item.row.confidence}/${item.row.verification_method}@${item.row.checked_at}`;
+  const note = `DOMAIN_OWNERSHIP ${action.action_id} ${item.r.operation} @ ${now} (ledger ${ledger_id}, fixture ${String(fixture_hash).slice(0, 12)}, approval ${action.approval_id}): `
+    + `was ${was} -> ${item.set.status}@${item.set.unitid} (${item.set.athletics_entity_id}) ${CORRECTED_CONFIDENCE}/${CORRECTION_METHOD}${release ? `; hold release ${release.release_id}` : ''}; ${action.reason}`;
+  return { ...item.set, confidence: CORRECTED_CONFIDENCE, verification_method: CORRECTION_METHOD, checked_at: now, notes: (item.row.notes ? `${item.row.notes} | ${note}` : note).slice(0, 2000) };
 }
 
 /**
  * Apply a DOMAIN_OWNERSHIP_CORRECTION inside a transaction the CALLER owns (the composite writer).
- * Refuses outside a transaction; throws on any failure so the caller rolls everything back.
- * Returns { applied, manifest (promotion revert entries), plan }.
+ * Refuses outside a transaction, and without a live authenticated GRANT (approvalValidator.verifyApproval)
+ * for THIS database (re-classified here) that names this fixture — a direct library call cannot skip
+ * authentication or environment classification. Throws on any failure so the caller rolls back.
+ * Returns { applied, manifest (promotion revert entries), plan, evidence }.
  */
-export function applyDomainOwnershipInTransaction(db, fx, { now = new Date().toISOString(), store = null, target = null, postcheck = domainOwnershipPostcheck, onAction = null } = {}) {
+export function applyDomainOwnershipInTransaction(db, fx, { now = new Date().toISOString(), store = null, grant = null, ledger_id = null, postcheck = domainOwnershipPostcheck, onAction = null } = {}) {
   if (!db.inTransaction) throw new Error('applyDomainOwnershipInTransaction needs a caller-owned open transaction');
+  if (!isGrant(grant)) throw new Error('applyDomainOwnershipInTransaction needs an authenticated approval grant (verifyApproval) — refused');
+  const env = classifyDatabase(db);
+  if (env.class !== grant.target.class || env.identity !== grant.target.identity) throw new Error(`the approval grant is for ${grant.target.class} ${grant.target.identity}; this database is ${env.class} ${env.identity ?? '(unidentified)'} — refused`);
   const fixture_hash = fixtureHash(fx);
-  const { plan, problems } = planDomainOwnership(db, fx, { store, target, now: new Date(now) });
+  if (!(grant.body.stages || []).some((st) => st.type === DOMAIN_OWNERSHIP_KIND && st.fixture_hash === fixture_hash)) throw new Error(`the approval grant does not authorise fixture ${fixture_hash.slice(0, 12)}`);
+  if (!ledger_id) throw new Error('ledger_id is required (the correction ledger row this write belongs to)');
+  asInstant(now);
+  const { plan, problems } = planDomainOwnership(db, fx, { store, target: env.class, now: new Date(now), approvalId: grant.approval_id, resolutions: grant.body.contradiction_resolutions || [] });
   if (problems.length) throw Object.assign(new Error(`domain ownership correction refused: ${problems.length} problem(s)`), { problems });
   const cols = db.prepare('PRAGMA table_info(athletics_domains)').all().map((c) => c.name);
   const manifest = []; let applied = 0;
@@ -324,7 +372,7 @@ export function applyDomainOwnershipInTransaction(db, fx, { now = new Date().toI
     const entries = [];
     for (const item of p.items) {
       if (!item.set) continue;
-      const nu = writtenValues(item, { now, fixture_hash, action: p.action, release: p.release });
+      const nu = writtenValues(item, { now, fixture_hash, action: p.action, release: p.release, ledger_id });
       const where = cols.map((c) => `${c} IS @__o_${c}`).join(' AND ');
       const res = db.prepare(`UPDATE athletics_domains SET ${OWNERSHIP_MUTABLE.map((k) => `${k}=@${k}`).join(', ')} WHERE ${where}`)
         .run({ ...nu, ...Object.fromEntries(cols.map((c) => [`__o_${c}`, item.row[c] ?? null])) });
@@ -339,7 +387,9 @@ export function applyDomainOwnershipInTransaction(db, fx, { now = new Date().toI
     if (onAction) onAction(p, i);
   });
   if (postcheck) postcheck(db, plan);
-  return { applied, manifest, plan };
+  const evidence = { official_sources: [...new Map(plan.flatMap((p) => p.derived.sources).map((x) => [x.source_id, { source_id: x.source_id, sha256: x.sha256 }])).values()],
+    pages: [...new Set(plan.flatMap((p) => p.derived.pages))], contradictions_resolved: plan.flatMap((p) => p.derived.contradictions.map((c) => ({ host: p.host, ...c }))) };
+  return { applied, manifest, plan, evidence };
 }
 
 /**

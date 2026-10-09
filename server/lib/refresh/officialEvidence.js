@@ -16,22 +16,26 @@
  *
  * Registry entries with scope TEST_ONLY (synthetic sources the regression tests use) are refused for
  * any runtime database. Every source and page has a maximum age.
+ *
+ * CONTRADICTIONS (DI-03F) are searched in EVERY registered source of the cited scope
+ * (registeredSources), never only in the sources a fixture chose to cite.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { fileURLToPath } from 'node:url';
 import { normHost } from './identityResolver.js';
 
-export const REGISTRY_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../shared/officialSourceRegistry.json');
+import { readSourceRegistry, REGISTRY_PATH } from './sourceRegistry.js';
+
+export { REGISTRY_PATH };
 export const MAX_EVIDENCE_DAYS = 30;
 const HEX64 = /^[0-9a-f]{64}$/;
 const sha = (b) => crypto.createHash('sha256').update(b).digest('hex');
 
 /** The pinned registry. Unreadable -> empty (no source is official: fail closed). */
-export function loadRegistry(file = REGISTRY_PATH) {
+export function loadRegistry() {
   try {
-    const j = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const j = readSourceRegistry();
     if (j?.kind !== 'OFFICIAL_SOURCE_REGISTRY' || !Array.isArray(j.sources)) return [];
     return j.sources.filter((s) => s?.source_id && HEX64.test(s.sha256 || '') && ['IPEDS_HD', 'NCAA_DIRECTORY_MEMBERLIST'].includes(s.kind) && ['PRODUCTION', 'TEST_ONLY'].includes(s.scope));
   } catch { return []; }
@@ -107,7 +111,7 @@ function parseNcaa(bytes) {
 const daysOld = (iso, now) => { const d = new Date(String(iso ?? '')); return Number.isNaN(d.getTime()) ? null : (now.getTime() - d.getTime()) / 86_400_000; };
 
 /**
- * An official source by registry id, verified and parsed. `target` RUNTIME refuses TEST_ONLY sources.
+ * An official source by registry id, verified and parsed. Any `target` class but DISPOSABLE refuses TEST_ONLY sources.
  * -> { entry, kind, data } or throws.
  */
 export function officialSource(sourceId, store, { target, now = new Date() } = {}) {
@@ -120,6 +124,20 @@ export function officialSource(sourceId, store, { target, now = new Date() } = {
   const key = entry.sha256;
   if (!parsed.has(key)) parsed.set(key, entry.kind === 'IPEDS_HD' ? parseIpeds(bytes) : parseNcaa(bytes));
   return { entry, kind: entry.kind, data: parsed.get(key) };
+}
+
+/**
+ * EVERY registered source of one scope (PRODUCTION or TEST_ONLY), verified and parsed — the set a
+ * contradiction check must read, whatever the fixture chose to cite (DI-03E MAJOR-4). A registered
+ * source whose bytes are not in the store, or that is stale, is a problem: a contradiction it might
+ * hold cannot be ruled out. -> { sources: [{ entry, kind, data }], problems }
+ */
+export function registeredSources(scope, store, { target, now = new Date() } = {}) {
+  const sources = []; const problems = [];
+  for (const e of loadRegistry().filter((x) => x.scope === scope)) {
+    try { sources.push(officialSource(e.source_id, store, { target, now })); } catch (err) { problems.push(`registered source ${e.source_id} cannot be read (${err.message}) — contradictions it may hold cannot be ruled out`); }
+  }
+  return { sources, problems };
 }
 
 // ---------- page self-identification

@@ -1,0 +1,11 @@
+{
+  "kind": "DATABASE_ENVIRONMENTS",
+  "version": 1,
+  "note": "Positive identification of real databases for the correction engine (server/lib/refresh/correctionTarget.js, DI-03F). A database is PRODUCTION if this process is a production process (NODE_ENV=production or RENDER), if its real path is or lies under a production path/root below, or if it is the same file (inode) as a production path. It is SHARED_DEV if it sits directly in a checkout's server/data directory, is this process's RECRUITMATCH_DB, or is listed under shared_development (with the activation-holds file its serving application enforces, relative to the repository root). Any other database is refused unless it carries a disposable marker bound to its own inode. Changing this file is a T2 change; the built-in production paths cannot be removed by editing it.",
+  "production": {
+    "paths": ["/data/recruitmatch.sqlite"],
+    "roots": ["/data"],
+    "service": "Render web service (render.yaml: RECRUITMATCH_DB=/data/recruitmatch.sqlite on the thriv3-data disk mounted at /data)"
+  },
+  "shared_development": []
+}

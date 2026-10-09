@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { createResolver, registrableDomain, emailDomain, DECISION } from './institutionResolver.js';
 import { normalizeForMatch } from './coachingImport.js';
 import { isHeldDomain } from '../../shared/heldDomainAdjudications.js';
+import { releasedHeldDomains } from './refresh/holdRelease.js';
 import { buildEntityIndex, hostOf } from './athleticsEntity.js';
 import { qualifyingAbsence, ABSENCE_REASON } from './emailPublication.js';
 
@@ -76,7 +77,10 @@ export function reconcileCoachRows(db, { scope = 'NAIA' } = {}) {
   }
   const csHas = (school, sport, name) => csBySchool.get(`${school}|${sport}`)?.has(nn(name)) || false;
   const domByName = new Map(domains.map((d) => [String(d.domain).toLowerCase(), d]));
-  const resolver = createResolver({ colleges, domains, aliases });
+  // held-domain releases proven in THIS database (refresh/holdRelease.js); none -> every hold stands
+  const releasedHolds = releasedHeldDomains(db);
+  const isHeld = (d) => isHeldDomain(d, releasedHolds);
+  const resolver = createResolver({ colleges, domains, aliases, releasedHolds });
   const uni = (name, sport) => collByNS.get(`${name}|${sport}`)?.unitid ?? null;
   const nameByUnitid = new Map();
   for (const c of colleges) if (c.unitid != null) nameByUnitid.set(`${c.unitid}|${c.sport}`, canonName(c.name, c.sport));
@@ -160,8 +164,8 @@ export function reconcileCoachRows(db, { scope = 'NAIA' } = {}) {
     const trusted = (d) => d && ['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status);
     const read = (key, kind) => {
       if (!key) return null;
-      if (kind === 'SOURCE' && host && !isHeldDomain(host)) { const he = eidx.entityForHost(host); if (he) return { entity: he, viaHost: true, method: 'SOURCE_HOST_ENTITY', note: `${host}→${he}` }; }
-      if (isHeldDomain(key) || !domByName.has(key)) return null;
+      if (kind === 'SOURCE' && host && !isHeld(host)) { const he = eidx.entityForHost(host); if (he) return { entity: he, viaHost: true, method: 'SOURCE_HOST_ENTITY', note: `${host}→${he}` }; }
+      if (isHeld(key) || !domByName.has(key)) return null;
       const d = domByName.get(key);
       if (trusted(d)) {
         if (d.athletics_entity_id) return { entity: d.athletics_entity_id, method: `${kind}_DOMAIN_ENTITY`, note: `${key}→${d.athletics_entity_id}` };
@@ -270,12 +274,12 @@ export function reconcileCoachRows(db, { scope = 'NAIA' } = {}) {
     let evUnitid = null, method = null, evNote = '';
     if (sdom && domByName.has(sdom)) {
       const d = domByName.get(sdom);
-      if (!isHeldDomain(sdom) && ['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) && d.unitid != null) { evUnitid = d.unitid; method = 'SOURCE_DOMAIN'; evNote = `${sdom}→${d.unitid}`; }
+      if (!isHeld(sdom) && ['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) && d.unitid != null) { evUnitid = d.unitid; method = 'SOURCE_DOMAIN'; evNote = `${sdom}→${d.unitid}`; }
       else if (['WRONG_INSTITUTION', 'AMBIGUOUS'].includes(d.status)) { method = `DOMAIN_${d.status}`; evNote = `${sdom} ${d.status}`; }
     }
     if (evUnitid == null && !method && edom && domByName.has(edom)) {
       const d = domByName.get(edom);
-      if (!isHeldDomain(edom) && ['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) && d.unitid != null) { evUnitid = d.unitid; method = 'EMAIL_DOMAIN'; evNote = `${edom}→${d.unitid} (email)`; }
+      if (!isHeld(edom) && ['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) && d.unitid != null) { evUnitid = d.unitid; method = 'EMAIL_DOMAIN'; evNote = `${edom}→${d.unitid} (email)`; }
     }
     const idAtCurrent = csHas(co.school, co.sport, co.full_name);
     const idAtEvidence = evUnitid != null && csHas(nameByUnitid.get(`${evUnitid}|${co.sport}`), co.sport, co.full_name);
@@ -332,7 +336,7 @@ export function reconcileCoachRows(db, { scope = 'NAIA' } = {}) {
     // and it is gated by activation scope (default NAIA-only) so NCAA behaviour cannot change.
     // Every one of these must hold — positive evidence never overrides a contradiction.
     const progRow = collByNS.get(`${co.school}|${co.sport}`);
-    const strictDomainOk = !!sdom && domByName.has(sdom) && !isHeldDomain(sdom)
+    const strictDomainOk = !!sdom && domByName.has(sdom) && !isHeld(sdom)
       && ['VERIFIED', 'VERIFIED_ALIAS'].includes(domByName.get(sdom)?.status)
       && domByName.get(sdom)?.unitid != null && domByName.get(sdom)?.unitid === resolvedUnitid;
     const strictAuthoritative = !corroborationMethod

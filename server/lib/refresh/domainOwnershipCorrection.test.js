@@ -6,16 +6,17 @@ import Database from 'better-sqlite3';
 import { fixtureHash } from './protectedCorrection.js';
 import { planDomainOwnership, applyDomainOwnershipInTransaction, DOMAIN_OWNERSHIP_KIND } from './domainOwnershipCorrection.js';
 import { COACH_INSTITUTION_KIND } from './coachCorrection.js';
-import { runCompositeCorrection, revertComposite, approvalHash, idSetHash, validateComposite, COMPOSITE_APPROVAL_KIND } from './compositeCorrection.js';
+import { runCompositeCorrection, revertComposite, idSetHash, validateComposite } from './compositeCorrection.js';
 import { measureInProcess } from './integrityMeasure.js';
 import { revertManifest } from './promotion.js';
 import { loadRefreshContext } from './context.js';
 import { evidenceStore } from './officialEvidence.js';
-import { approvalProblems, TARGET } from './approvalValidator.js';
-import { correctionTarget } from './correctionTarget.js';
+import { verifyApproval, APPROVAL_KINDS, bodyHash } from './approvalValidator.js';
+import { correctionTarget, markNewDisposable } from './correctionTarget.js';
 import { canonicalDecisionIneligibility, canonicalDecisions } from '../canonicalCoachEligibility.js';
-import { isHeldDomain, holdRecord, holdReleaseProblems, appliedReleaseProblems } from '../../../shared/heldDomainAdjudications.js';
-import { approvalFields, holdsFile, sha256, TEST_REVIEWER } from './correctionTestKit.js';
+import { isHeldDomain, holdRecord, holdReleaseProblems } from '../../../shared/heldDomainAdjudications.js';
+import { releaseProofProblems } from './holdRelease.js';
+import { holdsFile, sha256, signEnvelope, compositeBody, revertBody, REHEARSAL, testKey, MEMORY_TARGET } from './correctionTestKit.js';
 import { world, U, E, NAME, H } from './domainOwnershipCorrection.world.js';
 
 /**
@@ -25,7 +26,8 @@ import { world, U, E, NAME, H } from './domainOwnershipCorrection.world.js';
  * verified www twin; an unreadable bare host; an unowned standalone host) and its coaches.
  * Evidence is real bytes: the TEST_ONLY official sources registered in shared/officialSourceRegistry.json
  * (server/lib/refresh/__fixtures__/di03d) and synthetic page bodies, in a content-addressed store.
- * Every DI-03C finding (F1-F13) and exploit (x1-x4) has a regression below.
+ * Every DI-03C finding (F1-F13) and exploit (x1-x4) has a regression below; approvals are signed
+ * envelopes (DI-03F) — the DI-03E findings have their own suite (correctionHardening.test.js).
  */
 const NOW = '2026-10-09T00:00:00Z';
 const now = new Date(NOW);
@@ -65,10 +67,10 @@ function act(db, host, owner, rows, { prev = null, twin = false, orgId = null, o
     rows: rows.map(([d, op, p]) => row(db, d, op, p)), evidence: evidence(host, { orgId, twin }), reason: 'authenticated owner', blast_radius: 'one host family', ...over };
 }
 const release = (a, over = {}) => ({ release_id: 'REL-STMARYTX', domain: H.HELD, hold_recorded: '2026-09-28', stored_unitid: U.CA, disputed_between: [U.CA, U.TX], released_to_unitid: U.TX,
-  approval_id: 'AP-D', ...approvalFields(NOW), reason: 'Self-identification and the IPEDS WEBADDR both establish the San Antonio institution (228149) as owner.',
+  approval_id: 'AP-D', reason: 'Self-identification and the IPEDS WEBADDR both establish the San Antonio institution (228149) as owner.',
   evidence: { self_identification_sha256: a.evidence.host_to_institution.sha256, official_source_ids: ['TEST_IPEDS_DI03D', 'TEST_NCAA_DI03D'] }, applies_to_action: `DO-${H.HELD}`, ...over });
 function fixture(actions, { releases = [], hosts = null, approval = {} } = {}) {
-  return seal({ kind: DOMAIN_OWNERSHIP_KIND, phase: 't', created_at: 't', approvals: [{ approval_id: 'AP-D', ...approvalFields(NOW), basis: 'test', hosts: hosts || actions.map((a) => a.host), ...approval }], hold_releases: releases, corrections: actions });
+  return seal({ kind: DOMAIN_OWNERSHIP_KIND, phase: 't', created_at: 't', approvals: [{ approval_id: 'AP-D', basis: 'test', hosts: hosts || actions.map((a) => a.host), ...approval }], hold_releases: releases, corrections: actions });
 }
 function c1Actions(db) {
   return [
@@ -88,20 +90,27 @@ const STAGES = (D, C) => [{ stage_id: 'S1-domains', type: DOMAIN_OWNERSHIP_KIND,
 const EXPECTED = { 'S1-domains': ['k-tx-head', 'k-tx-misfiled'], 'S2-relabel': [] };
 const SENDABLE = ['k-tx-head', 'k-tx-misfiled'];
 const HOLDS = holdsFile(SENDABLE);
-function approve(db, stages, { eligibility = EXPECTED, sendable = SENDABLE, holds = HOLDS, over = {} } = {}) {
-  const ap = { kind: COMPOSITE_APPROVAL_KIND, approval_id: 'AP-C1', ...approvalFields(NOW), basis: 'test', baseline: { eligible_ids_hash: idSetHash(measureInProcess(db).eligible_ids) },
-    sendability: { newly_sendable_coaches: sendable, newly_sendable_contacts: [], activation_holds_sha256: holds.sha256 },
-    stages: stages.map((s) => ({ stage_id: s.stage_id, type: s.type, group: s.group ?? null, fixture_hash: s.fixture.fixture_hash, eligibility: { added: eligibility[s.stage_id] || [], removed: [] } })), ...over };
-  return { ...ap, approval_hash: approvalHash(ap) };
+/** A signed (rehearsal-reviewer) composite approval for an in-memory world. */
+function approve(db, stages, { eligibility = EXPECTED, sendable = SENDABLE, holds = HOLDS, over = {}, resolutions = null, signers } = {}) {
+  return signEnvelope(compositeBody({ baselineHash: idSetHash(measureInProcess(db).eligible_ids), stages, added: eligibility, sendable, holdsSha: holds.sha256, now: NOW, resolutions, over }), signers);
+}
+/** An authenticated grant naming one domain fixture (what the composite hands applyDomainOwnershipInTransaction). */
+function grantFor(fx, opts = {}) {
+  const env = signEnvelope(compositeBody({ baselineHash: 'x', stages: [{ stage_id: 'S', type: DOMAIN_OWNERSHIP_KIND, fixture: fx }], holdsSha: HOLDS.sha256, now: NOW, ...opts }));
+  const v = verifyApproval(env, { kind: APPROVAL_KINDS.COMPOSITE, target: MEMORY_TARGET, now });
+  if (!v.grant) throw new Error(v.problems.join('; '));
+  return v.grant;
 }
 const snapshot = (db) => Object.fromEntries(db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all()
   .map(({ name }) => [name, JSON.stringify(db.prepare(`SELECT * FROM "${name}" ORDER BY rowid`).all())]));
 function setup() { const db = world(); const D = c1Domains(db); const C = c1Coaches(db); const stages = STAGES(D, C); return { db, D, C, stages, approval: approve(db, stages) }; }
 const run = (db, stages, approval, opts = {}) => runCompositeCorrection(db, stages, approval, { apply: true, now: NOW, activationHoldsFile: HOLDS.file, evidenceDir: STORE_DIR, ...opts });
 const CTX = { store, target: 'DISPOSABLE', now };
-function applyDomains(db, fx) { db.exec('BEGIN IMMEDIATE'); try { const r = applyDomainOwnershipInTransaction(db, fx, { now: NOW, store, target: 'DISPOSABLE' }); db.exec('COMMIT'); return r; } catch (e) { db.exec('ROLLBACK'); throw e; } }
+function applyDomains(db, fx) { db.exec('BEGIN IMMEDIATE'); try { const r = applyDomainOwnershipInTransaction(db, fx, { now: NOW, store, grant: grantFor(fx), ledger_id: 'CC-test' }); db.exec('COMMIT'); return r; } catch (e) { db.exec('ROLLBACK'); throw e; } }
 const problemsOf = (db, fx, ctx = CTX) => planDomainOwnership(db, fx, ctx).problems.join('\n');
-const EVIDENCE_COLS = ['claimed_keys', 'claimed_unitids', 'evidence_kind', 'evidence_text', 'identity_method', 'identity_strength', 'http_status', 'final_url', 'verification_method', 'confidence', 'checked_at', 'platform'];
+const EVIDENCE_COLS = ['claimed_keys', 'claimed_unitids', 'evidence_kind', 'evidence_text', 'identity_method', 'identity_strength', 'http_status', 'final_url', 'platform'];
+const revertApproval = (r, opts = {}) => signEnvelope(revertBody({ manifest: r.manifest, manifestSha256: r.manifest_sha256, noLonger: SENDABLE, holdsSha: HOLDS.sha256, now: NOW, ...opts }));
+const withoutLedger = (snap) => { const { correction_ledger, ...rest } = snap; return rest; }; // eslint-disable-line no-unused-vars
 
 describe('1. the five capabilities', () => {
   it('REASSIGN_OWNER moves a decided host to the authenticated owner, records the old owner as refuted, keeps every evidence column', () => {
@@ -111,6 +120,9 @@ describe('1. the five capabilities', () => {
     expect([after.status, after.unitid, after.athletics_entity_id, after.ownership_class]).toEqual(['VERIFIED', U.TX, E.TX, 'ENTITY_OWNED']);
     expect(JSON.parse(after.wrong_mappings)).toEqual([{ key: NAME.CA, claimantUnitid: U.CA }]);
     for (const c of EVIDENCE_COLS) expect(after[c]).toEqual(before[c]);
+    // F12 (DI-03F): the row carries the NEW decision's confidence, method and date; the old one is in notes + the ledger
+    expect([after.confidence, after.verification_method, after.checked_at]).toEqual(['CORROBORATED', 'DOMAIN_OWNERSHIP_CORRECTION', NOW]);
+    expect(after.notes).toMatch(/\(ledger CC-test, .*was WRONG_INSTITUTION@123554 CERTAIN\/PAGE_SELF_IDENTIFICATION@2026-09-01T09:28:40.920Z -> VERIFIED@228149/);
     expect(loadRefreshContext(db).resolver.ownerOfHost(H.RATTLER).entity).toBe(E.TX);
   });
   it('RESTORE_OWNER with its www twin pinned (atomic bare/www); PROMOTE_UNOWNED of a twin; PROMOTE of a standalone host', () => {
@@ -126,7 +138,7 @@ describe('1. the five capabilities', () => {
   });
   it('domain ownership runs before relabels; the reverse order is refused before any write', () => {
     const { db, D, C } = setup(); const rev = [STAGES(D, C)[1], STAGES(D, C)[0]];
-    expect(validateComposite(rev, approve(db, rev)).join('\n')).toMatch(/out of order/);
+    expect(validateComposite(rev, approve(db, rev).body).join('\n')).toMatch(/out of order/);
   });
   it('a held host is corrected only with a release bound to the hold, the action, its verified evidence and the reviewer; it stays HELD for every reader', () => {
     const db = world(); const a = act(db, H.HELD, 'TX', [[H.HELD, 'REASSIGN_OWNER', { status: 'VERIFIED_ALIAS' }]], { prev: 'CA', orgId: 1346 });
@@ -152,10 +164,12 @@ describe('2. C1-shaped batch through the composite writer', () => {
     const { db, C } = setup(); const only = [{ stage_id: 'S2-relabel', type: COACH_INSTITUTION_KIND, fixture: C }];
     expect(() => run(db, only, approve(db, only, { eligibility: { 'S2-relabel': [] }, sendable: [] }))).toThrow(/resolve elsewhere/);
   });
-  it('touches only the corrected domain rows and the relabelled coaches\' school/division', () => {
-    const { db, stages, approval } = setup(); const before = snapshot(db); run(db, stages, approval);
+  it('touches only the corrected domain rows, the relabelled coaches\' school/division, and records its ledger row', () => {
+    const { db, stages, approval } = setup(); const before = snapshot(db); const r = run(db, stages, approval);
     const after = snapshot(db);
-    expect(Object.keys(before).filter((t) => before[t] !== after[t]).sort()).toEqual(['athletics_domains', 'coaches']);
+    expect([...new Set([...Object.keys(before), ...Object.keys(after)])].filter((t) => before[t] !== after[t]).sort()).toEqual(['athletics_domains', 'coaches', 'correction_ledger']);
+    const led = db.prepare('SELECT * FROM correction_ledger').all();
+    expect(led.map((x) => [x.ledger_id, x.kind, x.status, x.target_class, x.manifest_sha256])).toEqual([[r.manifest.ledger_id, 'COMPOSITE_CORRECTION', 'COMMITTED', 'DISPOSABLE', r.manifest_sha256]]);
   });
 });
 
@@ -196,39 +210,62 @@ describe('3. F1 / x1 — sendability, not eligibility (CRITICAL)', () => {
   });
   it('a correction that would make a programme inbox sendable is refused (inboxes carry no hold)', () => {
     const { db, stages } = setup();
-    expect(validateComposite(stages, { ...approve(db, stages), sendability: { newly_sendable_coaches: [], newly_sendable_contacts: ['pc-1'], activation_holds_sha256: HOLDS.sha256 } }).join('\n')).toMatch(/programme inbox/);
+    expect(validateComposite(stages, { ...approve(db, stages).body, sendability: { newly_sendable_coaches: [], no_longer_sendable_coaches: [], newly_sendable_contacts: ['pc-1'], no_longer_sendable_contacts: [], activation_holds_sha256: HOLDS.sha256 } }).join('\n')).toMatch(/programme inbox/);
   });
 });
 
-describe('4. F3 — one strict approval validator', () => {
-  const ok = { approval_id: 'A', ...approvalFields(NOW), basis: 'reviewed' };
-  const probs = (over, target = TARGET.DISPOSABLE) => approvalProblems({ ...ok, ...over }, { target, now }).join('\n');
-  it('accepts an allow-listed reviewer within scope and dates', () => expect(probs({})).toBe(''));
-  it('rejects NOT APPROVED, pending, stand-in, TBD and placeholder text', () => {
-    for (const b of ['NOT APPROVED — rehearsal', 'pending review', 'stand-in reviewer', 'TBD', 'to be supplied', '<reviewer name>']) expect(probs({ basis: b })).toMatch(/placeholder/);
+describe('4. F3 / DI-03E MAJOR-2 — approvals are authenticated, not typed', () => {
+  const body = (over = {}) => compositeBody({ baselineHash: 'x', stages: [], holdsSha: HOLDS.sha256, now: NOW, ...over });
+  const verify = (env, target = MEMORY_TARGET) => verifyApproval(env, { kind: APPROVAL_KINDS.COMPOSITE, target, now }).problems.join('\n');
+  it('a signed approval by an enrolled reviewer within scope and dates verifies', () => expect(verify(signEnvelope(body()))).toBe(''));
+  it('a typed approval (reviewer name, no signature) and the DI-03D format are refused', () => {
+    expect(verify({ kind: 'SIGNED_CORRECTION_APPROVAL', version: 1, body: body(), signatures: [] })).toMatch(/no signature/);
+    expect(verify({ ...body(), reviewer_id: 'rhys-davies', approved_by: 'Rhys Davies' })).toMatch(/SIGNED_CORRECTION_APPROVAL v1 envelope/);
   });
-  it('rejects a missing, unknown or free-text reviewer', () => {
-    expect(probs({ reviewer_id: undefined })).toMatch(/not an authorised reviewer/);
-    expect(probs({ reviewer_id: 'someone' })).toMatch(/not an authorised reviewer/);
-    expect(probs({ approved_by: 'Independent Reviewer' })).toMatch(/is not the name of reviewer/);
+  it('a signature by an unenrolled key, a garbage signature, and a body edited after signing are refused', () => {
+    const env = signEnvelope(body(), [{ reviewer_id: 'data-integrity-rehearsal', key: testKey('impostor') }]);
+    expect(verify(env)).toMatch(/not enrolled for this reviewer/);
+    expect(verify({ ...signEnvelope(body()), signatures: [{ reviewer_id: 'data-integrity-rehearsal', signature: '-----BEGIN SSH SIGNATURE-----\nAAAA\n-----END SSH SIGNATURE-----' }] })).toMatch(/signature/);
+    const good = signEnvelope(body());
+    expect(verify({ ...good, body: { ...good.body, basis: 'edited after signing' } })).toMatch(/does not verify/);
+    expect(verify(signEnvelope(body(), [{ reviewer_id: 'rhys-davies', key: testKey('typed-rhys') }]))).toMatch(/rhys-davies has no enrolled signing key/);
   });
-  it('a DISPOSABLE_ONLY reviewer can never authorise a runtime database', () => expect(probs({}, TARGET.RUNTIME)).toMatch(/disposable copies only/));
-  it('rejects expired, future-dated, open-ended and over-long approvals', () => {
-    expect(probs({ approved_at: '2026-09-01', expires_at: '2026-09-05' })).toMatch(/expired/);
-    expect(probs({ approved_at: '2026-12-01', expires_at: '2026-12-05' })).toMatch(/in the future/);
-    expect(probs({ expires_at: undefined })).toMatch(/expires_at/);
-    expect(probs({ approved_at: '2026-10-01', expires_at: '2026-11-30' })).toMatch(/exceeds 14 days/);
+  it('placeholder text is refused, including look-alikes and invisible characters', () => {
+    for (const b of ['NOT APPROVED — rehearsal', 'NOT_APPROVED', 'pending review', 'pe\u200bnding', 'unapproved', 'TODO', 'stand-in reviewer', 'TBD', 'to be supplied', '<reviewer name>', 'NOT APPR\u041eVED', 'pénding']) {
+      expect(verify(signEnvelope(body({ basis: b })))).toMatch(/placeholder/);
+    }
   });
-  it('the composite refuses its own invalid approval, a fixture approval or release by another reviewer, and changed hashes/scope', () => {
+  it('the rehearsal reviewer can never authorise a shared or production database', () => {
+    const t = { class: 'SHARED_DEV', identity: 'shared-dev:/x/server/data/db.sqlite' };
+    expect(verify(signEnvelope(body({ target: t })), t)).toMatch(/may not authorise a SHARED_DEV database/);
+  });
+  it('an approval for another database (class or identity) is refused', () => {
+    expect(verify(signEnvelope(body({ target: { class: 'DISPOSABLE', identity: 'disposable:other' } })))).toMatch(/not this database/);
+  });
+  it('expired, future-dated, open-ended and over-long approvals are refused; an invalid now throws', () => {
+    expect(verify(signEnvelope(body({ over: { approved_at: '2026-09-01', expires_at: '2026-09-05' } })))).toMatch(/expired/);
+    expect(verify(signEnvelope(body({ over: { approved_at: '2026-12-01', expires_at: '2026-12-05' } })))).toMatch(/after now/);
+    expect(verify(signEnvelope(body({ over: { expires_at: undefined } })))).toMatch(/expires_at/);
+    expect(verify(signEnvelope(body({ over: { approved_at: '2026-10-01', expires_at: '2026-11-30' } })))).toMatch(/exceeds 14 days/);
+    expect(() => verifyApproval(signEnvelope(body()), { kind: APPROVAL_KINDS.COMPOSITE, target: MEMORY_TARGET, now: 'garbage' })).toThrow(/not a valid date/);
+  });
+  it('the composite refuses an edited approval, a fixture approval id other than the signed one (C-3), and a release the approval does not list', () => {
     const { db, stages, approval } = setup();
-    const bad = (ap) => { const b = { ...ap }; delete b.approval_hash; return { ...b, approval_hash: approvalHash(b) }; };
-    expect(() => run(db, stages, bad({ ...approval, approved_by: 'NOT APPROVED — rehearsal only' }))).toThrow(/refused/);
-    expect(() => run(db, stages, { ...approval, basis: 'edited after signing' })).toThrow(/refused/);
+    expect(() => run(db, stages, { ...approval, body: { ...approval.body, basis: 'edited after signing' } })).toThrow(/refused/);
     const acts = c1Actions(db);
-    const foreign = fixture(acts, { releases: [release(acts[0])], approval: { reviewer_id: 'rhys-davies', approved_by: 'Rhys Davies' } });
-    const st = STAGES(foreign, c1Coaches(db));
-    expect(validateComposite(st, approve(db, st), { target: 'DISPOSABLE', now }).join('\n')).toMatch(/is not the composite approval's data-integrity-rehearsal/);
+    const other = fixture(acts.map((a) => ({ ...a, approval_id: 'AP-OTHER' })), { releases: [release(acts[0], { approval_id: 'AP-OTHER' })], approval: { approval_id: 'AP-OTHER' } });
+    const st = STAGES(other, c1Coaches(db));
+    expect(validateComposite(st, approve(db, st).body).join('\n')).toMatch(/is not the signed approval AP-D/);
+    const D = c1Domains(db); const st2 = STAGES(D, c1Coaches(db));
+    expect(validateComposite(st2, { ...approve(db, st2).body, hold_releases: [] }).join('\n')).toMatch(/not listed in the signed approval/);
+    expect(validateComposite(st2, { ...approve(db, st2).body, hold_releases: [{ release_id: 'REL-STMARYTX', domain: H.HELD, released_to_unitid: U.TX, release_sha256: 'f'.repeat(64) }] }).join('\n')).toMatch(/lists a different release/);
     expect(problemsOf(db, fixture(acts, { releases: [release(acts[0])], hosts: [...acts.map((a) => a.host), 'extra.test'] }))).toMatch(/not exactly the hosts/);
+  });
+  it('an approval is single-use: the same signed approval cannot be applied twice', () => {
+    const { db, stages, approval } = setup(); const r = run(db, stages, approval);
+    expect(revertComposite(db, r.manifest, revertApproval(r), { apply: true, now: NOW, activationHoldsFile: HOLDS.file }).committed).toBe(true);
+    let err; try { run(db, stages, approval); } catch (e) { err = e; }
+    expect((err?.problems || []).join('\n')).toMatch(/already used/);
   });
 });
 
@@ -295,7 +332,8 @@ describe('5. F4 / F5 / x2-A — evidence is bytes the engine verifies, never a d
   });
   it('a TEST_ONLY official source can never support a runtime correction', () => {
     const db = world();
-    expect(problemsOf(db, fixture([base(db)]), { ...CTX, target: 'RUNTIME' })).toMatch(/TEST_ONLY source/);
+    expect(problemsOf(db, fixture([base(db)]), { ...CTX, target: 'SHARED_DEV' })).toMatch(/TEST_ONLY source/);
+    expect(problemsOf(db, fixture([base(db)]), { ...CTX, target: 'PRODUCTION' })).toMatch(/TEST_ONLY source/);
   });
   it('another institution listed for the same host is unresolved contradictory evidence', () => {
     const db = world();
@@ -304,7 +342,38 @@ describe('5. F4 / F5 / x2-A — evidence is bytes the engine verifies, never a d
     const a = act(db, 'scathletics.test', 'WV', [['scathletics.test', 'PROMOTE_UNOWNED', { status: 'VERIFIED_ALIAS' }]], { orgId: 1013 });
     a.evidence.host_to_institution = fetchRec('https://scathletics.test/', 'https://scathletics.test/', PAGES[H.UWV]);
     const pr = problemsOf(db, fixture([a]));
-    expect(pr).toMatch(/IPEDS also lists scathletics.test for UNITID 910003 — unresolved contradictory evidence/);
+    expect(pr).toMatch(/TEST_IPEDS_DI03D also lists scathletics.test for UNITID:910003 .* unresolved contradictory evidence/);
+    expect(pr).toMatch(/TEST_NCAA_DI03D also lists scathletics.test for ORG:9001/);
+  });
+  // DI-03E MAJOR-4 (the ewu.edu shape): IPEDS lists the host only for the owner, the NCAA directory ALSO lists it for
+  // an unrelated institution in another state. Citing only IPEDS used to hide that.
+  const ewuWorld = () => {
+    const db = world();
+    db.prepare("INSERT INTO athletics_entities (athletics_entity_id, display_name, federal_unitid, entity_kind, provenance, created_at) VALUES ('AE-T-EW','Eastern Example University',910008,'SINGLE','t','t')").run();
+    db.prepare("INSERT INTO colleges (id, created_date, updated_date, name, sport, division, active, unitid, athletics_entity_id) VALUES ('c-EW','t','t','Eastern Example University','mens-soccer','NCAA D1',1,910008,'AE-T-EW')").run();
+    db.prepare("INSERT INTO athletics_domains (domain, status, role, unitid, claimed_keys, claimed_unitids, verification_method, confidence, checked_at) VALUES ('ewu-example.test','INSUFFICIENT_EVIDENCE','INSTITUTION_SITE',NULL,'[]','[910008]','PAGE_SELF_IDENTIFICATION','NONE','2026-09-01')").run();
+    const a = { action_id: 'DO-ewu', approval_id: 'AP-D', host: 'ewu-example.test', owner: { unitid: 910008, entity: 'AE-T-EW' },
+      rows: [{ domain: 'ewu-example.test', operation: 'PROMOTE_UNOWNED', expected_old: { ...domOf(db, 'ewu-example.test') }, proposed: { status: 'VERIFIED_ALIAS' } }],
+      evidence: { official: [IPEDS], host_to_institution: fetchRec('https://ewu-example.test/', 'https://ewu-example.test/', html('Eastern Example University | Cheney, Washington')) }, reason: 'authenticated owner', blast_radius: 'one host' };
+    return { db, a };
+  };
+  it('MAJOR-4: a contradiction in a source the fixture did not cite is found and refuses (ewu.edu shape)', () => {
+    const { db, a } = ewuWorld();
+    expect(problemsOf(db, fixture([a]))).toMatch(/TEST_NCAA_DI03D also lists ewu-example.test for ORG:9005 \(Edward Example College\)/);
+    a.evidence.official = [IPEDS, ncaa(9004)];
+    expect(problemsOf(db, fixture([a]))).toMatch(/ORG:9005/);
+  });
+  it('MAJOR-4: only a signed resolution of exactly that claim settles it; a resolution of another claim does not', () => {
+    const { db, a } = ewuWorld(); const fx = fixture([a]);
+    const res = (claimant) => [{ host: 'ewu-example.test', source_id: 'TEST_NCAA_DI03D', claimant, reason: 'Separately adjudicated: the FL college lists the WA university website in error (directory defect).' }];
+    expect(problemsOf(db, fx, { ...CTX, resolutions: res('ORG:9999') })).toMatch(/ORG:9005/);
+    expect(problemsOf(db, fx, { ...CTX, resolutions: res('ORG:9005') })).toBe('');
+  });
+  it('MAJOR-4: a registered source missing from the store means contradictions cannot be ruled out', () => {
+    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'di03f-partial-'));
+    fs.copyFileSync(path.join(FIX, 'ipeds_test.csv'), path.join(d, sha256(fs.readFileSync(path.join(FIX, 'ipeds_test.csv')))));
+    const { db, a } = ewuWorld(); fs.copyFileSync(path.join(STORE_DIR, a.evidence.host_to_institution.sha256), path.join(d, a.evidence.host_to_institution.sha256));
+    expect(problemsOf(db, fixture([a]), { ...CTX, store: evidenceStore(d) })).toMatch(/registered source TEST_NCAA_DI03D cannot be read/);
   });
 });
 
@@ -319,26 +388,28 @@ describe('6. F6 / F8 / F11 / x2-B,C — held-domain release', () => {
       expect(problemsOf(db, fixture([a], { releases: [release(a, over)] }))).toMatch(re);
     }
   });
-  it('a release signed by a placeholder or unauthorised reviewer is refused by the composite', () => {
+  it('a release is authorised only by the signed approval that lists it by sha256 — its own typed reviewer fields carry nothing', () => {
     const { db, a } = held();
-    for (const over of [{ approved_by: 'TBD' }, { reviewer_id: 'someone', approved_by: 'Independent Reviewer' }, { approved_by: 'pending' }]) {
-      const D = fixture([a], { releases: [release(a, over)] }); const st = [{ stage_id: 'S1', type: DOMAIN_OWNERSHIP_KIND, fixture: D }];
-      expect(validateComposite(st, approve(db, st), { target: 'DISPOSABLE', now }).join('\n')).toMatch(/hold release/);
-    }
+    const D = fixture([a], { releases: [release(a)] }); const st = [{ stage_id: 'S1', type: DOMAIN_OWNERSHIP_KIND, fixture: D }];
+    expect(validateComposite(st, approve(db, st).body)).toEqual([]);
+    const edited = fixture([a], { releases: [release(a, { reason: 'Self-identification and the IPEDS WEBADDR both establish it, says TBD reviewer.' })] });
+    const st2 = [{ stage_id: 'S1', type: DOMAIN_OWNERSHIP_KIND, fixture: edited }];
+    expect(validateComposite(st2, { ...approve(db, st2).body, hold_releases: approve(db, st).body.hold_releases }).join('\n')).toMatch(/lists a different release/);
   });
-  it('a code-level release lifts the hold only with a committed manifest that proves the correction', () => {
-    const hold = holdRecord(H.HELD); const { a } = held();
-    const rel = { ...release(a), applied_correction: { manifest_path: 'docs/validation/corrections/x.json', manifest_sha256: 'f'.repeat(64) } };
-    expect(appliedReleaseProblems(rel, hold, null).join('\n')).toMatch(/not in the repository/);
-    const fake = Buffer.from(JSON.stringify({ phase: 'COMPOSITE_CORRECTION', approval_id: 'AP-D', manifest: [] }));
-    expect(appliedReleaseProblems({ ...rel, applied_correction: { ...rel.applied_correction, manifest_sha256: sha256(fake) } }, hold, fake).join('\n')).toMatch(/does not contain the update/);
-    expect(appliedReleaseProblems(rel, hold, fake).join('\n')).toMatch(/do not hash/);
-    const real = Buffer.from(JSON.stringify({ phase: 'COMPOSITE_CORRECTION', approval_id: 'AP-D', manifest: [{ entries: [{ kind: 'UPDATE', table: 'athletics_domains', key: { domain: H.HELD }, old: { unitid: U.CA }, new: { unitid: U.TX } }] }] }));
-    expect(appliedReleaseProblems({ ...rel, applied_correction: { ...rel.applied_correction, manifest_sha256: sha256(real) } }, hold, real)).toEqual([]);
-    expect(appliedReleaseProblems({ ...rel, applied_correction: { manifest_path: '../outside.json', manifest_sha256: sha256(real) } }, hold, real).join('\n')).toMatch(/committed file under/);
+  it('a code-level release takes effect only where the database\'s own ledger proves the correction (MAJOR-3)', () => {
+    const hold = holdRecord(H.HELD); const { db } = setup();
+    const rel = { release_id: 'REL-STMARYTX', domain: H.HELD, released_to_unitid: U.TX, ledger_id: 'CC-0000000000000000', manifest_sha256: 'f'.repeat(64) };
+    expect(releaseProofProblems(db, rel).join('\n')).toMatch(/not in this database/);
+    // a genuine commit on a DISPOSABLE copy (rehearsal reviewer) never releases: the ledger says DISPOSABLE
+    const s2 = setup(); const db2 = s2.db; const r = run(db2, s2.stages, s2.approval);
+    const p = releaseProofProblems(db2, { ...rel, ledger_id: r.manifest.ledger_id, manifest_sha256: r.manifest_sha256 }).join('\n');
+    expect(p).toMatch(/committed to a DISPOSABLE database — a rehearsal never releases a hold/);
+    expect(isHeldDomain(H.HELD, new Set())).toBe(true);
+    expect(hold.domain).toBe(H.HELD);
   });
-  it('F11: isHeldDomain takes no releases option; array-callback use is safe', () => {
+  it('F11: isHeldDomain takes only a proven released set (a look-alike object releases nothing); array-callback use is safe', () => {
     expect(isHeldDomain(H.HELD, { releases: [{ domain: H.HELD }] })).toBe(true);
+    expect(isHeldDomain(H.HELD, [H.HELD])).toBe(true);
     expect(['x.test', H.HELD].map(isHeldDomain)).toEqual([false, true]);
     expect(holdReleaseProblems(null, holdRecord(H.HELD))).toEqual(['no release record']);
   });
@@ -375,24 +446,27 @@ describe('7. F7 / F13 / x3 — host family by normalised identity', () => {
 
 describe('8. F9 / F10 — the activation-holds source is the target database\'s own', () => {
   const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'di03d-target-'));
-  it('a database in a checkout\'s server/data is RUNTIME and is checked against ITS seeds holds file; naming another is refused', () => {
+  it('a database in a checkout\'s server/data is SHARED_DEV and is checked against ITS seeds holds file; naming another is refused', () => {
     const root = tmp(); fs.mkdirSync(path.join(root, 'server/data/seeds'), { recursive: true });
     const dbFile = path.join(root, 'server/data/recruitmatch.sqlite'); new Database(dbFile).close();
     const own = path.join(root, 'server/data/seeds/coach_activation_holds.json'); fs.copyFileSync(HOLDS.file, own);
     const db = new Database(dbFile);
-    expect(correctionTarget(db).target).toBe('RUNTIME');
+    expect(correctionTarget(db).class).toBe('SHARED_DEV');
     expect(correctionTarget(db).holdsFile).toBe(fs.realpathSync.native(own));
     expect(() => correctionTarget(db, { activationHoldsFile: holdsFile(['k-x']).file })).toThrow(/no other holds file can stand in/);
     db.close();
   });
-  it('a hard link to a database cannot pass as a disposable copy; a disposable copy must name its holds file', () => {
-    const d = tmp(); const f = path.join(d, 'copy.sqlite'); new Database(f).close(); fs.linkSync(f, path.join(d, 'link.sqlite'));
+  it('an unmarked file is not identified; a hard link to a marked copy cannot pass; a marked copy must name its holds file', () => {
+    const d = tmp(); const f = path.join(d, 'copy.sqlite'); const db0 = new Database(f); markNewDisposable(db0); db0.close();
+    fs.linkSync(f, path.join(d, 'link.sqlite'));
     const db = new Database(path.join(d, 'link.sqlite'));
     expect(() => correctionTarget(db, { activationHoldsFile: HOLDS.file })).toThrow(/hard links/);
     db.close();
     const d2 = tmp(); const db2 = new Database(path.join(d2, 'scratch.sqlite'));
+    expect(() => correctionTarget(db2, { activationHoldsFile: HOLDS.file })).toThrow(/not an identified database/);
+    markNewDisposable(db2);
     expect(() => correctionTarget(db2)).toThrow(/must name its activation-holds file/);
-    expect(correctionTarget(db2, { activationHoldsFile: HOLDS.file }).target).toBe('DISPOSABLE');
+    expect(correctionTarget(db2, { activationHoldsFile: HOLDS.file }).class).toBe('DISPOSABLE');
     db2.close();
   });
   it('a missing or inconsistent holds file fails closed; an approval made against different holds is refused', () => {
@@ -408,7 +482,7 @@ describe('8. F9 / F10 — the activation-holds source is the target database\'s 
 
 describe('9. atomic rollback and revert (x4)', () => {
   const points = ['begin', 'sendability:before', 'stage:S1-domains:begin', 'stage:S1-domains:action', 'stage:S1-domains:written', 'stage:S1-domains:eligibility',
-    'stage:S2-relabel:begin', 'stage:S2-relabel:action', 'stage:S2-relabel:written', 'stage:S2-relabel:eligibility', 'final:integrity', 'final:sendability', 'final:precommit'];
+    'stage:S2-relabel:begin', 'stage:S2-relabel:action', 'stage:S2-relabel:written', 'stage:S2-relabel:eligibility', 'final:evidence', 'final:integrity', 'final:sendability', 'final:ledger', 'final:precommit'];
   for (const p of points) {
     it(`a throw at ${p} rolls back every stage`, () => {
       const { db, stages, approval } = setup(); const before = snapshot(db); let reached = false;
@@ -426,9 +500,13 @@ describe('9. atomic rollback and revert (x4)', () => {
     const { db, stages, approval } = setup(); const before = snapshot(db);
     const r = run(db, stages, approval);
     expect(r.manifest.manifest.flatMap((m) => m.entries).length).toBe(8);
-    expect(revertComposite(db, r.manifest, { apply: true }).eligible_ids_hash).toBe(approval.baseline.eligible_ids_hash);
-    expect(snapshot(db)).toEqual(before);
-    expect(() => revertComposite(db, r.manifest, { apply: true })).toThrow(/revert refused/);
+    const v = revertComposite(db, r.manifest, revertApproval(r), { apply: true, now: NOW, activationHoldsFile: HOLDS.file });
+    expect(v.eligible_ids_hash).toBe(approval.body.baseline.eligible_ids_hash);
+    expect(v.sendability.no_longer_sendable_coaches).toEqual(SENDABLE);
+    expect(withoutLedger(snapshot(db))).toEqual(before);
+    expect(db.prepare('SELECT kind, status, reverts FROM correction_ledger ORDER BY kind').all()).toEqual([{ kind: 'COMPOSITE_CORRECTION', status: 'REVERTED', reverts: null }, { kind: 'COMPOSITE_REVERT', status: 'COMMITTED', reverts: r.manifest.ledger_id }]);
+    let err; try { revertComposite(db, r.manifest, revertApproval(r, { approval_id: 'RV-2' }), { apply: true, now: NOW, activationHoldsFile: HOLDS.file }); } catch (e) { err = e; }
+    expect((err?.problems || []).join('\n')).toMatch(/already REVERTED/);
   });
   it('the domain manifest alone is revertible with the promotion revert', () => {
     const db = world(); const before = snapshot(db);
@@ -439,13 +517,21 @@ describe('9. atomic rollback and revert (x4)', () => {
   it('the transaction-compatible apply refuses outside a caller-owned transaction, and without an evidence store', () => {
     const db = world();
     expect(() => applyDomainOwnershipInTransaction(db, c1Domains(db))).toThrow(/caller-owned open transaction/);
+    db.exec('BEGIN'); try {
+      expect(() => applyDomainOwnershipInTransaction(db, c1Domains(db), { now: NOW, store, ledger_id: 'x' })).toThrow(/authenticated approval grant/);
+      expect(() => applyDomainOwnershipInTransaction(db, c1Domains(db), { now: NOW, store, ledger_id: 'x', grant: { ...grantFor(c1Domains(db)) } })).toThrow(/authenticated approval grant/);
+      expect(() => applyDomainOwnershipInTransaction(db, c1Domains(db), { now: NOW, store, ledger_id: 'x', grant: grantFor(fixture([act(db, H.SOLO, 'CA', [[H.SOLO, 'PROMOTE_UNOWNED', { status: 'VERIFIED_ALIAS' }]])])) })).toThrow(/does not authorise fixture/);
+    } finally { db.exec('ROLLBACK'); }
     expect(planDomainOwnership(db, c1Domains(db)).problems.join('\n')).toMatch(/evidence store is required/);
   });
 });
 
 describe('10. test inputs are honest', () => {
-  it('the test reviewer is the allow-listed DISPOSABLE_ONLY identity', () => {
-    expect(approvalProblems({ ...approvalFields(NOW), basis: 'x' }, { target: TARGET.RUNTIME, now }).join('\n')).toMatch(/disposable copies only/);
-    expect(TEST_REVIEWER.reviewer_id).toBe('data-integrity-rehearsal');
+  it('the test signer is the enrolled rehearsal reviewer, scoped to disposable databases only', () => {
+    const t = { class: 'SHARED_DEV', identity: 'shared-dev:/x/server/data/db.sqlite' };
+    const env = signEnvelope(compositeBody({ baselineHash: 'x', stages: [], holdsSha: HOLDS.sha256, now: NOW, target: t }));
+    expect(verifyApproval(env, { kind: APPROVAL_KINDS.COMPOSITE, target: t, now }).problems.join('\n')).toMatch(/may not authorise a SHARED_DEV/);
+    expect(REHEARSAL.reviewer_id).toBe('data-integrity-rehearsal');
+    expect(bodyHash({ b: 1, a: 2 })).toBe(bodyHash({ a: 2, b: 1 }));
   });
 });

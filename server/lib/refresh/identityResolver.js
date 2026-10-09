@@ -33,7 +33,9 @@ const TRUSTED = new Set(['VERIFIED', 'VERIFIED_ALIAS']);
 export const normHost = (h) => String(h || '').trim().toLowerCase().replace(/\.$/, '').replace(/^www\./, '');
 const CONF = { KNOWN_ENTITY: 1, AUTHORITATIVE_HOST: 0.99, AUTHORITATIVE_DOMAIN: 0.97, ALIAS_ENTITY: 0.95, FEDERAL_UNITID: 0.95, PARENT_PLUS_EXACT_NAME: 0.85, EXACT_PROGRAMME_NAME: 0.8 };
 
-export function createIdentityResolver({ entities = [], colleges = [], domains = [], aliases = [], rowLinks = [], locations = [] } = {}) {
+export function createIdentityResolver({ entities = [], colleges = [], domains = [], aliases = [], rowLinks = [], locations = [], releasedHolds = null } = {}) {
+  // held-domain releases proven in the database these rows came from (holdRelease.js); none -> every hold stands
+  const isHeld = (h) => isHeldDomain(h, releasedHolds);
   const eidx = buildEntityIndex({ entities, colleges, domains });
   const linkOf = new Map(rowLinks.map((l) => [l.college_id, l]));
   const collById = new Map(colleges.map((c) => [c.id, c]));
@@ -188,7 +190,7 @@ export function createIdentityResolver({ entities = [], colleges = [], domains =
    */
   function judgeRows(key, rows, via) {
     const none = (status, reason) => ({ entity: null, parentOnly: null, via, status, reason });
-    if (isHeldDomain(key)) return none('HELD', `${key} is held for adjudication`);
+    if (isHeld(key)) return none('HELD', `${key} is held for adjudication`);
     const bare = rows.find((d) => !/^www\./i.test(String(d.domain).trim()));
     const twins = rows.filter((d) => d !== bare);
     const conflict = () => none('CONFLICTING_TWINS', `${rows.map((d) => `${d.domain} ${d.status}`).join(' vs ')} disagree`);
@@ -217,10 +219,10 @@ export function createIdentityResolver({ entities = [], colleges = [], domains =
     if (!h) return { entity: null, parentOnly: null, via: null, status: 'NO_HOST', reason: 'no host' };
     if (SHARED_PLATFORM_ROOT.test(h)) return { entity: null, parentOnly: null, via: null, status: 'SHARED_PLATFORM', reason: `${h} is a shared hosting root` };
     if (domRows.has(h)) return judgeRows(h, domRows.get(h), 'EXACT_HOST');
-    if (isHeldDomain(h)) return { entity: null, parentOnly: null, via: 'EXACT_HOST', status: 'HELD', reason: `${h} is held for adjudication` };
+    if (isHeld(h)) return { entity: null, parentOnly: null, via: 'EXACT_HOST', status: 'HELD', reason: `${h} is held for adjudication` };
     const rd = registrableDomain(`https://${h}/`);
     if (rd && rd !== h && domRows.has(rd)) return judgeRows(rd, domRows.get(rd), 'REGISTRABLE_DOMAIN');
-    if (rd && rd !== h && isHeldDomain(rd)) return { entity: null, parentOnly: null, via: 'REGISTRABLE_DOMAIN', status: 'HELD', reason: `${rd} is held for adjudication` };
+    if (rd && rd !== h && isHeld(rd)) return { entity: null, parentOnly: null, via: 'REGISTRABLE_DOMAIN', status: 'HELD', reason: `${rd} is held for adjudication` };
     return { entity: null, parentOnly: null, via: null, status: 'NO_RECORD', reason: `no record for ${h}` };
   }
 
@@ -269,7 +271,7 @@ export function createIdentityResolver({ entities = [], colleges = [], domains =
   }
   function entityLocations(entityId) { return locations.filter((l) => l.athletics_entity_id === entityId && l.status === 'VERIFIED'); }
 
-  return { resolve, programmeRow, canonicalRow, ownerOfHost, entityHosts, hostOwnedBy, sourceOwnedBy, entityLocations, unitidEntity, index: eidx };
+  return { resolve, programmeRow, canonicalRow, ownerOfHost, entityHosts, hostOwnedBy, sourceOwnedBy, entityLocations, unitidEntity, isHeld, index: eidx };
 }
 
 /**
@@ -284,7 +286,7 @@ export function hostOwnershipDisagreements({ resolver, domains = [], entities = 
   for (const e of entities) if (e.parent_unitid != null) (campuses.get(Number(e.parent_unitid)) || campuses.set(Number(e.parent_unitid), []).get(Number(e.parent_unitid))).push(e.athletics_entity_id);
   const pairs = new Set();
   for (const d of domains) {
-    if (!TRUSTED.has(d.status) && !isHeldDomain(d.domain)) continue;
+    if (!TRUSTED.has(d.status) && !(resolver.isHeld ? resolver.isHeld(d.domain) : isHeldDomain(d.domain))) continue;
     for (const e of [d.athletics_entity_id, resolver.index.entityForUnitid(d.unitid), ...(campuses.get(Number(d.unitid)) || [])]) if (e) pairs.add(`${e}\t${normHost(d.domain)}`);
   }
   for (const e of entities) for (const h of resolver.entityHosts(e.athletics_entity_id)) pairs.add(`${e.athletics_entity_id}\t${h}`);

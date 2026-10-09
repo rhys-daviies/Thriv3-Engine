@@ -19,9 +19,14 @@ import { coachRowIneligibility } from '../coachRowFloor.js';
 import { canonicalDecisions, canonicalDecisionIneligibility } from '../canonicalCoachEligibility.js';
 import { buildProgrammeContactContext, programmeContactProblems } from '../programmeContactEligibility.js';
 
-/** -> { coaches: Map(id -> reason|null), contacts: Map(contact_id -> problems[]) } over the whole universe. */
-export function sendabilitySnapshot(db, { scope = 'NAIA', now = new Date() } = {}) {
-  const d = canonicalDecisions(db, { scope, fresh: true });
+/**
+ * -> { coaches: Map(id -> reason|null), contacts: Map(contact_id -> problems[]) } over the whole universe.
+ * The canonical decisions use canonicalDecisions' OWN default scope — the one every send path uses
+ * (STRICT_CORROB_SCOPE, else NAIA) — never a caller's: a guard measured in another scope than the
+ * sender's would not be measuring sendability (DI-03E minor).
+ */
+export function sendabilitySnapshot(db, { now = new Date() } = {}) {
+  const d = canonicalDecisions(db, { fresh: true });
   const coaches = new Map();
   for (const row of db.prepare('SELECT * FROM coaches').all()) coaches.set(row.id, coachRowIneligibility(row) || canonicalDecisionIneligibility(row, d));
   const contacts = new Map();
