@@ -8,7 +8,7 @@ import { attestationRoots } from './attestationRoots.js';
 /**
  * DI-04 — FIDO attestation of reviewer keys, against attestations built in the authenticator's format with
  * a synthetic CA (openssl). A real authenticator's first enrolment must also be checked with
- * `correctionApproval.js verify-enrolment` (docs/CORRECTION_REVIEWER_SECURITY.md).
+ * `correctionApproval.js enrolment` (docs/CORRECTION_REVIEWER_SECURITY.md).
  */
 describe.skipIf(!hasOpenssl())('FIDO attestation of a reviewer key', () => {
   const ca = testAttestationCa('DI-04 Test Root'); const other = testAttestationCa('Some Other Vendor');

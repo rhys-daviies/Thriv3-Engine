@@ -12,12 +12,15 @@
  *                                            `ssh-keygen -Y sign -n thriv3-correction-approval@v1 -f <key> body.txt`)
  *   verify <envelope.json> --db <db.sqlite> --kind COMPOSITE_CORRECTION_APPROVAL|COMPOSITE_REVERT_APPROVAL [--activation-holds <f>]
  *                                            verify signatures, reviewers and target binding for that database
- *   enrolment <key.pub> <attestation file> <challenge file>
+ *   enrolment <key.pub> <attestation file> <challenge file> [--chain <intermediates.pem>]
  *                                            (DI-04) check a NEW reviewer key before its enrolment PR: hardware (sk) key,
- *                                            attestation issued by a pinned root, certifying exactly this key; prints the
- *                                            registry entry to paste. Reads only the three files; writes nothing.
- *   trust-check                              (DI-04) compare every protected file with the protected branch fetched now —
- *                                            what a SHARED_DEV / PRODUCTION correction will require
+ *                                            attestation chaining to a pinned root, certifying exactly this key; prints the
+ *                                            registry entry to paste. --chain (DI-07): the vendor's intermediate CA
+ *                                            certificate(s), PEM, nearest the attestation certificate first. Reads only
+ *                                            these files; writes nothing. A malformed file is refused, never a crash.
+ *   trust-check                              (DI-04, DI-07) compare every protected file and the correction code's whole
+ *                                            import closure with the protected branch fetched now by URL — what a
+ *                                            SHARED_DEV / PRODUCTION approval and correction will require
  *
  * Signing flow:  node correctionApproval.js body approval.json > body.txt
  *                ssh-keygen -Y sign -n thriv3-correction-approval@v1 -f ~/.ssh/<reviewer key> body.txt
@@ -30,7 +33,7 @@ import { bodyBytes, verifyApproval, APPROVAL_NAMESPACE } from '../lib/refresh/ap
 import { createDisposableCopy, classifyDatabase, correctionTarget } from '../lib/refresh/correctionTarget.js';
 import { attestationProblems } from '../lib/refresh/fidoAttestation.js';
 import { parsePublicKey, fingerprint, keyIdentity } from '../lib/refresh/sshSignature.js';
-import { protectedFileProblems, REPO_ROOT } from '../lib/refresh/trustRoot.js';
+import { trustedRuntimeState, TRUSTED_URL } from '../lib/refresh/trustRoot.js';
 
 const [cmd, a1, a2, a3] = process.argv.slice(2);
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i > -1 ? process.argv[i + 1] : null; };
@@ -64,13 +67,17 @@ if (cmd === 'copy') {
   } finally { db.close(); }
 } else if (cmd === 'enrolment') {
   if (!a1 || !a2 || !a3) fail('enrolment <key.pub> <attestation file> <challenge file>');
-  const line = fs.readFileSync(a1, 'utf8').trim(); const key = parsePublicKey(line);
-  const entry = { key: line, attestation: fs.readFileSync(a2).toString('base64'), challenge: fs.readFileSync(a3).toString('base64') };
+  const line = fs.readFileSync(a1, 'utf8').trim();
+  let key; try { key = parsePublicKey(line); } catch (e) { fail(`NOT ENROLLABLE: ${e.message}`, 1); }
+  const chainFile = arg('chain');
+  const chain = chainFile ? (fs.readFileSync(chainFile, 'utf8').match(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g) || []) : [];
+  if (fs.statSync(a2).size > 64 * 1024) fail('attestation file is implausibly large — refused');
+  const entry = { key: line, attestation: fs.readFileSync(a2).toString('base64'), challenge: fs.readFileSync(a3).toString('base64'), ...(chain.length ? { attestation_chain: chain } : {}) };
   const p = attestationProblems(key, entry);
   if (p.length) { console.error(`NOT ENROLLABLE (${fingerprint(key.blob)}):\n  - ${p.join('\n  - ')}`); process.exitCode = 1; }
   else console.log(`ENROLLABLE: ${fingerprint(key.blob)} (${keyIdentity(key)}), application ${key.application}. Registry key entry:\n${JSON.stringify(entry, null, 2)}`);
 } else if (cmd === 'trust-check') {
-  const r = protectedFileProblems({ repoRoot: REPO_ROOT });
+  const r = trustedRuntimeState('PRODUCTION');
   if (r.problems.length) { console.error(`NOT TRUSTED (protected main ${r.trusted_commit?.slice(0, 12) ?? '?'}):\n  - ${r.problems.join('\n  - ')}`); process.exitCode = 1; }
-  else console.log(`TRUSTED: every protected file equals main ${r.trusted_commit.slice(0, 12)} as fetched now`);
+  else console.log(`TRUSTED: every protected file and the correction code's whole import closure equal main ${r.trusted_commit.slice(0, 12)} as fetched now from ${TRUSTED_URL}`);
 } else fail('usage: correctionApproval.js copy|classify|body|attach|verify|enrolment|trust-check ... (see the header)');
