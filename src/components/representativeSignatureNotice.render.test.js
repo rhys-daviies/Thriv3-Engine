@@ -19,7 +19,7 @@ describe('the signature notice', () => {
     expect(html).toContain('No representative is assigned to this athlete');
     expect(html).toContain('Rhys Davies, Striv3 Elite Sports Management');
     expect(html).toContain('Sending is not affected');
-    expect(html).toContain('not to the representative');
+    expect(html).toContain('not to the athlete or the representative');
   });
 
   it('a message composed before assignment: says it still carries the standard signature', () => {
@@ -28,11 +28,27 @@ describe('the signature notice', () => {
     expect(html).toContain('regenerate the message');
   });
 
-  it('a representative\'s email: says who signs it, and still that replies go to the athlete\'s mailbox', () => {
+  it('a representative\'s email: says who signs it, and that replies do not reach the representative', () => {
     const html = render({ representative: REP, body: 'Best regards,\nAlex Morgan\nStriv3' });
     expect(html).toContain('data-signature="REPRESENTATIVE"');
     expect(html).toContain('Signed by Alex Morgan');
-    expect(html).toContain('writes to the athlete');
+    expect(html).toContain('not to the athlete or the representative');
+  });
+
+  it('Phase 5 (#1): a manual draft names the operator\'s own account, never the athlete\'s mailbox', () => {
+    for (const props of [{ representative: null }, { representative: REP, body: 'Best regards,\nAlex Morgan' }, { representative: REP, body: 'edited' }]) {
+      const html = render({ ...props, channel: 'manual' });
+      expect(html).toContain('You send this from your own email account');
+      expect(html).not.toMatch(/athlete(’|&#x27;|')s (own )?(connected )?mailbox/);
+    }
+    // No channel given: the manual wording, the only path that sends today.
+    expect(render({ representative: REP })).toContain('your own email account');
+  });
+
+  it('Phase 5 (#1): a campaign message names the athlete\'s connected mailbox', () => {
+    const html = render({ representative: REP, channel: 'campaign' });
+    expect(html).toContain('the athlete’s own connected mailbox');
+    expect(html).not.toContain('your own email account');
   });
 
   it('is on the campaign message screen, read from the stored body', () => {
@@ -42,10 +58,28 @@ describe('the signature notice', () => {
     }));
     expect(html).toContain('data-testid="signature-notice"');
     expect(html).toContain('data-signature="LEGACY"');
+    expect(html).toContain('the athlete’s own connected mailbox');
   });
 });
 
-describe('every outreach review surface shows it', () => {
+describe('every outreach review surface shows it, with its own channel', () => {
+  it.each([
+    ['src/components/EmailComposer.jsx', 'manual'],
+    ['src/components/BulkEmailComposer.jsx', 'manual'],
+    ['src/components/CampaignMessageDetail.jsx', 'campaign'],
+  ])('%s says channel="%s"', async (file, channel) => {
+    const fs = await import('node:fs');
+    expect(fs.readFileSync(file, 'utf8')).toMatch(new RegExp(`<RepresentativeSignatureNotice[^>]*channel="${channel}"`));
+  });
+
+  it('no operator-facing copy claims manual outreach leaves from the athlete\'s mailbox', async () => {
+    const fs = await import('node:fs');
+    for (const file of ['src/pages/player/ProfileTab.jsx', 'src/components/PlayerFormSteps.jsx', 'src/components/EmailComposer.jsx', 'src/components/BulkEmailComposer.jsx']) {
+      expect(fs.readFileSync(file, 'utf8')).not.toMatch(/(still )?sends? from the athlete(&rsquo;|’|')s own mailbox/);
+    }
+    expect(fs.readFileSync('src/components/EmailComposer.jsx', 'utf8')).not.toContain('each message opens in Outlook for you to read and send yourself');
+  });
+
   it.each(['src/components/EmailComposer.jsx', 'src/components/BulkEmailComposer.jsx', 'src/components/CampaignMessageDetail.jsx'])('%s', async (file) => {
     const fs = await import('node:fs');
     expect(fs.readFileSync(file, 'utf8')).toContain('<RepresentativeSignatureNotice');

@@ -411,7 +411,7 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
             </p>
             <Textarea rows={10} value={body} onChange={(e) => setBody(e.target.value)} className="text-sm" disabled={busy} />
             {/* The template is unrendered here, so the notice reads the assignment, not the body. */}
-            <RepresentativeSignatureNotice representative={player?.representative ?? null} />
+            <RepresentativeSignatureNotice representative={player?.representative ?? null} channel="manual" />
             {!perProgramme && canComposeStructured(player) && body !== pristineTemplate && (
               <button
                 type="button"

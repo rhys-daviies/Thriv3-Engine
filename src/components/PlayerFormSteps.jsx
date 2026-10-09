@@ -723,7 +723,7 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             </Select>
             <p className="text-xs text-muted-foreground">
               The person coaches contact about this athlete: shown on the coach-facing page and signing outreach.
-              Emails still send from the athlete&rsquo;s own mailbox. Manage the list under Representatives.
+              Replies do not go to them: manual drafts are sent from your own email account, campaign emails from the athlete&rsquo;s connected mailbox. Manage the list under Representatives.
             </p>
           </div>
 
