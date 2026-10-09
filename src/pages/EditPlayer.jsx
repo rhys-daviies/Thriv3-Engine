@@ -16,6 +16,13 @@ import { changedPreviousEngineInputs } from '@shared/matchingInputFields.js';
  */
 const RETURN_TO = Object.freeze({ matching: 'matching' });
 
+/**
+ * Which form step to open on - Phase 5 (#12). Allow-listed like `return`: the
+ * family contribution lives on step 2, and the matching screen's "Add the
+ * family contribution" used to land on step 1. Unknown values open step 1.
+ */
+const OPEN_STEP = Object.freeze({ contribution: 1 });
+
 export default function EditPlayer() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -24,6 +31,7 @@ export default function EditPlayer() {
   /** The record as stored, before the form's display defaults: what a save is compared against. */
   const [stored, setStored] = useState(null);
   const returnTab = RETURN_TO[searchParams.get('return')] ?? null;
+  const initialStep = OPEN_STEP[searchParams.get('step')] ?? 0;
 
   useEffect(() => {
     entities.Player.get(id).then((p) => {
@@ -97,7 +105,7 @@ export default function EditPlayer() {
           Changing a field matching uses marks this athlete&rsquo;s current matches as outdated; refresh them on the Analysis &amp; Matching tab. Other changes leave matches as they are.
         </p>
       </div>
-      <PlayerFormSteps initialData={player} sport={player.sport} onSubmit={handleSubmit} submitLabel="Save Changes" />
+      <PlayerFormSteps initialData={player} sport={player.sport} onSubmit={handleSubmit} submitLabel="Save Changes" initialStep={initialStep} />
     </div>
   );
 }

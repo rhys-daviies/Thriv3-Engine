@@ -63,7 +63,7 @@ function ContributionBlocked({ playerId }) {
             is a decision, and it stays the operator's.
           */}
           <Button asChild size="sm">
-            <Link to={`/player/${playerId}/edit?return=matching`}>Add the family contribution</Link>
+            <Link to={`/player/${playerId}/edit?return=matching&step=contribution`}>Add the family contribution</Link>
           </Button>
         </div>
       </div>
@@ -79,7 +79,7 @@ function ContributionBlocked({ playerId }) {
  * reasonable, a dropped connection is worth retrying immediately, and a
  * missing athlete means the link is stale and no button helps.
  */
-function Failure({ error, onRetry }) {
+export function Failure({ error, onRetry, playerId = null }) {
   const COPY = {
     [MM2_ERROR.PLAYER_NOT_FOUND]: {
       title: 'This athlete could not be found',
@@ -118,6 +118,14 @@ function Failure({ error, onRetry }) {
       <p className="text-sm text-muted-foreground">{COPY.body}</p>
       {COPY.retry && onRetry && (
         <Button size="sm" variant="outline" onClick={onRetry}>Try again</Button>
+      )}
+      {/*
+        Phase 5 (#12): the server names what is missing; this is the way to fix it, and back.
+      */}
+      {error.kind === MM2_ERROR.PROFILE_INVALID && playerId && (
+        <Button asChild size="sm" variant="outline">
+          <Link to={`/player/${playerId}/edit?return=matching`} data-testid="profile-invalid-edit">Edit profile</Link>
+        </Button>
       )}
     </Card>
   );
@@ -204,14 +212,14 @@ export default function MatchmakingV2Panel({ player }) {
   if (status === MM2.FAILED) {
     return contributionBlocked
       ? <ContributionBlocked playerId={player?.id} />
-      : <Failure error={error} onRetry={reload} />;
+      : <Failure error={error} onRetry={reload} playerId={player?.id} />;
   }
 
   if (status === MM2.NO_RUN) {
     if (contributionBlocked) return <ContributionBlocked playerId={player?.id} />;
     return (
       <div className="space-y-4">
-        {error && <Failure error={error} onRetry={generate} />}
+        {error && <Failure error={error} onRetry={generate} playerId={player?.id} />}
         <Card className="p-10 text-center space-y-3" data-testid="no-run">
           <Sparkles className="h-10 w-10 mx-auto text-muted-foreground" />
           <div className="space-y-1">
@@ -276,7 +284,7 @@ export default function MatchmakingV2Panel({ player }) {
       {contributionBlocked ? (
         <ContributionBlocked playerId={player?.id} />
       ) : error ? (
-        <Failure error={error} onRetry={refresh} />
+        <Failure error={error} onRetry={refresh} playerId={player?.id} />
       ) : null}
 
       {/* 2. RANKING PREFERENCES + EDIT INPUTS */}

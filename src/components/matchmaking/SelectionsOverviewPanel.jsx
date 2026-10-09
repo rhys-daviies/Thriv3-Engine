@@ -44,8 +44,8 @@ export default function SelectionsOverviewPanel({ player, universeSize = null })
       <Card className="p-4" data-testid="selections-empty">
         <p className="text-sm">No programme has been selected for outreach yet.</p>
         <p className="text-xs text-muted-foreground mt-1">
-          Choosing a programme from the ranked list or from Specific Search records
-          which run informed it. Nothing is sent by selecting.
+          Recording a programme for outreach from Specific Search notes which run informed it.
+          Nothing is sent by recording it.
         </p>
       </Card>
     );
@@ -81,7 +81,7 @@ export default function SelectionsOverviewPanel({ player, universeSize = null })
                   <span aria-hidden="true">·</span>
                   <span>
                     {v.messages} {v.messages === 1 ? 'message' : 'messages'}
-                    {v.coaches > 1 ? ` to ${v.coaches} coaches` : ''}
+                    {v.coaches > 1 ? ` to ${v.coaches} recipients` : ''}
                   </span>
                 </>
               )}

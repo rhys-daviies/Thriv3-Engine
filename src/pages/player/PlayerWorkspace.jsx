@@ -167,6 +167,7 @@ export function usePlayerWorkspace() {
 export default function PlayerWorkspace() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   /**
    * WHICH ENGINE THIS HEADER'S BUTTON BELONGS TO — A9.5 §P.
@@ -321,7 +322,12 @@ export default function PlayerWorkspace() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => navigate(`/player/${id}/edit`)}>
+          {/* Phase 5 (#12): from the matching tab, saving comes back to it rather than to Profile. */}
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/player/${id}/edit${location.pathname.endsWith('/matching') ? '?return=matching' : ''}`)}
+            data-testid="edit-profile-button"
+          >
             <Pencil className="h-4 w-4 mr-1.5" /> Edit Profile
           </Button>
           {/*

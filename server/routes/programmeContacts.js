@@ -6,7 +6,9 @@ import { programmeContactsForCollege } from '../lib/programmeContacts.js';
  *
  * Separate from /colleges/:id/coaches on purpose: that route lists people, this lists
  * communication endpoints, and the two never merge into one list. Every contact carries
- * kind PROGRAMME_INBOX and sendable:false; nothing here can be selected or sent to yet.
+ * kind PROGRAMME_INBOX and sendable:false: nothing listed HERE can be selected or sent to.
+ * (Manual outreach can draft to the programme's selected inbox, by id, through its own route -
+ * recipientSelection.js; this read is not that path. Corrected in Phase 5, #14.)
  * Sport comes off the registry row, as on the coaches route.
  */
 export const programmeContactsRouter = express.Router();

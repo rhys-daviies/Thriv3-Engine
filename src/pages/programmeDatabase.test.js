@@ -315,7 +315,8 @@ describe('"Open programme" on a V2 match card', () => {
     expect(q('[data-testid="open-programme"]')).toBeNull();
     const toggle = [...container.querySelectorAll('button')].find((b) => b.getAttribute('aria-expanded') === 'false');
     await act(async () => { toggle.click(); });
-    expect(q('[data-testid="open-programme"]').getAttribute('href')).toBe(`/programmes/${card.programmeId}?classYear=2028`);
+    // Phase 5 (#12): carries the athlete who opened it, for the way back.
+    expect(q('[data-testid="open-programme"]').getAttribute('href')).toBe(`/programmes/${card.programmeId}?classYear=2028&from=a1`);
   });
 
   it('offers no link when the run carries no programme id, rather than guessing by name', () => {

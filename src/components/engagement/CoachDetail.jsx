@@ -59,7 +59,8 @@ export default function CoachDetail({ coach, onBack, onOptOutRecorded = () => {}
 
         {sessions !== null && sessions.length === 0 && (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            This coach has not had a qualified visit yet.
+            {/* Phase 5 (#14): a programme inbox is not a coach. */}
+            {presentRecipientRow(coach).isPerson === false ? 'This programme inbox has' : 'This coach has'} not had a qualified visit yet.
           </p>
         )}
 

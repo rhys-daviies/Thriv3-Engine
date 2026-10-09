@@ -48,14 +48,19 @@ export default function EngagementTab() {
     setSyncing(false);
   }
 
-  async function handleToggleResponded(coach) {
+  const [respondError, setRespondError] = useState(null);
+  async function handleToggleResponded(coach, { responded = !coach.responded_at, respondedAt = null } = {}) {
     setBusyId(coach.outreach_id);
+    setRespondError(null);
     try {
-      await engagement.setResponded(coach.outreach_id, !coach.responded_at);
+      await engagement.setResponded(coach.outreach_id, responded, respondedAt);
       const refreshed = await load();
       if (selected) {
         setSelected(refreshed.coaches.find((c) => c.outreach_id === selected.outreach_id) || null);
       }
+    } catch (err) {
+      // e.g. a date in the future, or before the message was prepared: the server's reason
+      setRespondError(err.message);
     } finally {
       setBusyId(null);
     }
@@ -105,6 +110,7 @@ export default function EngagementTab() {
           {' '}Once a message has gone, confirm it so it counts here.
         </p>
       )}
+      {respondError && <p className="text-xs text-destructive" role="alert" data-testid="responded-error">{respondError}</p>}
       <OutreachFunnel funnel={data.funnel} />
       <CoachTable
         coaches={data.coaches}

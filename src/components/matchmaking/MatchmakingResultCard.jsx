@@ -107,10 +107,14 @@ export function decisionEvidenceHref(playerId, programme) {
  * link is to this programme in this sport, never a name lookup. Null when the
  * run carries no id (an older persisted run): no link rather than a guess.
  */
-export function programmeHref(programme, entryYear = null) {
+export function programmeHref(programme, entryYear = null, fromPlayerId = null) {
   if (!programme?.programmeId) return null;
-  const q = entryYear ? `?classYear=${encodeURIComponent(entryYear)}` : '';
-  return `/programmes/${encodeURIComponent(programme.programmeId)}${q}`;
+  const q = new URLSearchParams();
+  if (entryYear) q.set('classYear', String(entryYear));
+  // Phase 5 (#12): which athlete opened it, so the programme page can offer the way back.
+  if (fromPlayerId) q.set('from', String(fromPlayerId));
+  const qs = q.toString();
+  return `/programmes/${encodeURIComponent(programme.programmeId)}${qs ? `?${qs}` : ''}`;
 }
 
 export default function MatchmakingResultCard({
@@ -284,7 +288,7 @@ export default function MatchmakingResultCard({
             )}
             {programmeHref(programme) && (
               <Link
-                to={programmeHref(programme, entryYear)}
+                to={programmeHref(programme, entryYear, playerId)}
                 className="inline-block text-xs underline underline-offset-2 text-muted-foreground hover:text-foreground"
                 data-testid="open-programme"
               >
