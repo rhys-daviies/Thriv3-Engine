@@ -70,9 +70,8 @@ import { loadRefreshContext } from './context.js';
 import { hostOwnershipDisagreements } from './identityResolver.js';
 import { validateEntityIdentity } from '../../scripts/validateAthleticsEntityIdentity.js';
 import { applyDomainOwnershipInTransaction, domainOwnershipPostcheck, DOMAIN_OWNERSHIP_KIND } from './domainOwnershipCorrection.js';
-import { verifyApproval, asInstant, bodyHash, canonicalJson, APPROVAL_KINDS } from './approvalValidator.js';
+import { verifyApproval, grantProblems, asInstant, bodyHash, canonicalJson, APPROVAL_KINDS } from './approvalValidator.js';
 import { correctionTarget } from './correctionTarget.js';
-import { assertTrustedRuntimeState } from './trustRoot.js';
 import { sendabilitySnapshot, sendabilityDelta } from './sendability.js';
 import { evidenceStore } from './officialEvidence.js';
 import { ledgerId, ledgerEntry, recordLedger, markReverted, manifestSha, ensureDatabaseIdentity, databaseIdentity, LEDGER_KINDS } from './correctionLedger.js';
@@ -193,10 +192,10 @@ function authenticate(db, envelope, kind, { activationHoldsFile, now }) {
   let tgt;
   try { tgt = correctionTarget(db, { activationHoldsFile }); } catch (err) { throw fail(`refused: ${err.message}`, [err.message]); }
   const target = { class: tgt.class, identity: tgt.identity };
+  // DI-04 / DI-07: for a SHARED_DEV / PRODUCTION target verifyApproval itself enforces the trust root (the correction
+  // code and data equal the protected branch as fetched from GitHub now) and issues no grant otherwise; disposable
+  // rehearsals are not gated. The writers re-check the grant (grantProblems) once the write transaction is open.
   const { problems, grant } = verifyApproval(envelope, { kind, target, now });
-  // DI-04: a SHARED_DEV / PRODUCTION correction runs only from a checkout whose protected files equal the protected
-  // branch as fetched from GitHub now (trustRoot.js); disposable rehearsals are not gated
-  problems.push(...assertTrustedRuntimeState(tgt.class));
   if (grant && grant.body.sendability?.activation_holds_sha256 !== tgt.holdsSha256) problems.push(`the approval was made against activation holds ${String(grant.body.sendability?.activation_holds_sha256).slice(0, 12)}, the target's holds file is ${tgt.holdsSha256.slice(0, 12)} (${tgt.holdsFile})`);
   return { tgt, target, grant, problems };
 }
@@ -227,6 +226,8 @@ export function runCompositeCorrection(db, stages, envelope, { apply = false, no
   let man;
   db.exec('BEGIN IMMEDIATE');
   try {
+    const gp = grantProblems(grant, target);
+    if (gp.length) throw fail('composite correction refused: the approval grant is not usable now', gp);
     hit('begin');
     const m0 = measureInProcess(db, { scope });
     const base = new Set(m0.eligible_ids);
@@ -356,6 +357,8 @@ export function revertComposite(db, man, envelope, { apply = false, now = new Da
   if (db.inTransaction) throw fail('revert must own its transaction');
   db.exec('BEGIN IMMEDIATE');
   try {
+    const gp = grantProblems(grant, target);
+    if (gp.length) throw fail('revert refused: the approval grant is not usable now', gp);
     const send0 = sendabilitySnapshot(db, { now: nowD });
     const r = revertManifest(db, man.manifest, { inTransaction: true });
     if (inject) inject('revert:written');

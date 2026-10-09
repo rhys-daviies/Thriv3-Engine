@@ -42,12 +42,58 @@ export function parsePublicKey(line) {
   return k;
 }
 
+// ---- Ed25519 point validation (DI-07, DI-06 MINOR-4) -------------------------------------------------
+// OpenSSL accepts the identity point as a public key and R = identity, S = 0 as a signature by it for ANY
+// message, and a point has more than one 32-byte encoding when y >= p. So a key is accepted only if its
+// encoding is canonical, it decodes to a curve point, and it is not of small order; a signature only if
+// S < L and R is a canonical encoding of a point that is not of small order.
+const P = 2n ** 255n - 19n;
+/** The prime order of the Ed25519 base point. */
+export const ED25519_L = 2n ** 252n + 27742317777372353535851937790883648493n;
+const mod = (a) => { const r = a % P; return r < 0n ? r + P : r; };
+const pow = (b, e) => { let r = 1n; let x = mod(b); let k = e; while (k > 0n) { if (k & 1n) r = mod(r * x); x = mod(x * x); k >>= 1n; } return r; };
+const inv = (a) => pow(a, P - 2n);
+const D = mod(-121665n * inv(121666n));
+const SQRT_M1 = pow(2n, (P - 1n) / 4n);
+const le = (buf) => { let v = 0n; for (let i = buf.length - 1; i >= 0; i--) v = (v << 8n) | BigInt(buf[i]); return v; };
+/** Decode a 32-byte Ed25519 point (RFC 8032 §5.1.3, strict). -> [x, y] or a reason string. */
+function decodePoint(enc) {
+  if (!Buffer.isBuffer(enc) || enc.length !== 32) return 'not 32 bytes';
+  const sign = enc[31] >> 7; const yb = Buffer.from(enc); yb[31] &= 0x7f;
+  const y = le(yb);
+  if (y >= P) return 'non-canonical encoding (y >= p)';
+  const u = mod(y * y - 1n); const v = mod(D * y * y + 1n);
+  let x = mod(u * pow(v, 3n) * pow(u * pow(v, 7n), (P - 5n) / 8n));
+  if (mod(v * x * x) !== u) { if (mod(v * x * x) === mod(-u)) x = mod(x * SQRT_M1); else return 'not a point on the curve'; }
+  if (x === 0n && sign === 1) return 'non-canonical encoding (x = 0 with the sign bit set)';
+  if (Number(x & 1n) !== sign) x = mod(-x);
+  return [x, y];
+}
+const add = ([x1, y1], [x2, y2]) => { const t = mod(D * x1 * x2 * y1 * y2); return [mod((x1 * y2 + y1 * x2) * inv(1n + t)), mod((y1 * y2 + x1 * x2) * inv(1n - t))]; };
+/** Problem with an encoded Ed25519 point as a key or R value, or null. */
+export function ed25519PointProblem(enc) {
+  const pt = decodePoint(enc);
+  if (typeof pt === 'string') return pt;
+  let q = pt; for (let i = 0; i < 3; i++) q = add(q, q); // [8]P
+  if (q[0] === 0n && q[1] === 1n) return 'small-order point (one of the 8 torsion points, including the identity)';
+  return null;
+}
+/** Problem with a raw 64-byte Ed25519 signature R || S, or null. */
+export function ed25519SignatureProblem(raw) {
+  if (!Buffer.isBuffer(raw) || raw.length !== 64) return 'an Ed25519 signature must be 64 bytes';
+  if (le(raw.subarray(32)) >= ED25519_L) return 'non-canonical signature (S >= L)';
+  const r = ed25519PointProblem(raw.subarray(0, 32));
+  return r ? `invalid signature R: ${r}` : null;
+}
+
 function parsePublicKeyBlob(blob) {
   const r = reader(blob);
   const type = r.string().toString();
   if (!SUPPORTED_KEY_TYPES.includes(type)) throw new Error(`unsupported key type ${type} (supported: ${SUPPORTED_KEY_TYPES.join(', ')})`);
   const pk = Buffer.from(r.string());
   if (pk.length !== 32) throw new Error('ed25519 public key must be 32 bytes');
+  const bad = ed25519PointProblem(pk);
+  if (bad) throw new Error(`ed25519 public key refused: ${bad}`);
   const application = type === SK_ED25519 ? r.string().toString() : null;
   if (!r.done()) throw new Error('trailing bytes in public key');
   return { type, blob: Buffer.from(blob), pk, application };
@@ -118,6 +164,8 @@ export function verifySshSignature(message, armored, { namespace, allowedKeys = 
     const sigType = r.string().toString();
     const raw = Buffer.from(r.string());
     if (sigType !== key.type) problems.push(`signature type ${sigType} does not match key type ${key.type}`);
+    const sigBad = ed25519SignatureProblem(raw);
+    if (sigBad) problems.push(`signature refused: ${sigBad}`);
     let ok;
     if (key.type === SK_ED25519) {
       const flags = r.u8(); const counter = r.u32();
@@ -127,10 +175,10 @@ export function verifySshSignature(message, armored, { namespace, allowedKeys = 
       if (requireHardware && !(flags & SK_USER_VERIFIED)) problems.push('hardware-key signature was made without user verification (PIN/biometric) — enrol a key made with -O verify-required');
       const c = Buffer.alloc(4); c.writeUInt32BE(counter);
       const skData = Buffer.concat([crypto.createHash('sha256').update(key.application).digest(), Buffer.from([flags]), c, crypto.createHash('sha256').update(data).digest()]);
-      ok = crypto.verify(null, skData, ed25519Key(key.pk), raw);
+      ok = !sigBad && crypto.verify(null, skData, ed25519Key(key.pk), raw);
     } else {
       if (!r.done()) throw new Error('trailing bytes in signature');
-      ok = crypto.verify(null, data, ed25519Key(key.pk), raw);
+      ok = !sigBad && crypto.verify(null, data, ed25519Key(key.pk), raw);
     }
     if (!ok) problems.push(`signature by ${fp} does not verify over this approval`);
   } catch (e) { problems.push(`signature unreadable: ${e.message}`); }

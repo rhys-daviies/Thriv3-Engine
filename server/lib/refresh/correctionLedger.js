@@ -22,7 +22,7 @@
  * a pre-commit or rehearsal copy, or a database that never minted an id cannot satisfy both.
  */
 import crypto from 'node:crypto';
-import { bodyHash, canonicalJson } from './approvalValidator.js';
+import { bodyHash, canonicalJson, grantProblems } from './approvalValidator.js';
 
 export const LEDGER_TABLE = 'correction_ledger';
 export const LEDGER_KINDS = Object.freeze({ CORRECTION: 'COMPOSITE_CORRECTION', REVERT: 'COMPOSITE_REVERT' });
@@ -91,6 +91,8 @@ export function ledgerEntry(db, id) {
 /** Record a committed correction / revert. Must run inside the caller's write transaction. */
 export function recordLedger(db, { ledger_id, database_id, kind, envelope, grant, target, manifest, committed_at, reverts = null }) {
   if (!db.inTransaction) throw new Error('the ledger is written only inside the correction transaction');
+  const gp = grantProblems(grant, target); // DI-07: a ledger row is written only under a usable grant for this target
+  if (gp.length) throw new Error(`ledger write refused: ${gp.join('; ')}`);
   if (!database_id || databaseIdentity(db)?.database_id !== database_id || manifest.database_id !== database_id) throw new Error('ledger row, manifest and this database must carry the same database_id');
   db.exec(DDL);
   db.prepare(`INSERT INTO ${LEDGER_TABLE} (ledger_id, database_id, kind, approval_id, approval_body_hash, approval_json, target_class, target_identity, manifest_sha256, manifest_json, committed_at, status, reverts, reverted_by)

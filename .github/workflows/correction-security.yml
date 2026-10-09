@@ -16,13 +16,18 @@ jobs:
     env:
       RECRUITMATCH_DB: ':memory:'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # DI-07 (DI-06 INFO-5): actions pinned to commit SHAs (resolved from the v4 tags with `gh api`, 2026-10-10)
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - name: Committed registries enrol no runtime reviewer key and no release is active
+      # DI-07 (DI-06 MINOR-7): the attestation suites need openssl; fail here rather than let them skip silently
+      # (correctionTestKit.hasOpenssl() also throws under CI=true)
+      - name: openssl is available for the attestation suites
+        run: openssl version
+      - name: Committed reviewer registry is version 3 and every runtime-scope key carries an attestation
         run: |
           node -e "
           const r = require('./shared/correctionReviewers.json');

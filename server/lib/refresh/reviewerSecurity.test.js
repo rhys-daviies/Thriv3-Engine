@@ -9,6 +9,9 @@ import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 const state = vi.hoisted(() => ({ reviewers: [], roots: [], version: 3 }));
 vi.mock('./reviewerRegistry.js', () => ({ REVIEWERS_PATH: '(test registry)', readReviewerRegistry: () => ({ kind: 'CORRECTION_REVIEWERS', version: state.version, policy: { min_distinct_signers: { DISPOSABLE: 1, SHARED_DEV: 1, PRODUCTION: 2 } }, reviewers: state.reviewers }) }));
 vi.mock('./attestationRoots.js', () => ({ attestationRoots: () => state.roots }));
+// DI-07: verifyApproval now enforces the trust root itself (trustRoot.test.js proves it against local repositories);
+// here it passes, so these tests isolate the reviewer and key rules
+vi.mock('./trustRoot.js', () => ({ trustedRuntimeState: (cls) => ({ problems: [], trusted_commit: cls === 'DISPOSABLE' ? null : 'c0ffee0000000000000000000000000000000000' }), recheckTrustedCommit: () => [] }));
 
 const { verifyApproval, loadReviewers, APPROVAL_KINDS, REHEARSAL_KEY_LINE, bodyBytes } = await import('./approvalValidator.js');
 const { testKey, testSkKey, testAttestationCa, testAttestation, hasOpenssl, signEnvelope, compositeBody, sshSign, REHEARSAL } = await import('./correctionTestKit.js');

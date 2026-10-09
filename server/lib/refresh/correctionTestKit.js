@@ -30,7 +30,7 @@ export function testKey(label) {
 }
 /** A simulated FIDO (sk-ssh-ed25519) key: `userPresent` false forges a signature made without a touch. */
 /** NOTE: a simulated sk key is a SOFTWARE key in sk clothing — exactly what attestation exists to reject (DI-04). */
-export function testSkKey(label, application = 'ssh:') {
+export function testSkKey(label, application = 'ssh:thriv3-reviewer') {
   const k = testKey(label);
   const blob = Buffer.concat([str('sk-ssh-ed25519@openssh.com'), str(k.pk), str(application)]);
   return { ...k, sk: true, application, blob, publicLine: `sk-ssh-ed25519@openssh.com ${blob.toString('base64')} ${label}` };
@@ -128,8 +128,16 @@ const cborBytes = (b) => Buffer.concat([cborHead(2, b.length), b]);
 /** COSE_Key for an Ed25519 public key: { 1: 1 (OKP), 3: -8 (EdDSA), -1: 6 (Ed25519), -2: x }. */
 export const coseEd25519 = (pk) => Buffer.concat([Buffer.from([0xa4, 0x01, 0x01, 0x03, 0x27, 0x20, 0x06, 0x21]), cborBytes(pk)]);
 
-/** Is openssl available (the attestation CA fixtures need it)? */
-export function hasOpenssl() { try { execFileSync('openssl', ['version'], { stdio: 'ignore' }); return true; } catch { return false; } }
+/**
+ * Is openssl available (the attestation CA fixtures need it)? Under CI (CI=true) a missing openssl is an ERROR,
+ * not a skip (DI-07, DI-06 MINOR-7): the security suites must never go green by silently not running.
+ */
+export function hasOpenssl() {
+  try { execFileSync('openssl', ['version'], { stdio: 'ignore' }); return true; } catch {
+    if (process.env.CI === 'true') throw new Error('openssl is not available under CI — the attestation security suites cannot run, and they must not be skipped');
+    return false;
+  }
+}
 
 /**
  * A synthetic attestation CA and attestation certificate (EC P-256), made with openssl in a temp dir.
@@ -153,9 +161,47 @@ export function testAttestationCa(label = 'Test FIDO Root', { days = 3650 } = {}
  * An OpenSSH ssh-sk-attest-v01 attestation for `skKey` (testSkKey), signed by `ca`'s attestation key over
  * authData || SHA-256(challenge). Overrides forge specific defects. -> { attestation, challenge } (base64)
  */
-export function testAttestation(skKey, ca, { challenge = crypto.randomBytes(32), application = skKey.application, credentialPk = skKey.pk, signChallenge = challenge } = {}) {
-  const authData = Buffer.concat([crypto.createHash('sha256').update(application).digest(), Buffer.from([0x41]), u32(0), Buffer.alloc(16), Buffer.from([0, 16]), crypto.randomBytes(16), coseEd25519(credentialPk)]);
+export function testAttestation(skKey, ca, { challenge = crypto.randomBytes(32), application = skKey.application, credentialPk = skKey.pk, signChallenge = challenge, flags = 0x45, cose = null, tail = Buffer.alloc(0) } = {}) {
+  // flags 0x45 = UP | UV | AT (a key made with -O verify-required)
+  const authData = Buffer.concat([crypto.createHash('sha256').update(application).digest(), Buffer.from([flags]), u32(0), Buffer.alloc(16), Buffer.from([0, 16]), crypto.randomBytes(16), cose ?? coseEd25519(credentialPk), tail]);
   const sig = crypto.sign('sha256', Buffer.concat([authData, crypto.createHash('sha256').update(signChallenge).digest()]), ca.leafKey);
   const blob = Buffer.concat([str('ssh-sk-attest-v01'), str(ca.leafDer), str(sig), str(cborBytes(authData)), u32(0), str('')]);
   return { attestation: blob.toString('base64'), challenge: Buffer.from(challenge).toString('base64') };
+}
+
+/**
+ * A certificate chain made with openssl (DI-07): root -> intermediates -> leaf. Each spec may override
+ * { days, ca (basicConstraints CA:TRUE), pathlen, keyCertSign }. Validity can only be made SHORT here (openssl
+ * 3.0 on CI cannot backdate), so expiry is tested by evaluating at a later `now`.
+ * -> { root (X509Certificate), rootPem, intermediates: [{ cert, pem }] nearest the leaf first, leafDer, leafKey }
+ */
+export function testCertChain({ root = {}, intermediates = [{}], leaf = {} } = {}) {
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'di07-chain-'));
+  const o = (args) => execFileSync('openssl', args, { cwd: d, stdio: 'pipe' });
+  const ext = (name, { ca = true, pathlen = null, keyCertSign = true } = {}) => {
+    const lines = [`basicConstraints=critical,CA:${ca ? 'TRUE' : 'FALSE'}${ca && pathlen != null ? `,pathlen:${pathlen}` : ''}`];
+    lines.push(`keyUsage=critical,${ca ? (keyCertSign ? 'keyCertSign,cRLSign' : 'digitalSignature') : 'digitalSignature'}`);
+    lines.push('subjectKeyIdentifier=hash', 'authorityKeyIdentifier=keyid');
+    fs.writeFileSync(path.join(d, `${name}.ext`), `${lines.join('\n')}\n`);
+    return `${name}.ext`;
+  };
+  const key = (n) => o(['ecparam', '-name', 'prime256v1', '-genkey', '-noout', '-out', `${n}.key`]);
+  key('root');
+  fs.writeFileSync(path.join(d, 'root.cnf'), `[req]\ndistinguished_name=dn\nx509_extensions=v3\nprompt=no\n[dn]\nCN=${root.cn ?? 'DI-07 Test Root'}\n[v3]\nbasicConstraints=critical,CA:TRUE${root.pathlen != null ? `,pathlen:${root.pathlen}` : ''}\nkeyUsage=critical,keyCertSign,cRLSign\nsubjectKeyIdentifier=hash\n`);
+  o(['req', '-x509', '-new', '-key', 'root.key', '-config', 'root.cnf', '-days', String(root.days ?? 3650), '-out', 'root.pem']);
+  let issuer = 'root'; const chain = [];
+  intermediates.forEach((spec, i) => {
+    const n = `int${i}`; key(n);
+    o(['req', '-new', '-key', `${n}.key`, '-subj', `/CN=${spec.cn ?? `DI-07 Test Intermediate ${i + 1}`}`, '-out', `${n}.csr`]);
+    o(['x509', '-req', '-in', `${n}.csr`, '-CA', `${issuer}.pem`, '-CAkey', `${issuer}.key`, '-CAcreateserial', '-days', String(spec.days ?? 3650), '-extfile', ext(n, spec), '-out', `${n}.pem`]);
+    chain.unshift({ cert: new crypto.X509Certificate(fs.readFileSync(path.join(d, `${n}.pem`))), pem: fs.readFileSync(path.join(d, `${n}.pem`), 'utf8') });
+    issuer = n;
+  });
+  key('leaf');
+  o(['req', '-new', '-key', 'leaf.key', '-subj', `/CN=${leaf.cn ?? 'DI-07 Test Attestation'}`, '-out', 'leaf.csr']);
+  o(['x509', '-req', '-in', 'leaf.csr', '-CA', `${issuer}.pem`, '-CAkey', `${issuer}.key`, '-CAcreateserial', '-days', String(leaf.days ?? 3650), '-extfile', ext('leaf', { ca: !!leaf.ca }), '-outform', 'DER', '-out', 'leaf.der']);
+  const rootPem = fs.readFileSync(path.join(d, 'root.pem'), 'utf8');
+  const out = { root: new crypto.X509Certificate(rootPem), rootPem, intermediates: chain, leafDer: fs.readFileSync(path.join(d, 'leaf.der')), leafKey: crypto.createPrivateKey(fs.readFileSync(path.join(d, 'leaf.key'))) };
+  fs.rmSync(d, { recursive: true, force: true });
+  return out;
 }

@@ -21,7 +21,7 @@ vi.mock('./reviewerRegistry.js', async () => {
   const str = (b) => { const x = Buffer.isBuffer(b) ? b : Buffer.from(b); const l = Buffer.alloc(4); l.writeUInt32BE(x.length); return Buffer.concat([l, x]); };
   const pk = (label) => { const seed = crypto.createHash('sha256').update(`thriv3 correction test key: ${label}`).digest(); const k = crypto.createPrivateKey({ key: Buffer.concat([Buffer.from('302e020100300506032b657004220420', 'hex'), seed]), format: 'der', type: 'pkcs8' }); return Buffer.from(crypto.createPublicKey(k).export({ format: 'jwk' }).x, 'base64url'); };
   const ed = (label) => `ssh-ed25519 ${Buffer.concat([str('ssh-ed25519'), str(pk(label))]).toString('base64')} ${label}`;
-  const sk = (label) => `sk-ssh-ed25519@openssh.com ${Buffer.concat([str('sk-ssh-ed25519@openssh.com'), str(pk(label)), str('ssh:')]).toString('base64')} ${label}`;
+  const sk = (label) => `sk-ssh-ed25519@openssh.com ${Buffer.concat([str('sk-ssh-ed25519@openssh.com'), str(pk(label)), str('ssh:thriv3-reviewer')]).toString('base64')} ${label}`;
   const real = JSON.parse((await import('node:fs')).readFileSync((await import('node:path')).resolve(import.meta.dirname, '../../../shared/correctionReviewers.json'), 'utf8'));
   // DI-04: runtime scopes need attested hardware keys; this file's fidoAttestation mock treats an sk key as attested
   const att = (line) => ({ key: line, attestation: 'mocked', challenge: 'mocked' });
@@ -37,7 +37,13 @@ vi.mock('./reviewerRegistry.js', async () => {
 // attested and a software key never does, so the rest of the engine can be exercised on SHARED_DEV / PRODUCTION targets
 vi.mock('./fidoAttestation.js', () => ({ attestationProblems: (key) => (key?.type === 'sk-ssh-ed25519@openssh.com' ? [] : ['only a hardware (sk-ssh-ed25519) key can be attested']) }));
 // DI-04: the trust-root gate fetches GitHub; trustRoot.test.js proves it with local repositories. Here it passes unless a test sets it.
-vi.mock('./trustRoot.js', () => { let problems = []; return { assertTrustedRuntimeState: (cls) => (cls === 'DISPOSABLE' ? [] : problems), __setTrustProblems: (x) => { problems = x; } }; });
+// DI-07: verifyApproval enforces it (trustedRuntimeState) and writers re-check the grant's commit (recheckTrustedCommit).
+vi.mock('./trustRoot.js', () => {
+  let problems = []; let recheck = [];
+  const trustedRuntimeState = (cls) => (cls === 'DISPOSABLE' ? { problems: [], trusted_commit: null } : { problems, trusted_commit: problems.length ? null : 'c0ffee0000000000000000000000000000000000' });
+  return { trustedRuntimeState, assertTrustedRuntimeState: (cls) => trustedRuntimeState(cls).problems, recheckTrustedCommit: (c) => (c ? recheck : ['trust root: no commit']),
+    __setTrustProblems: (x) => { problems = x; }, __setRecheckProblems: (x) => { recheck = x; } };
+});
 vi.mock('./sourceRegistry.js', async () => {
   const real = JSON.parse((await import('node:fs')).readFileSync((await import('node:path')).resolve(import.meta.dirname, '../../../shared/officialSourceRegistry.json'), 'utf8'));
   const reg = { ...real, sources: real.sources.filter((s) => s.scope === 'TEST_ONLY').map((s) => ({ ...s, scope: 'PRODUCTION' })) };
@@ -495,5 +501,51 @@ describe('DI-04 — the engine refuses a runtime correction whose checkout fails
       expect(errOf(() => run(mem, st, signEnvelope(compositeBody({ baselineHash: idSetHash(measureInProcess(mem).eligible_ids), stages: st, added: ELIG, sendable: SENDABLE, holdsSha: holdsFile(SENDABLE).sha256, now: NOW }), [REHEARSAL]), { activationHoldsFile: holdsFile(SENDABLE).file }))).toBe('NO ERROR');
     } finally { __setTrustProblems([]); }
     s.db.close();
+  });
+});
+
+describe('DI-07 MINOR-3 — the trust root is enforced at grant issuance, by every grant-consuming writer, and by hold-release proofs', () => {
+  it('no grant is issued for a SHARED_DEV target while the trust root fails (DI-06 grant bypass)', async () => {
+    const { __setTrustProblems } = await import('./trustRoot.js');
+    const s = sharedDev(); const stages = c1(s.db); const env = approveFor(s.db, stages, s.holds.sha256);
+    __setTrustProblems(['trust root: server/lib/refresh/context.js differs from the protected main (abc)']);
+    try {
+      const v = verifyApproval(env, { kind: APPROVAL_KINDS.COMPOSITE, target: targetOf(s.db), now: new Date(NOW) });
+      expect(v.grant).toBeNull();
+      expect(v.problems.join('\n')).toMatch(/trust root: server\/lib\/refresh\/context.js differs/);
+    } finally { __setTrustProblems([]); }
+    s.db.close();
+  });
+  it('a grant issued under the trust root is refused by the writers once a protected file changes before the write', async () => {
+    const { __setRecheckProblems } = await import('./trustRoot.js');
+    const { applyDomainOwnershipInTransaction } = await import('./domainOwnershipCorrection.js');
+    const { recordLedger } = await import('./correctionLedger.js');
+    const s = sharedDev(); const stages = c1(s.db); const env = approveFor(s.db, stages, s.holds.sha256);
+    const { grant } = verifyApproval(env, { kind: APPROVAL_KINDS.COMPOSITE, target: targetOf(s.db), now: new Date(NOW) });
+    expect(grant).toBeTruthy();
+    __setRecheckProblems(['trust root: shared/correctionReviewers.json differs from the protected main (c0ffee) — changed after verification']);
+    try {
+      const dom = stages.find((x) => x.type === 'DOMAIN_OWNERSHIP_CORRECTION');
+      s.db.exec('BEGIN');
+      try {
+        expect(errOf(() => applyDomainOwnershipInTransaction(s.db, dom.fixture, { now: NOW, grant, ledger_id: 'CC-x' }))).toMatch(/trust root: shared\/correctionReviewers.json differs/);
+        expect(errOf(() => recordLedger(s.db, { ledger_id: 'CC-x', database_id: 'x', kind: 'CORRECTION', envelope: env, grant, target: targetOf(s.db), manifest: { database_id: 'x' }, committed_at: NOW }))).toMatch(/ledger write refused: trust root/);
+      } finally { s.db.exec('ROLLBACK'); }
+      expect(errOf(() => run(s.db, stages, env))).toMatch(/trust root: shared\/correctionReviewers.json differs/);
+    } finally { __setRecheckProblems([]); }
+    s.db.close();
+  });
+  it('a hold release is not proven while the trust root fails (holdRelease re-verifies stored approvals under it)', async () => {
+    const { __setTrustProblems } = await import('./trustRoot.js');
+    const REL = (r) => ({ release_id: 'REL-STMARYTX', domain: H.HELD, released_to_unitid: U.TX, ledger_id: r.manifest.ledger_id, manifest_sha256: r.manifest_sha256 });
+    const { db, holds } = sharedDev(); const stages = c1(db);
+    const r = run(db, stages, approveFor(db, stages, holds.sha256));
+    expect(releaseProofProblems(db, REL(r))).toEqual([]);
+    __setTrustProblems(['trust root: shared/heldDomainAdjudications.js differs from the protected main (abc)']);
+    try {
+      expect(releaseProofProblems(db, REL(r)).join('\n')).toMatch(/approval: trust root: shared\/heldDomainAdjudications.js differs/);
+      expect([...releasedHeldDomains(db, { releases: [REL(r)] })]).toEqual([]);
+    } finally { __setTrustProblems([]); }
+    db.close();
   });
 });
