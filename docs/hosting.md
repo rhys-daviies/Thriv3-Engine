@@ -347,6 +347,19 @@ The rehearsal is also what found the missing third path: the first attempt
 restored the database and the artefacts, signed in fine, and showed *"No
 matches yet"* for every athlete.
 
+## Opt-outs are local to the database
+
+An opt-out (a row in `suppressions`) is honoured by **the database it is written to, and only that one**.
+
+- **Recording one.** An operator records it from the coach detail panel ("Record opt-out", Phase 5) or with `npm run suppress`. Both call the same `suppress()`, keyed on the address, and the first record keeps its date.
+- **What it covers.** Every outreach this database prepares refuses that address, for every athlete: the send-time check in `sendOutreach` runs on every recipient, including a stale Top 100 or bulk list.
+- **What it does not cover.** It is **not** copied anywhere else.
+  - Edge sync is one-way for opt-outs. `pullSuppressions` brings unsubscribes recorded at the engagement edge service *into* this database. Nothing pushes a locally recorded opt-out *out* to the edge.
+  - Another environment (a different host, a restored backup, a developer copy) does not see it.
+  - The campaign path is deferred; it is not part of this statement.
+
+So an opt-out recorded on one host must also be recorded on any other host that may write to the same person. **Do not describe this as global suppression.**
+
 ## Artefact and database consistency
 
 A restore can land the two halves at different moments. What the product does

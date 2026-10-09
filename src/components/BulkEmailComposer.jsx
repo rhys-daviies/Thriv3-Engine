@@ -21,6 +21,7 @@ import { outreach } from '@/api/client';
 import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
 import EvidencePanel from '@/components/EvidencePanel';
 import RepresentativeSignatureNotice from '@/components/RepresentativeSignatureNotice';
+import { refusalFor } from '@/lib/sendRefusal';
 
 /**
  * One draft per programme on the page, addressed to its head coach.
@@ -239,6 +240,8 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
   }
 
   const drafted = Object.values(results).filter((r) => r?.status === 'drafted').length;
+  /** Recipients the run skipped, so the summary never reads as if everyone was prepared. */
+  const refused = Object.values(results).filter((r) => refusalFor(r)).length;
   /**
    * WHAT CAME BACK THAT THE OPERATOR CAN ACTUALLY REACH — R2C.1.
    *
@@ -309,14 +312,21 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
                     <span className="shrink-0 text-xs text-muted-foreground">{coach.email}</span>
                     <EmailRiskBadge status={statusOf(statuses, coach.email)} loaded={statusLoaded} />
                     {result?.status === 'drafted' && <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />}
-                    {result?.status === 'suppressed' && (
-                      <span className="shrink-0 text-xs text-muted-foreground" title="This coach opted out">opted out</span>
-                    )}
-                    {result?.status === 'not-eligible' && (
-                      <span className="shrink-0 text-xs text-muted-foreground" title={`Not outreach-eligible: ${result.reason || 'address not verified or coach departed'}`}>not eligible</span>
-                    )}
-                    {result?.status === 'error' && (
-                      <XCircle className="h-4 w-4 shrink-0 text-destructive" title={result.error} />
+                    {/*
+                      Phase 5 (#3): every refusal the endpoint can return has a word here
+                      (opted out, not eligible, recently contacted, daily limit, link
+                      withdrawn, link not live, failed), from the same table the single
+                      composer reads. Before, three of them drew nothing at all.
+                    */}
+                    {refusalFor(result) && (
+                      <span
+                        className={`inline-flex shrink-0 items-center gap-1 text-xs ${refusalFor(result).tone === 'error' ? 'text-destructive' : 'text-amber-400'}`}
+                        title={refusalFor(result).detail}
+                        role="status"
+                        data-testid="bulk-refusal"
+                      >
+                        <XCircle className="h-3.5 w-3.5" /> {refusalFor(result).word}
+                      </span>
                     )}
                   </label>
                 );
@@ -484,6 +494,11 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
         {!busy && drafted > 0 && handoffs.length === 0 && (
           <p className="rounded-md border border-emerald-500/40 bg-emerald-500/10 p-2.5 text-xs">
             {EMAILS_PREPARED(drafted)}
+          </p>
+        )}
+        {!busy && refused > 0 && (
+          <p className="rounded-md border border-amber-500/40 bg-amber-500/10 p-2.5 text-xs" role="status" data-testid="bulk-refused-summary">
+            {refused} recipient{refused === 1 ? ' was' : 's were'} not prepared. Each is marked above with the reason; hover for detail.
           </p>
         )}
 

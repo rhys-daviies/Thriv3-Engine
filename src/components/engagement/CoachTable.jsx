@@ -63,7 +63,15 @@ export default function CoachTable({ coaches, onSelect, onToggleResponded, busyI
                   onClick={() => onSelect(c)}
                   className="border-t border-border/60 cursor-pointer hover:bg-muted/30"
                 >
-                  <td className="py-2.5 pr-3 font-medium whitespace-nowrap">{presentRecipientRow(c).primary || '—'}</td>
+                  <td className="py-2.5 pr-3 font-medium whitespace-nowrap">
+                    {presentRecipientRow(c).primary || '—'}
+                    {/* Phase 5 (#2): an opted-out address is never written to again, by any athlete. */}
+                    {c.opted_out ? (
+                      <span className="ml-1.5 rounded bg-amber-500/15 px-1 py-0.5 text-[10px] text-amber-500" data-testid="opted-out-badge">
+                        opted out
+                      </span>
+                    ) : null}
+                  </td>
                   <td className="py-2.5 pr-3 text-muted-foreground whitespace-nowrap">{c.school || '—'}</td>
                   <td className="py-2.5 pr-3 text-muted-foreground whitespace-nowrap text-xs">
                     {(c.division || '').replace('NCAA Division ', 'D') || '—'}

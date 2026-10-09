@@ -15,6 +15,7 @@
 import db from '../db/client.js';
 import { buildProgrammeContactContext, programmeContactProblems } from './programmeContactEligibility.js';
 import { freshnessOf } from './refresh/freshness.js';
+import { isSuppressed } from './suppressions.js';
 
 export const PROGRAMME_INBOX = 'PROGRAMME_INBOX';
 
@@ -62,11 +63,19 @@ export function programmeContactsForCollege(collegeId, { handle = db, now = new 
   const college = handle.prepare('SELECT id, name, sport, division, active, athletics_entity_id FROM colleges WHERE id = ?').get(collegeId);
   if (!college) return null;
   const programme = { college_id: college.id, name: college.name, sport: college.sport, division: college.division, active: college.active, athletics_entity_id: college.athletics_entity_id };
-  if (!has || !college.athletics_entity_id) return { programme, contacts: [], withheld: 0 };
+  if (!has || !college.athletics_entity_id) return { programme, contacts: [], withheld: 0, optedOut: 0 };
   const rows = handle.prepare(`SELECT * FROM programme_contacts
     WHERE athletics_entity_id = ? AND sport = ? AND status = 'VERIFIED' ORDER BY contact_role DESC, email`).all(college.athletics_entity_id, college.sport);
-  if (!rows.length) return { programme, contacts: [], withheld: 0 };
+  if (!rows.length) return { programme, contacts: [], withheld: 0, optedOut: 0 };
   const ctx = context(handle);
   const eligible = rows.filter((r) => programmeContactProblems(r, ctx, { now }).length === 0);
-  return { programme, contacts: eligible.map((r) => shape(r, now)), withheld: rows.length - eligible.length };
+  // Phase 5 (#3): an inbox that has opted out is never listed as a contact; it is counted apart
+  // from the ineligible ones, because "opted out" and "not current" are different facts.
+  const offered = eligible.filter((r) => !isSuppressed(r.email));
+  return {
+    programme,
+    contacts: offered.map((r) => shape(r, now)),
+    withheld: rows.length - eligible.length,
+    optedOut: eligible.length - offered.length,
+  };
 }
