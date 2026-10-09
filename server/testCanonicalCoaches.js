@@ -11,6 +11,11 @@
  *
  * Seasons are numbered from 1901 so they never collide with a fixture's own coach_seasons rows
  * (primary key school, sport, season) or read as a current season.
+ *
+ * DI-08: the coach's programme is also given the evidence the recruitment-year gate requires — an
+ * unexpired fielding attestation for the current season (seedFieldedProgramme). A fixture's
+ * programme_status rows still apply in full: a NOT_ACTIVE or FUTURE programme stays refused (the
+ * attestation then CONTRADICTS the status, which the gate also refuses).
  */
 export function corroborateFixtureCoaches(db, { ids = null } = {}) {
   const named = db.prepare("SELECT id, full_name, school, sport FROM coaches WHERE trim(coalesce(full_name, '')) != ''").all()
@@ -20,6 +25,7 @@ export function corroborateFixtureCoaches(db, { ids = null } = {}) {
   const ins = db.prepare("INSERT INTO coach_seasons (school, sport, season, coach_name, method, imported_at) VALUES (?, ?, ?, ?, 'test-fixture', '2026-01-01T00:00:00Z')");
   let added = 0;
   for (const c of named) {
+    seedFieldedProgramme(db, c.school, c.sport);
     if (has.get(c.school, c.sport, c.full_name)) continue;
     ins.run(c.school, c.sport, used.pluck().get(c.school, c.sport) + 1, c.full_name);
     added += 1;
@@ -44,6 +50,7 @@ export function seedSendableCoach(db, { name, email, school, sport = 'mens-socce
     db.prepare("UPDATE coaches SET email_status = 'verified' WHERE id = ?").run(coachId);
   }
   corroborateFixtureCoaches(db, { ids: [coachId] });
+  seedFieldedProgramme(db, school, sport, { ensureCollege: true });
   return coachId;
 }
 
@@ -53,4 +60,29 @@ export function makeCoachesSendable(db, ids) {
   for (const id of ids) set.run(id);
   corroborateFixtureCoaches(db, { ids });
   return ids.length;
+}
+
+/**
+ * DI-08 — TEST FIXTURES ONLY. Give a fixture programme the evidence the recruitment-year gate
+ * (server/lib/recruitmentYearGate.js) requires: an unexpired programme_season_fielding row saying
+ * it is fielded in the current season. Idempotent. A programme a test means to be unfielded simply
+ * does not get one (or gets a programme_status row, which still refuses it).
+ */
+export const FIXTURE_FIELDING_URL = 'https://fixture.example/fielded';
+export function seedFieldedProgramme(db, school, sport = 'mens-soccer', { season = 2026, ensureCollege = false } = {}) {
+  if (!school || !sport) return false;
+  const exists = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='programme_season_fielding'").get();
+  if (!exists) return false;
+  // the gate refuses a programme the registry does not have (RYG_PROGRAMME_UNKNOWN); a coach a test
+  // means to SEND to (seedSendableCoach) at a school with no colleges row gets a minimal active one.
+  // Fixtures that build their own colleges rows (corroborateFixtureCoaches, makeCoachesSendable) do not.
+  if (ensureCollege && !db.prepare('SELECT 1 FROM colleges WHERE name = ? AND sport = ?').get(school, sport)) {
+    db.prepare("INSERT INTO colleges (id, created_date, updated_date, name, sport, active) VALUES (?, '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z', ?, ?, 1)")
+      .run(`fixture-col-${school}-${sport}`, school, sport);
+  }
+  if (db.prepare('SELECT 1 FROM programme_season_fielding WHERE college_name = ? AND sport = ? AND season = ? AND source_url = ?').get(school, sport, season, FIXTURE_FIELDING_URL)) return false;
+  db.prepare(`INSERT INTO programme_season_fielding (attestation_id, college_name, sport, season, fielded, evidence, source_url, verified_at, expires_at, recorded_at)
+    VALUES (?, ?, ?, ?, 1, 'test fixture: programme fielded', ?, '2020-01-01T00:00:00.000Z', '2099-01-01T00:00:00.000Z', '2020-01-01T00:00:00.000Z')`)
+    .run(`PSF-fixture-${school}-${sport}-${season}`, school, sport, season, FIXTURE_FIELDING_URL);
+  return true;
 }

@@ -1,4 +1,8 @@
 import { recipientIneligibility } from '../lib/coachEligibility.js';
+import db from '../db/client.js';
+import {
+  recruitmentYearDecision, recordGateDecision, recordGateRefusal, BOUNDARY as GATE_BOUNDARY, RECIPIENT as GATE_RECIPIENT,
+} from '../lib/recruitmentYearGate.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { Player } from '../db/entities/player.js';
@@ -515,6 +519,32 @@ export async function sendOutreach({
         continue;
       }
 
+      // DI-08 — RECRUITMENT-YEAR ELIGIBILITY, for a coach and a programme inbox alike: the programme
+      // must be verified as fielded in the season this athlete would join it (or, for a launching
+      // programme, a consultant must have authorised this exact approach). Asked here, after the
+      // floor and before anything is written, because every manual path passes this loop. A refusal
+      // is recorded in the gate's ledger; an allow is recorded with the draft it permits, below.
+      const gateRecipient = inbox
+        ? { kind: GATE_RECIPIENT.PROGRAMME_INBOX, programmeContactId: inbox.contact_id }
+        : { kind: GATE_RECIPIENT.COACH, email: coach.email };
+      const gate = recruitmentYearDecision({ athlete, collegeName, sport: athlete.sport, recipient: gateRecipient });
+      const gateContext = { boundary: GATE_BOUNDARY.MANUAL_SEND, athleteId, collegeName, sport: athlete.sport, recipient: gateRecipient };
+      if (!gate.allowed) {
+        recordGateRefusal(gate, gateContext);
+        results.push({
+          email: coach.email, name: coach.name, status: 'not-eligible', reason: gate.code,
+          ...(inbox ? { recipientKind: RECIPIENT_KIND.PROGRAMME_INBOX } : {}),
+          reviewRequested: gate.reviewRequested,
+        });
+        continue;
+      }
+      /** The draft row and the ALLOW that permitted it are written together (provenance at creation). */
+      const recordDraftWithGate = (args) => db.transaction(() => {
+        const draft = recordDraft(args);
+        recordGateDecision(gate, { ...gateContext, outreachSendId: draft?.id ?? null });
+        return draft;
+      })();
+
       // Volume is experienced per inbox, not per athlete, and so is the spam
       // filter's view of it. Checked here for the same reason as suppression:
       // this loop is the only thing every send passes through.
@@ -742,7 +772,7 @@ export async function sendOutreach({
          * to measure.
          */
         try {
-          recordDraft(draftArgs);
+          recordDraftWithGate(draftArgs);
           markOutreachDrafted(outreach.id);
         } catch (err) {
           console.warn(`  draft record failed for outreach ${outreach.id}: ${err.message}`);
@@ -847,7 +877,7 @@ export async function sendOutreach({
        */
       let handoff = null;
       try {
-        const draft = recordDraft(draftArgs);
+        const draft = recordDraftWithGate(draftArgs);
         /**
          * THE HANDOFF IS PROVED AGAINST THE ROW — R2B.
          *

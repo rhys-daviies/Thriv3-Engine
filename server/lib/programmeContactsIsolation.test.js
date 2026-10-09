@@ -91,6 +91,9 @@ const ALLOWED = new Set([
   // contact (idempotency) on its OWN copies; every write goes through integrity:promote, never here
   'server/scripts/programmeContactAcquire.js',
   'server/lib/refresh/programmeContactAcquisition.js',  // its pure batching/outcome logic: no database, no send
+  // DI-08: the recruitment-year gate every send boundary asks — it READS an inbox's filing and status to
+  // refuse it (affiliation, a launching programme's authorisation); it selects, composes and sends nothing
+  'server/lib/recruitmentYearGate.js',
 ]);
 
 /** Phase 1F: the two boundaries that hand an ADDRESS to a provider, mailto or Outlook. */
@@ -140,7 +143,7 @@ describe('no send path can consume programme contacts', () => {
       .map((f) => path.relative(ROOT, f).split(path.sep).join('/'))
       .filter((rel) => /FROM\s+programme_contacts\b/.test(fs.readFileSync(path.join(ROOT, rel), 'utf8')));
     expect(readers.sort()).toEqual(['server/lib/campaignAttribution.js', 'server/lib/coachEligibilityMeasurement.js', 'server/lib/executeProgrammeMessage.js', 'server/lib/outreach.js',
-      'server/lib/programmeContactEligibility.js', 'server/lib/programmeContacts.js', 'server/lib/recipient.js', 'server/lib/recipientSelection.js',
+      'server/lib/programmeContactEligibility.js', 'server/lib/programmeContacts.js', 'server/lib/recipient.js', 'server/lib/recipientSelection.js', 'server/lib/recruitmentYearGate.js',
       'server/lib/refresh/integrityGate.js', 'server/lib/refresh/integrityMeasure.js', 'server/lib/refresh/promotion.js', 'server/lib/refresh/sendability.js', 'server/lib/refresh/staging.js',
       'server/lib/v2/outreachProvenance.js', 'server/scripts/integrityMonitor.js', 'server/scripts/legacyReconciliationReport.js', 'server/scripts/programmeContactAcquire.js', 'server/scripts/programmeContactLeads.js', 'server/scripts/validateProgrammeContacts.js']);
     for (const f of ['server/lib/pursuitPolicy.js', 'server/routes/sendOutreach.js', 'server/routes/manualOutreach.js']) expect(readers, f).not.toContain(f);
@@ -175,6 +178,10 @@ describe('no send path can consume programme contacts', () => {
       'server/lib/outreach.js:outreach',
       'server/lib/outreachSend.js:outreach_send',
       'server/lib/programmeMessages.js:programme_messages',
+      // DI-08: not outreach. The gate's append-only decision ledger names the inbox it refused or
+      // allowed, and a consultant's future-programme authorisation names the one inbox it covers.
+      'server/lib/recruitmentYearGate.js:recruitment_cycle_authorisations',
+      'server/lib/recruitmentYearGate.js:recruitment_gate_decisions',
     ]);
     // and the reader never writes it
     expect(fs.readFileSync(path.join(ROOT, 'server/lib/recipient.js'), 'utf8')).not.toMatch(/\b(INSERT|UPDATE)\b[\s\S]{0,80}programme_contact_id/i);

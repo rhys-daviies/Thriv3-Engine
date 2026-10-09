@@ -27,6 +27,9 @@ import { resolveWireContent } from './executionContent.js';
 import { OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
 import { assertProgrammeInbox } from './recipientSelection.js';
 import { recipientEqualsSql, recipientParams } from './recipient.js';
+import {
+  assertRecruitmentYearEligible, recordGateDecision, recordGateRefusal, BOUNDARY as GATE_BOUNDARY, RECIPIENT as GATE_RECIPIENT,
+} from './recruitmentYearGate.js';
 
 /**
  * TAKE ONE REVIEWED MESSAGE FOR EXECUTION — D4.5. TXN 1, and nothing after it.
@@ -148,6 +151,7 @@ function fail(code, message) {
 }
 
 const COACH = db.prepare('SELECT id, full_name, email, school, sport, email_status, currentness_status FROM coaches WHERE id = ?');
+const ATHLETE_YEARS = db.prepare('SELECT id, recruiting_class_year, graduation_year FROM players WHERE id = ?');
 const OUTREACH_BY_ID = db.prepare('SELECT id, revoked_at FROM outreach WHERE id = ?');
 /**
  * The two athlete facts the wire content needs — D4.7. Read here rather than
@@ -274,10 +278,25 @@ export function claimProgrammeMessageForExecution({
    * taking. B5's own consume nests inside as a SAVEPOINT, which is why this
    * outer transaction must itself be immediate.
    */
-  return CLAIM.immediate({
-    programmeMessageId, operatorUserId, connectedMailboxId, runId, at, onDate, window,
-    athleteLimit, mailboxLimit,
-  });
+  try {
+    return CLAIM.immediate({
+      programmeMessageId, operatorUserId, connectedMailboxId, runId, at, onDate, window,
+      athleteLimit, mailboxLimit,
+    });
+  } catch (err) {
+    recordRecruitmentGateRefusal(err, GATE_BOUNDARY.EXECUTION_CLAIM);
+    throw err;
+  }
+}
+
+/**
+ * DI-08: a recruitment-year refusal thrown inside a claim transaction unwinds with it, so the
+ * refusal is written to the gate's ledger here, after the rollback. Exported for the retry path.
+ */
+export function recordRecruitmentGateRefusal(err, boundary) {
+  if (err?.recruitmentGateDecision && err.recruitmentGateContext) {
+    recordGateRefusal(err.recruitmentGateDecision, { boundary, ...err.recruitmentGateContext });
+  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -548,6 +567,29 @@ export function assertExecutionSafety({
     recipient = { coachId: coach.id, programmeContactId: null, email: coach.email };
   }
 
+  /* ---- 3b. the programme is eligible for THIS athlete's recruitment cycle - DI-08 */
+  /**
+   * Asked of the recipient just re-proved, for the athlete the message is for, now. A programme
+   * not verified as fielded in the season the athlete would join it is refused here for every
+   * path that reaches a provider — the first claim, a scheduled or automated execution, and the
+   * retry (executionRetry.js calls this same function). A launching programme passes only under
+   * a consultant authorisation for this athlete, programme, entry season and recipient. Thrown
+   * before any capacity is spent; the caller records the refusal in the gate's ledger after the
+   * transaction unwinds, and the ALLOW with the send it permits.
+   */
+  const athlete = ATHLETE_YEARS.get(context.athleteId);
+  const gateRecipient = recipient.programmeContactId
+    ? { kind: GATE_RECIPIENT.INBOX, programmeContactId: recipient.programmeContactId }
+    : { kind: GATE_RECIPIENT.COACH, coachId: recipient.coachId };
+  let recruitmentGate;
+  try {
+    recruitmentGate = assertRecruitmentYearEligible({ athlete, collegeName: context.collegeName, sport: context.sport, recipient: gateRecipient });
+  } catch (err) {
+    err.message = `${context.collegeName}: ${err.message} Nothing was claimed and no capacity was spent.`;
+    err.recruitmentGateContext = { athleteId: context.athleteId, collegeName: context.collegeName, sport: context.sport, recipient: gateRecipient, programmeMessageId: message.id };
+    throw err;
+  }
+
   /* ---- 4. the mailbox, as durable identity and nothing more -------------- */
   /**
    * NO CREDENTIAL IS READ AND NOTHING IS DECRYPTED. `mailboxCredential` is the
@@ -581,7 +623,7 @@ export function assertExecutionSafety({
   }
   const identity = normaliseSendingIdentity(box.email_address);
 
-  return { plan, coach, recipient, box, identity };
+  return { plan, coach, recipient, box, identity, recruitmentGate, gateRecipient };
 }
 
 const CLAIM = db.transaction(({
@@ -612,7 +654,7 @@ const CLAIM = db.transaction(({
       + 'content, not a repeat of this one. Nothing was claimed.');
   }
 
-  const { plan, recipient, box, identity } = assertExecutionSafety({
+  const { plan, recipient, box, identity, recruitmentGate, gateRecipient } = assertExecutionSafety({
     message, context, operatorUserId, connectedMailboxId, onDate, window,
   });
 
@@ -752,7 +794,12 @@ const CLAIM = db.transaction(({
     throw fail(CLAIM_REFUSAL.SEND_CLAIM_LOST,
       `This message is already ${send?.state ?? 'claimed'} — somebody else holds it, or it has `
       + 'already been executed. Nothing was claimed and no capacity was spent.');
-  }
+  }  // DI-08: the decision that permitted this send, in the transaction that creates it
+  recordGateDecision(recruitmentGate, {
+    boundary: GATE_BOUNDARY.EXECUTION_CLAIM, athleteId: context.athleteId, collegeName: context.collegeName,
+    sport: context.sport, recipient: gateRecipient, programmeMessageId: message.id, outreachSendId: sendId, now: at,
+  });
+
 
   /* ---- 8. and only now is it paid for ------------------------------------ */
   /**

@@ -3900,3 +3900,154 @@ CREATE TABLE IF NOT EXISTS representatives (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_representatives_email ON representatives(email);
+
+-- ===========================================================================
+-- RECRUITMENT-YEAR ELIGIBILITY — DI-08 Phase 2. Three additive tables read and written only by
+-- server/lib/recruitmentYearGate.js, the send-time gate every outreach boundary passes.
+--
+-- A programme may be contacted for an athlete only when it has VERIFIED eligibility for the
+-- athlete's intended entry season. These tables carry the evidence the gate cannot derive from
+-- data already on file, the consultant authorisation a future (launching) programme requires, and
+-- the gate's own decisions for audit and consultant review.
+-- ===========================================================================
+
+-- programme_season_fielding — season-specific fielding evidence with provenance and an expiry.
+--
+-- The gate's first-choice evidence is derived, not stored: a season-verified roster in
+-- roster_players (see recruitmentYearGate.js). This table holds the evidence for a programme the
+-- roster cannot prove (an official 2026 schedule page; a programme on hiatus this season), in BOTH
+-- directions: fielded = 1 says the programme plays `season`, fielded = 0 says it does not. A row
+-- is evidence only while unexpired; two unexpired rows that disagree about one season are a
+-- contradiction and the gate refuses. Keyed (college_name, sport) exactly as programme_status.
+-- Append-only: a later finding is a new row (triggers below), and expiry retires the old one.
+CREATE TABLE IF NOT EXISTS programme_season_fielding (
+  attestation_id TEXT PRIMARY KEY,
+  college_name TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  season INTEGER NOT NULL,                 -- the fall season year (2026 = 2026-27)
+  fielded INTEGER NOT NULL,
+  evidence TEXT NOT NULL,                  -- the sentence that justifies it
+  source_url TEXT NOT NULL,                -- the first-party page it was read from
+  verified_at TEXT NOT NULL,               -- when that page was read
+  expires_at TEXT NOT NULL,                -- after this the row is no longer evidence
+  recorded_at TEXT NOT NULL,
+  recorded_by_operator_id TEXT,            -- not a foreign key: see programme_status
+  CHECK (fielded IN (0, 1)),
+  CHECK (season BETWEEN 2000 AND 2100),
+  CHECK (length(trim(evidence)) > 0),
+  CHECK (source_url LIKE 'https://%'),
+  CHECK (expires_at > verified_at)
+);
+CREATE INDEX IF NOT EXISTS idx_psf_programme ON programme_season_fielding(college_name, sport, season);
+CREATE TRIGGER IF NOT EXISTS trg_psf_no_update BEFORE UPDATE ON programme_season_fielding
+BEGIN
+  SELECT RAISE(ABORT, 'programme_season_fielding is append-only');
+END;
+CREATE TRIGGER IF NOT EXISTS trg_psf_no_delete BEFORE DELETE ON programme_season_fielding
+BEGIN
+  SELECT RAISE(ABORT, 'programme_season_fielding is append-only');
+END;
+
+-- recruitment_cycle_authorisations — a consultant's explicit authorisation to approach a FUTURE
+-- (launching) programme for ONE athlete, ONE entry season and ONE recipient.
+--
+-- A future launch is never read as recruitment intent: without one of these rows a programme that
+-- is not fielded this season is refused for every athlete. The row carries the current official
+-- evidence that the programme launches (programme_evidence_*) and that the recipient is on its
+-- official staff page (staff_evidence_*); the gate refuses it once either reading is older than
+-- its freshness limit, once it expires, or once it is revoked. Revocation is the only update.
+CREATE TABLE IF NOT EXISTS recruitment_cycle_authorisations (
+  authorisation_id TEXT PRIMARY KEY,
+  athlete_id TEXT NOT NULL,                -- not a foreign key: an authorisation is history and must not
+                                           -- block (or cascade from) an athlete's deletion
+  college_name TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  entry_season INTEGER NOT NULL,
+  recipient_kind TEXT NOT NULL,
+  coach_id TEXT,                           -- not a foreign key: the authorisation is history
+  programme_contact_id TEXT,
+  consultant_operator_id TEXT NOT NULL,    -- who authorised it; not a foreign key: see programme_status
+  programme_evidence_url TEXT NOT NULL,
+  programme_evidence_verified_at TEXT NOT NULL,
+  staff_evidence_url TEXT NOT NULL,
+  staff_evidence_verified_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  revoked_at TEXT,
+  revoked_by_operator_id TEXT,
+  revocation_reason TEXT,
+  CHECK (recipient_kind IN ('COACH', 'PROGRAMME_INBOX')),
+  CHECK ((recipient_kind = 'COACH' AND coach_id IS NOT NULL AND programme_contact_id IS NULL)
+      OR (recipient_kind = 'PROGRAMME_INBOX' AND programme_contact_id IS NOT NULL AND coach_id IS NULL)),
+  CHECK (entry_season BETWEEN 2000 AND 2100),
+  CHECK (length(trim(consultant_operator_id)) > 0),
+  CHECK (programme_evidence_url LIKE 'https://%' AND staff_evidence_url LIKE 'https://%'),
+  CHECK (expires_at > created_at),
+  CHECK (revoked_at IS NULL OR (revoked_by_operator_id IS NOT NULL AND length(trim(coalesce(revocation_reason, ''))) > 0))
+);
+CREATE INDEX IF NOT EXISTS idx_rca_lookup ON recruitment_cycle_authorisations(athlete_id, college_name, sport, entry_season);
+CREATE TRIGGER IF NOT EXISTS trg_rca_no_delete BEFORE DELETE ON recruitment_cycle_authorisations
+BEGIN
+  SELECT RAISE(ABORT, 'recruitment_cycle_authorisations are revoked, never deleted');
+END;
+CREATE TRIGGER IF NOT EXISTS trg_rca_revoke_only BEFORE UPDATE ON recruitment_cycle_authorisations
+WHEN OLD.revoked_at IS NOT NULL
+  OR NEW.authorisation_id IS NOT OLD.authorisation_id OR NEW.athlete_id IS NOT OLD.athlete_id
+  OR NEW.college_name IS NOT OLD.college_name OR NEW.sport IS NOT OLD.sport
+  OR NEW.entry_season IS NOT OLD.entry_season OR NEW.recipient_kind IS NOT OLD.recipient_kind
+  OR NEW.coach_id IS NOT OLD.coach_id OR NEW.programme_contact_id IS NOT OLD.programme_contact_id
+  OR NEW.consultant_operator_id IS NOT OLD.consultant_operator_id
+  OR NEW.programme_evidence_url IS NOT OLD.programme_evidence_url
+  OR NEW.programme_evidence_verified_at IS NOT OLD.programme_evidence_verified_at
+  OR NEW.staff_evidence_url IS NOT OLD.staff_evidence_url
+  OR NEW.staff_evidence_verified_at IS NOT OLD.staff_evidence_verified_at
+  OR NEW.expires_at IS NOT OLD.expires_at OR NEW.created_at IS NOT OLD.created_at
+BEGIN
+  SELECT RAISE(ABORT, 'a recruitment cycle authorisation can only be revoked, once');
+END;
+
+-- recruitment_gate_decisions — APPEND-ONLY LEDGER of the gate's send-time decisions.
+--
+-- Written by the boundary that asked: a BLOCK when it refuses (with review_requested = 1 when
+-- the evidence is unknown or contradictory, which is the consultant review queue), and the ALLOW
+-- or CONDITIONAL_ALLOW in the same transaction as the outreach_send row it permitted, linked by
+-- outreach_send_id — the provenance is recorded when the send is created, never inferred later.
+CREATE TABLE IF NOT EXISTS recruitment_gate_decisions (
+  decision_id TEXT PRIMARY KEY,
+  decided_at TEXT NOT NULL,
+  boundary TEXT NOT NULL,
+  athlete_id TEXT NOT NULL,
+  college_name TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  entry_season INTEGER,
+  programme_season INTEGER,
+  recipient_kind TEXT NOT NULL,
+  coach_id TEXT,
+  programme_contact_id TEXT,
+  outcome TEXT NOT NULL,
+  code TEXT NOT NULL,
+  evidence_basis TEXT,
+  detail_json TEXT NOT NULL,
+  authorisation_id TEXT,
+  review_requested INTEGER NOT NULL DEFAULT 0,
+  programme_message_id TEXT,
+  outreach_send_id TEXT,
+  rule_version TEXT NOT NULL,
+  CHECK (boundary IN ('MANUAL_SEND', 'EXECUTION_CLAIM', 'EXECUTION_RETRY')),
+  CHECK (recipient_kind IN ('COACH', 'PROGRAMME_INBOX')),
+  CHECK (outcome IN ('ALLOW', 'CONDITIONAL_ALLOW', 'BLOCK')),
+  CHECK (review_requested IN (0, 1)),
+  CHECK (outcome = 'BLOCK' OR review_requested = 0),
+  CHECK (outcome <> 'CONDITIONAL_ALLOW' OR authorisation_id IS NOT NULL),
+  CHECK (json_valid(detail_json))
+);
+CREATE INDEX IF NOT EXISTS idx_rgd_review ON recruitment_gate_decisions(review_requested, college_name, sport);
+CREATE INDEX IF NOT EXISTS idx_rgd_send ON recruitment_gate_decisions(outreach_send_id);
+CREATE TRIGGER IF NOT EXISTS trg_rgd_no_update BEFORE UPDATE ON recruitment_gate_decisions
+BEGIN
+  SELECT RAISE(ABORT, 'recruitment_gate_decisions is append-only');
+END;
+CREATE TRIGGER IF NOT EXISTS trg_rgd_no_delete BEFORE DELETE ON recruitment_gate_decisions
+BEGIN
+  SELECT RAISE(ABORT, 'recruitment_gate_decisions is append-only');
+END;

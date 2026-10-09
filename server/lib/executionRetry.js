@@ -3,8 +3,9 @@ import { utcNow, utcToday } from './time.js';
 import { RUN_ID } from './executionRun.js';
 import { programmeMessageWithContext } from './programmeMessages.js';
 import {
-  assertExecutionSafety, executionSnapshot, CLAIM_REFUSAL,
+  assertExecutionSafety, executionSnapshot, CLAIM_REFUSAL, recordRecruitmentGateRefusal,
 } from './executionClaim.js';
+import { recordGateDecision, BOUNDARY as GATE_BOUNDARY } from './recruitmentYearGate.js';
 import {
   transitionSend, claimSendForExecution, sendById, openSendFor,
 } from './outreachSend.js';
@@ -201,10 +202,16 @@ export function reclaimRefusedExecution({
       throw fail('EXECUTION_RETRY_ARGUMENT_REQUIRED', `A re-execution needs ${name}.`);
     }
   }
-  return RECLAIM.immediate({
-    outreachSendId, operatorUserId, connectedMailboxId, runId, at, onDate, window,
-    athleteLimit, mailboxLimit,
-  });
+  try {
+    return RECLAIM.immediate({
+      outreachSendId, operatorUserId, connectedMailboxId, runId, at, onDate, window,
+      athleteLimit, mailboxLimit,
+    });
+  } catch (err) {
+    // DI-08: a recruitment-year refusal unwound with the transaction; record it now
+    recordRecruitmentGateRefusal(err, GATE_BOUNDARY.EXECUTION_RETRY);
+    throw err;
+  }
 }
 
 const RECLAIM = db.transaction(({
@@ -306,7 +313,7 @@ const RECLAIM = db.transaction(({
       `The composition behind ${outreachSendId} no longer exists.`);
   }
   const { message, context } = found;
-  const { identity } = assertExecutionSafety({
+  const { identity, recruitmentGate, gateRecipient } = assertExecutionSafety({
     message, context, operatorUserId, connectedMailboxId: frozenMailboxId, onDate, window,
   });
 
@@ -350,6 +357,11 @@ const RECLAIM = db.transaction(({
       `This message is already ${claimedSend?.state ?? 'claimed'} — somebody else is attempting `
       + 'it. Nothing was claimed and no capacity was spent.');
   }
+  // DI-08: the recruitment-year decision that permitted this re-attempt, recorded with it
+  recordGateDecision(recruitmentGate, {
+    boundary: GATE_BOUNDARY.EXECUTION_RETRY, athleteId: context.athleteId, collegeName: context.collegeName,
+    sport: context.sport, recipient: gateRecipient, programmeMessageId: message.id, outreachSendId: send.id, now: at,
+  });
 
   /* ---- 8. a NEW reservation, at today's ceilings ------------------------ */
   /**
