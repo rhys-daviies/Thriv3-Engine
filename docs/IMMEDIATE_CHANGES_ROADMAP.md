@@ -49,7 +49,7 @@ Programme workspace sections: Overview · Roster & Openings · Recruiting Intell
 
 Reuse existing datasets, APIs and intelligence, and avoid parallel sources of truth.
 
-Status: implemented on `feat/phase4-programme-database` (PR open, not merged). Read only: no schema change and no writes to programme data.
+Status: **complete** — PR #73, merged to main `0134172` (not deployed). Read only: no schema change and no writes to programme data.
 - `/programmes`: one list, filtered and paginated by the server (Sport, Recruiting Class, Division, Conference, School). Replaces the College Database and Graduating Database; `/colleges` and `/graduating-db` redirect to it. The Roster gaps and Season trust queues are linked from it and keep their routes.
 - `/programmes/:id`: Overview · Roster & Openings · Recruiting Intelligence · Coaches & Contacts · Programme Intelligence. The id is the `colleges` id, which is the engine's `programmeId`, so a programme is always one school in one sport. The other sport is linked only through the athletics-entity id. Each V2 match card has **Open programme**.
 - **Openings are the matching engine's own projection.** They come from `programmeContext` / `positionEvidence`, and per-player standing comes from `availabilityAtEntry`. A place is open for a class when its holder's last eligible season, under the eligibility rules on file, is before that class arrives. They are projections, not confirmed graduates. The stored `estimated_graduation_year` the old Graduating Database grouped by is not used.
@@ -62,4 +62,4 @@ Status: implemented on `feat/phase4-programme-database` (PR open, not merged). R
 
 Validate Player → Match → Programme → Contact → Campaign → Engagement → Report, including cross-workflow checks for athlete positions, representative details, programme contacts, conference preferences, historical records and data integrity.
 
-Status: not started.
+Status: gap assessment in progress (no code yet).
