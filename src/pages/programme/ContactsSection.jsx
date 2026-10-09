@@ -8,8 +8,11 @@ import { useSection } from './useSection';
  * routes, with their safeguards unchanged:
  *
  *   /api/colleges/:id/coaches              coaches passing the send floor NOW
- *   /api/colleges/:id/programme-contacts   the programme's verified inbox(es),
- *                                          each sendable:false
+ *   /api/colleges/:id/programme-contacts   the programme's verified inbox(es):
+ *                                          not addressable from this list, but
+ *                                          the manual composer offers the one the
+ *                                          hierarchy selects when no coach can be
+ *                                          written to (corrected, Phase 5 #14)
  *
  * Nothing here composes, sends or selects. Addresses are shown as text with no
  * email link: outreach starts from an athlete's workspace, where every send

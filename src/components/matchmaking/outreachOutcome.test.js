@@ -414,7 +414,8 @@ describe('A9.7 §K. the selections overview', () => {
     mount(createElement(SelectionsOverviewPanel, { player: PLAYER }));
     await flush();
     expect(find('[data-testid="selections-empty"]')).not.toBeNull();
-    expect(text()).toMatch(/nothing is sent by selecting/i);
+    // Phase 5 (#14): it no longer promises selecting from the ranked list (cards cannot select).
+    expect(text()).toMatch(/nothing is sent by recording it/i);
   });
 
   it('K15. this surface asks the server to compute nothing', async () => {

@@ -23,6 +23,7 @@ import { recordReply, classifyReply } from './replyIntake.js';
 import { reviewObservation, recordObservation, OBSERVATION_KIND, OBSERVATION_SOURCE, REVIEW_STATE, CLASSIFIER_METHOD } from './recruitingObservations.js';
 import { recordDraft, acceptSend } from '../outreachSend.js';
 import { createOutreach } from '../outreach.js';
+import { markResponded } from '../engagementRollup.js';
 
 const K = OBSERVATION_KIND;
 const players = [];
@@ -66,6 +67,7 @@ function sendFor(selectionId, collegeName, { accept = false } = {}) {
 
 const wipe = () => {
   db.prepare('DELETE FROM recruiting_observations WHERE athlete_id = ?').run(player.id);
+  db.prepare('DELETE FROM engagement_rollup WHERE outreach_id IN (SELECT id FROM outreach WHERE athlete_id = ?)').run(player.id);
   db.prepare(`DELETE FROM outreach_send_event WHERE outreach_send_id IN
               (SELECT id FROM outreach_send WHERE athlete_id = ?)`).run(player.id);
   db.prepare(`DELETE FROM outreach_send WHERE outreach_id IN
@@ -227,5 +229,34 @@ describe('A9.7 §K. the surface a consultant acts on', () => {
   it('K8. an athlete with no selections gets an empty list, not an error', () => {
     const fresh = athlete();
     expect(selectionsOverview(fresh.id)).toEqual({ playerId: fresh.id, selections: [] });
+  });
+});
+
+describe('Phase 5 (#13, #14): the reply the operator records, and recipients counted as recipients', () => {
+  const outreachOf = (sendId) => db.prepare('SELECT outreach_id FROM outreach_send WHERE id = ?').get(sendId).outreach_id;
+
+  it('#13 a reply marked on the Engagement tab ("Mark responded") reads as Replied here', () => {
+    const sel = select(target);
+    const a = sendFor(sel.id, target.name, { accept: true });
+    markResponded(outreachOf(a), '2026-10-05T12:00:00.000Z');
+    const [row] = selectionsOverview(player.id).selections;
+    expect(row.reply.replies).toBe(1);
+    expect(row.reply.lastReplyAt).toBe('2026-10-05T12:00:00.000Z');
+  });
+
+  it('#13 the same reply recorded both ways counts once, never twice', () => {
+    const sel = select(target);
+    const a = sendFor(sel.id, target.name, { accept: true });
+    recordReply(db, { sendId: a });
+    markResponded(outreachOf(a));
+    const [row] = selectionsOverview(player.id).selections;
+    expect(row.reply.replies).toBe(1);
+  });
+
+  it('#14 recipients are counted by coach OR programme inbox (an inbox send has no coach id)', async () => {
+    // A typed inbox send is guarded by triggers that tie it to a verified inbox relationship, so
+    // the expression is pinned here and the two-recipient count is exercised by K2 above.
+    const fs = await import('node:fs');
+    expect(fs.readFileSync('server/lib/v2/selectionsOverview.js', 'utf8')).toContain('COUNT(DISTINCT COALESCE(coach_id, programme_contact_id)) AS coaches');
   });
 });

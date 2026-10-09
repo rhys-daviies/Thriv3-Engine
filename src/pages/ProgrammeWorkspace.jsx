@@ -31,6 +31,7 @@ export default function ProgrammeWorkspace() {
   const [params, setParams] = useSearchParams();
   const tab = SECTIONS.some((s) => s.key === params.get('tab')) ? params.get('tab') : 'overview';
   const classYear = params.get('classYear') || '';
+  const fromPlayer = params.get('from') || null;
   const [detail, setDetail] = useState(null);
   const [error, setError] = useState(null);
 
@@ -61,9 +62,20 @@ export default function ProgrammeWorkspace() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <Link to={backHref} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> Programme Database
-      </Link>
+      <div className="flex flex-wrap items-center gap-4">
+        {/*
+          Phase 5 (#12): opened from an athlete's match card, the way back is to that athlete.
+          `from` only ever becomes an internal /player/<id>/matching path - never a URL.
+        */}
+        {fromPlayer && (
+          <Link to={`/player/${encodeURIComponent(fromPlayer)}/matching`} className="inline-flex items-center gap-1 text-sm text-primary hover:underline" data-testid="back-to-athlete">
+            <ArrowLeft className="h-4 w-4" /> Back to athlete
+          </Link>
+        )}
+        <Link to={backHref} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+          {!fromPlayer && <ArrowLeft className="h-4 w-4" />} Programme Database
+        </Link>
+      </div>
 
       {error && (
         <div className="space-y-2" data-testid="programme-error">

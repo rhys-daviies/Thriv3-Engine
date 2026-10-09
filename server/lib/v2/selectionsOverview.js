@@ -62,7 +62,8 @@ export function selectionsOverview(playerId, { limit = 200 } = {}) {
            COUNT(*)                                             AS messages,
            SUM(CASE WHEN state = 'ACCEPTED' THEN 1 ELSE 0 END)  AS accepted,
            MAX(sent_at)                                         AS last_sent_at,
-           COUNT(DISTINCT coach_id)                             AS coaches
+           -- Phase 5 (#14): recipients, not coaches only - an inbox send has no coach_id.
+           COUNT(DISTINCT COALESCE(coach_id, programme_contact_id)) AS coaches
       FROM outreach_send
      WHERE matchmaking_selection_id IN (${placeholders})
      GROUP BY matchmaking_selection_id`).all(...ids);
@@ -78,6 +79,26 @@ export function selectionsOverview(playerId, { limit = 200 } = {}) {
        AND s.matchmaking_selection_id IN (${placeholders})
      GROUP BY s.matchmaking_selection_id`).all(SEND_EVENT_TYPE.REPLY, ...ids);
   const replies = new Map(replyRows.map((r) => [r.sel, r]));
+
+  /**
+   * PHASE 5 (#13): THE REPLY AN OPERATOR ACTUALLY RECORDS.
+   *
+   * The Engagement tab's "Mark responded" writes `engagement_rollup.responded_at`
+   * on the relationship; the REPLY events above come from a separate intake no
+   * screen calls. So a reply marked in the app never reached this panel, and
+   * "Replied" could not light up. Both are read now. They can describe the same
+   * reply, so the count is the larger of the two, never their sum.
+   */
+  const markedRows = db.prepare(`
+    SELECT s.matchmaking_selection_id AS sel,
+           COUNT(DISTINCT s.outreach_id) AS marked,
+           MAX(r.responded_at)           AS last_marked_at
+      FROM outreach_send s
+      JOIN engagement_rollup r ON r.outreach_id = s.outreach_id
+     WHERE r.responded_at IS NOT NULL
+       AND s.matchmaking_selection_id IN (${placeholders})
+     GROUP BY s.matchmaking_selection_id`).all(...ids);
+  const marked = new Map(markedRows.map((r) => [r.sel, r]));
 
   /** One outcome history per PROGRAMME, not per selection — see above. */
   const stateByProgramme = new Map();
@@ -103,6 +124,7 @@ export function selectionsOverview(playerId, { limit = 200 } = {}) {
     selections: selections.map((s) => {
       const send = sends.get(s.id) ?? null;
       const reply = replies.get(s.id) ?? null;
+      const mark = marked.get(s.id) ?? null;
       const state = stateByProgramme.get(`${s.college_name}|${s.sport}`) ?? null;
       return {
         selectionId: s.id,
@@ -131,8 +153,8 @@ export function selectionsOverview(playerId, { limit = 200 } = {}) {
          * the coach.
          */
         reply: {
-          replies: reply?.replies ?? 0,
-          lastReplyAt: reply?.last_reply_at ?? null,
+          replies: Math.max(reply?.replies ?? 0, mark?.marked ?? 0),
+          lastReplyAt: [reply?.last_reply_at, mark?.last_marked_at].filter(Boolean).sort().at(-1) ?? null,
         },
         latest: state ? {
           programmeInterest: state.programmeInterest,

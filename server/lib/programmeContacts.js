@@ -7,10 +7,11 @@
  * returned; a VERIFIED row that has aged out of the current cycle, or whose ownership evidence
  * has since moved, is withheld (and counted) rather than shown.
  *
- * `sendable: false` on every contact: no pursuit plan, manual outreach route or composer reads
- * this module (a test enforces it). The selection hierarchy (verified named coach -> verified
- * programme inbox -> no contact) lives in recipientSelection.js (Step 1E), and no delivery
- * boundary sends to an inbox yet.
+ * `sendable: false` on every contact means THIS LIST cannot be used to address one: no pursuit
+ * plan, manual outreach route or composer reads this module (a test enforces it). An inbox CAN
+ * be written to - since Phase 1F the manual path drafts to the one inbox the hierarchy selects
+ * (verified named coach -> verified programme inbox -> no contact, recipientSelection.js), by
+ * id and re-proved at send time - but never through this read. (Corrected in Phase 5, #14.)
  */
 import db from '../db/client.js';
 import { buildProgrammeContactContext, programmeContactProblems } from './programmeContactEligibility.js';

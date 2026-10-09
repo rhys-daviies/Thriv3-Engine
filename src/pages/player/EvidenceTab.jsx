@@ -5,6 +5,7 @@ import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 import { academicIntentState, ACADEMIC_INTENT } from '@shared/academicMajors.js';
 import ActionableRecommendationsState, { isActionablePending } from '@/components/ActionableRecommendationsState';
+import PreviousEngineListNotice from '@/components/PreviousEngineListNotice';
 
 /**
  * Everything Thriv3 can say about this athlete at each matched programme.
@@ -69,21 +70,13 @@ export default function EvidenceTab() {
     return <ActionableRecommendationsState status={actionableStatus} onRetry={reload} />;
   }
 
+  // Phase 5 (#6): no instruction Matcher V2 can never satisfy, and no filters V2 does not have.
   if (!recommendations) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Run the analysis on the Matching tab first — this view describes the programmes it found.
-      </p>
-    );
+    return <PreviousEngineListNotice playerId={player?.id} view="evidence" />;
   }
 
   if (!list.length) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        The analysis ran but matched no programmes. Widen the division or conference
-        filters on the Matching tab.
-      </p>
-    );
+    return <PreviousEngineListNotice playerId={player?.id} view="evidence" empty />;
   }
 
   return (

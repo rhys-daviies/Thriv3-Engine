@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -21,6 +21,60 @@ function relativeDate(iso) {
   if (days === 1) return 'yesterday';
   if (days < 30) return `${days}d ago`;
   return new Date(iso).toLocaleDateString();
+}
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+/**
+ * PHASE 5 (#9): RECORDING A REPLY IS DATED, AND CLEARING ONE IS CONFIRMED.
+ *
+ * "Mark responded" asks which day the reply arrived (default today), because a
+ * reply recorded days late used to be dated by the click. "Responded" used to
+ * clear the record on a single click, losing the date with no way back; now it
+ * asks first. The server still validates the date.
+ */
+function RespondedControl({ c, busy, onToggleResponded }) {
+  const [mode, setMode] = useState(null); // null | 'mark' | 'clear'
+  const [date, setDate] = useState(today);
+  const stop = (e) => e.stopPropagation();
+  if (mode === 'mark') {
+    return (
+      <span className="inline-flex items-center gap-1.5" onClick={stop} data-testid="responded-date-form">
+        <input
+          type="date"
+          className="h-8 rounded border border-border bg-background px-1.5 text-xs"
+          value={date}
+          max={today()}
+          onChange={(e) => setDate(e.target.value)}
+          aria-label="Day the reply arrived"
+          data-testid="responded-date"
+        />
+        <Button size="sm" disabled={busy || !date} onClick={() => { onToggleResponded(c, { responded: true, respondedAt: date }); setMode(null); }} data-testid="responded-save">Save</Button>
+        <Button size="sm" variant="ghost" onClick={() => setMode(null)}>Cancel</Button>
+      </span>
+    );
+  }
+  if (mode === 'clear') {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs" onClick={stop} data-testid="responded-clear-confirm">
+        Clear the reply recorded {new Date(c.responded_at).toLocaleDateString()}?
+        <Button size="sm" variant="outline" disabled={busy} onClick={() => { onToggleResponded(c, { responded: false }); setMode(null); }} data-testid="responded-clear">Clear</Button>
+        <Button size="sm" variant="ghost" onClick={() => setMode(null)}>Keep</Button>
+      </span>
+    );
+  }
+  return (
+    <Button
+      size="sm"
+      variant={c.responded_at ? 'default' : 'outline'}
+      disabled={busy}
+      title={c.responded_at ? `Reply recorded ${new Date(c.responded_at).toLocaleDateString()}` : undefined}
+      onClick={(e) => { stop(e); setMode(c.responded_at ? 'clear' : 'mark'); }}
+      data-testid="responded-button"
+    >
+      {c.responded_at ? 'Responded' : 'Mark responded'}
+    </Button>
+  );
 }
 
 export default function CoachTable({ coaches, onSelect, onToggleResponded, busyId }) {
@@ -103,14 +157,7 @@ export default function CoachTable({ coaches, onSelect, onToggleResponded, busyI
                   <td className="py-2.5 pr-3 text-right tabular-nums text-muted-foreground">{c.total_rewinds}</td>
                   <td className="py-2.5 pr-3 text-muted-foreground whitespace-nowrap text-xs">{relativeDate(c.last_qualified_at)}</td>
                   <td className="py-2.5 text-right whitespace-nowrap">
-                    <Button
-                      size="sm"
-                      variant={c.responded_at ? 'default' : 'outline'}
-                      disabled={busyId === c.outreach_id}
-                      onClick={(e) => { e.stopPropagation(); onToggleResponded(c); }}
-                    >
-                      {c.responded_at ? 'Responded' : 'Mark responded'}
-                    </Button>
+                    <RespondedControl c={c} busy={busyId === c.outreach_id} onToggleResponded={onToggleResponded} />
                   </td>
                 </tr>
               );
