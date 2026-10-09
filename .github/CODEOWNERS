@@ -1,19 +1,25 @@
-# DI-04: correction-authorisation trust root. A change to any of these needs review by a code owner — configure
-# branch protection on `main` with "Require review from Code Owners" (docs/CORRECTION_REVIEWER_SECURITY.md).
-# Keep this list in step with PROTECTED_FILES in server/lib/refresh/trustRoot.js.
+# DI-04 / DI-07: correction-authorisation trust root. A change to any of these needs review by a code owner.
+#
+# The trust root (server/lib/refresh/trustRoot.js) compares PROTECTED_FILES, the whole static import closure of
+# CORRECTION_ENTRY_POINTS (66 modules today, computed at check time) and package.json / package-lock.json with
+# `main`. The patterns below cover every directory that closure reaches, so a change anywhere it can grow into
+# is owned too. Keep them in step with the closure (trustRoot.test.js lists it).
+#
+# THE OWNER MUST NOT BE THE IDENTITY AGENTS USE. GitHub never lets a pull request's author satisfy a code-owner
+# review, and today agents author PRs as @rhys-daviies. Until a second, human-held account (docs/
+# CORRECTION_GOVERNANCE_SEPARATION.md §2) replaces or joins the owner below and a ruleset requires code-owner
+# review, this file documents intent and enforces nothing.
 /.github/                                        @rhys-daviies
-/shared/correctionReviewers.json                 @rhys-daviies
-/shared/fidoAttestationRoots.json                @rhys-daviies
-/shared/databaseEnvironments.json                @rhys-daviies
-/shared/officialSourceRegistry.json              @rhys-daviies
-/shared/heldDomainAdjudications.js               @rhys-daviies
-/server/db/client.js                             @rhys-daviies
-/server/db/disposableMarker.js                   @rhys-daviies
+/.github/CODEOWNERS                              @rhys-daviies
+/shared/                                         @rhys-daviies
+/server/db/                                      @rhys-daviies
+/server/lib/                                     @rhys-daviies
 /server/data/seeds/coach_activation_holds.json   @rhys-daviies
-/server/lib/canonicalCoachEligibility.js         @rhys-daviies
-/server/lib/coachEligibility.js                  @rhys-daviies
-/server/lib/coachRowFloor.js                     @rhys-daviies
-/server/lib/refresh/                             @rhys-daviies
 /server/scripts/applyCompositeCorrection.js      @rhys-daviies
 /server/scripts/correctionApproval.js            @rhys-daviies
+/server/scripts/validateAthleticsEntityIdentity.js @rhys-daviies
+/package.json                                    @rhys-daviies
+/package-lock.json                               @rhys-daviies
+/vitest.config.js                                @rhys-daviies
 /docs/CORRECTION_REVIEWER_SECURITY.md            @rhys-daviies
+/docs/CORRECTION_GOVERNANCE_SEPARATION.md        @rhys-daviies
