@@ -77,7 +77,7 @@ export default function EngagementTab() {
   }
 
   if (selected) {
-    return <CoachDetail coach={selected} onBack={() => setSelected(null)} />;
+    return <CoachDetail coach={selected} onBack={() => setSelected(null)} onOptOutRecorded={load} />;
   }
 
   return (

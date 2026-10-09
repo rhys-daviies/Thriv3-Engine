@@ -83,7 +83,9 @@ export function coachEngagement(athleteId) {
       COALESCE(r.engagement_score, 0)   AS engagement_score,
       COALESCE(r.tier, 'cold')          AS tier,
       r.last_qualified_at,
-      r.responded_at
+      r.responded_at,
+      -- Phase 5 (#2): this recipient's address is on the opt-out list (any athlete, any source).
+      EXISTS (SELECT 1 FROM suppressions s WHERE s.email = lower(trim(${r.email}))) AS opted_out
     FROM outreach o
     ${r.join}
     LEFT JOIN engagement_rollup r ON r.outreach_id = o.id

@@ -43,6 +43,11 @@ export default function ContactsSection({ id }) {
             </ul>
           )
           : <p className="text-xs text-muted-foreground" data-testid="no-coaches">No coach for this programme currently passes the outreach eligibility floor.</p>)}
+        {coaches.data?.optedOut?.length > 0 && (
+          <p className="text-[11px] text-muted-foreground" data-testid="coaches-opted-out">
+            Not listed - opted out of Thriv3 email: {coaches.data.optedOut.map((c) => c.name || 'Coach').join(', ')}.
+          </p>
+        )}
       </div>
 
       <div className="rounded-lg border border-border p-4 space-y-2" data-testid="contacts-inboxes">
@@ -65,6 +70,11 @@ export default function ContactsSection({ id }) {
                 </ul>
               )
               : <p className="text-xs text-muted-foreground" data-testid="no-inboxes">No verified programme inbox on file.</p>}
+            {inboxes.data.optedOut > 0 && (
+              <p className="text-[11px] text-muted-foreground" data-testid="inboxes-opted-out">
+                {inboxes.data.optedOut} programme inbox{inboxes.data.optedOut === 1 ? ' has' : 'es have'} opted out and {inboxes.data.optedOut === 1 ? 'is' : 'are'} not listed.
+              </p>
+            )}
             {inboxes.data.withheld > 0 && (
               <p className="text-[11px] text-muted-foreground" data-testid="inboxes-withheld">
                 {inboxes.data.withheld} recorded inbox{inboxes.data.withheld === 1 ? ' is' : 'es are'} withheld: no longer current or ownership not established.
