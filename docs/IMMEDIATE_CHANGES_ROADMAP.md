@@ -10,7 +10,7 @@ The approved product requirements for the operator workflow after Phase 1 (gener
 | 2 — Athlete positions & representative-first contact | complete | PR #70 (main `dab547b`) |
 | 3 — Player navigation & conference preferences | complete | PR #71 (main `8427b75`) |
 | 4 — Unified programme database | complete | PR #73 (main `0134172`) |
-| 5 — End-to-end integration | complete, final audit PASS | PRs #76, #77, #78 (main `16f7aac`) |
+| 5 — End-to-end integration | complete, final audit PASS, audit findings fixed | PRs #76, #77, #78, #79 (main `43f01cd`) |
 
 **Implementation complete is not production complete.** None of these phases has been deployed: Render Auto-Deploy is off, and the production database has not been migrated or measured against this code. Production deployment, the migration and a validation walkthrough on production data are a separate, unstarted step. Before deploying, create representatives and assign them to athletes. Opt-outs recorded on a development database do not carry over to production.
 
@@ -83,9 +83,11 @@ Scope as agreed on 2026-10-09: the existing **manual** workflow is validated (Pl
 - **PR #78** (main `16f7aac`): remaining corrections. Previous-engine views say what they are. "Mark responded" takes the reply's date, and clearing it asks first. The sync label shows when events were last pulled. Recovery paths link back to editing and to the athlete. "Selected for outreach" counts replies from both recording paths, without double-counting.
 - **Final audit:** `server/phase5FinalAudit.test.js`, ten steps on isolated data with Outlook mocked, runs in the normal suite. The full suite at `16f7aac` was 12,214 tests with only the 27 known corpus-pinned failures.
 
-**Known issues found by the audit (non-blockers), both fixed on `fix/selections-manual-outreach` (open for review, not merged):**
+**Known issues found by the audit (non-blockers), both fixed by PR #79** (merged at `a28bb4c`, main `43f01cd`; full suite 12,234 tests with only the 27 known failures; audit test 10/10):
 - "Selected for outreach" does not see manual outreach. Manual drafts are not linked to the Specific Search selection, so a programme that was contacted and replied to manually shows "Not contacted yet". The Engagement tab is correct.
 - A coach who opts out while the composer is open is refused with "Not on this programme's staff" rather than a message naming the opt-out. The refusal itself is correct.
-- The audit test's step 9 looked up the selection by the wrong key and passed without checking anything. This is corrected on the same branch. The finding itself was confirmed against the code before the fix.
+- The audit test's step 9 looked up the selection by the wrong key and passed without checking anything. Corrected in PR #79. The finding itself was confirmed against the code before the fix.
+
+**Design note for future outreach work.** PR #79 assigns historical manual sends to selections when the panel reads them, using timestamps. That is a fallback for older records. New outreach code should record the selection on the send when it is created (`recordDraft`'s `matchmakingSelectionId`), not rely on matching it up afterwards.
 
 **Deferred (not part of this roadmap):** campaign creation and sending, OAuth mailbox connection, tracking-link activation for campaign messages, and automatic reply and opt-out detection. The Campaign tab and all campaign infrastructure are preserved, and the campaign transport is unchanged.
