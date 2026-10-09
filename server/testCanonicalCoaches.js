@@ -50,6 +50,7 @@ export function seedSendableCoach(db, { name, email, school, sport = 'mens-socce
     db.prepare("UPDATE coaches SET email_status = 'verified' WHERE id = ?").run(coachId);
   }
   corroborateFixtureCoaches(db, { ids: [coachId] });
+  seedFieldedProgramme(db, school, sport, { ensureCollege: true });
   return coachId;
 }
 
@@ -68,13 +69,14 @@ export function makeCoachesSendable(db, ids) {
  * does not get one (or gets a programme_status row, which still refuses it).
  */
 export const FIXTURE_FIELDING_URL = 'https://fixture.example/fielded';
-export function seedFieldedProgramme(db, school, sport = 'mens-soccer', { season = 2026 } = {}) {
+export function seedFieldedProgramme(db, school, sport = 'mens-soccer', { season = 2026, ensureCollege = false } = {}) {
   if (!school || !sport) return false;
   const exists = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='programme_season_fielding'").get();
   if (!exists) return false;
-  // the gate refuses a programme the registry does not have (RYG_PROGRAMME_UNKNOWN); a legacy
-  // fixture that names a school with no colleges row gets a minimal active one
-  if (!db.prepare('SELECT 1 FROM colleges WHERE name = ? AND sport = ?').get(school, sport)) {
+  // the gate refuses a programme the registry does not have (RYG_PROGRAMME_UNKNOWN); a coach a test
+  // means to SEND to (seedSendableCoach) at a school with no colleges row gets a minimal active one.
+  // Fixtures that build their own colleges rows (corroborateFixtureCoaches, makeCoachesSendable) do not.
+  if (ensureCollege && !db.prepare('SELECT 1 FROM colleges WHERE name = ? AND sport = ?').get(school, sport)) {
     db.prepare("INSERT INTO colleges (id, created_date, updated_date, name, sport, active) VALUES (?, '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z', ?, ?, 1)")
       .run(`fixture-col-${school}-${sport}`, school, sport);
   }
