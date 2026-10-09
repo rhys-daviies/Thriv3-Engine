@@ -1,51 +1,52 @@
 /**
- * DOMAIN OWNERSHIP CORRECTION — Phase DI-03B. The guarded path for the athletics_domains decisions
- * that protectedCorrection.js deliberately cannot make: moving a decided host to ANOTHER institution,
- * correcting a bare host and its "www." twin together, and promoting a host the 2026-09-01 verifier
- * could not read (INSUFFICIENT_EVIDENCE) once its owner is independently authenticated.
+ * DOMAIN OWNERSHIP CORRECTION — Phase DI-03B, hardened in DI-03D after the DI-03C review.
+ * The guarded path for the athletics_domains decisions protectedCorrection.js deliberately cannot
+ * make: moving a decided host to ANOTHER institution, correcting a bare host and its "www." twin
+ * together, and promoting a host the 2026-09-01 verifier could not read (INSUFFICIENT_EVIDENCE) once
+ * its owner is independently authenticated.
  *
- * protectedCorrection.js stays exactly as it is (WRONG_INSTITUTION -> VERIFIED at the stored UNITID,
- * single rows only). This module is NOT a general UNITID update: every rule below is a refusal.
+ * protectedCorrection.js stays exactly as it is. This module is NOT a general UNITID update: every
+ * rule below is a refusal.
  *
- * ONE ACTION = ONE HOST FAMILY (the bare host and its www. form). Every row of the family that exists
- * must be in the action — a twin can never be left contradicting the corrected row — and each row
- * declares its operation:
- *   REASSIGN_OWNER   VERIFIED | VERIFIED_ALIAS | WRONG_INSTITUTION at UNITID A  ->  trusted at UNITID B
- *                    (A = previous_owner, B = owner, A != B). B must already be a claimant of the row
- *                    (claimed_unitids): the registry associated the host with B and decided wrongly.
- *                    A is recorded as a refuted claimant in wrong_mappings; any refusal of B is lifted.
+ * ONE ACTION = ONE HOST FAMILY: every athletics_domains row whose NORMALISED host (lower case,
+ * trimmed, trailing dot and leading www. removed) is the action's host. A family row spelled any way
+ * other than exactly `host` or `www.host` refuses (an ambiguous variant is never silently corrected,
+ * merged or discarded). Every family row must be in the action and declares its operation:
+ *   REASSIGN_OWNER   VERIFIED | VERIFIED_ALIAS | WRONG_INSTITUTION at A  ->  trusted at B (A != B). B must
+ *                    already be a claimant of the row; A is recorded as refuted; B's refusal is lifted.
  *   RESTORE_OWNER    WRONG_INSTITUTION at the owner's own UNITID -> trusted, refuted claimants kept
- *                    (protectedCorrection's transition, for a host whose twin row exists)
- *   PROMOTE_UNOWNED  INSUFFICIENT_EVIDENCE (no entity; UNITID null or the owner's) -> trusted for B,
- *                    B a claimant of the row
- *   CONFIRM          already trusted for B: pinned, never written (proves the twin agrees)
+ *   PROMOTE_UNOWNED  INSUFFICIENT_EVIDENCE (no entity; UNITID null or B) -> trusted for B, B a claimant
+ *   CONFIRM          already trusted for B: pinned, never written
  *
- * EVERY ACTION NEEDS (none of it may be inferred from a hostname):
- *   - an approval record listing the host;
- *   - expected_old = the COMPLETE current row for every row (any column differing refuses);
- *   - the owner: a SINGLE athletics entity whose federal_unitid is B and under which no campus hangs;
- *   - institution -> host: an IPEDS record for B, and an IPEDS or NCAA-directory record that lists
- *     this exact host (registrable domain) for the owner;
- *   - host -> institution: the host's own page, fetched (https, 200, sha256), landing on the same
- *     site, with the institution named by its self-identification;
- *   - for a family with two rows, or a promotion justified by a verified twin: proof the two forms are
- *     ONE site (both fetches land on the same normalised host and path);
- *   - no unresolved claim: every other claimant of the row is the previous owner or already refuted;
- *   - for a held domain (shared/heldDomainAdjudications.js): a release record for exactly that hold,
- *     with reviewer, reason and the IPEDS + self-identification evidence (holdReleaseProblems). The
- *     release authorises THIS correction only; the code-level hold stays until a reviewed change
- *     lists the release with the applied manifest hash.
+ * EVIDENCE IS NEVER A DECLARATION (officialEvidence.js). An action names registered official sources
+ * and page fetches by sha256; the engine reads the bytes from the evidence store, re-hashes them and
+ * derives, itself:
+ *   - the owner's IPEDS record (B must be in it) and, if an NCAA directory org is named, that the org
+ *     is the owner's (same state, an official website host in common) and is for the current year;
+ *   - that an official record lists EXACTLY this host (normalised host equality — never a suffix or
+ *     registrable-domain match) for the owner; shared hosting platforms are refused;
+ *   - that NO other institution's official record lists this host (an unresolved contradiction refuses);
+ *   - that the host's own page (https, 200, landing on this host, within MAX_EVIDENCE_DAYS) names the
+ *     owner more specifically than any rival (the previous owner, every other claimant) — and, for a
+ *     REASSIGN, carries the owner's city and state;
+ *   - for a two-row family, that both forms land on the same host and page (identical bodies or an
+ *     identical final URL).
+ *
+ * A HELD domain (shared/heldDomainAdjudications.js) is corrected only with a release bound to the exact
+ * hold, to this action, to the verified self-identification page and official sources this action
+ * used, and (checked by compositeCorrection) to the composite approval and an authorised reviewer.
+ * The code-level hold stays until a committed manifest proves the correction (heldDomainAdjudications).
  *
  * Only status, unitid, athletics_entity_id, ownership_class, role (only from UNKNOWN/empty),
- * wrong_mappings and notes change. claimed_keys, claimed_unitids and every evidence column
- * (evidence_kind, evidence_text, identity_*, http_status, final_url, verification_method, confidence,
- * checked_at, platform) are preserved byte for byte. The plan is re-read inside the caller's
- * transaction, each UPDATE matches the complete expected row, and the manifest is in the promotion
- * revert format.
+ * wrong_mappings and notes change; every evidence column is preserved. The plan is re-read inside the
+ * caller's transaction, each UPDATE matches the complete expected row, and the manifest is in the
+ * promotion revert format.
  */
 import { fixtureHash } from './protectedCorrection.js';
-import { normHost, hostOwnershipDisagreements } from './identityResolver.js';
+import { normHost, hostOwnershipDisagreements, SHARED_PLATFORM_ROOT } from './identityResolver.js';
 import { loadRefreshContext } from './context.js';
+import { cycleOf } from './freshness.js';
+import { officialSource, pageText, nameScore, locatedAt, MAX_EVIDENCE_DAYS } from './officialEvidence.js';
 import { isHeldDomain, holdRecord, holdReleaseProblems } from '../../../shared/heldDomainAdjudications.js';
 
 export const DOMAIN_OWNERSHIP_KIND = 'DOMAIN_OWNERSHIP_CORRECTION';
@@ -62,102 +63,178 @@ const same = (a, b) => (a ?? null) === (b ?? null);
 const parse = (s) => { if (s == null || s === '') return []; try { const v = JSON.parse(s); return Array.isArray(v) ? v : null; } catch { return null; } };
 const hostOfUrl = (u) => { try { return new URL(u).hostname.toLowerCase(); } catch { return null; } };
 const pathOfUrl = (u) => { try { return new URL(u).pathname.replace(/\/+$/, '') || '/'; } catch { return null; } };
-const registrable = (h) => { const p = String(h || '').toLowerCase().replace(/^www\./, '').split('.'); return p.length > 2 ? p.slice(-2).join('.') : p.join('.'); };
+/** A canonical spelling: what normHost would produce, with or without a single leading "www.". */
+const canonicalSpelling = (d, host) => d === host || d === `www.${host}`;
 
-/** A fetch record usable as evidence: https, HTTP 200, sha256, timestamp, final URL. */
-function fetchProblems(f, label) {
-  if (!f || typeof f !== 'object') return [`${label}: missing`];
-  const p = [];
-  if (!/^https:\/\//.test(f.url || '')) p.push(`${label}: url must be https`);
-  if (!/^https:\/\//.test(f.final_url || '')) p.push(`${label}: final_url must be https`);
+/**
+ * A page fetch usable as evidence: https, HTTP 200, on this host, dated within the window, bytes in the
+ * store. -> { problems, bytes }. Never writes into the fixture (its hash must keep reproducing).
+ */
+function fetchProblems(f, host, label, { store, now }) {
+  if (!f || typeof f !== 'object') return { problems: [`${label}: missing`], bytes: null };
+  const p = []; let bytes = null;
+  if (!/^https:\/\//.test(f.url || '') || normHost(hostOfUrl(f.url)) !== host) p.push(`${label}: url must be https on ${host}`);
+  if (!/^https:\/\//.test(f.final_url || '') || normHost(hostOfUrl(f.final_url)) !== host) p.push(`${label}: landed on ${hostOfUrl(f.final_url)}, not ${host}`);
   if (Number(f.http_status) !== 200) p.push(`${label}: http_status must be 200 (got ${f.http_status})`);
+  const d = new Date(String(f.retrieved_at ?? '')); const age = (now.getTime() - d.getTime()) / 86_400_000;
+  if (Number.isNaN(d.getTime()) || age < -1 || age > MAX_EVIDENCE_DAYS) p.push(`${label}: retrieved_at ${f.retrieved_at} is not within ${MAX_EVIDENCE_DAYS} days`);
   if (!HEX64.test(f.sha256 || '')) p.push(`${label}: sha256 required`);
-  if (!f.retrieved_at) p.push(`${label}: retrieved_at required`);
-  return p;
+  else { try { bytes = store.read(f.sha256); } catch (e) { p.push(`${label}: ${e.message}`); } }
+  return { problems: p, bytes };
 }
 
-/** Validate the action's evidence for owner B and host. Returns problems. */
-function evidenceProblems(a, host, label) {
-  const p = []; const ev = a.evidence || {}; const B = Number(a.owner.unitid);
-  const ith = Array.isArray(ev.institution_to_host) ? ev.institution_to_host : [];
-  const ipeds = ith.filter((r) => r?.source === 'IPEDS' && Number(r.unitid) === B && HEX64.test(r.sha256 || '') && /^https:\/\//.test(r.url || ''));
-  if (!ipeds.length) p.push(`${label}: institution_to_host needs the IPEDS record of UNITID ${B} (url + sha256)`);
-  const lists = ith.filter((r) => ['IPEDS', 'NCAA_DIRECTORY'].includes(r?.source) && HEX64.test(r.sha256 || '') && (r.source !== 'IPEDS' || Number(r.unitid) === B)
-    && (Array.isArray(r.listed_hosts) ? r.listed_hosts : [r.listed_host]).some((h) => h && registrable(h) === registrable(host)));
-  if (!lists.length) p.push(`${label}: no IPEDS / NCAA-directory record lists ${host} for the owner — a host is never assigned because its name resembles an institution`);
-  const hti = ev.host_to_institution;
-  p.push(...fetchProblems(hti, `${label}: host_to_institution`));
-  if (hti && normHost(hostOfUrl(hti.final_url)) !== normHost(host)) p.push(`${label}: host_to_institution landed on ${hostOfUrl(hti.final_url)}, not ${host}`);
-  if (hti && (!String(hti.self_identification || '').trim() || hti.names_owner !== true)) p.push(`${label}: host_to_institution must record the page's self-identification naming the owner (names_owner: true)`);
-  return p;
-}
-
-/** Proof that the bare host and its www. form are one site. */
-function equivalenceProblems(a, host, label) {
-  const eq = a.evidence?.equivalence;
-  if (!eq) return [`${label}: two forms of ${host} are involved — evidence.equivalence (bare + www fetches) is required`];
-  const p = [...fetchProblems(eq.bare, `${label}: equivalence.bare`), ...fetchProblems(eq.www, `${label}: equivalence.www`)];
-  if (p.length) return p;
-  if (hostOfUrl(eq.bare.url)?.replace(/^www\./, '') !== host || hostOfUrl(eq.www.url) !== `www.${host}`) p.push(`${label}: equivalence fetches must be https://${host}/ and https://www.${host}/`);
-  if (normHost(hostOfUrl(eq.bare.final_url)) !== normHost(host) || normHost(hostOfUrl(eq.www.final_url)) !== normHost(host)) p.push(`${label}: a form of ${host} lands on another host`);
-  if (pathOfUrl(eq.bare.final_url) !== pathOfUrl(eq.www.final_url)) p.push(`${label}: the two forms land on different pages (${eq.bare.final_url} vs ${eq.www.final_url})`);
-  return p;
+/** Names an entity / UNITID goes by in the database (entity display name, programme names). */
+function dbNames(db, unitid) {
+  return [
+    ...db.prepare('SELECT display_name FROM athletics_entities WHERE federal_unitid = ?').all(unitid).map((r) => r.display_name),
+    ...db.prepare('SELECT DISTINCT name FROM colleges WHERE unitid = ?').all(unitid).map((r) => r.name),
+  ].filter(Boolean);
 }
 
 /**
- * Check every action against the database. Returns { plan, problems }. Never writes.
- * A non-empty `problems` means nothing may be applied — the fixture is all-or-nothing.
+ * Derive and check the action's evidence. Returns { problems, derived }.
+ * `rivals`: UNITIDs whose names the page must NOT match as specifically as the owner's.
  */
-export function planDomainOwnership(db, fx) {
+function evidenceProblems(db, a, host, label, { store, target, now, rivals, requireLocation, needEquivalence }) {
+  const p = []; const derived = { listed_by: [], official: [] }; const ev = a.evidence || {};
+  const B = Number(a.owner.unitid);
+  if (SHARED_PLATFORM_ROOT.test(host)) return { problems: [`${label}: ${host} is a shared hosting platform — it can never identify an institution`], derived };
+  const refs = Array.isArray(ev.official) ? ev.official : [];
+  let ipeds = null; let ipedsSrc = null; const orgs = [];
+  for (const r of refs) {
+    let src; try { src = officialSource(r?.source_id, store, { target, now }); } catch (e) { p.push(`${label}: ${e.message}`); continue; }
+    derived.official.push(r.source_id);
+    if (src.kind === 'IPEDS_HD') { ipedsSrc = src; ipeds = src.data.byUnitid.get(B) || null; if (!ipeds) p.push(`${label}: UNITID ${B} is not in ${r.source_id}`); }
+    if (src.kind === 'NCAA_DIRECTORY_MEMBERLIST') {
+      const o = src.data.byOrg.get(r.org_id);
+      if (!o) { p.push(`${label}: NCAA org ${r.org_id} is not in ${r.source_id}`); continue; }
+      const want = src.entry.academic_year ?? (cycleOf(now) + 1);
+      if (Number(o.academic_year) !== Number(want) || Number(want) !== cycleOf(now) + 1) p.push(`${label}: NCAA org ${r.org_id} is for academic year ${o.academic_year}, not the current ${cycleOf(now) + 1}`);
+      orgs.push({ src, o });
+    }
+  }
+  if (!ipedsSrc) p.push(`${label}: the owner's IPEDS record (a registered IPEDS source) is required`);
+  if (p.length) return { problems: p, derived };
+  // an NCAA org is the owner's only if it is in the owner's state and shares an official website host
+  for (const { o } of orgs) {
+    if (o.state !== ipeds.state || !o.web_hosts.some((h) => ipeds.hosts.includes(h))) p.push(`${label}: NCAA org ${o.org_id} (${o.name}, ${o.state}) is not bound to UNITID ${B} (${ipeds.name}, ${ipeds.state}) by state and website`);
+  }
+  if (p.length) return { problems: p, derived };
+  // institution -> host: an official record lists EXACTLY this host for the owner
+  if (ipeds.hosts.includes(host)) derived.listed_by.push(`IPEDS ${B}`);
+  for (const { o } of orgs) if ([...o.web_hosts, ...o.athletic_hosts].includes(host)) derived.listed_by.push(`NCAA org ${o.org_id}`);
+  if (!derived.listed_by.length) p.push(`${label}: no official record lists ${host} for UNITID ${B} (exact host; IPEDS lists ${ipeds.hosts.join(', ') || 'none'}${orgs.length ? `; NCAA lists ${orgs.flatMap(({ o }) => [...o.web_hosts, ...o.athletic_hosts]).join(', ')}` : ''})`);
+  // no other institution's official record lists the host
+  const otherU = [...(ipedsSrc.data.byHost.get(host) || [])].filter((u) => u !== B);
+  if (otherU.length) p.push(`${label}: IPEDS also lists ${host} for UNITID ${otherU.join(', ')} — unresolved contradictory evidence`);
+  for (const { src, o } of orgs) { const others = [...(src.data.byHost.get(host) || [])].filter((x) => x !== o.org_id); if (others.length) p.push(`${label}: the NCAA directory also lists ${host} for org ${others.join(', ')} — unresolved contradictory evidence`); }
+  // host -> institution: the page names the owner more specifically than any rival
+  const hti = ev.host_to_institution;
+  const hf = fetchProblems(hti, host, `${label}: host_to_institution`, { store, now });
+  p.push(...hf.problems);
+  if (!hf.problems.length && hf.bytes) {
+    const pg = pageText(hf.bytes);
+    const ownerNames = [ipeds.name, ...ipeds.aliases, ...orgs.map(({ o }) => o.name), ...dbNames(db, B)];
+    const rivalNames = rivals.flatMap((u) => [ipedsSrc.data.byUnitid.get(u)?.name, ...(ipedsSrc.data.byUnitid.get(u)?.aliases || []), ...dbNames(db, u)]).filter(Boolean);
+    const head = `${pg.title} | ${pg.og}`;
+    const tier = nameScore(head, ownerNames) ? head : `${head} | ${pg.text}`;
+    const own = nameScore(tier, ownerNames); const riv = rivalNames.length ? nameScore(tier, rivalNames) : 0;
+    derived.self_identification = { title: pg.title.slice(0, 160), owner_score: own, rival_score: riv };
+    if (!own) p.push(`${label}: the page does not name the owner (${ipeds.name})`);
+    else if (riv >= own) p.push(`${label}: the page names a rival institution at least as specifically as the owner (owner ${own}, rival ${riv})`);
+    if (requireLocation) {
+      // the owner's place: shown on the page, OR an official record bound to the owner lists this exact host
+      // in the owner's state while every rival institution is in another state (a structured venue in a
+      // script is not read — only visible text or the official sources count)
+      const shown = locatedAt(`${head} ${pg.text}`, ipeds);
+      const rivalStates = rivals.map((u) => ipedsSrc.data.byUnitid.get(u)?.state ?? null);
+      const officiallyPlaced = derived.listed_by.length > 0 && rivalStates.every((st) => st && st !== ipeds.state);
+      derived.location = shown ? `shown on the page: ${ipeds.city}, ${ipeds.state}` : officiallyPlaced ? `official listing in ${ipeds.state}; rivals in ${[...new Set(rivalStates)].join(', ')}` : null;
+      if (!derived.location) p.push(`${label}: a reassignment needs the owner's location (${ipeds.city}, ${ipeds.state}) shown on the page, or an official listing that separates it from every rival by state`);
+    }
+  }
+  if (needEquivalence) {
+    const eq = ev.equivalence;
+    if (!eq) p.push(`${label}: two forms of ${host} are involved — evidence.equivalence (bare + www fetches) is required`);
+    else {
+      const ep = [...fetchProblems(eq.bare, host, `${label}: equivalence.bare`, { store, now }).problems, ...fetchProblems(eq.www, host, `${label}: equivalence.www`, { store, now }).problems];
+      if (!ep.length) {
+        if (hostOfUrl(eq.bare.url) !== host || hostOfUrl(eq.www.url) !== `www.${host}`) ep.push(`${label}: equivalence fetches must be https://${host}/ and https://www.${host}/`);
+        if (pathOfUrl(eq.bare.final_url) !== pathOfUrl(eq.www.final_url)) ep.push(`${label}: the two forms land on different pages`);
+        if (eq.bare.sha256 !== eq.www.sha256 && eq.bare.final_url !== eq.www.final_url) ep.push(`${label}: the two forms neither serve identical bytes nor redirect to one URL`);
+      }
+      p.push(...ep);
+    }
+  }
+  return { problems: p, derived };
+}
+
+/**
+ * Check every action against the database and the evidence store. Returns { plan, problems }.
+ * Never writes. `ctx`: { store (evidenceStore), target ('RUNTIME'|'DISPOSABLE'), now }.
+ */
+export function planDomainOwnership(db, fx, { store = null, target = null, now = new Date() } = {}) {
   const problems = []; const plan = [];
+  const n = now instanceof Date ? now : new Date(now);
   if (fx?.kind !== DOMAIN_OWNERSHIP_KIND) return { plan, problems: [`fixture kind must be ${DOMAIN_OWNERSHIP_KIND} (got ${fx?.kind ?? 'none'})`] };
   if (!fx.fixture_hash || fixtureHash(fx) !== fx.fixture_hash) problems.push('fixture_hash does not match the fixture body');
+  if (!store) problems.push('an evidence store is required (evidence is read and verified, never declared)');
+  if (!['RUNTIME', 'DISPOSABLE'].includes(target)) problems.push('the correction target (RUNTIME | DISPOSABLE) is required');
+  if (problems.length) return { plan, problems };
   const actions = Array.isArray(fx.corrections) ? fx.corrections : [];
   if (!actions.length) problems.push('fixture has no corrections');
-  const approvals = new Map((Array.isArray(fx.approvals) ? fx.approvals : []).map((x) => [x.approval_id, x]));
+  const approvals = Array.isArray(fx.approvals) ? fx.approvals : [];
+  // an approval's scope is exactly the hosts of the actions that cite it
+  for (const ap of approvals) {
+    const cited = actions.filter((a) => a?.approval_id === ap?.approval_id).map((a) => normHost(a.host)).sort();
+    const listed = (ap?.hosts || []).map(normHost).sort();
+    if (cited.join(',') !== listed.join(',')) problems.push(`approval ${ap?.approval_id}: hosts ${listed.join(', ')} are not exactly the hosts of the actions it authorises (${cited.join(', ') || 'none'})`);
+  }
   const releases = Array.isArray(fx.hold_releases) ? fx.hold_releases : [];
   const cols = db.prepare('PRAGMA table_info(athletics_domains)').all().map((c) => c.name);
+  const allDomains = db.prepare('SELECT * FROM athletics_domains').all();
   const seen = new Set();
   for (const a of actions) {
     const label = a?.action_id || a?.host || '?';
     const missing = REQUIRED.filter((k) => a?.[k] == null || a[k] === '');
     if (missing.length) { problems.push(`${label}: missing ${missing.join(', ')}`); continue; }
     const host = normHost(a.host);
-    if (!host || host !== String(a.host).toLowerCase()) { problems.push(`${label}: host must be the bare normalised host (got ${a.host})`); continue; }
+    if (!host || host !== a.host) { problems.push(`${label}: host must be the bare normalised host (got ${a.host})`); continue; }
     if (seen.has(host)) { problems.push(`${label}: ${host} appears twice`); continue; }
     seen.add(host);
-    const ap = approvals.get(a.approval_id);
-    if (!ap || !ap.approved_by || !ap.approved_at || !ap.basis || !(ap.hosts || []).map(normHost).includes(host)) { problems.push(`${label}: no approval record ${a.approval_id} covering ${host}`); continue; }
+    if (!approvals.some((ap) => ap.approval_id === a.approval_id)) { problems.push(`${label}: no approval record ${a.approval_id}`); continue; }
     const B = Number(a.owner.unitid); const ent = a.owner.entity;
     if (!Number.isInteger(B) || !ent) { problems.push(`${label}: owner needs unitid and entity`); continue; }
     const e = db.prepare('SELECT * FROM athletics_entities WHERE athletics_entity_id = ?').get(ent);
     if (!e || e.entity_kind !== 'SINGLE' || Number(e.federal_unitid) !== B) { problems.push(`${label}: owner entity ${ent} is not the SINGLE entity of UNITID ${B}`); continue; }
     const owners = db.prepare('SELECT athletics_entity_id FROM athletics_entities WHERE federal_unitid = ? OR parent_unitid = ?').all(B, B).map((x) => x.athletics_entity_id);
     if (owners.length !== 1) { problems.push(`${label}: UNITID ${B} carries ${owners.length} entities — parent/campus ownership is not decided here`); continue; }
-    // the family: every existing row for host and www.host, and nothing else
-    const family = db.prepare('SELECT * FROM athletics_domains WHERE domain IN (?, ?)').all(host, `www.${host}`);
+    // the family, by NORMALISED host: every spelling, refused unless canonical
+    const family = allDomains.filter((r) => normHost(r.domain) === host);
+    const variants = family.filter((r) => !canonicalSpelling(r.domain, host));
+    if (variants.length) { problems.push(`${label}: ${variants.map((r) => JSON.stringify(r.domain)).join(', ')} spell(s) ${host} non-canonically — an ambiguous variant is never corrected or discarded silently`); continue; }
     const rows = Array.isArray(a.rows) ? a.rows : [];
-    const named = rows.map((r) => String(r?.domain || '').toLowerCase());
-    if (new Set(named).size !== named.length || named.some((d) => d !== host && d !== `www.${host}`)) { problems.push(`${label}: rows must be ${host} and/or www.${host}, each once`); continue; }
+    const named = rows.map((r) => String(r?.domain ?? ''));
+    if (new Set(named).size !== named.length || named.some((d) => !canonicalSpelling(d, host))) { problems.push(`${label}: rows must be ${host} and/or www.${host}, each once`); continue; }
     const absentFromAction = family.filter((r) => !named.includes(r.domain));
     if (absentFromAction.length) { problems.push(`${label}: ${absentFromAction.map((r) => r.domain).join(', ')} exist(s) but is not in the action — a twin may not be left contradicting the correction`); continue; }
     const p0 = problems.length;
-    const items = [];
-    let reassign = false;
+    const items = []; let reassign = false; const rivals = new Set();
     for (const r of rows) {
       const row = family.find((x) => x.domain === r.domain);
       const rl = `${label} ${r.domain}`;
       if (!row) { problems.push(`${rl}: no athletics_domains row`); continue; }
       if (!OPERATIONS.includes(r.operation)) { problems.push(`${rl}: unknown operation ${r.operation}`); continue; }
       const exp = r.expected_old || {};
-      const absent = cols.filter((c) => !(c in exp));
-      if (absent.length) { problems.push(`${rl}: expected_old must be the complete row (missing ${absent.join(', ')})`); continue; }
+      const absent = cols.filter((c) => !(c in exp)); const extraKeys = Object.keys(exp).filter((k) => !cols.includes(k));
+      if (absent.length || extraKeys.length) { problems.push(`${rl}: expected_old must be exactly the row's columns (missing ${absent.join(', ') || 'none'}; unknown ${extraKeys.join(', ') || 'none'})`); continue; }
       const diff = cols.filter((c) => !same(row[c], exp[c]));
       if (diff.length) { problems.push(`${rl}: expected-old mismatch on ${diff.join(', ')}`); continue; }
       if (!FROM[r.operation].includes(row.status)) { problems.push(`${rl}: ${r.operation} cannot start from ${row.status}`); continue; }
       const claimed = parse(row.claimed_unitids); const wrong = parse(row.wrong_mappings);
       if (claimed === null || wrong === null) { problems.push(`${rl}: claimed_unitids / wrong_mappings unreadable`); continue; }
       const refuted = new Set(wrong.map((m) => Number(m.claimantUnitid)));
+      for (const c of claimed.map(Number)) if (c !== B) rivals.add(c);
       let newWrong = wrong;
       if (r.operation === 'CONFIRM') {
         if (Number(row.unitid) !== B || (row.athletics_entity_id != null && row.athletics_entity_id !== ent)) { problems.push(`${rl}: CONFIRM needs a row already trusted for UNITID ${B}`); continue; }
@@ -177,6 +254,7 @@ export function planDomainOwnership(db, fx) {
         if (!claimed.map(Number).includes(B)) { problems.push(`${rl}: UNITID ${B} is not a claimant of this row (claimed_unitids ${row.claimed_unitids}) — reassignment needs a recorded claim`); continue; }
         const prev = db.prepare('SELECT athletics_entity_id, display_name FROM athletics_entities WHERE federal_unitid = ?').get(A);
         if (!prev) { problems.push(`${rl}: previous owner UNITID ${A} has no entity`); continue; }
+        rivals.add(A);
         newWrong = [...wrong.filter((m) => Number(m.claimantUnitid) !== B), ...(refuted.has(A) ? [] : [{ key: prev.display_name, claimantUnitid: A }])];
         const unresolved = claimed.map(Number).filter((c) => c !== B && c !== A && !refuted.has(c));
         if (unresolved.length) { problems.push(`${rl}: unresolved conflicting claim(s) ${unresolved.join(', ')}`); continue; }
@@ -198,32 +276,35 @@ export function planDomainOwnership(db, fx) {
     if (reassign && !Number.isInteger(Number(a.previous_owner?.unitid))) { problems.push(`${label}: previous_owner required`); continue; }
     if (!reassign && a.previous_owner) { problems.push(`${label}: previous_owner given but no row is reassigned`); continue; }
     if (!items.some((i) => i.set)) { problems.push(`${label}: nothing to correct`); continue; }
-    const ep = evidenceProblems(a, host, label);
-    if (items.length > 1 || family.length > 1) ep.push(...equivalenceProblems(a, host, label));
+    const { problems: ep, derived } = evidenceProblems(db, a, host, label, { store, target, now: n, rivals: [...rivals], requireLocation: reassign, needEquivalence: family.length > 1 || items.length > 1 });
     if (ep.length) { problems.push(...ep); continue; }
-    // hold: only an exact, reviewed release of this hold authorises correcting a held host
+    // hold: only a release bound to this hold, this action and this action's verified evidence
     const hold = holdRecord(host); const rel = releases.filter((x) => normHost(x?.domain || '') === host);
-    if (isHeldDomain(host)) {
+    const held = isHeldDomain(host);
+    if (held) {
       if (!rel.length) { problems.push(`${label}: ${host} is held for external adjudication and the fixture carries no release`); continue; }
       const rp = holdReleaseProblems(rel[0], hold);
       if (rel.length > 1) rp.push('more than one release for the same hold');
       if (Number(rel[0].released_to_unitid) !== B) rp.push(`release settles on ${rel[0].released_to_unitid}, the action on ${B}`);
       if (rel[0].applies_to_action !== a.action_id) rp.push(`release applies_to_action ${rel[0].applies_to_action} is not ${a.action_id}`);
+      if (rel[0].approval_id !== a.approval_id) rp.push(`release approval ${rel[0].approval_id} is not the action's ${a.approval_id}`);
+      if (rel[0].evidence?.self_identification_sha256 !== a.evidence.host_to_institution.sha256) rp.push('release self-identification is not the page this action verified');
+      const ids = rel[0].evidence?.official_source_ids || [];
+      if (!ids.length || ids.some((x) => !derived.official.includes(x))) rp.push('release official sources are not the sources this action verified');
       if (rp.length) { problems.push(...rp.map((x) => `${label}: hold release refused: ${x}`)); continue; }
     } else if (rel.length) { problems.push(`${label}: a release was given for ${host}, which is not held`); continue; }
-    // no other row anywhere may name this host for another entity
-    const elsewhere = db.prepare('SELECT domain FROM athletics_domains WHERE athletics_entity_id IS NOT NULL AND athletics_entity_id <> ? AND domain IN (?, ?)').all(ent, host, `www.${host}`);
+    const elsewhere = allDomains.filter((r) => r.athletics_entity_id != null && r.athletics_entity_id !== ent && normHost(r.domain) === host);
     if (elsewhere.length) { problems.push(`${label}: ${elsewhere.map((x) => x.domain).join(', ')} already name(s) another entity`); continue; }
-    plan.push({ action: a, host, owner: { unitid: B, entity: ent }, previous: reassign ? Number(a.previous_owner.unitid) : null, items, held: isHeldDomain(host) });
+    plan.push({ action: a, host, owner: { unitid: B, entity: ent }, previous: reassign ? Number(a.previous_owner.unitid) : null, items, held, release: held ? rel[0] : null, derived });
   }
   if (releases.some((x) => !actions.some((a) => normHost(a?.host || '') === normHost(x?.domain || '')))) problems.push('a hold release does not belong to any action in this fixture');
   return { plan, problems };
 }
 
 /** The values a planned row is written with (OWNERSHIP_MUTABLE only). */
-function writtenValues(item, { now, fixture_hash, action, held }) {
+function writtenValues(item, { now, fixture_hash, action, release }) {
   const note = `DOMAIN_OWNERSHIP ${action.action_id} ${item.r.operation} @ ${now} (fixture ${String(fixture_hash).slice(0, 12)}, approval ${action.approval_id}): `
-    + `${item.row.status}@${item.row.unitid ?? 'none'} -> ${item.set.status}@${item.set.unitid} (${item.set.athletics_entity_id})${held ? '; hold release ' + (action.hold_release_id || 'in fixture') : ''}; ${action.reason}`;
+    + `${item.row.status}@${item.row.unitid ?? 'none'} -> ${item.set.status}@${item.set.unitid} (${item.set.athletics_entity_id})${release ? `; hold release ${release.release_id}` : ''}; ${action.reason}`;
   return { ...item.set, notes: (item.row.notes ? `${item.row.notes} | ${note}` : note).slice(0, 2000) };
 }
 
@@ -232,10 +313,10 @@ function writtenValues(item, { now, fixture_hash, action, held }) {
  * Refuses outside a transaction; throws on any failure so the caller rolls everything back.
  * Returns { applied, manifest (promotion revert entries), plan }.
  */
-export function applyDomainOwnershipInTransaction(db, fx, { now = new Date().toISOString(), postcheck = domainOwnershipPostcheck, onAction = null } = {}) {
+export function applyDomainOwnershipInTransaction(db, fx, { now = new Date().toISOString(), store = null, target = null, postcheck = domainOwnershipPostcheck, onAction = null } = {}) {
   if (!db.inTransaction) throw new Error('applyDomainOwnershipInTransaction needs a caller-owned open transaction');
   const fixture_hash = fixtureHash(fx);
-  const { plan, problems } = planDomainOwnership(db, fx);
+  const { plan, problems } = planDomainOwnership(db, fx, { store, target, now: new Date(now) });
   if (problems.length) throw Object.assign(new Error(`domain ownership correction refused: ${problems.length} problem(s)`), { problems });
   const cols = db.prepare('PRAGMA table_info(athletics_domains)').all().map((c) => c.name);
   const manifest = []; let applied = 0;
@@ -243,8 +324,7 @@ export function applyDomainOwnershipInTransaction(db, fx, { now = new Date().toI
     const entries = [];
     for (const item of p.items) {
       if (!item.set) continue;
-      const nu = writtenValues(item, { now, fixture_hash, action: p.action, held: p.held });
-      // the UPDATE matches the COMPLETE expected row: any concurrent change makes it miss
+      const nu = writtenValues(item, { now, fixture_hash, action: p.action, release: p.release });
       const where = cols.map((c) => `${c} IS @__o_${c}`).join(' AND ');
       const res = db.prepare(`UPDATE athletics_domains SET ${OWNERSHIP_MUTABLE.map((k) => `${k}=@${k}`).join(', ')} WHERE ${where}`)
         .run({ ...nu, ...Object.fromEntries(cols.map((c) => [`__o_${c}`, item.row[c] ?? null])) });
@@ -263,18 +343,18 @@ export function applyDomainOwnershipInTransaction(db, fx, { now = new Date().toI
 }
 
 /**
- * Ownership postcheck (inside the transaction). For every corrected family:
- *   - not held: the host and www.host are owned by the owner entity through EXACT_HOST and by no one
- *     else, and the previous owner owns neither;
- *   - held (the code-level hold stays until a reviewed release lists the applied manifest): the
- *     resolver must still report HELD — the host lends authority to NO institution — and every row
- *     of the family names the owner;
+ * Ownership postcheck (inside the transaction), over every row of each NORMALISED family:
+ *   - not held: the host and www.host are owned by the owner through EXACT_HOST and by no one else,
+ *     and the previous owner owns neither;
+ *   - held: the resolver still reports HELD (the host lends authority to no one);
+ *   - every family row (any spelling) names the owner and is trusted;
  * and the resolver reports 0 host-ownership disagreements overall. Throws to refuse.
  */
 export function domainOwnershipPostcheck(db, plan) {
   const ctx = loadRefreshContext(db); const r = ctx.resolver;
   const ents = [...new Set(ctx.entities.map((e) => e.athletics_entity_id))];
   const bad = [];
+  const allDomains = db.prepare('SELECT domain, unitid, athletics_entity_id, status FROM athletics_domains').all();
   for (const p of plan) {
     const prevEnt = p.previous != null ? ctx.entities.find((e) => Number(e.federal_unitid) === p.previous)?.athletics_entity_id : null;
     for (const h of [p.host, `www.${p.host}`]) {
@@ -288,7 +368,7 @@ export function domainOwnershipPostcheck(db, plan) {
       }
       if (prevEnt && r.hostOwnedBy(h, prevEnt)) bad.push(`${h} still owned by the previous owner ${prevEnt}`);
     }
-    for (const row of db.prepare('SELECT domain, unitid, athletics_entity_id, status FROM athletics_domains WHERE domain IN (?, ?)').all(p.host, `www.${p.host}`)) {
+    for (const row of allDomains.filter((x) => normHost(x.domain) === p.host)) {
       if (Number(row.unitid) !== p.owner.unitid || !TRUSTED_TARGETS.includes(row.status) || (row.athletics_entity_id != null && row.athletics_entity_id !== p.owner.entity)) bad.push(`${row.domain}: ${row.status}@${row.unitid} (${row.athletics_entity_id ?? 'no entity'}) does not name the owner`);
     }
   }

@@ -1,0 +1,9 @@
+[
+ {"orgId":1346,"nameOfficial":"St. Example University (Texas)","academicYear":2027,"memberOrgAddress":{"state":"TX"},"webSiteUrl":"www.stmarytx.edu","athleticWebUrl":"www.rattler.test"},
+ {"orgId":1013,"nameOfficial":"Example University (West Virginia)","academicYear":2027,"memberOrgAddress":{"state":"WV"},"webSiteUrl":"www.uwv.test","athleticWebUrl":"www.wvathletics.test"},
+ {"orgId":1036,"nameOfficial":"Concordia Example","academicYear":2027,"memberOrgAddress":{"state":"WI"},"webSiteUrl":"www.cuw-example.test","athleticWebUrl":"www.cuw.test"},
+ {"orgId":1000,"nameOfficial":"Twin College","academicYear":2027,"memberOrgAddress":{"state":"TN"},"webSiteUrl":"twincollege.test","athleticWebUrl":"twin.test"},
+ {"orgId":610,"nameOfficial":"Saint Example College of California","academicYear":2027,"memberOrgAddress":{"state":"CA"},"webSiteUrl":"www.solo.test/","athleticWebUrl":"www.caathletics.test"},
+ {"orgId":9001,"nameOfficial":"Example College of Charleston","academicYear":2027,"memberOrgAddress":{"state":"SC"},"webSiteUrl":"www.example-sc.test","athleticWebUrl":"scathletics.test"},
+ {"orgId":9002,"nameOfficial":"Last Year College","academicYear":2026,"memberOrgAddress":{"state":"OH"},"webSiteUrl":"lastyear.test","athleticWebUrl":"lastyearathletics.test"}
+]

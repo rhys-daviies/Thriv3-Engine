@@ -8,7 +8,8 @@ import { reconcileCoachRows } from './coachReconciler.js';
 import { measureInProcess } from './refresh/integrityMeasure.js';
 import { fixtureHash } from './refresh/protectedCorrection.js';
 import { COACH_EMAIL_ABSENCE_KIND, planCoachEmailAbsence } from './refresh/coachCorrection.js';
-import { runCompositeCorrection, revertComposite, approvalHash, idSetHash, COMPOSITE_APPROVAL_KIND } from './refresh/compositeCorrection.js';
+import { runCompositeCorrection as runComposite, revertComposite, approvalHash, idSetHash, COMPOSITE_APPROVAL_KIND } from './refresh/compositeCorrection.js';
+import { approvalFields, holdsFile } from './refresh/correctionTestKit.js';
 
 /**
  * PHASE 8D.3D — positive email absence. The definition (classifyEmailPublication), its only effect
@@ -123,8 +124,14 @@ const elig = (db) => reconcileCoachRows(db).filter((r) => r.outreach_eligibility
 const snapshot = (db) => Object.fromEntries(db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all()
   .map(({ name }) => [name, JSON.stringify(db.prepare(`SELECT * FROM "${name}" ORDER BY rowid`).all())]));
 const stage = (fx) => [{ stage_id: 'S0-absence', type: COACH_EMAIL_ABSENCE_KIND, fixture: fx }];
+// DI-03D: approvals name an allow-listed reviewer, expire, and list the exact newly sendable coaches (none: an
+// absence only removes); every run names its disposable holds file and a fixed time
+const APPROVED_AT = '2026-10-08T00:00:00Z';
+const HOLDS = holdsFile([]);
+const runCompositeCorrection = (db, stages, approval, opts = {}) => runComposite(db, stages, approval, { now: APPROVED_AT, activationHoldsFile: HOLDS.file, ...opts });
 function approve(db, stages, removed) {
-  const ap = { kind: COMPOSITE_APPROVAL_KIND, approval_id: 'AP-D', approved_by: 'reviewer', approved_at: '2026-10-08', basis: 'test', baseline: { eligible_ids_hash: idSetHash(measureInProcess(db).eligible_ids) },
+  const ap = { kind: COMPOSITE_APPROVAL_KIND, approval_id: 'AP-D', ...approvalFields(APPROVED_AT), basis: 'test', baseline: { eligible_ids_hash: idSetHash(measureInProcess(db).eligible_ids) },
+    sendability: { newly_sendable_coaches: [], newly_sendable_contacts: [], activation_holds_sha256: HOLDS.sha256 },
     stages: stages.map((s) => ({ stage_id: s.stage_id, type: s.type, group: null, fixture_hash: s.fixture.fixture_hash, eligibility: { added: [], removed } })) };
   return { ...ap, approval_hash: approvalHash(ap) };
 }

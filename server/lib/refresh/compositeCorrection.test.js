@@ -9,6 +9,7 @@ import { absenceObservationId } from '../emailPublication.js';
 import { runCompositeCorrection, revertComposite, approvalHash, idSetHash, validateComposite, COMPOSITE_APPROVAL_KIND } from './compositeCorrection.js';
 import { measureInProcess } from './integrityMeasure.js';
 import { reconcileCoachRows } from '../coachReconciler.js';
+import { approvalFields, holdsFile } from './correctionTestKit.js';
 
 /**
  * PHASE 8D.3C — the composite correction writer. One invented world reproduces the 8D.3A shape:
@@ -58,7 +59,7 @@ function fixtures(db) {
   const B = seal({ kind: COACH_INSTITUTION_KIND, phase: 't', created_at: 't',
     actions: [{ action_id: 'B-moved', coach_id: 'k-moved', coach: 'Carl Moved', expected_old: { school: 'Wrong Label College', division: 'NCAA D3', sport: 'mens-soccer', email: 'carl@owner.test', email_status: 'verified' }, proposed: { school: 'Owner College', division: 'NCAA D3' }, evidence: 'staff page', reason: 'email + source are Owner College' }] });
   const A = seal({ kind: PROTECTED_CORRECTION_KIND, phase: 't', created_at: 't',
-    approvals: [{ approval_id: 'AP-A', approved_by: 'reviewer', approved_at: '2026-10-08', basis: 'test', hosts: [HOST] }],
+    approvals: [{ approval_id: 'AP-A', ...approvalFields(NOW), basis: 'test', hosts: [HOST] }],
     corrections: [{ action_id: `PC-${HOST}`, approval_id: 'AP-A', host: HOST, true_entity: 'AE-OWN', unitid: OWN,
       transition: { from_status: 'WRONG_INSTITUTION', to_status: 'VERIFIED', from_ownership_class: null, to_ownership_class: 'ENTITY_OWNED' },
       wrong_claimants: [{ key: 'Claimant', claimantUnitid: CLAIM }], expected_old: { ...domOf(db, HOST) },
@@ -73,9 +74,13 @@ const STAGES = ({ A, B, C }) => [
   { stage_id: 'S4', type: PROTECTED_CORRECTION_KIND, fixture: A },
 ];
 const EXPECTED = { S1: [], S2: [], S3: [], S4: ['k-back', 'k-good', 'k-moved'] };
-function approve(db, stages, { eligibility = EXPECTED, over = {} } = {}) {
+// DI-03D: every newly sendable coach must be approved AND held; this world's are the three S4 makes eligible
+const HOLDS = holdsFile(['k-back', 'k-good', 'k-moved', 'k-gone']);
+function approve(db, stages, { eligibility = EXPECTED, over = {}, sendable = null } = {}) {
   const base = measureInProcess(db).eligible_ids;
-  const ap = { kind: COMPOSITE_APPROVAL_KIND, approval_id: 'AP-COMPOSITE', approved_by: 'reviewer', approved_at: '2026-10-08', basis: 'test', baseline: { eligible_ids_hash: idSetHash(base) },
+  const added = [...new Set(stages.flatMap((s) => eligibility[s.stage_id] || []))].sort();
+  const ap = { kind: COMPOSITE_APPROVAL_KIND, approval_id: 'AP-COMPOSITE', ...approvalFields(NOW), basis: 'test', baseline: { eligible_ids_hash: idSetHash(base) },
+    sendability: { newly_sendable_coaches: sendable ?? added, newly_sendable_contacts: [], activation_holds_sha256: HOLDS.sha256 },
     stages: stages.map((s) => ({ stage_id: s.stage_id, type: s.type, group: s.group ?? null, fixture_hash: s.fixture.fixture_hash, eligibility: { added: eligibility[s.stage_id] || [], removed: [] } })), ...over };
   return { ...ap, approval_hash: approvalHash(ap) };
 }
@@ -83,7 +88,7 @@ function approve(db, stages, { eligibility = EXPECTED, over = {} } = {}) {
 const snapshot = (db) => Object.fromEntries(db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all()
   .map(({ name }) => [name, JSON.stringify(db.prepare(`SELECT * FROM "${name}" ORDER BY rowid`).all())]));
 const setup = () => { const db = world(); const fx = fixtures(db); const stages = STAGES(fx); return { db, fx, stages, approval: approve(db, stages) }; };
-const run = (db, stages, approval, opts = {}) => runCompositeCorrection(db, stages, approval, { apply: true, now: NOW, ...opts });
+const run = (db, stages, approval, opts = {}) => runCompositeCorrection(db, stages, approval, { apply: true, now: NOW, activationHoldsFile: HOLDS.file, ...opts });
 
 describe('composite correction — the world behaves like 8D.3A', () => {
   it('0. baseline: only the control coach is eligible; the domain fix alone would make the leaver eligible too', () => {
@@ -129,7 +134,7 @@ describe('composite correction — atomic apply', () => {
   it('3. rehearsal mode runs every stage and gate, then leaves the database byte-for-byte unchanged', () => {
     const { db, stages, approval } = setup();
     const before = snapshot(db);
-    const r = runCompositeCorrection(db, stages, approval, { apply: false, now: NOW });
+    const r = runCompositeCorrection(db, stages, approval, { apply: false, now: NOW, activationHoldsFile: HOLDS.file });
     expect(r.committed).toBe(false); expect(r.report.final.eligible).toBe(4);
     expect(snapshot(db)).toEqual(before); expect(db.inTransaction).toBe(false);
   });

@@ -34,11 +34,16 @@
  *     baseline; the programme universe (every division) is unchanged
  *   - attribution: every relabelled coach resolves to its new programme (or is ineligible)
  *   - currentness: every withheld coach is ineligible
- * ACTIVATION HOLDS (DI-03B): a run containing a DOMAIN_OWNERSHIP_CORRECTION stage may only make a coach
- *   newly eligible if that coach is already under an activation hold (server/data/seeds/
- *   coach_activation_holds.json, read through canonicalCoachEligibility.activationHolds — the file every
- *   send path enforces). An unreadable holds file, or any unheld newly eligible coach, refuses the whole
- *   run: an ownership correction can never activate outreach on its own.
+ * AUTHORISATION (DI-03D): the composite approval, every approval record a stage fixture carries and every
+ *   hold release pass approvalValidator (an allow-listed reviewer, scope covering the target, no
+ *   placeholder, unexpired) and name the SAME reviewer.
+ * SENDABILITY (DI-03D, every composite): the whole coach and programme-inbox universe is evaluated with
+ *   the send-time floor (minus the hold) before the first stage and after the last, inside the
+ *   transaction (sendability.js). Every coach that becomes sendable must be in the approval's exact
+ *   `sendability.newly_sendable_coaches` set AND under an activation hold in the holds file the target
+ *   database's application enforces (correctionTarget.js; its sha256 is pinned in the approval). Any
+ *   inbox that becomes sendable refuses (inboxes have no hold). Reconciler-eligibility deltas are not a
+ *   substitute: a REASSIGN coach becomes sendable without entering the eligible set (DI-03C F1).
  * FINAL: full PRAGMA integrity_check, then COMMIT. Any throw anywhere -> ROLLBACK of everything.
  *
  * The result manifest is ONE promotion-format revert list over every changed row; revertComposite
@@ -54,7 +59,10 @@ import { loadRefreshContext } from './context.js';
 import { hostOwnershipDisagreements } from './identityResolver.js';
 import { validateEntityIdentity } from '../../scripts/validateAthleticsEntityIdentity.js';
 import { applyDomainOwnershipInTransaction, domainOwnershipPostcheck, DOMAIN_OWNERSHIP_KIND } from './domainOwnershipCorrection.js';
-import { activationHolds, HOLDS_PATH } from '../canonicalCoachEligibility.js';
+import { approvalProblems } from './approvalValidator.js';
+import { correctionTarget } from './correctionTarget.js';
+import { sendabilitySnapshot, sendabilityDelta } from './sendability.js';
+import { evidenceStore } from './officialEvidence.js';
 
 export const COMPOSITE_APPROVAL_KIND = 'COMPOSITE_CORRECTION_APPROVAL';
 export const COMPOSITE_MANIFEST_PHASE = 'COMPOSITE_CORRECTION';
@@ -85,11 +93,29 @@ const fail = (msg, problems) => Object.assign(new Error(msg), problems ? { probl
  * Validate stages + approval without touching the database. Returns problems ([] = authorised).
  * `stages`: [{ stage_id, type, group?, fixture }] in execution order.
  */
-export function validateComposite(stages, approval) {
+export function validateComposite(stages, approval, { target = null, now = new Date() } = {}) {
   const problems = [];
   if (!Array.isArray(stages) || !stages.length) return ['no stages'];
   if (approval?.kind !== COMPOSITE_APPROVAL_KIND) problems.push(`approval kind must be ${COMPOSITE_APPROVAL_KIND}`);
   for (const k of ['approval_id', 'approved_by', 'approved_at', 'basis']) if (!approval?.[k]) problems.push(`approval missing ${k}`);
+  if (target) {
+    problems.push(...approvalProblems(approval, { target, now, label: 'composite approval' }));
+    // every approval record a fixture carries, and every hold release, is held to the same standard and the same reviewer
+    for (const s of stages) {
+      for (const fa of Array.isArray(s?.fixture?.approvals) ? s.fixture.approvals : []) {
+        problems.push(...approvalProblems(fa, { target, now, label: `${s.stage_id} fixture approval ${fa?.approval_id}` }));
+        if (fa?.reviewer_id !== approval?.reviewer_id) problems.push(`${s.stage_id} fixture approval ${fa?.approval_id}: reviewer ${fa?.reviewer_id} is not the composite approval's ${approval?.reviewer_id}`);
+      }
+      for (const r of Array.isArray(s?.fixture?.hold_releases) ? s.fixture.hold_releases : []) {
+        problems.push(...approvalProblems({ ...r, basis: r?.reason }, { target, now, label: `${s.stage_id} hold release ${r?.release_id}` }));
+        if (r?.reviewer_id !== approval?.reviewer_id) problems.push(`${s.stage_id} hold release ${r?.release_id}: reviewer ${r?.reviewer_id} is not the composite approval's ${approval?.reviewer_id}`);
+      }
+    }
+  }
+  const sb = approval?.sendability;
+  if (!sb || !Array.isArray(sb.newly_sendable_coaches) || !Array.isArray(sb.newly_sendable_contacts) || !/^[0-9a-f]{64}$/.test(sb.activation_holds_sha256 || '')) {
+    problems.push('approval must list sendability.newly_sendable_coaches and .newly_sendable_contacts (exact, may be empty) and pin sendability.activation_holds_sha256');
+  } else if (sb.newly_sendable_contacts.length) problems.push('a correction may not make a programme inbox sendable (inboxes carry no activation hold)');
   if (!approval?.approval_hash || approvalHash(approval) !== approval.approval_hash) problems.push('approval_hash does not match the approval body');
   if (!approval?.baseline?.eligible_ids_hash) problems.push('approval must pin baseline.eligible_ids_hash');
   const ap = Array.isArray(approval?.stages) ? approval.stages : [];
@@ -136,9 +162,14 @@ const sameSet = (x, y) => x.length === y.length && [...x].sort().join(',') === [
  * `inject(point)` is a test hook called at every named point; a throw there must roll back all.
  * Returns { committed, report, manifest }.
  */
-export function runCompositeCorrection(db, stages, approval, { apply = false, now = new Date().toISOString(), scope = 'NAIA', inject = null, activationHoldsFile = HOLDS_PATH } = {}) {
+export function runCompositeCorrection(db, stages, approval, { apply = false, now = new Date().toISOString(), scope = 'NAIA', inject = null, activationHoldsFile = null, evidenceDir = null } = {}) {
   const hit = (p) => { if (inject) inject(p); };
-  const problems = validateComposite(stages, approval);
+  let tgt;
+  try { tgt = correctionTarget(db, { activationHoldsFile }); } catch (err) { throw fail(`composite correction refused: ${err.message}`, [err.message]); }
+  const problems = validateComposite(stages, approval, { target: tgt.target, now: new Date(now) });
+  if (approval?.sendability?.activation_holds_sha256 && approval.sendability.activation_holds_sha256 !== tgt.holdsSha256) problems.push(`the approval was made against activation holds ${approval.sendability.activation_holds_sha256.slice(0, 12)}, the target's holds file is ${tgt.holdsSha256.slice(0, 12)} (${tgt.holdsFile})`);
+  let store = null;
+  if (stages.some((s) => s?.type === DOMAIN_OWNERSHIP_KIND)) { try { store = evidenceStore(evidenceDir); } catch (err) { problems.push(err.message); } }
   if (problems.length) throw fail(`composite correction refused: ${problems.length} problem(s)`, problems);
   if (db.inTransaction) throw fail('composite correction must own its transaction (connection already in one)');
   const report = { approval_id: approval.approval_id, approval_hash: approval.approval_hash, applied_at: now, apply, stages: [] };
@@ -152,6 +183,9 @@ export function runCompositeCorrection(db, stages, approval, { apply = false, no
     const base = new Set(m0.eligible_ids);
     if (idSetHash(base) !== approval.baseline.eligible_ids_hash) throw fail(`baseline eligible-ID set ${idSetHash(base).slice(0, 12)} is not the approved baseline ${approval.baseline.eligible_ids_hash.slice(0, 12)} — stale approval`);
     report.baseline = { eligible: base.size, eligible_ids_hash: idSetHash(base), integrity: m0.integrity, universe: Object.fromEntries(DIVISIONS.map((d) => [d, m0.universe[d].hash])) };
+    report.target = { target: tgt.target, database: tgt.dbPath ?? ':memory:', activation_holds_file: tgt.holdsFile, activation_holds_sha256: tgt.holdsSha256, activation_holds: tgt.holdsCount };
+    hit('sendability:before');
+    const send0 = sendabilitySnapshot(db, { scope, now: new Date(now) });
     let prev = base;
     stages.forEach((s, i) => {
       hit(`stage:${s.stage_id}:begin`);
@@ -159,7 +193,7 @@ export function runCompositeCorrection(db, stages, approval, { apply = false, no
       const onAction = (_p, k) => { if (k === 0) hit(`stage:${s.stage_id}:action`); };
       let r;
       if (s.type === PROTECTED_CORRECTION_KIND) r = applyProtectedCorrectionsInTransaction(db, s.fixture, { now, postcheck: ownershipPostcheck, onAction });
-      else if (s.type === DOMAIN_OWNERSHIP_KIND) r = applyDomainOwnershipInTransaction(db, s.fixture, { now, postcheck: domainOwnershipPostcheck, onAction });
+      else if (s.type === DOMAIN_OWNERSHIP_KIND) r = applyDomainOwnershipInTransaction(db, s.fixture, { now, store, target: tgt.target, postcheck: domainOwnershipPostcheck, onAction });
       else if (s.type === COACH_INSTITUTION_KIND) r = applyCoachInstitutionInTransaction(db, s.fixture, { onAction });
       else if (s.type === COACH_EMAIL_ABSENCE_KIND) r = applyCoachEmailAbsenceInTransaction(db, s.fixture, { now, onAction });
       else r = applyCoachCurrentnessInTransaction(db, s.fixture, s.group, { now, onAction });
@@ -196,14 +230,17 @@ export function runCompositeCorrection(db, stages, approval, { apply = false, no
     const integ = db.pragma('integrity_check', { simple: true });
     if (integ !== 'ok') throw fail(`integrity ${integ}`);
     report.final = { eligible: prev.size, eligible_ids_hash: idSetHash(prev), added: diffIds(base, prev).added, removed: diffIds(base, prev).removed };
-    if (stages.some((s) => s.type === DOMAIN_OWNERSHIP_KIND)) {
-      hit('final:activation-holds');
-      const holds = activationHolds(activationHoldsFile);
-      if (holds === null) throw fail(`activation holds unreadable (${activationHoldsFile}) — an ownership correction may not run without them (fail closed)`);
-      const unheld = report.final.added.filter((id) => !holds.has(id));
-      if (unheld.length) throw fail(`${unheld.length} newly eligible coach(es) without an activation hold — the correction would activate outreach`, unheld);
-      report.final.activation_holds = { file: activationHoldsFile, newly_eligible: report.final.added.length, all_held: true };
+    hit('final:sendability');
+    const sd = sendabilityDelta(send0, sendabilitySnapshot(db, { scope, now: new Date(now) }));
+    const want = approval.sendability.newly_sendable_coaches;
+    if (!sameSet(sd.newly_sendable_coaches, want)) {
+      throw fail('newly sendable coaches are not the approved set', [
+        `newly sendable ${sd.newly_sendable_coaches.length} (approved ${want.length}); unapproved: ${sd.newly_sendable_coaches.filter((x) => !want.includes(x)).join(', ') || 'none'}; approved but not sendable: ${want.filter((x) => !sd.newly_sendable_coaches.includes(x)).join(', ') || 'none'}`]);
     }
+    const unheld = sd.newly_sendable_coaches.filter((id) => !tgt.holds.has(id));
+    if (unheld.length) throw fail(`${unheld.length} newly sendable coach(es) without an activation hold in ${tgt.holdsFile} — the correction would activate outreach`, unheld);
+    if (sd.newly_sendable_contacts.length) throw fail(`${sd.newly_sendable_contacts.length} programme inbox(es) would become sendable — refused (inboxes carry no activation hold)`, sd.newly_sendable_contacts);
+    report.final.sendability = { ...sd, all_newly_sendable_held: true, activation_holds_file: tgt.holdsFile, activation_holds_sha256: tgt.holdsSha256 };
     hit('final:precommit');
     if (apply) db.exec('COMMIT'); else db.exec('ROLLBACK');
   } catch (err) { if (db.inTransaction) { try { db.exec('ROLLBACK'); } catch { /* */ } } throw err; }

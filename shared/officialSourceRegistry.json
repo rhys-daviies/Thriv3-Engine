@@ -1,0 +1,49 @@
+{
+  "kind": "OFFICIAL_SOURCE_REGISTRY",
+  "version": 1,
+  "note": "Official source snapshots accepted as institution->host evidence by the correction engine (DI-03D). Bytes live in an evidence store, addressed by sha256; adding or changing an entry is a reviewed T2 change. TEST_ONLY entries are synthetic regression fixtures and are refused for any runtime database.",
+  "sources": [
+    {
+      "source_id": "IPEDS_HD2024_CSV",
+      "kind": "IPEDS_HD",
+      "scope": "PRODUCTION",
+      "publisher": "NCES / IPEDS",
+      "url": "https://nces.ed.gov/ipeds/datacenter/data/HD2024.zip",
+      "member": "HD2024.csv",
+      "container_sha256": "d98425c123d7c0e872aec6e83960dfb501884818bf17385c340790f3d1f28345",
+      "sha256": "d7b20e136fd971d7dce8ad6ec9b7002f0f281f133959f2c3a6c089a5a4610fe5",
+      "retrieved_at": "2026-10-08T21:11:14Z"
+    },
+    {
+      "source_id": "NCAA_DIRECTORY_MEMBERLIST_2027",
+      "kind": "NCAA_DIRECTORY_MEMBERLIST",
+      "scope": "PRODUCTION",
+      "publisher": "NCAA",
+      "url": "https://web3.ncaa.org/directory/api/directory/memberList?type=12",
+      "sha256": "b698af6fdd4013ea0047f86edc9a10074fb1f847030cc08fbda18b6b9e6a4010",
+      "academic_year": 2027,
+      "retrieved_at": "2026-10-08T21:09:24Z"
+    },
+    {
+      "source_id": "TEST_IPEDS_DI03D",
+      "kind": "IPEDS_HD",
+      "scope": "TEST_ONLY",
+      "publisher": "synthetic regression fixture",
+      "url": "https://nces.ed.gov/ipeds/test-fixture",
+      "fixture": "server/lib/refresh/__fixtures__/di03d/ipeds_test.csv",
+      "sha256": "d11982c6e93edc3a4b973a311f0116fe1bc8c13a45cbe36198b3d0244a10c79c",
+      "retrieved_at": "2026-10-08T00:00:00Z"
+    },
+    {
+      "source_id": "TEST_NCAA_DI03D",
+      "kind": "NCAA_DIRECTORY_MEMBERLIST",
+      "scope": "TEST_ONLY",
+      "publisher": "synthetic regression fixture",
+      "url": "https://web3.ncaa.org/test-fixture",
+      "fixture": "server/lib/refresh/__fixtures__/di03d/ncaa_test.json",
+      "sha256": "b25d64107ee26e6f9e167bc77d6038a09674ca8cac4334d6744340a7cad14913",
+      "academic_year": 2027,
+      "retrieved_at": "2026-10-08T00:00:00Z"
+    }
+  ]
+}

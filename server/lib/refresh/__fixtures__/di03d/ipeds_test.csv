@@ -1,0 +1,9 @@
+UNITID,INSTNM,IALIAS,CITY,STABBR,WEBADDR,ATHURL
+123554,"Saint Example College of California","St. Example College of California","Moraga","CA","https://www.solo.test/","https://caathletics.test/sports/compliance"
+228149,"St. Example University","St. Example","San Antonio","TX","www.stmarytx.edu/","https://www.stmarytx.edu/compliance/"
+910003,"Example College of Charleston"," ","Charleston","SC","https://www.example-sc.test/","scathletics.test"
+910004,"Example University"," ","Charleston","WV","www.uwv.test/","https://www.uwv.test/consumer-information/"
+910005,"Concordia Example"," ","Mequon","WI","https://www.cuw-example.test/"," "
+910006,"Twin College"," ","Jefferson City","TN","www.twincollege.test/"," "
+910099,"Other College"," ","Springfield","IL","https://www.other.test/"," "
+910007,"Example State University"," ","Charleston","WV","www.example-state.test/"," "

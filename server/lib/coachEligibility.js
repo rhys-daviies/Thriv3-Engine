@@ -36,24 +36,9 @@ export function legacyCoachesAllowed(env = process.env) {
   return TRUTHY.test(String(env[LEGACY_COACHES_FLAG] ?? '').trim());
 }
 
-export const INELIGIBLE = Object.freeze({
-  NO_USABLE_EMAIL: 'NO_USABLE_EMAIL',
-  COACH_PROVEN_STALE: 'COACH_PROVEN_STALE',
-  EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
-  UNKNOWN_ADDRESS: 'UNKNOWN_ADDRESS',
-  ADDRESS_AT_OTHER_PROGRAMME: 'ADDRESS_AT_OTHER_PROGRAMME',
-  PROGRAMME_INACTIVE: 'PROGRAMME_INACTIVE',
-});
-
-const usable = (e) => !!e && String(e).includes('@') && String(e).trim() !== '' && String(e).trim().toUpperCase() !== 'N/A';
-
-/** Why a coach row fails the ROW checks (address, currentness, verification), or null. Pure. */
-export function coachRowIneligibility(row) {
-  if (!row || !usable(row.email)) return INELIGIBLE.NO_USABLE_EMAIL;
-  if (row.currentness_status === 'PROVEN_STALE') return INELIGIBLE.COACH_PROVEN_STALE;
-  if (row.email_status !== 'verified') return `${INELIGIBLE.EMAIL_NOT_VERIFIED}:${row.email_status || 'unknown'}`;
-  return null;
-}
+// the row floor lives in a module with no database import (the correction engine needs it in-transaction)
+import { INELIGIBLE, usable, coachRowIneligibility } from './coachRowFloor.js';
+export { INELIGIBLE, coachRowIneligibility };
 
 /**
  * Why a coach row fails the floor, or null: the row checks, then the canonical decision at its

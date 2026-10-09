@@ -1,0 +1,9 @@
+{
+  "kind": "CORRECTION_REVIEWERS",
+  "version": 1,
+  "note": "Who may authorise a data correction (DI-03D). Changing this file is itself a T2 change. scope ANY: may authorise a correction of a runtime database (a checkout's server/data). scope DISPOSABLE_ONLY: may authorise a correction only of a disposable copy (rehearsal); refused for any runtime database.",
+  "reviewers": [
+    { "reviewer_id": "rhys-davies", "name": "Rhys Davies", "scope": "ANY" },
+    { "reviewer_id": "data-integrity-rehearsal", "name": "Data Integrity rehearsal (Claude)", "scope": "DISPOSABLE_ONLY" }
+  ]
+}
