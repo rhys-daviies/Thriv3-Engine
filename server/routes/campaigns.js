@@ -19,6 +19,7 @@ import {
 import { RETRY_REFUSAL } from '../lib/executionRetry.js';
 import { executionReadiness } from '../lib/executionReadiness.js';
 import { CLAIM_REFUSAL } from '../lib/executionClaim.js';
+import { GATE_CODE } from '../lib/recruitmentYearGate.js';
 import { BUDGET_REFUSAL } from '../lib/outboundBudget.js';
 import {
   programmePursuitPlan, materialiseNextContactAttempt, PREPARATION_REFUSAL,
@@ -385,6 +386,9 @@ const STATUS_BY_CODE = Object.freeze({
   // Phase 8A runtime floor, re-checked at claim time: the coach's address is no longer VERIFIED
   // or the coach is PROVEN_STALE. A refusal, not a fault: nothing was claimed, no capacity spent.
   [CLAIM_REFUSAL.COACH_NOT_OUTREACH_ELIGIBLE]: 422,
+  // DI-08: the recruitment-year gate refused the claim or retry. Every code is a refusal, not a
+  // fault — nothing was claimed and no capacity was spent — so every one of them is 422.
+  ...Object.fromEntries(Object.values(GATE_CODE).map((code) => [code, 422])),
   [BUDGET_REFUSAL.ATHLETE_DAILY_BUDGET_EXHAUSTED]: 422,
   [BUDGET_REFUSAL.MAILBOX_DAILY_BUDGET_EXHAUSTED]: 422,
   [BUDGET_REFUSAL.SENDING_IDENTITY_REQUIRED]: 422,
