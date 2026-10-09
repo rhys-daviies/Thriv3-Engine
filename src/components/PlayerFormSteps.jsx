@@ -155,8 +155,8 @@ function defaultsFrom(initialData) {
   };
 }
 
-export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', onSubmit, submitLabel = 'Create Player' }) {
-  const [step, setStep] = useState(0);
+export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', onSubmit, submitLabel = 'Create Player', initialStep = 0 }) {
+  const [step, setStep] = useState(initialStep);
   const [data, setData] = useState(() => defaultsFrom(initialData));
   const [colleges, setColleges] = useState([]);
   const [collegesLoading, setCollegesLoading] = useState(true);
@@ -277,6 +277,15 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
     if (idx > 0 && !step1Valid) return;
     setStep(idx);
   }
+
+  /**
+   * Phase 5 (#12): a link may open the form on a later step (the family
+   * contribution, from the matching screen) - but only past a valid first
+   * step, exactly as the Next button allows. Otherwise it opens step 1.
+   */
+  useEffect(() => {
+    if (step > 0 && !step1Valid) setStep(0);
+  }, [step, step1Valid]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -723,7 +732,7 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             </Select>
             <p className="text-xs text-muted-foreground">
               The person coaches contact about this athlete: shown on the coach-facing page and signing outreach.
-              Emails still send from the athlete&rsquo;s own mailbox. Manage the list under Representatives.
+              Replies do not go to them: manual drafts are sent from your own email account, campaign emails from the athlete&rsquo;s connected mailbox. Manage the list under Representatives.
             </p>
           </div>
 

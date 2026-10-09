@@ -180,6 +180,43 @@ export function markResponded(outreachId, at = utcNow()) {
   return db.prepare('SELECT * FROM engagement_rollup WHERE outreach_id = ?').get(outreachId);
 }
 
+/**
+ * PHASE 5 (#9): WHEN THE REPLY ARRIVED, NOT WHEN SOMEBODY CLICKED.
+ *
+ * Replies land in a mailbox Thriv3 cannot read, so they are recorded by hand,
+ * often days later. `responded_at` feeds contact history and the evidence
+ * logs, so stamping the click time misdates every late entry. An operator may
+ * give the date it actually arrived: a calendar day (stored at 12:00 UTC so no
+ * time zone moves it to another day) or a full timestamp. It may not be in the
+ * future, and may not be before the message was prepared - a coach cannot
+ * reply to an email that did not exist yet. Omitted, it is now, as before.
+ */
+export class RespondedDateError extends Error {
+  constructor(code, message) { super(message); this.code = code; this.status = 400; }
+}
+
+export function respondedAtFrom(input, { draftedAt = null, now = new Date() } = {}) {
+  if (input === undefined || input === null || input === '') return now.toISOString();
+  const raw = String(input).trim();
+  const iso = /^\d{4}-\d{2}-\d{2}$/.test(raw) ? `${raw}T12:00:00.000Z` : raw;
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) throw new RespondedDateError('RESPONDED_AT_INVALID', `"${raw}" is not a date.`);
+  const day = (ms) => new Date(ms).toISOString().slice(0, 10);
+  if (day(t) > day(now.getTime())) throw new RespondedDateError('RESPONDED_AT_IN_FUTURE', 'A reply cannot be dated in the future.');
+  if (draftedAt && day(t) < String(draftedAt).slice(0, 10)) {
+    throw new RespondedDateError('RESPONDED_AT_BEFORE_OUTREACH', `A reply cannot predate the message, which was prepared on ${String(draftedAt).slice(0, 10)}.`);
+  }
+  return new Date(t).toISOString();
+}
+
+/** Mark responded with an operator-given date, validated against the relationship. */
+export function recordResponded(outreachId, { respondedAt = null, now = new Date() } = {}) {
+  const o = db.prepare('SELECT id, drafted_at, sent_at, created_at FROM outreach WHERE id = ?').get(outreachId);
+  if (!o) throw Object.assign(new Error('No such outreach.'), { status: 404, code: 'OUTREACH_NOT_FOUND' });
+  const at = respondedAtFrom(respondedAt, { draftedAt: o.drafted_at ?? o.sent_at ?? o.created_at ?? null, now });
+  return markResponded(outreachId, at);
+}
+
 export function clearResponded(outreachId) {
   db.prepare('UPDATE engagement_rollup SET responded_at = NULL WHERE outreach_id = ?').run(outreachId);
   return rebuildRollup(outreachId);

@@ -37,6 +37,19 @@ import { currentState } from './recruitingObservations.js';
  * rows and one outcome history.
  * ---------------------------------------------------------------------------
  */
+/**
+ * RECIPIENTS, COUNTED BY KIND - Phase 5 (#14, review check 2).
+ *
+ * A send addresses a coach (coach_id) or a programme inbox (programme_contact_id).
+ * Both are TEXT ids, and COALESCE(coach_id, programme_contact_id) would merge a
+ * coach and an inbox whose ids happened to be equal into one recipient. The key
+ * is namespaced by kind ('COACH:' / 'INBOX:'), so equal ids of different kinds stay apart.
+ */
+export const RECIPIENT_COUNT_SQL = `COUNT(DISTINCT CASE
+             WHEN coach_id IS NOT NULL THEN 'COACH:' || coach_id
+             WHEN programme_contact_id IS NOT NULL THEN 'INBOX:' || programme_contact_id
+           END)`;
+
 export function selectionsOverview(playerId, { limit = 200 } = {}) {
   const selections = db.prepare(`
     SELECT s.*, r.computed_at AS run_computed_at
@@ -62,21 +75,42 @@ export function selectionsOverview(playerId, { limit = 200 } = {}) {
            COUNT(*)                                             AS messages,
            SUM(CASE WHEN state = 'ACCEPTED' THEN 1 ELSE 0 END)  AS accepted,
            MAX(sent_at)                                         AS last_sent_at,
-           COUNT(DISTINCT coach_id)                             AS coaches
+           ${RECIPIENT_COUNT_SQL}                                AS coaches
       FROM outreach_send
      WHERE matchmaking_selection_id IN (${placeholders})
      GROUP BY matchmaking_selection_id`).all(...ids);
   const sends = new Map(sendRows.map((r) => [r.sel, r]));
 
+  /**
+   * REPLIES, AS RECIPIENTS WHO HAVE REPLIED - Phase 5 (#13, review check 1).
+   *
+   * A reply reaches Thriv3 by one of two paths that never write to each other:
+   * a REPLY event on a send (reply intake), or "Mark responded" on the
+   * Engagement tab (`engagement_rollup.responded_at`, per relationship). The
+   * count is the number of DISTINCT RELATIONSHIPS (athlete x recipient) with a
+   * reply recorded by EITHER path. So one reply recorded both ways counts once,
+   * and replies from different recipients recorded by different paths each
+   * count - neither the larger of the two (which under-counts a split) nor the
+   * sum (which double-counts an overlap). Several replies from the same
+   * recipient are one replying recipient: the field answers "how many have
+   * replied", which is what both paths can actually support.
+   */
   const replyRows = db.prepare(`
-    SELECT s.matchmaking_selection_id AS sel,
-           COUNT(*)            AS replies,
-           MAX(e.observed_at)  AS last_reply_at
-      FROM outreach_send_event e
-      JOIN outreach_send s ON s.id = e.outreach_send_id
-     WHERE e.type = ?
-       AND s.matchmaking_selection_id IN (${placeholders})
-     GROUP BY s.matchmaking_selection_id`).all(SEND_EVENT_TYPE.REPLY, ...ids);
+    SELECT sel, COUNT(DISTINCT outreach_id) AS replies, MAX(at) AS last_reply_at
+      FROM (
+        SELECT s.matchmaking_selection_id AS sel, s.outreach_id, e.observed_at AS at
+          FROM outreach_send_event e
+          JOIN outreach_send s ON s.id = e.outreach_send_id
+         WHERE e.type = ?
+           AND s.matchmaking_selection_id IN (${placeholders})
+        UNION ALL
+        SELECT s.matchmaking_selection_id AS sel, s.outreach_id, r.responded_at AS at
+          FROM outreach_send s
+          JOIN engagement_rollup r ON r.outreach_id = s.outreach_id
+         WHERE r.responded_at IS NOT NULL
+           AND s.matchmaking_selection_id IN (${placeholders})
+      )
+     GROUP BY sel`).all(SEND_EVENT_TYPE.REPLY, ...ids, ...ids);
   const replies = new Map(replyRows.map((r) => [r.sel, r]));
 
   /** One outcome history per PROGRAMME, not per selection — see above. */
@@ -131,6 +165,7 @@ export function selectionsOverview(playerId, { limit = 200 } = {}) {
          * the coach.
          */
         reply: {
+          /** Recipients with a reply recorded by either path (see above). */
           replies: reply?.replies ?? 0,
           lastReplyAt: reply?.last_reply_at ?? null,
         },

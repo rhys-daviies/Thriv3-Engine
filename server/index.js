@@ -27,6 +27,7 @@ import { uploadsRouter } from './routes/uploads.js';
 import { campaignsRouter } from './routes/campaigns.js';
 import { athleteProgrammesRouter } from './routes/athleteProgrammes.js';
 import { programmeCoachesRouter } from './routes/programmeCoaches.js';
+import { recordOptOut, optOutStatus, OptOutError } from './lib/optOut.js';
 import { programmesRouter } from './routes/programmes.js';
 import { programmeContactsRouter } from './routes/programmeContacts.js';
 import { manualOutreachRouter } from './routes/manualOutreach.js';
@@ -47,7 +48,7 @@ import { publishStatus, regenerate, publish } from './routes/publish.js';
 import { playerLifecycleRouter, blockPlayerHardDelete } from './routes/playerLifecycle.js';
 import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js';
 import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
-import { markResponded, clearResponded } from './lib/engagementRollup.js';
+import { markResponded, recordResponded, clearResponded } from './lib/engagementRollup.js';
 import { philosophySummaries, programReportModel } from './routes/philosophy.js';
 import { evidenceSummaries } from './routes/evidence.js';
 import { operatorEvidenceSummaries } from './routes/operatorEvidence.js';
@@ -807,10 +808,41 @@ app.get('/api/engagement/outreach/:id/sessions', (req, res) => {
 app.post('/api/engagement/outreach/:id/responded', (req, res) => {
   try {
     const responded = req.body?.responded !== false;
-    res.json(responded ? markResponded(req.params.id) : clearResponded(req.params.id));
+    // Phase 5 (#9): an optional `respondedAt` - the day the reply actually arrived.
+    res.json(responded ? recordResponded(req.params.id, { respondedAt: req.body?.respondedAt ?? null }) : clearResponded(req.params.id));
   } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message, code: err.code });
     console.error('[engagement]', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * Phase 5 (#2): record an opt-out for this relationship's recipient, from the
+ * screen rather than `npm run suppress`. The address is resolved server-side
+ * from the outreach; the request never names one. Idempotent; no un-suppress.
+ */
+app.get('/api/engagement/outreach/:id/opt-out', (req, res) => {
+  try {
+    res.json(optOutStatus(req.params.id));
+  } catch (err) {
+    if (err instanceof OptOutError) return res.status(err.status).json({ error: err.message, code: err.code });
+    console.error('[opt-out]', err);
+    return res.status(500).json({ error: 'Unexpected error.' });
+  }
+});
+
+app.post('/api/engagement/outreach/:id/opt-out', (req, res) => {
+  try {
+    res.json(recordOptOut(req.params.id, {
+      reason: req.body?.reason ?? 'unsubscribed',
+      note: req.body?.note ?? null,
+      operator: req.operator ?? null,
+    }));
+  } catch (err) {
+    if (err instanceof OptOutError) return res.status(err.status).json({ error: err.message, code: err.code });
+    console.error('[opt-out]', err);
+    return res.status(500).json({ error: 'Unexpected error.' });
   }
 });
 

@@ -3,6 +3,7 @@ import db from '../db/client.js';
 import { applyCoachFloor } from '../lib/coachEligibility.js';
 import { canonicalDecisions, activationHold } from '../lib/canonicalCoachEligibility.js';
 import { findCanonicalCollege } from '../lib/collegeSearch.js';
+import { suppressedSet } from '../lib/suppressions.js';
 
 /**
  * THE COACHING STAFF AT ONE PROGRAMME, FROM THE REGISTRY.
@@ -165,7 +166,7 @@ programmeCoachesRouter.get('/colleges/:id/coaches', (req, res) => {
      * programme must not do is be SELECTED into a new relationship, and
      * `findCanonicalCollege` is what enforces that, where it belongs.
      */
-    const rows = staffRows(college.name, college.sport);
+    const { offered: rows, optedOut } = offeredStaff(college.name, college.sport);
     return res.json({
       college: {
         id: college.id,
@@ -175,6 +176,7 @@ programmeCoachesRouter.get('/colleges/:id/coaches', (req, res) => {
         active: college.active,
       },
       coaches: rows.map(contact),
+      optedOut,
     });
   } catch (err) {
     console.error('[colleges/coaches]', err);
@@ -182,9 +184,33 @@ programmeCoachesRouter.get('/colleges/:id/coaches', (req, res) => {
   }
 });
 
+/**
+ * PHASE 5 (#3): AN OPTED-OUT ADDRESS IS NEVER OFFERED.
+ *
+ * The floor above says who MAY be written to; the opt-out list says who has
+ * asked not to be. Both are checked at send time, but a list that offers an
+ * opted-out coach invites a choice the send will then refuse - and the
+ * operator, picking from a list Thriv3 drew, reasonably reads it as allowed.
+ * So the offer applies the opt-out too, and reports who it left out (name and
+ * title, never the address) so the absence is explained rather than silent.
+ */
+function offeredStaff(school, sport) {
+  const optedOut = suppressedSet();
+  const offered = []; const withheld = [];
+  for (const row of staffRows(school, sport)) {
+    (optedOut.has(String(row.email ?? '').trim().toLowerCase()) ? withheld : offered).push(row);
+  }
+  return { offered, optedOut: withheld.map((r) => ({ coach_id: r.id, name: r.full_name, title: r.position_title })) };
+}
+
 /** Exported for the manual outreach route, which needs the same rows server-side. */
 export function programmeCoaches({ collegeName, sport }) {
-  return staffRows(collegeName, sport).map(contact);
+  return offeredStaff(collegeName, sport).offered.map(contact);
+}
+
+/** The coaches the floor allowed but who have opted out: named for the explanation, never addressed. */
+export function optedOutProgrammeCoaches({ collegeName, sport }) {
+  return offeredStaff(collegeName, sport).optedOut;
 }
 
 export { findCanonicalCollege };

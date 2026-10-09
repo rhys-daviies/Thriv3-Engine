@@ -425,7 +425,7 @@ export default function CampaignMessageDetail({
             />
           )}
           {/* Read from the stored body: it keeps the signature it was composed with. */}
-          <RepresentativeSignatureNotice representative={representative} body={reviewed ? message.body : body} />
+          <RepresentativeSignatureNotice representative={representative} body={reviewed ? message.body : body} channel="campaign" />
         </Field>
 
         {/*

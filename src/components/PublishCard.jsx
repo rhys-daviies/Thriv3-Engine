@@ -115,6 +115,20 @@ export default function PublishCard({ playerId, playerName }) {
         </div>
       )}
 
+      {/*
+        Phase 5 (#8): the live page is a snapshot. A representative reassigned or edited since it
+        was published is not what coaches see until "Update live page" is pressed. Nothing here
+        republishes on its own.
+      */}
+      {status.publishedAt && status.liveOutdated && (
+        <p className="rounded-md border border-amber-500/40 bg-amber-500/10 p-2.5 text-xs" role="status" data-testid="live-outdated">
+          {status.liveOutdated.reasons.includes('REPRESENTATIVE_EDITED')
+            ? 'The representative’s details have changed since this page went live, so coaches still see the old details. '
+            : 'This athlete’s record has changed since the page went live (for example a new representative), so the live page may be out of date. '}
+          Press &ldquo;Update live page&rdquo; to publish the current version.
+        </p>
+      )}
+
       {!status.reachable && status.canPublish && (
         <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">
           Links point at {status.baseUrl}, which no coach can open. Set THRIV3_PUBLIC_BASE_URL

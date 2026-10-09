@@ -252,7 +252,8 @@ export const BLOCK_COPY = Object.freeze({
   /**
    * Signed by the athlete's representative (Phase 2), who is the person a
    * coach replies to about the athlete. The email still SENDS from the
-   * athlete's own mailbox; only the signature names the representative. With
+   * operator's account (manual drafts) or the athlete's connected mailbox
+   * (campaigns); only the signature names the representative. With
    * none assigned this is the sign-off every email has always carried.
    */
   [BLOCKS.SIGNOFF]: {

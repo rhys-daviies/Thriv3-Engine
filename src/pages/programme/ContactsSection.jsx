@@ -8,8 +8,11 @@ import { useSection } from './useSection';
  * routes, with their safeguards unchanged:
  *
  *   /api/colleges/:id/coaches              coaches passing the send floor NOW
- *   /api/colleges/:id/programme-contacts   the programme's verified inbox(es),
- *                                          each sendable:false
+ *   /api/colleges/:id/programme-contacts   the programme's verified inbox(es):
+ *                                          not addressable from this list, but
+ *                                          the manual composer offers the one the
+ *                                          hierarchy selects when no coach can be
+ *                                          written to (corrected, Phase 5 #14)
  *
  * Nothing here composes, sends or selects. Addresses are shown as text with no
  * email link: outreach starts from an athlete's workspace, where every send
@@ -43,6 +46,11 @@ export default function ContactsSection({ id }) {
             </ul>
           )
           : <p className="text-xs text-muted-foreground" data-testid="no-coaches">No coach for this programme currently passes the outreach eligibility floor.</p>)}
+        {coaches.data?.optedOut?.length > 0 && (
+          <p className="text-[11px] text-muted-foreground" data-testid="coaches-opted-out">
+            Not listed - opted out of Thriv3 email: {coaches.data.optedOut.map((c) => c.name || 'Coach').join(', ')}.
+          </p>
+        )}
       </div>
 
       <div className="rounded-lg border border-border p-4 space-y-2" data-testid="contacts-inboxes">
@@ -65,6 +73,11 @@ export default function ContactsSection({ id }) {
                 </ul>
               )
               : <p className="text-xs text-muted-foreground" data-testid="no-inboxes">No verified programme inbox on file.</p>}
+            {inboxes.data.optedOut > 0 && (
+              <p className="text-[11px] text-muted-foreground" data-testid="inboxes-opted-out">
+                {inboxes.data.optedOut} programme inbox{inboxes.data.optedOut === 1 ? ' has' : 'es have'} opted out and {inboxes.data.optedOut === 1 ? 'is' : 'are'} not listed.
+              </p>
+            )}
             {inboxes.data.withheld > 0 && (
               <p className="text-[11px] text-muted-foreground" data-testid="inboxes-withheld">
                 {inboxes.data.withheld} recorded inbox{inboxes.data.withheld === 1 ? ' is' : 'es are'} withheld: no longer current or ownership not established.
