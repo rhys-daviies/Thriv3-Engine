@@ -43,7 +43,7 @@ The process has been up since **2026-10-08 ~01:52 UTC**, two minutes after PR #6
 | `THRIV3_EDGE_URL`, `THRIV3_SYNC_SECRET`, `THRIV3_MAILBOX_KEY`, `THRIV3_SESSION_SECRET` | set |
 | `STRICT_CORROB_SCOPE`, `THRIV3_ALLOW_LEGACY_COACHES`, `THRIV3_USE_RECONCILED_COACHES` | **unset** |
 | `THRIV3_FROM_ADDRESS`, `ANTHROPIC_API_KEY`, `THRIV3_GOOGLE_CLIENT_ID` / `_SECRET` | **missing** |
-| `THRIV3_COACH_WINDOW_DAYS`, `THRIV3_COACH_MAX_SENDS` | not reported. If unset, the code defaults are 30 days and 3 sends. **To confirm.** |
+| `THRIV3_COACH_WINDOW_DAYS`, `THRIV3_COACH_MAX_SENDS` | **unset** (confirmed by the user, 2026-10-09). Effective defaults (`server/lib/config.js`): **30 days, 3 sends per coach**. |
 | Tools | GNU `find`, `sha256sum`, `tar` and `node` available |
 | `/tmp` free | 72 GB |
 | `/data` free | 4.4 GB |
@@ -92,7 +92,7 @@ Read from the code, with the settings above unset.
   - `THRIV3_ALLOW_LEGACY_COACHES` unset: the full floor applies to offers.
   - `THRIV3_USE_RECONCILED_COACHES` unset: legacy `coaches` through that floor.
   - Opted-out coaches are withheld and named.
-- **Per-coach cap:** `THRIV3_COACH_WINDOW_DAYS` (default 30) and `THRIV3_COACH_MAX_SENDS` (default 3), if unset.
+- **Per-coach cap:** `THRIV3_COACH_WINDOW_DAYS` and `THRIV3_COACH_MAX_SENDS` are unset, so the defaults apply: **30 days, 3 sends per coach**. The same in `387b916` and main.
 
 ### What this fixes for §4
 - **Production** is measured with `--scope NAIA`, the effective value, recorded explicitly. The tool refuses to guess.
