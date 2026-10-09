@@ -72,6 +72,7 @@ import { validateEntityIdentity } from '../../scripts/validateAthleticsEntityIde
 import { applyDomainOwnershipInTransaction, domainOwnershipPostcheck, DOMAIN_OWNERSHIP_KIND } from './domainOwnershipCorrection.js';
 import { verifyApproval, asInstant, bodyHash, canonicalJson, APPROVAL_KINDS } from './approvalValidator.js';
 import { correctionTarget } from './correctionTarget.js';
+import { assertTrustedRuntimeState } from './trustRoot.js';
 import { sendabilitySnapshot, sendabilityDelta } from './sendability.js';
 import { evidenceStore } from './officialEvidence.js';
 import { ledgerId, ledgerEntry, recordLedger, markReverted, manifestSha, ensureDatabaseIdentity, databaseIdentity, LEDGER_KINDS } from './correctionLedger.js';
@@ -193,6 +194,9 @@ function authenticate(db, envelope, kind, { activationHoldsFile, now }) {
   try { tgt = correctionTarget(db, { activationHoldsFile }); } catch (err) { throw fail(`refused: ${err.message}`, [err.message]); }
   const target = { class: tgt.class, identity: tgt.identity };
   const { problems, grant } = verifyApproval(envelope, { kind, target, now });
+  // DI-04: a SHARED_DEV / PRODUCTION correction runs only from a checkout whose protected files equal the protected
+  // branch as fetched from GitHub now (trustRoot.js); disposable rehearsals are not gated
+  problems.push(...assertTrustedRuntimeState(tgt.class));
   if (grant && grant.body.sendability?.activation_holds_sha256 !== tgt.holdsSha256) problems.push(`the approval was made against activation holds ${String(grant.body.sendability?.activation_holds_sha256).slice(0, 12)}, the target's holds file is ${tgt.holdsSha256.slice(0, 12)} (${tgt.holdsFile})`);
   return { tgt, target, grant, problems };
 }

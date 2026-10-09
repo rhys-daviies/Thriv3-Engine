@@ -15,6 +15,8 @@ const SK_ED25519 = 'sk-ssh-ed25519@openssh.com';
 const ED25519 = 'ssh-ed25519';
 export const SUPPORTED_KEY_TYPES = Object.freeze([ED25519, SK_ED25519]);
 const SK_USER_PRESENT = 0x01;
+const SK_USER_VERIFIED = 0x04;
+export const SK_KEY_TYPE = SK_ED25519;
 
 /** SSH wire-format reader. */
 function reader(buf) {
@@ -51,6 +53,14 @@ function parsePublicKeyBlob(blob) {
   return { type, blob: Buffer.from(blob), pk, application };
 }
 
+/**
+ * The KEY's identity, independent of how it is encoded (DI-04, DI-03I N1): every supported type is an
+ * Ed25519 key, so one 32-byte public key is one key — whether enrolled as ssh-ed25519, or wrapped as
+ * sk-ssh-ed25519 under any application string. Duplicate detection and two-person counting use this,
+ * never the encoded blob or its fingerprint.
+ */
+export const keyIdentity = (k) => `ed25519:${crypto.createHash('sha256').update(k.pk).digest('hex')}`;
+
 /** SHA256 fingerprint as ssh-keygen prints it. */
 export const fingerprint = (blob) => `SHA256:${crypto.createHash('sha256').update(blob).digest('base64').replace(/=+$/, '')}`;
 
@@ -82,15 +92,21 @@ export function signedData(message, namespace, hashAlg = 'sha512', reserved = Bu
 
 /**
  * Verify `armored` over `message` (Buffer|string) for `namespace` against the allowed public key lines.
- * -> { ok, problems[], key: { type, fingerprint } | null }. Never throws.
+ * -> { ok, problems[], key: { type, fingerprint, identity, application, flags } | null }. Never throws.
+ * `requireHardware`: the key must be sk-ssh-ed25519 and the signature must carry BOTH the user-presence
+ * and the user-verification flag (a touch AND a PIN/biometric — a key made with `-O verify-required`).
+ * Note the flags are only as trustworthy as the key's provenance: a software key can set any flag, so a
+ * runtime-scope key must also carry verified FIDO attestation (fidoAttestation.js) at enrolment.
  */
-export function verifySshSignature(message, armored, { namespace, allowedKeys = [] } = {}) {
+export function verifySshSignature(message, armored, { namespace, allowedKeys = [], requireHardware = false } = {}) {
   const problems = [];
   let sig;
   try { sig = parseSignature(armored); } catch (e) { return { ok: false, problems: [e.message], key: null }; }
   let key;
   try { key = parsePublicKeyBlob(sig.publicKey); } catch (e) { return { ok: false, problems: [e.message], key: null }; }
   const fp = fingerprint(key.blob);
+  const info = { type: key.type, fingerprint: fp, identity: keyIdentity(key), application: key.application, flags: null };
+  if (requireHardware && key.type !== SK_ED25519) problems.push(`a ${key.type} software key cannot sign this approval — a hardware (sk-ssh-ed25519) key is required`);
   if (sig.namespace !== namespace) problems.push(`signature namespace "${sig.namespace}" is not "${namespace}"`);
   if (sig.reserved.length) problems.push('signature reserved field must be empty');
   const allowed = [];
@@ -106,7 +122,9 @@ export function verifySshSignature(message, armored, { namespace, allowedKeys = 
     if (key.type === SK_ED25519) {
       const flags = r.u8(); const counter = r.u32();
       if (!r.done()) throw new Error('trailing bytes in sk signature');
+      info.flags = { userPresent: !!(flags & SK_USER_PRESENT), userVerified: !!(flags & SK_USER_VERIFIED), counter };
       if (!(flags & SK_USER_PRESENT)) problems.push('hardware-key signature was made without user presence');
+      if (requireHardware && !(flags & SK_USER_VERIFIED)) problems.push('hardware-key signature was made without user verification (PIN/biometric) — enrol a key made with -O verify-required');
       const c = Buffer.alloc(4); c.writeUInt32BE(counter);
       const skData = Buffer.concat([crypto.createHash('sha256').update(key.application).digest(), Buffer.from([flags]), c, crypto.createHash('sha256').update(data).digest()]);
       ok = crypto.verify(null, skData, ed25519Key(key.pk), raw);
@@ -116,5 +134,5 @@ export function verifySshSignature(message, armored, { namespace, allowedKeys = 
     }
     if (!ok) problems.push(`signature by ${fp} does not verify over this approval`);
   } catch (e) { problems.push(`signature unreadable: ${e.message}`); }
-  return { ok: problems.length === 0, problems, key: { type: key.type, fingerprint: fp } };
+  return { ok: problems.length === 0, problems, key: info };
 }

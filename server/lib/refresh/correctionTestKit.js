@@ -13,6 +13,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { APPROVAL_NAMESPACE, ENVELOPE_KIND, APPROVAL_KINDS, bodyBytes, bodyHash } from './approvalValidator.js';
 import { loadRegistry } from './officialEvidence.js';
 import { signedData } from './sshSignature.js';
@@ -28,6 +29,7 @@ export function testKey(label) {
   return { label, privateKey, pk, blob, publicLine: `ssh-ed25519 ${blob.toString('base64')} ${label}` };
 }
 /** A simulated FIDO (sk-ssh-ed25519) key: `userPresent` false forges a signature made without a touch. */
+/** NOTE: a simulated sk key is a SOFTWARE key in sk clothing — exactly what attestation exists to reject (DI-04). */
 export function testSkKey(label, application = 'ssh:') {
   const k = testKey(label);
   const blob = Buffer.concat([str('sk-ssh-ed25519@openssh.com'), str(k.pk), str(application)]);
@@ -36,11 +38,11 @@ export function testSkKey(label, application = 'ssh:') {
 const armor = (raw) => `-----BEGIN SSH SIGNATURE-----\n${raw.toString('base64').match(/.{1,70}/g).join('\n')}\n-----END SSH SIGNATURE-----\n`;
 
 /** An OpenSSH SSHSIG signature (what `ssh-keygen -Y sign` produces) over `message`. */
-export function sshSign(message, key, { namespace = APPROVAL_NAMESPACE, hashAlg = 'sha512', userPresent = true } = {}) {
+export function sshSign(message, key, { namespace = APPROVAL_NAMESPACE, hashAlg = 'sha512', userPresent = true, userVerified = true } = {}) {
   const data = signedData(Buffer.isBuffer(message) ? message : Buffer.from(String(message)), namespace, hashAlg);
   let sigBlob;
   if (key.sk) {
-    const flags = userPresent ? 1 : 0; const counter = 7; const c = Buffer.alloc(4); c.writeUInt32BE(counter);
+    const flags = (userPresent ? 1 : 0) | (userVerified ? 4 : 0); /* 0x04: user verification (PIN/biometric), DI-04 */ const counter = 7; const c = Buffer.alloc(4); c.writeUInt32BE(counter);
     const skData = Buffer.concat([crypto.createHash('sha256').update(key.application).digest(), Buffer.from([flags]), c, crypto.createHash('sha256').update(data).digest()]);
     sigBlob = Buffer.concat([str('sk-ssh-ed25519@openssh.com'), str(crypto.sign(null, skData, key.privateKey)), Buffer.from([flags]), c]);
   } else sigBlob = Buffer.concat([str('ssh-ed25519'), str(crypto.sign(null, data, key.privateKey))]);
@@ -117,4 +119,43 @@ export function compositeBody({ baselineHash, stages, approval_id = 'AP-D', adde
 export function revertBody({ manifest, manifestSha256, approval_id = 'RV-1', sendable = [], noLonger = [], contactsNoLonger = [], holdsSha, target = MEMORY_TARGET, now, basis = 'reviewed test revert', over = {} }) {
   return { kind: APPROVAL_KINDS.REVERT, approval_id, target: { ...target }, basis, ...approvalDates(now), ledger_id: manifest.ledger_id, manifest_sha256: manifestSha256,
     sendability: { newly_sendable_coaches: sendable, no_longer_sendable_coaches: noLonger, newly_sendable_contacts: [], no_longer_sendable_contacts: contactsNoLonger, activation_holds_sha256: holdsSha }, ...over };
+}
+
+// ---- FIDO attestation fixtures (DI-04) -----------------------------------------------------------------------
+const u32 = (n) => { const b = Buffer.alloc(4); b.writeUInt32BE(n); return b; };
+const cborHead = (major, n) => (n < 24 ? Buffer.from([(major << 5) | n]) : n < 256 ? Buffer.from([(major << 5) | 24, n]) : Buffer.concat([Buffer.from([(major << 5) | 25]), Buffer.from([n >> 8, n & 255])]));
+const cborBytes = (b) => Buffer.concat([cborHead(2, b.length), b]);
+/** COSE_Key for an Ed25519 public key: { 1: 1 (OKP), 3: -8 (EdDSA), -1: 6 (Ed25519), -2: x }. */
+export const coseEd25519 = (pk) => Buffer.concat([Buffer.from([0xa4, 0x01, 0x01, 0x03, 0x27, 0x20, 0x06, 0x21]), cborBytes(pk)]);
+
+/** Is openssl available (the attestation CA fixtures need it)? */
+export function hasOpenssl() { try { execFileSync('openssl', ['version'], { stdio: 'ignore' }); return true; } catch { return false; } }
+
+/**
+ * A synthetic attestation CA and attestation certificate (EC P-256), made with openssl in a temp dir.
+ * -> { caPem, caCert (X509Certificate), leafDer, leafKey (KeyObject) }
+ */
+export function testAttestationCa(label = 'Test FIDO Root', { days = 3650 } = {}) {
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'di04-ca-'));
+  const o = (args) => execFileSync('openssl', args, { cwd: d, stdio: 'pipe' });
+  o(['ecparam', '-name', 'prime256v1', '-genkey', '-noout', '-out', 'ca.key']);
+  o(['req', '-x509', '-new', '-key', 'ca.key', '-subj', `/CN=${label}`, '-days', String(days), '-out', 'ca.pem']);
+  o(['ecparam', '-name', 'prime256v1', '-genkey', '-noout', '-out', 'att.key']);
+  o(['req', '-new', '-key', 'att.key', '-subj', `/CN=${label} attestation`, '-out', 'att.csr']);
+  o(['x509', '-req', '-in', 'att.csr', '-CA', 'ca.pem', '-CAkey', 'ca.key', '-CAcreateserial', '-days', String(days), '-outform', 'DER', '-out', 'att.der']);
+  const caPem = fs.readFileSync(path.join(d, 'ca.pem'), 'utf8');
+  const out = { caPem, caCert: new crypto.X509Certificate(caPem), leafDer: fs.readFileSync(path.join(d, 'att.der')), leafKey: crypto.createPrivateKey(fs.readFileSync(path.join(d, 'att.key'))) };
+  fs.rmSync(d, { recursive: true, force: true });
+  return out;
+}
+
+/**
+ * An OpenSSH ssh-sk-attest-v01 attestation for `skKey` (testSkKey), signed by `ca`'s attestation key over
+ * authData || SHA-256(challenge). Overrides forge specific defects. -> { attestation, challenge } (base64)
+ */
+export function testAttestation(skKey, ca, { challenge = crypto.randomBytes(32), application = skKey.application, credentialPk = skKey.pk, signChallenge = challenge } = {}) {
+  const authData = Buffer.concat([crypto.createHash('sha256').update(application).digest(), Buffer.from([0x41]), u32(0), Buffer.alloc(16), Buffer.from([0, 16]), crypto.randomBytes(16), coseEd25519(credentialPk)]);
+  const sig = crypto.sign('sha256', Buffer.concat([authData, crypto.createHash('sha256').update(signChallenge).digest()]), ca.leafKey);
+  const blob = Buffer.concat([str('ssh-sk-attest-v01'), str(ca.leafDer), str(sig), str(cborBytes(authData)), u32(0), str('')]);
+  return { attestation: blob.toString('base64'), challenge: Buffer.from(challenge).toString('base64') };
 }

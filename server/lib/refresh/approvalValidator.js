@@ -30,9 +30,15 @@
  * is the database they are writing, so a direct library call cannot skip authentication.
  *
  * The reviewer registry is always the committed shared/correctionReviewers.json — there is no override.
+ *
+ * DI-04: SHARED_DEV / PRODUCTION approvals need ATTESTED HARDWARE keys signing with touch AND PIN/biometric
+ * (loadReviewers + fidoAttestation.js + verifySshSignature requireHardware); keys are one person per RAW key;
+ * the rehearsal key can never hold a runtime scope. The engine additionally requires the trust root
+ * (trustRoot.js) for runtime targets. See docs/CORRECTION_REVIEWER_SECURITY.md.
  */
 import crypto from 'node:crypto';
-import { verifySshSignature, parsePublicKey, fingerprint } from './sshSignature.js';
+import { verifySshSignature, parsePublicKey, fingerprint, keyIdentity } from './sshSignature.js';
+import { attestationProblems } from './fidoAttestation.js';
 import { readReviewerRegistry, REVIEWERS_PATH } from './reviewerRegistry.js';
 
 export { REVIEWERS_PATH };
@@ -64,29 +70,53 @@ export const placeholderIn = (s) => { const m = skeleton(s).match(PLACEHOLDER); 
 
 // ---- registry -------------------------------------------------------------------------------------
 /**
- * The committed reviewer registry. Unreadable / malformed -> nobody may approve (fail closed).
- * DI-03H (DI-03G MAJOR-B): ONE KEY IS ONE PERSON. If any key (by its SHA256 fingerprint) is enrolled under
- * more than one reviewer id — or twice under one — the whole registry is refused, so two "reviewers" can
- * never be one key. `problem` says why.
+ * The rehearsal reviewer's key (public seed, correctionTestKit.js). It is hard-denied any SHARED_DEV or
+ * PRODUCTION scope in code, whatever the registry says (DI-04: DI-03G R1-9).
+ */
+export const REHEARSAL_KEY_LINE = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqqEPrC4MtXOGy903Nt+YZkpw6G9RXQ9tC9HJ0J/AHw';
+const RUNTIME_SCOPES = Object.freeze([ENV.SHARED_DEV, ENV.PRODUCTION]);
+
+/**
+ * The committed reviewer registry (version 3). Unreadable / malformed -> nobody may approve (fail closed).
+ *
+ * ONE KEY IS ONE PERSON (DI-03H MAJOR-B, DI-04 N1). Keys are compared by their RAW Ed25519 public key
+ * (sshSignature.keyIdentity), so the same key enrolled as ssh-ed25519 and as an sk-ssh-ed25519 wrapper,
+ * or under two application strings, is the same key. Any key under two reviewer ids, a duplicate id, or
+ * the rehearsal key in a runtime scope refuses the WHOLE registry (`problem`).
+ *
+ * RUNTIME SCOPES NEED AN ATTESTED HARDWARE KEY (DI-04, DI-03G MAJOR-C). A reviewer may hold SHARED_DEV or
+ * PRODUCTION scope only if EVERY key enrolled for them is an sk-ssh-ed25519 key entered as
+ *   { "key": "<public key line>", "attestation": "<base64 ssh-sk-attest-v01>", "challenge": "<base64>" }
+ * whose attestation verifies against a pinned vendor root (fidoAttestation.js). A reviewer that fails
+ * keeps only DISPOSABLE scope, and `enrolment[reviewer_id]` says why.
  */
 export function loadReviewers() {
   try {
     const j = readReviewerRegistry();
-    if (j?.kind !== 'CORRECTION_REVIEWERS' || j.version !== 2 || !Array.isArray(j.reviewers)) return { reviewers: [], policy: {}, problem: 'reviewer registry unreadable or not version 2' };
-    const reviewers = j.reviewers.filter((r) => r?.reviewer_id && r?.name && Array.isArray(r.scopes) && Array.isArray(r.keys) && !placeholderIn(r.name))
-      .map((r) => ({ reviewer_id: r.reviewer_id, name: r.name, scopes: r.scopes.filter((s) => Object.values(ENV).includes(s)), keys: r.keys.filter((k) => typeof k === 'string') }));
-    const ids = reviewers.map((r) => r.reviewer_id);
-    if (new Set(ids).size !== ids.length) return { reviewers: [], policy: {}, problem: 'a reviewer id is enrolled more than once — registry refused' };
-    const owner = new Map();
-    for (const r of reviewers) {
-      for (const line of r.keys) {
-        let fp; try { fp = fingerprint(parsePublicKey(line).blob); } catch { continue; } // an unparseable key never verifies anything
-        if (owner.has(fp)) return { reviewers: [], policy: {}, problem: `key ${fp} is enrolled under both ${owner.get(fp)} and ${r.reviewer_id} — one key is one person; registry refused` };
-        owner.set(fp, r.reviewer_id);
+    if (j?.kind !== 'CORRECTION_REVIEWERS' || j.version !== 3 || !Array.isArray(j.reviewers)) return { reviewers: [], policy: {}, enrolment: {}, problem: 'reviewer registry unreadable or not version 3' };
+    const rehearsal = keyIdentity(parsePublicKey(REHEARSAL_KEY_LINE));
+    const enrolment = {}; const reviewers = []; const owner = new Map(); const ids = new Set();
+    for (const r of j.reviewers) {
+      if (!r?.reviewer_id || !r?.name || !Array.isArray(r.scopes) || !Array.isArray(r.keys) || placeholderIn(r.name)) continue;
+      if (ids.has(r.reviewer_id)) return { reviewers: [], policy: {}, enrolment: {}, problem: `reviewer id ${r.reviewer_id} is enrolled more than once — registry refused` };
+      ids.add(r.reviewer_id);
+      let scopes = r.scopes.filter((x) => Object.values(ENV).includes(x));
+      const keys = []; const why = [];
+      for (const k of r.keys) {
+        const line = typeof k === 'string' ? k : k?.key;
+        let parsed; try { parsed = parsePublicKey(line); } catch (e) { why.push(`unparseable key: ${e.message}`); continue; }
+        const id = keyIdentity(parsed);
+        if (owner.has(id)) return { reviewers: [], policy: {}, enrolment: {}, problem: `key ${fingerprint(parsed.blob)} (raw key ${id.slice(8, 24)}…) is enrolled under both ${owner.get(id)} and ${r.reviewer_id} — one key is one person; registry refused` };
+        owner.set(id, r.reviewer_id);
+        if (id === rehearsal && scopes.some((x) => RUNTIME_SCOPES.includes(x))) return { reviewers: [], policy: {}, enrolment: {}, problem: `the public-seed rehearsal key is enrolled for ${r.reviewer_id} with a runtime scope — it may only ever authorise DISPOSABLE databases; registry refused` };
+        if (scopes.some((x) => RUNTIME_SCOPES.includes(x))) why.push(...attestationProblems(parsed, { attestation: k?.attestation, challenge: k?.challenge }).map((x) => `${fingerprint(parsed.blob)}: ${x}`));
+        keys.push(line);
       }
+      if (why.length && scopes.some((x) => RUNTIME_SCOPES.includes(x))) { enrolment[r.reviewer_id] = why; scopes = scopes.filter((x) => !RUNTIME_SCOPES.includes(x)); }
+      reviewers.push({ reviewer_id: r.reviewer_id, name: r.name, scopes, keys });
     }
-    return { reviewers, policy: j.policy || {} };
-  } catch { return { reviewers: [], policy: {}, problem: 'reviewer registry unreadable' }; }
+    return { reviewers, policy: j.policy || {}, enrolment };
+  } catch (e) { return { reviewers: [], policy: {}, enrolment: {}, problem: `reviewer registry unreadable (${e.message})` }; }
 }
 export function minSigners(cls, policy = loadReviewers().policy) {
   const set = Number(policy?.min_distinct_signers?.[cls]);
@@ -148,7 +178,7 @@ export function verifyApproval(envelope, { kind, target, now = new Date(), at = 
     if (when.getTime() > exp.getTime()) p.push(`approval expired at ${body.expires_at}`);
   }
   // signatures
-  const { reviewers, policy, problem: registryProblem } = loadReviewers();
+  const { reviewers, policy, enrolment, problem: registryProblem } = loadReviewers();
   if (registryProblem) p.push(`reviewer registry: ${registryProblem}`);
   const sigs = Array.isArray(envelope.signatures) ? envelope.signatures : [];
   const message = bodyBytes(body);
@@ -160,17 +190,18 @@ export function verifyApproval(envelope, { kind, target, now = new Date(), at = 
     if (seen.has(rv.reviewer_id)) { p.push(`reviewer ${rv.reviewer_id} signed more than once`); continue; }
     seen.add(rv.reviewer_id);
     if (!rv.keys.length) { p.push(`reviewer ${rv.reviewer_id} has no enrolled signing key`); continue; }
-    if (target?.class && !rv.scopes.includes(target.class)) { p.push(`reviewer ${rv.reviewer_id} may not authorise a ${target.class} database (scopes: ${rv.scopes.join(', ') || 'none'})`); continue; }
-    const v = verifySshSignature(message, s.signature, { namespace: APPROVAL_NAMESPACE, allowedKeys: rv.keys });
+    if (target?.class && !rv.scopes.includes(target.class)) { p.push(`reviewer ${rv.reviewer_id} may not authorise a ${target.class} database (scopes: ${rv.scopes.join(', ') || 'none'})${enrolment?.[rv.reviewer_id] ? ` — enrolment refused: ${enrolment[rv.reviewer_id].join('; ')}` : ''}`); continue; }
+    // DI-04: a SHARED_DEV / PRODUCTION approval needs a hardware-key signature with touch AND PIN/biometric
+    const v = verifySshSignature(message, s.signature, { namespace: APPROVAL_NAMESPACE, allowedKeys: rv.keys, requireHardware: RUNTIME_SCOPES.includes(target?.class) });
     if (!v.ok) { p.push(...v.problems.map((x) => `signature by ${rv.reviewer_id}: ${x}`)); continue; }
     // DI-03H (MAJOR-B): independence is counted by KEY, never by reviewer id
-    if (keysUsed.has(v.key.fingerprint)) { p.push(`signature by ${rv.reviewer_id} uses the same key (${v.key.fingerprint}) as ${keysUsed.get(v.key.fingerprint)} — one key counts once`); continue; }
-    keysUsed.set(v.key.fingerprint, rv.reviewer_id);
-    signers.push({ reviewer_id: rv.reviewer_id, name: rv.name, fingerprint: v.key.fingerprint });
+    if (keysUsed.has(v.key.identity)) { p.push(`signature by ${rv.reviewer_id} uses the same key (${v.key.fingerprint}) as ${keysUsed.get(v.key.identity)} — one key counts once`); continue; }
+    keysUsed.set(v.key.identity, rv.reviewer_id);
+    signers.push({ reviewer_id: rv.reviewer_id, name: rv.name, fingerprint: v.key.fingerprint, key_identity: v.key.identity, hardware: v.key.type === 'sk-ssh-ed25519@openssh.com' });
   }
   if (target?.class) {
     const need = minSigners(target.class, policy);
-    const distinctKeys = new Set(signers.map((x) => x.fingerprint)).size;
+    const distinctKeys = new Set(signers.map((x) => x.key_identity)).size;
     if (distinctKeys < need) p.push(`${target.class} needs ${need} distinct authenticated reviewer key(s); ${distinctKeys} verified`);
   }
   if (p.length) return { problems: p, grant: null };
