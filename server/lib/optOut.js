@@ -13,6 +13,11 @@
  * request never names an address, so the button cannot suppress somebody the
  * relationship is not with. There is no un-suppress here: that stays a
  * deliberate act of its own (`unsuppress`), as the suppression module says.
+ *
+ * LOCAL TO THIS DATABASE. The row is written here and honoured by every send
+ * from here; it is not pushed to the engagement edge service (edge sync only
+ * PULLS unsubscribes in) or to any other environment. See docs/hosting.md,
+ * "Opt-outs are local to the database". Never describe it as global.
  */
 import db from '../db/client.js';
 import { recipientForOutreach, RecipientError } from './recipient.js';

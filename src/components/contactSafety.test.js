@@ -185,11 +185,22 @@ describe('recording an opt-out', () => {
     expect(onRecorded).toHaveBeenCalled();
   });
 
+  it('never claims more than this database: says it is not copied to other environments or the edge', async () => {
+    stubFetch({ '/opt-out': () => ({ optedOut: false }) });
+    await act(async () => { root.render(createElement(OptOutControl, { outreachId: 'out-3' })); });
+    await flush();
+    const before = q('[data-testid="opt-out-control"]').textContent;
+    expect(before).toContain('in this Thriv3 database');
+    expect(before).toContain('not copied to other environments or to the engagement edge service');
+    expect(before).not.toMatch(/Thriv3.s opt-out list|globally|everywhere/i);
+  });
+
   it('an already opted-out recipient shows the recorded state and no button', async () => {
     stubFetch({ '/opt-out': () => ({ optedOut: true, recordedAt: '2026-10-01T00:00:00.000Z' }) });
     await act(async () => { root.render(createElement(OptOutControl, { outreachId: 'out-2' })); });
     await flush();
     expect(q('[data-testid="opt-out-recorded"]')).not.toBeNull();
+    expect(q('[data-testid="opt-out-recorded"]').textContent).toContain('not copied to other environments');
     expect(q('[data-testid="opt-out-start"]')).toBeNull();
   });
 

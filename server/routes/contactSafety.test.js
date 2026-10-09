@@ -170,6 +170,61 @@ describe('#2 recording an opt-out from the app', () => {
   });
 });
 
+describe('final safety check: the send-time refusal, the resolved recipient, the original date', () => {
+  it('a stale Top 100 / bulk list holding a suppressed address: refused at send time, the others still prepared', async () => {
+    db.prepare("INSERT INTO suppressions (email, reason, source, created_at) VALUES (?, 'unsubscribed', 'manual', ?) ON CONFLICT(email) DO NOTHING").run(P.vera.coachEmail(0), T);
+    for (const send of [false, true]) {
+      composed.length = 0;
+      const res = await api('POST', '/api/outreach/send', {
+        athleteId: ATH, send,
+        coaches: [
+          { name: 'Vera Verified', email: P.vera.coachEmail(0), title: 'Head Coach' },  // opted out, still on the stale list
+          { name: 'Otto Other', email: P.vera.coachEmail(1), title: 'Head Coach' },
+        ],
+        subject: 's', body: BODY, greetingName: 'Coach', collegeName: P.vera.name, division: 'NCAA D3',
+      });
+      const byEmail = Object.fromEntries(res.body.results.map((r) => [r.email, r.status]));
+      expect(byEmail[P.vera.coachEmail(0)]).toBe('suppressed');
+      // The eligible coach on the same list is processed on its own merits, not refused as opted
+      // out. (In this test there is no edge service to make its profile link live, so it stops
+      // at 'link-not-activated' - the existing safeguard, unrelated to suppression.)
+      expect(byEmail[P.vera.coachEmail(1)]).not.toBe('suppressed');
+      // Outlook is never asked to compose, let alone send, to the opted-out address.
+      expect(composed.map((m) => m.to)).not.toContain(P.vera.coachEmail(0));
+    }
+  });
+
+  it('opting out an inbox relationship suppresses that inbox and nobody else at the programme', async () => {
+    const p = programme('inboxonly');
+    expect((await draftTo(p, { programmeContactId: p.pc })).status).toBe(200);
+    const o = outreachFor(p.email);
+    expect((await api('POST', `/api/engagement/outreach/${o.id}/opt-out`, { reason: 'unsubscribed' })).status).toBe(200);
+    expect(isSuppressed(p.email)).toBe(true);
+    expect(db.prepare('SELECT COUNT(*) n FROM suppressions WHERE email LIKE ?').get(`%@${p.host}`).n).toBe(1);
+  });
+
+  it('an opt-out already on file (e.g. from the CLI or the edge) keeps its original date, reason and source', async () => {
+    const p = programme('preexisting', { coaches: [{ name: 'Pat Prior' }] });
+    expect((await draftTo(p, { coachIds: ['co-preexisting-0'] })).status).toBe(200);
+    db.prepare("INSERT INTO suppressions (email, reason, source, created_at, note) VALUES (?, 'unsubscribed', 'edge', '2026-01-02T03:04:05.000Z', 'from the edge')").run(p.coachEmail(0));
+    const o = outreachFor(p.coachEmail(0));
+    const res = await api('POST', `/api/engagement/outreach/${o.id}/opt-out`, { reason: 'manual', note: 'again' });
+    expect(res.body).toMatchObject({ alreadyRecorded: true, recordedAt: '2026-01-02T03:04:05.000Z', reason: 'unsubscribed' });
+    expect(db.prepare('SELECT * FROM suppressions WHERE email = ?').get(p.coachEmail(0)))
+      .toMatchObject({ created_at: '2026-01-02T03:04:05.000Z', reason: 'unsubscribed', source: 'edge', note: 'from the edge' });
+  });
+
+  it('GET and POST both require a signed-in operator', async () => {
+    const o = outreachFor(P.vera.coachEmail(0));
+    for (const method of ['GET', 'POST']) {
+      const r = await fetch(`${base}/api/engagement/outreach/${o.id}/opt-out`, {
+        method, headers: { origin: ORIGIN, 'content-type': 'application/json' }, ...(method === 'POST' ? { body: '{}' } : {}),
+      });
+      expect(r.status).toBe(401);
+    }
+  });
+});
+
 describe('#3 an opted-out contact is never offered, and is named as left out', () => {
   it('the coach list leaves the opted-out coach out, names them, and never sends their address', async () => {
     const { body } = await api('GET', '/api/colleges/col-vera/coaches');

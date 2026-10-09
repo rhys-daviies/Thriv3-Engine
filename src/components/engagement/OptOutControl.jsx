@@ -9,8 +9,12 @@ import { engagement } from '@/api/client';
  *
  * Manual emails tell a coach "just reply and we'll take you off our list".
  * When that reply arrives, this is where it is honoured: the recipient's
- * address goes on Thriv3's opt-out list (the same `suppress()` the CLI uses),
- * and no athlete's outreach will address it again.
+ * address goes on THIS DATABASE's opt-out list (the same `suppress()` the CLI
+ * uses), and no outreach prepared from this database will address it again.
+ *
+ * LOCAL, AND SAID SO. The opt-out is not pushed to the engagement edge service
+ * or to any other environment (docs/hosting.md, "Opt-outs are local to the
+ * database"), so the copy below never claims more than that.
  *
  * Two steps, not one click, because it cannot be undone from the screen. The
  * operator can note what they saw ("replied 9 Oct asking to be removed"), which
@@ -59,13 +63,16 @@ export default function OptOutControl({ outreachId, recipientLabel = 'this recip
         <p className="text-sm" data-testid="opt-out-recorded">
           Opted out
           {status.recordedAt ? ` since ${new Date(status.recordedAt).toLocaleDateString()}` : ''}.
-          {' '}No athlete&rsquo;s outreach will be prepared for this address again.
+          {' '}Outreach prepared from this Thriv3 database will not be addressed to it, for any athlete.
+          {' '}It is not copied to other environments or to the engagement edge service.
         </p>
       ) : (
         <>
           <p className="text-xs text-muted-foreground">
-            If {recipientLabel} replied asking not to be contacted, record it here. The address is added to
-            Thriv3&rsquo;s opt-out list for every athlete. This cannot be undone from the app.
+            If {recipientLabel} replied asking not to be contacted, record it here. The address is added to the
+            opt-out list in this Thriv3 database, so outreach prepared here will not be addressed to it, for any
+            athlete. It is not copied to other environments or to the engagement edge service. This cannot be
+            undone from the app.
           </p>
           {!confirming ? (
             <Button size="sm" variant="outline" onClick={() => setConfirming(true)} disabled={!status} data-testid="opt-out-start">
