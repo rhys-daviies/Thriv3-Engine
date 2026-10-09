@@ -1,6 +1,7 @@
 import db from '../../db/client.js';
 import { SEND_EVENT_TYPE } from '../../../shared/outreachMessageState.js';
 import { currentState } from './recruitingObservations.js';
+import { OUTREACH_ORIGIN } from '../../../shared/outreachOrigin.js';
 
 /**
  * =============================================================================
@@ -50,6 +51,53 @@ export const RECIPIENT_COUNT_SQL = `COUNT(DISTINCT CASE
              WHEN programme_contact_id IS NOT NULL THEN 'INBOX:' || programme_contact_id
            END)`;
 
+/**
+ * THE SENDS EACH SELECTION ANSWERS FOR - Phase 5 follow-up.
+ *
+ * A campaign message records the selection that caused it
+ * (`outreach_send.matchmaking_selection_id`). A MANUAL draft does not: the
+ * Specific Search and programme composers never link one. Read through the
+ * link alone, a programme that was manually contacted, confirmed sent and
+ * replied to still showed "Not contacted yet".
+ *
+ * So an unlinked manual send is attributed here, at read time, to exactly ONE
+ * selection of the same athlete, programme and sport: the latest one made at
+ * or before the send was created, or, for a send that predates every
+ * selection, the earliest. Nothing is written: provenance is not invented
+ * after the fact, and historical sends are covered as they stand.
+ *
+ *   - A linked send keeps its link and is never attributed again, so a send
+ *     counts once. Campaign and manual sends to the same coach share a
+ *     relationship, and recipients and replies are counted DISTINCT.
+ *   - Attribution never touches `state`. A prepared draft stays a message,
+ *     not an accepted send; only a confirmed send is ACCEPTED.
+ *   - Manual means origin 'manual', or a legacy row with no origin and no
+ *     campaign (manual drafts predating the origin column). Unlinked CAMPAIGN
+ *     sends are left alone: their provenance is the campaign's to state.
+ */
+function attributedSends(placeholders) {
+  const SAME_PROGRAMME = 'm.player_id = s.athlete_id AND m.college_name = s.college_name AND m.sport = s.sport';
+  return {
+    sql: `WITH attributed AS (
+      SELECT s.id, s.outreach_id, s.state, s.sent_at, s.coach_id, s.programme_contact_id,
+             s.matchmaking_selection_id AS sel
+        FROM outreach_send s
+       WHERE s.matchmaking_selection_id IN (${placeholders})
+      UNION ALL
+      SELECT s.id, s.outreach_id, s.state, s.sent_at, s.coach_id, s.programme_contact_id,
+             COALESCE(
+               (SELECT m.id FROM matchmaking_selections m WHERE ${SAME_PROGRAMME} AND m.selected_at <= s.created_at
+                 ORDER BY m.selected_at DESC, m.id DESC LIMIT 1),
+               (SELECT m.id FROM matchmaking_selections m WHERE ${SAME_PROGRAMME}
+                 ORDER BY m.selected_at ASC, m.id ASC LIMIT 1)) AS sel
+        FROM outreach_send s
+       WHERE s.matchmaking_selection_id IS NULL AND s.athlete_id = ?
+         AND (s.origin = ? OR (s.origin IS NULL AND s.programme_campaign_id IS NULL))
+    )`,
+    params: (ids, playerId) => [...ids, playerId, OUTREACH_ORIGIN.MANUAL],
+  };
+}
+
 export function selectionsOverview(playerId, { limit = 200 } = {}) {
   const selections = db.prepare(`
     SELECT s.*, r.computed_at AS run_computed_at
@@ -70,15 +118,17 @@ export function selectionsOverview(playerId, { limit = 200 } = {}) {
    * messages — a head coach, an assistant, a follow-up — and this surface
    * answers "has anything gone out", not "show me the mail".
    */
+  const attributed = attributedSends(placeholders);
   const sendRows = db.prepare(`
-    SELECT matchmaking_selection_id AS sel,
+    ${attributed.sql}
+    SELECT sel,
            COUNT(*)                                             AS messages,
            SUM(CASE WHEN state = 'ACCEPTED' THEN 1 ELSE 0 END)  AS accepted,
            MAX(sent_at)                                         AS last_sent_at,
            ${RECIPIENT_COUNT_SQL}                                AS coaches
-      FROM outreach_send
-     WHERE matchmaking_selection_id IN (${placeholders})
-     GROUP BY matchmaking_selection_id`).all(...ids);
+      FROM attributed
+     WHERE sel IN (${placeholders})
+     GROUP BY sel`).all(...attributed.params(ids, playerId), ...ids);
   const sends = new Map(sendRows.map((r) => [r.sel, r]));
 
   /**
@@ -96,21 +146,21 @@ export function selectionsOverview(playerId, { limit = 200 } = {}) {
    * replied", which is what both paths can actually support.
    */
   const replyRows = db.prepare(`
+    ${attributed.sql}
     SELECT sel, COUNT(DISTINCT outreach_id) AS replies, MAX(at) AS last_reply_at
       FROM (
-        SELECT s.matchmaking_selection_id AS sel, s.outreach_id, e.observed_at AS at
+        SELECT a.sel, a.outreach_id, e.observed_at AS at
           FROM outreach_send_event e
-          JOIN outreach_send s ON s.id = e.outreach_send_id
+          JOIN attributed a ON a.id = e.outreach_send_id
          WHERE e.type = ?
-           AND s.matchmaking_selection_id IN (${placeholders})
         UNION ALL
-        SELECT s.matchmaking_selection_id AS sel, s.outreach_id, r.responded_at AS at
-          FROM outreach_send s
-          JOIN engagement_rollup r ON r.outreach_id = s.outreach_id
+        SELECT a.sel, a.outreach_id, r.responded_at AS at
+          FROM attributed a
+          JOIN engagement_rollup r ON r.outreach_id = a.outreach_id
          WHERE r.responded_at IS NOT NULL
-           AND s.matchmaking_selection_id IN (${placeholders})
       )
-     GROUP BY sel`).all(SEND_EVENT_TYPE.REPLY, ...ids, ...ids);
+     WHERE sel IN (${placeholders})
+     GROUP BY sel`).all(...attributed.params(ids, playerId), SEND_EVENT_TYPE.REPLY, ...ids);
   const replies = new Map(replyRows.map((r) => [r.sel, r]));
 
   /** One outcome history per PROGRAMME, not per selection — see above. */
