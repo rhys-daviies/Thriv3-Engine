@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
  * PHASE 8D.3C / DI-03F — run an APPROVED composite correction (ordered coach + domain correction stages)
- * in ONE transaction, or revert one. Every rule is in server/lib/refresh/compositeCorrection.js.
+ * in ONE transaction, or revert one. NON-PRODUCTION databases only: the production /data volume (or any
+ * database the engine classifies PRODUCTION) is refused by REAL path before a Database is constructed.
+ * Every rule is in server/lib/refresh/compositeCorrection.js.
  *
  *   node server/scripts/applyCompositeCorrection.js --db <path> --plan <plan.json> --approval <signed.json>              # rehearsal: runs every stage + gate, then ROLLBACK
  *   node server/scripts/applyCompositeCorrection.js --db <path> --plan <plan.json> --approval <signed.json> --apply --manifest-out <m> [--report-out <r>]
@@ -25,11 +27,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';
 import { runCompositeCorrection, revertComposite } from '../lib/refresh/compositeCorrection.js';
+import { runtimeSignals } from '../lib/refresh/correctionTarget.js';
 
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i > -1 ? process.argv[i + 1] : null; };
 const apply = process.argv.includes('--apply');
 const fail = (m, c = 2) => { console.error(m); process.exit(c); };
 const dbArg = arg('db'); if (!dbArg) fail('Give --db.');
+// Refuse the production /data volume — and anything else correctionTarget identifies as PRODUCTION (a production
+// process, the same inode as the production file) — by REAL path, so a symlink, `..` or case variant cannot hide it
+// (DI-03E MAJOR-1: the old string test on the given path was bypassed through a symlink).
+const realDb = (() => { try { return fs.realpathSync.native(path.resolve(dbArg)); } catch { return path.resolve(dbArg); } })();
+const prod = runtimeSignals(realDb).filter((x) => x.class === 'PRODUCTION');
+if (prod.length) fail(`Refusing production database ${realDb}: ${prod.map((x) => x.why).join('; ')}. This tool never corrects production (Render: /data/recruitmatch.sqlite).`);
 const activationHoldsFile = arg('activation-holds') ? path.resolve(arg('activation-holds')) : null;
 const evidenceDir = arg('evidence-dir') ? path.resolve(arg('evidence-dir')) : null;
 const readJson = (p) => JSON.parse(fs.readFileSync(path.resolve(p), 'utf8'));
