@@ -27,7 +27,7 @@ import {
 } from './matchmakingRuns.js';
 import { clearCorpusDigestCache } from './corpusIdentity.js';
 import { CONTRIBUTION_STATE } from '../../../shared/matching/v2/financialRules.js';
-import { REGIONS } from '../../../shared/recruitmentPreferences.js';
+import { REGIONS, preferenceChecks } from '../../../shared/recruitmentPreferences.js';
 
 const created = [];
 
@@ -281,5 +281,44 @@ describe('conference preferences (Phase 3): advisory only in V2', () => {
     }
     // Stated nothing: no conference check at all.
     expect(ranked(none)[0].explanation.preferenceChecks.some((c) => c.check === 'CONFERENCE')).toBe(false);
+  });
+});
+
+describe('conference preferences (Phase 5, #7): one conference, however it is spelled', () => {
+  const check = (stated, college) => preferenceChecks({ conferences: stated }, { sport: 'mens-soccer', ...college })
+    .find((c) => c.check === 'CONFERENCE');
+
+  it('a spelling the register folds together reads INSIDE: "MEC" is the Mountain East Conference', () => {
+    expect(check(['Mountain East'], { division: 'NCAA D2', conference: 'MEC' }).status).toBe('INSIDE');
+    expect(check(['MEC'], { division: 'NCAA D2', conference: 'Mountain East' }).status).toBe('INSIDE');
+    expect(check(['LSC'], { division: 'NCAA D2', conference: 'Lone Star' }).status).toBe('INSIDE');
+    expect(check(['Heart'], { division: 'NAIA', conference: 'HAAC' }).status).toBe('INSIDE');
+    // and a different conference is still OUTSIDE
+    expect(check(['Lone Star'], { division: 'NCAA D2', conference: 'MEC' }).status).toBe('OUTSIDE');
+  });
+
+  it('a scoped alias is read in the programme\'s own division: "MAC" in D1 is not the D3 "MAC"', () => {
+    expect(check(['Mid-American Conference'], { division: 'NCAA D1', conference: 'MAC' }).status).toBe('INSIDE');
+    expect(check(['Mid-American Conference'], { division: 'NCAA D3', conference: 'MAC' }).status).toBe('OUTSIDE');
+  });
+
+  it('a spelling the register does not hold matches exactly, never by similarity', () => {
+    expect(check(['Conf 0'], { division: 'NCAA D1', conference: 'Conf 0' }).status).toBe('INSIDE');
+    expect(check(['Conf 0'], { division: 'NCAA D1', conference: 'Conf 00' }).status).toBe('OUTSIDE');
+    expect(check(['Conf 0'], { division: 'NCAA D1', conference: null }).status).toBe('UNKNOWN');
+  });
+
+  it('canonical comparison changes no ranking: the result digest is identical with and without the preference', () => {
+    db.prepare("UPDATE colleges SET conference = 'MEC' WHERE id = 'c-mens-soccer-1'").run();
+    db.prepare("UPDATE colleges SET conference = 'Mountain East' WHERE id = 'c-mens-soccer-5'").run();
+    clearContextCache(); clearCorpusDigestCache();
+    const none = computeMatchmakingV2(db, athlete(), { withExplanations: true });
+    const mec = computeMatchmakingV2(db, athlete({ preferred_conferences: ['Mountain East'] }), { withExplanations: true });
+    expect(resultDigest(mec)).toBe(resultDigest(none));
+    const statusOf = (id) => mec.programmes.find((p) => p.programmeId === id)?.explanation?.preferenceChecks
+      ?.find((c) => c.check === 'CONFERENCE')?.status;
+    const seen = ['c-mens-soccer-1', 'c-mens-soccer-5'].map(statusOf).filter((st) => st !== undefined);
+    expect(seen.length).toBeGreaterThan(0);  // at least one carries an explanation to check
+    expect(seen.every((st) => st === 'INSIDE')).toBe(true);
   });
 });

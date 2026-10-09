@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { pickBestContact } from '@shared/coachRoles.js';
+import { refusalFor } from '@/lib/sendRefusal';
 import {
   RECIPIENT_KIND, inboxSubject, InboxCompositionError, PROGRAMME_CONTACT_HINT,
 } from '@shared/recipientPresentation.js';
@@ -94,6 +95,13 @@ export default function EmailComposer({
    * greeted "Hi Coach,", and posted back by id, never as an address.
    */
   programmeContact = null,
+  /**
+   * Phase 5 (#3, #10): from the manual route. `noRecipient` is `{ summary, details[] }` when
+   * nobody can be written to; `optedOutCoaches` names (never addresses) coaches left out because
+   * they opted out. Both absent on the Top 100 path, which reads the match blob.
+   */
+  noRecipient = null,
+  optedOutCoaches = null,
 }) {
   const validCoaches = useMemo(
     () => (college?.coaching_staff || []).filter((c) => c.email && c.email !== 'N/A'),
@@ -417,36 +425,21 @@ export default function EmailComposer({
                       <XCircle className="h-4 w-4" /> {LINK_NOT_ACTIVATED}
                     </span>
                   )}
-                  {results[c.email]?.status === 'error' && (
-                    <span className="inline-flex items-center gap-1 text-xs text-destructive" title={results[c.email].error}>
-                      <XCircle className="h-4 w-4" /> failed
-                    </span>
-                  )}
                   {/*
-                    A COACH WHO WAS SKIPPED, AND WHY.
-                    Without this a refusal is a row with no tick and no cross:
-                    the operator presses the button, one recipient silently
-                    does not happen, and nothing on screen says so. Keyed on
-                    the server's own `message` rather than on a list of
-                    statuses, so the branch cannot fall behind the guards —
-                    a refusal that carries an explanation shows it, and the
-                    ones that do not are unchanged.
-
-                    R4C: EXCEPT the ones that have a badge of their own. A
-                    `link-not-activated` result carries a `message` too, and
-                    without this it would draw both its own word and a second
-                    "not sent" beside it — one refusal reading as two. The
-                    catch-all still catches everything else, including
-                    refusals nobody has written a branch for yet.
+                    Phase 5 (#3): EVERY OTHER REFUSAL, FROM ONE TABLE. An opted-out,
+                    ineligible, rate-capped or budget-refused recipient comes back with
+                    no `message`, so the catch-all below drew nothing for them and the row
+                    looked untouched. `refusalFor` names each one, and still catches a
+                    status nobody has written a word for yet.
                   */}
-                  {results[c.email]?.message
-                    && !OWN_BADGE.has(results[c.email]?.status) && (
+                  {refusalFor(results[c.email]) && !OWN_BADGE.has(results[c.email]?.status) && (
                     <span
-                      className="inline-flex items-center gap-1 text-xs text-amber-400"
-                      title={results[c.email].message}
+                      className={`inline-flex items-center gap-1 text-xs ${refusalFor(results[c.email]).tone === 'error' ? 'text-destructive' : 'text-amber-400'}`}
+                      title={refusalFor(results[c.email]).detail}
                       role="status"
+                      data-testid="refusal-badge"
                     >
-                      <XCircle className="h-4 w-4" /> not sent
+                      <XCircle className="h-4 w-4" /> {refusalFor(results[c.email]).word}
                     </span>
                   )}
                 </label>
@@ -461,8 +454,10 @@ export default function EmailComposer({
                     {PROGRAMME_CONTACT_HINT} ({programmeContact.email})
                   </span>
                   {results[programmeContact.email]?.status && (
-                    <span className="block text-xs text-muted-foreground" role="status">
-                      {results[programmeContact.email].status === 'drafted' ? 'prepared' : (results[programmeContact.email].reason || results[programmeContact.email].status)}
+                    <span className="block text-xs text-muted-foreground" role="status" data-testid="inbox-result">
+                      {refusalFor(results[programmeContact.email])
+                        ? `${refusalFor(results[programmeContact.email]).word} - ${refusalFor(results[programmeContact.email]).detail}`
+                        : (results[programmeContact.email].status === 'sent' ? 'sent' : 'prepared')}
                     </span>
                   )}
                   {compositionRefusal && (
@@ -471,7 +466,28 @@ export default function EmailComposer({
                 </div>
               )}
               {validCoaches.length === 0 && !inboxMode && (
-                <p className="text-xs text-muted-foreground italic">No coaches with a verified email on file for this program.</p>
+                noRecipient ? (
+                  /*
+                    Phase 5 (#10): the server's own reason, read from the same hierarchy
+                    the send uses - a hold, an opt-out, an inbox that is not current - not
+                    one sentence for every cause.
+                  */
+                  <div className="text-xs text-muted-foreground space-y-1" data-testid="no-recipient-explanation">
+                    <p>{noRecipient.summary}</p>
+                    {noRecipient.details?.length > 0 && (
+                      <ul className="list-disc pl-4">
+                        {noRecipient.details.map((d) => <li key={d}>{d}</li>)}
+                      </ul>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">No coaches with a verified email on file for this program.</p>
+                )
+              )}
+              {optedOutCoaches?.length > 0 && (
+                <p className="text-xs text-muted-foreground" data-testid="opted-out-coaches">
+                  Not offered - opted out of Thriv3 email: {optedOutCoaches.map((c) => c.name || 'Coach').join(', ')}.
+                </p>
               )}
             </div>
           </div>
@@ -515,7 +531,7 @@ export default function EmailComposer({
               onChange={(e) => { setBodyEdited(true); setBody(e.target.value); }}
               className="text-sm"
             />
-            <RepresentativeSignatureNotice representative={player?.representative ?? null} body={body} />
+            <RepresentativeSignatureNotice representative={player?.representative ?? null} body={body} channel="manual" />
           </div>
         </div>
 
@@ -571,7 +587,7 @@ export default function EmailComposer({
             <span className="text-xs leading-relaxed">
               <span className="text-sm font-medium">Send immediately</span>
               <span className="text-muted-foreground">
-                {' '}— leave this off and each message opens in Outlook for you to read and send yourself.
+                {' '}— leave this off to prepare each message for you to read and send yourself (in Outlook on this Mac, otherwise in your own mail app). Sending immediately needs Outlook on a Mac.
               </span>
             </span>
           </label>

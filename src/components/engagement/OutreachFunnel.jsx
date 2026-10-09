@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 
 const STAGES = [
-  { key: 'sent', label: 'Sent' },
+  { key: 'sent', label: 'Sent (confirmed)' },
   { key: 'qualified', label: 'Qualified view' },
   { key: 'watchedHalf', label: 'Watched >50%' },
   { key: 'returned', label: 'Returned', gold: true },
@@ -14,6 +14,12 @@ const STAGES = [
  */
 export default function OutreachFunnel({ funnel }) {
   const sent = funnel.sent || 0;
+  /**
+   * Phase 5 (#4): bars are scaled to whatever is larger, confirmed sends or
+   * qualified views, because engagement is counted over every live message and
+   * a coach can engage with one the operator sent but never confirmed.
+   */
+  const scale = Math.max(sent, funnel.qualified || 0);
 
   return (
     <Card className="p-5">
@@ -21,7 +27,7 @@ export default function OutreachFunnel({ funnel }) {
       <div className="space-y-2.5">
         {STAGES.map(({ key, label, gold }) => {
           const value = funnel[key] || 0;
-          const pct = sent > 0 ? (value / sent) * 100 : 0;
+          const pct = scale > 0 ? (value / scale) * 100 : 0;
           return (
             <div key={key} className="flex items-center gap-3">
               <span className="w-32 shrink-0 text-xs text-muted-foreground">{label}</span>
@@ -37,6 +43,19 @@ export default function OutreachFunnel({ funnel }) {
             </div>
           );
         })}
+      </div>
+      <div className="mt-3 space-y-1 text-[11px] text-muted-foreground">
+        <p data-testid="funnel-sent-definition">Sent counts messages confirmed as sent. Opening a prepared draft does not count.</p>
+        {funnel.prepared > 0 && (
+          <p data-testid="funnel-prepared">
+            {funnel.prepared} prepared, not confirmed as sent (drafts, discarded drafts, or links that could not be activated).
+          </p>
+        )}
+        {funnel.engagedUnconfirmed > 0 && (
+          <p className="text-amber-500" data-testid="funnel-engaged-unconfirmed">
+            {funnel.engagedUnconfirmed} recipient{funnel.engagedUnconfirmed === 1 ? ' has' : 's have'} engaged with a message not confirmed as sent; it was probably sent - confirm it.
+          </p>
+        )}
       </div>
     </Card>
   );

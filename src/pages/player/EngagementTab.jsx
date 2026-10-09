@@ -63,7 +63,9 @@ export default function EngagementTab() {
 
   if (!data) return <p className="text-sm text-muted-foreground">Loading engagement…</p>;
 
-  if (data.funnel.sent === 0) {
+  // Phase 5 (#4): the empty state is for no outreach at all. Prepared drafts that are not yet
+  // confirmed still show the page, which says they are unconfirmed rather than sent.
+  if (data.funnel.sent === 0 && !data.funnel.prepared) {
     return (
       <div className="text-center py-20 max-w-md mx-auto">
         <Radar className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
@@ -77,7 +79,7 @@ export default function EngagementTab() {
   }
 
   if (selected) {
-    return <CoachDetail coach={selected} onBack={() => setSelected(null)} />;
+    return <CoachDetail coach={selected} onBack={() => setSelected(null)} onOptOutRecorded={load} />;
   }
 
   return (
@@ -97,6 +99,12 @@ export default function EngagementTab() {
         </div>
       )}
 
+      {data.funnel.sent === 0 && (
+        <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-xs" data-testid="none-confirmed">
+          {data.funnel.prepared} message{data.funnel.prepared === 1 ? ' has' : 's have'} been prepared, but none is confirmed as sent yet.
+          {' '}Once a message has gone, confirm it so it counts here.
+        </p>
+      )}
       <OutreachFunnel funnel={data.funnel} />
       <CoachTable
         coaches={data.coaches}

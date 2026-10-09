@@ -902,6 +902,17 @@ export const engagement = {
   sessions(outreachId) {
     return request(`/api/engagement/outreach/${outreachId}/sessions`);
   },
+  /** Phase 5 (#2): whether this relationship's recipient has opted out, and when. */
+  optOutStatus(outreachId) {
+    return request(`/api/engagement/outreach/${outreachId}/opt-out`);
+  },
+  /** Record an opt-out for this relationship's recipient. The server resolves the address. */
+  recordOptOut(outreachId, { reason = 'unsubscribed', note = '' } = {}) {
+    return request(`/api/engagement/outreach/${outreachId}/opt-out`, {
+      method: 'POST',
+      body: JSON.stringify({ reason, note }),
+    });
+  },
   setResponded(outreachId, responded) {
     return request(`/api/engagement/outreach/${outreachId}/responded`, {
       method: 'POST',

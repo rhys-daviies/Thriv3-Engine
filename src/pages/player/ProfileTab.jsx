@@ -185,8 +185,9 @@ export default function ProfileTab() {
             </p>
           )}
           <p className="text-[11px] text-muted-foreground mt-2">
-            Coaches are pointed to this person. Outreach still sends from the athlete&rsquo;s own mailbox, and the
-            athlete and guardian contact details below are never shown to coaches.
+            Coaches are pointed to this person, but replies do not go to them: manual outreach is sent from the
+            operator&rsquo;s own email account (Outlook or their mail app), and campaign outreach from the
+            athlete&rsquo;s connected mailbox. The athlete and guardian contact details below are never shown to coaches.
           </p>
         </Card>
 

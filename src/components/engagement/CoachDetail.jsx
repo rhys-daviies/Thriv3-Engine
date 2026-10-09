@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { engagement } from '@/api/client';
 import { presentRecipientRow } from '@shared/recipientPresentation.js';
+import OptOutControl from './OptOutControl';
 
 function duration(seconds) {
   if (!seconds) return '—';
@@ -16,7 +17,7 @@ function duration(seconds) {
  * Chronological session timeline for one coach — what a staff member reads
  * before advising a family. Qualified sessions only.
  */
-export default function CoachDetail({ coach, onBack }) {
+export default function CoachDetail({ coach, onBack, onOptOutRecorded = () => {} }) {
   const [sessions, setSessions] = useState(null);
 
   useEffect(() => {
@@ -48,6 +49,8 @@ export default function CoachDetail({ coach, onBack }) {
           </div>
         </div>
       </Card>
+
+      <OptOutControl outreachId={coach.outreach_id} recipientLabel={presentRecipientRow(coach).primary || 'this recipient'} onRecorded={onOptOutRecorded} />
 
       <Card className="p-5">
         <h4 className="font-heading text-sm font-semibold mb-4">Session timeline</h4>

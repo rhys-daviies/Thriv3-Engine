@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import PlayerFormSteps from '@/components/PlayerFormSteps';
 import { entities } from '@/api/client';
 import { sanitizePlayerData } from '@/pages/NewPlayer';
+import { changedPreviousEngineInputs } from '@shared/matchingInputFields.js';
 
 /**
  * Where a save returns to — A9.4 §H.
@@ -20,10 +21,13 @@ export default function EditPlayer() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [player, setPlayer] = useState(null);
+  /** The record as stored, before the form's display defaults: what a save is compared against. */
+  const [stored, setStored] = useState(null);
   const returnTab = RETURN_TO[searchParams.get('return')] ?? null;
 
   useEffect(() => {
     entities.Player.get(id).then((p) => {
+      setStored(p);
       setPlayer({
         ...p,
         preferred_divisions: p.preferred_divisions || [],
@@ -49,8 +53,22 @@ export default function EditPlayer() {
       if (!(key in sanitized)) sanitized[key] = null;
     }
 
-    sanitized.recommendations = null;
-    sanitized.status = 'New';
+    /**
+     * PHASE 5 (#5): ONLY A MATCHING CHANGE RETIRES THE PREVIOUS ENGINE'S ANALYSIS.
+     *
+     * This used to clear `recommendations` (the previous engine's stored list,
+     * which Decision Evidence and Evidence still read) and reset `status` on
+     * EVERY save - so assigning a representative or fixing a bio threw the list
+     * away. Now it is cleared only when a field THAT ENGINE reads has changed
+     * (PREVIOUS_ENGINE_INPUT_FIELDS in shared/matchingInputFields.js, pinned to
+     * what normaliseAthlete reads). Matcher V2's own staleness is separate: it
+     * compares the run's snapshot of V2's inputs on the server, and a V2 run is
+     * never touched here.
+     */
+    if (changedPreviousEngineInputs(stored ?? player, sanitized).length > 0) {
+      sanitized.recommendations = null;
+      sanitized.status = 'New';
+    }
     await entities.Player.update(id, sanitized);
     /**
      * SAVING RETURNS. IT DOES NOT RANK — A9.4 §M.
@@ -61,9 +79,9 @@ export default function EditPlayer() {
      * into a log of form submissions. The operator lands on Matchmaking with
      * their previous run still showing, now marked outdated, and chooses.
      *
-     * The V1 line above (`recommendations = null`) is untouched and still
-     * clears V1's pointer. It does not reach `matchmaking_runs`, which is why
-     * a V2 run survives the edit that makes it stale.
+     * The V1 clear above, when a matching input changed, does not reach
+     * `matchmaking_runs`, which is why a V2 run survives the edit that makes it
+     * stale.
      */
     navigate(returnTab ? `/player/${id}/${returnTab}` : `/player/${id}`);
   }
@@ -75,7 +93,9 @@ export default function EditPlayer() {
       <div>
         <p className="text-xs font-semibold tracking-wide text-primary uppercase">Recruitment Console</p>
         <h1 className="font-heading text-2xl font-bold mt-1">Edit Player Profile</h1>
-        <p className="text-sm text-muted-foreground mt-1">Saving will clear existing match recommendations — you'll need to re-analyze.</p>
+        <p className="text-sm text-muted-foreground mt-1" data-testid="edit-save-effect">
+          Changing a field matching uses marks this athlete&rsquo;s current matches as outdated; refresh them on the Analysis &amp; Matching tab. Other changes leave matches as they are.
+        </p>
       </div>
       <PlayerFormSteps initialData={player} sport={player.sport} onSubmit={handleSubmit} submitLabel="Save Changes" />
     </div>

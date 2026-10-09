@@ -1,3 +1,4 @@
+import db from '../db/client.js';
 import { Player } from '../db/entities/player.js';
 import { checkRequiredCore } from '../export/renderProfile.js';
 import { exportAthlete } from '../export/exportProfiles.js';
@@ -17,6 +18,38 @@ function previewUrl(athlete, req) {
 }
 
 /**
+ * PHASE 5 (#8): IS THE LIVE PAGE BEHIND THE RECORD?
+ *
+ * The page is a static snapshot: the representative's name, email and phone
+ * are written into it at publish. Reassigning the representative, or editing
+ * the representative's own details, changes nothing a coach sees until the
+ * page is published again - and nothing said so.
+ *
+ * Two reasons, kept apart because one is exact and one is not:
+ *
+ *   REPRESENTATIVE_EDITED  the assigned representative's record was edited
+ *                          after publishing. Exact.
+ *   PROFILE_CHANGED        the athlete's record was saved after publishing.
+ *                          Covers a representative reassignment and any
+ *                          profile edit; it may also be a change the page does
+ *                          not show, so it is worded "may be out of date".
+ *
+ * Read from timestamps already stored; nothing is written to tell. Publishing
+ * aligns `updated_date` with `published_at` (below), so a page never reads as
+ * out of date because it was just published.
+ */
+export function liveOutdated(athlete) {
+  if (!athlete?.published_at) return null;
+  const reasons = [];
+  if (athlete.updated_date && athlete.updated_date > athlete.published_at) reasons.push('PROFILE_CHANGED');
+  if (athlete.representative_id) {
+    const rep = db.prepare('SELECT updated_date FROM representatives WHERE id = ?').get(athlete.representative_id);
+    if (rep?.updated_date && rep.updated_date > athlete.published_at) reasons.push('REPRESENTATIVE_EDITED');
+  }
+  return reasons.length ? { reasons, since: athlete.published_at } : null;
+}
+
+/**
  * What the Profile tab needs to describe the athlete's public page: whether it
  * can be generated at all, where to look at it, and whether it is live.
  */
@@ -31,6 +64,7 @@ export function publishStatus(athleteId, req) {
   // that cannot work, and saying so up front beats a failure after the click.
   const readiness = publisherReadiness();
   return {
+    liveOutdated: liveOutdated(athlete),
     canPublish: missing.length === 0 && !athlete.archived_at,
     missing,
     archived: Boolean(athlete.archived_at),
@@ -81,8 +115,12 @@ export async function publish(athleteId, req, { deploy = publishSite } = {}) {
 
   const result = await deploy();
 
-  const publishedAt = utcNow();
-  Player.update(athleteId, { published_at: publishedAt });
+  const stamped = utcNow();
+  Player.update(athleteId, { published_at: stamped });
+  // The update stamps its own `updated_date` a moment later; align the two so the page is not
+  // reported as behind a record that only changed because it was published (Phase 5, #8).
+  db.prepare('UPDATE players SET published_at = updated_date WHERE id = ?').run(athleteId);
+  const publishedAt = Player.get(athleteId).published_at;
 
   return {
     ...publishStatus(athleteId, req),

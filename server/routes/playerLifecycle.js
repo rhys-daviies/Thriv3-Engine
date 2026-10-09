@@ -1,3 +1,4 @@
+import db from '../db/client.js';
 import express from 'express';
 import { Player } from '../db/entities/player.js';
 import { deactivateAthlete } from '../lib/athleteLifecycle.js';
@@ -24,7 +25,17 @@ export const playerLifecycleRouter = express.Router();
  */
 playerLifecycleRouter.get('/players/active', (req, res) => {
   const limit = req.query._limit ? Number(req.query._limit) : undefined;
-  res.json(Player.listActive(req.query._sort, limit));
+  /**
+   * Phase 5 (#5): when each athlete was last matched by Matcher V2, for the
+   * list's status badge. `players.status` is only ever set to 'Analyzed' by the
+   * previous engine, so without this an athlete with V2 matches reads "New".
+   * One grouped read, not one per athlete; absent table means no runs.
+   */
+  const runs = new Map();
+  if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='matchmaking_runs'").get()) {
+    for (const r of db.prepare('SELECT player_id, MAX(computed_at) at FROM matchmaking_runs GROUP BY player_id').all()) runs.set(r.player_id, r.at);
+  }
+  res.json(Player.listActive(req.query._sort, limit).map((p) => ({ ...p, latest_match_run_at: runs.get(p.id) ?? null })));
 });
 
 /**

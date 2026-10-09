@@ -71,6 +71,9 @@ const ALLOWED = new Set([
   'server/routes/sendOutreach.js',                 // manual: an inbox by id, never an address, never a coach row
   'server/routes/manualOutreach.js',               // offers the inbox only as the fallback
   'server/routes/campaigns.js',                    // the inbox's approval / generation routes
+  // Phase 5 (PR A): DISPLAY ONLY. Turns the server's PROGRAMME_INBOX_ADDRESS_NOT_TYPED refusal
+  // code into a sentence on the composer row; it reads a result, it cannot address or send.
+  'src/lib/sendRefusal.js',
   'shared/recipientPresentation.js',               // "Programme Contact" and "Hi Coach,", once
   'src/lib/emailTemplate.js',                      // composes for a recipient kind
   'src/components/EmailComposer.jsx',              // the manual composer's programme-contact mode

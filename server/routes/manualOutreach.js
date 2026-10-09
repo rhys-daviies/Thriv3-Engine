@@ -8,7 +8,8 @@ import {
 } from '../lib/manualDraftConfirmation.js';
 import { isSendCapped, recentSendCount } from '../lib/sendCap.js';
 import { PER_COACH_MAX_SENDS, PER_COACH_WINDOW_DAYS } from '../lib/config.js';
-import { programmeCoaches } from './programmeCoaches.js';
+import { programmeCoaches, optedOutProgrammeCoaches } from './programmeCoaches.js';
+import { explainNoManualRecipient } from '../lib/recipientExplanation.js';
 import { manualRecipientChoice, assertManualProgrammeInbox, RECIPIENT_SELECTION } from '../lib/recipientSelection.js';
 import { presentRecipient, RECIPIENT_KIND } from '../../shared/recipientPresentation.js';
 import { historyForAthleteProgramme } from '../lib/programmeContactHistory.js';
@@ -166,11 +167,22 @@ manualOutreachRouter.get('/players/:playerId/programmes/:id/outreach', (req, res
     const decision = manualContactDecision({
       athleteId: ctx.playerId, collegeName: ctx.collegeName, sport: ctx.sport,
     });
+    const coaches = programmeCoaches({ collegeName: ctx.collegeName, sport: ctx.sport });
+    const programmeContact = programmeContactOption({ collegeName: ctx.collegeName, sport: ctx.sport });
     return res.json({
       relationship: ctx.relationship,
       college: ctx.college,
-      coaches: programmeCoaches({ collegeName: ctx.collegeName, sport: ctx.sport }),
-      programmeContact: programmeContactOption({ collegeName: ctx.collegeName, sport: ctx.sport }),
+      coaches,
+      programmeContact,
+      /**
+       * Phase 5 (#3, #10): who was left out and why, so an empty list is explained rather than
+       * read as "no verified email on file". Names and titles only; an opted-out address is
+       * never sent to the browser. `noRecipient` is null whenever anybody can be written to.
+       */
+      optedOutCoaches: optedOutProgrammeCoaches({ collegeName: ctx.collegeName, sport: ctx.sport }),
+      noRecipient: !coaches.length && !programmeContact
+        ? explainNoManualRecipient({ collegeName: ctx.collegeName, sport: ctx.sport })
+        : null,
       contact: decision,
       priorContact: historyForAthleteProgramme({
         athleteId: ctx.playerId, collegeName: ctx.collegeName, sport: ctx.sport,

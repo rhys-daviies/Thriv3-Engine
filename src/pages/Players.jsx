@@ -13,10 +13,22 @@ import { positionDetailLabel } from '@shared/positions.js';
 
 const STATUS_VARIANT = {
   New: 'blue',
+  Matched: 'green',
   Analyzed: 'green',
   'In Progress': 'amber',
   Committed: 'purple',
 };
+
+/**
+ * Phase 5 (#5): the badge reads Matcher V2 first. `status` is only ever set to
+ * 'Analyzed' by the previous engine, so an athlete matched under V2 used to
+ * read "New". An operator status ('In Progress', 'Committed') still wins.
+ */
+export function playerStatusLabel(p) {
+  if (p?.status === 'In Progress' || p?.status === 'Committed') return p.status;
+  if (p?.latest_match_run_at) return 'Matched';
+  return p?.status || 'New';
+}
 
 function initials(name) {
   return (name || '')
@@ -110,7 +122,13 @@ export default function Players() {
                 </p>
               </div>
             </Link>
-            <Badge variant={STATUS_VARIANT[p.status] || 'muted'}>{p.status || 'New'}</Badge>
+            <Badge
+              variant={STATUS_VARIANT[playerStatusLabel(p)] || 'muted'}
+              title={p.latest_match_run_at ? `Matched by Matcher V2 on ${new Date(p.latest_match_run_at).toLocaleDateString()}` : undefined}
+              data-testid="player-status"
+            >
+              {playerStatusLabel(p)}
+            </Badge>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button

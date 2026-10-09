@@ -268,7 +268,7 @@ export default function ManualOutreachDialog({ player, relationshipId, open, onO
 
   const {
     relationship, college, coaches, contact: decision, priorContact, contactIntelligence,
-    programmeContact = null,
+    programmeContact = null, noRecipient = null, optedOutCoaches = null,
   } = context;
 
   if (!decision.allowed) {
@@ -353,6 +353,9 @@ export default function ManualOutreachDialog({ player, relationshipId, open, onO
         exists; the composer then writes to it alone, by id.
       */
       programmeContact={programmeContact}
+      // Phase 5 (#3, #10): why nobody, or somebody, was left out - the server's own reasons.
+      noRecipient={noRecipient}
+      optedOutCoaches={optedOutCoaches}
       onSend={({ coaches: chosen, programmeContactId, ...composed }) => manualOutreach.send(player.id, relationshipId, programmeContactId
         ? { ...composed, programmeContactId }
         : {
