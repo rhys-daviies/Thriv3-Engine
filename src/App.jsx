@@ -19,10 +19,10 @@ import PhilosophyTab from '@/pages/player/PhilosophyTab';
 import EvidenceTab from '@/pages/player/EvidenceTab';
 import DecisionTab from '@/pages/player/DecisionTab';
 import ReportsTab from '@/pages/player/ReportsTab';
-import Colleges from '@/pages/Colleges';
+import ProgrammeDatabase, { LegacyDatabaseRedirect } from '@/pages/ProgrammeDatabase';
+import ProgrammeWorkspace from '@/pages/ProgrammeWorkspace';
 import RosterGaps from '@/pages/RosterGaps';
 import SeasonTrust from '@/pages/SeasonTrust';
-import GraduatingDatabase from '@/pages/GraduatingDatabase';
 import CSVAgent from '@/pages/CSVAgent';
 import Representatives from '@/pages/Representatives';
 
@@ -83,11 +83,14 @@ export default function App() {
               <Route path="reports" element={<ReportsTab />} />
               <Route path="*" element={<TabFallback />} />
             </Route>
-            <Route path="/colleges" element={<Colleges />} />
+            <Route path="/programmes" element={<ProgrammeDatabase />} />
+            <Route path="/programmes/:id" element={<ProgrammeWorkspace />} />
+            {/* Phase 4: the two old databases open the Programme Database. */}
+            <Route path="/colleges" element={<LegacyDatabaseRedirect />} />
             <Route path="/representatives" element={<Representatives />} />
             <Route path="/colleges/roster-gaps" element={<RosterGaps />} />
             <Route path="/colleges/season-trust" element={<SeasonTrust />} />
-            <Route path="/graduating-db" element={<GraduatingDatabase />} />
+            <Route path="/graduating-db" element={<LegacyDatabaseRedirect />} />
             <Route path="/csv-agent" element={<CSVAgent />} />
           </Route>
         </Routes>

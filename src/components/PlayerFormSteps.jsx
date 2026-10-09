@@ -180,7 +180,7 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
 
   // Conference options are dynamic, sourced from the College collection —
   // fetched once per sport (same bulk-fetch-then-filter-client-side pattern
-  // Colleges.jsx / GraduatingDatabase.jsx / the matching algorithm all use).
+  // the matching algorithm uses).
   useEffect(() => {
     let cancelled = false;
     setCollegesLoading(true);

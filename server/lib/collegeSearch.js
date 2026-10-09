@@ -161,6 +161,14 @@ export function findCanonicalCollege({ collegeId, sport, includeInactive = false
   return row;
 }
 
+/**
+ * The same discovery predicate, for a caller that filters a larger query by
+ * school (the Programme Database, Phase 4). Binds `@q`; reads `colleges c`.
+ * Exported rather than copied so a programme found by search and a programme
+ * found by the database's School filter are found by one rule.
+ */
+export const SCHOOL_MATCH_SQL = `(${NAME_MATCH} OR ${ALIAS_MATCH})`;
+
 export const SEARCH_LIMITS = Object.freeze({
   MIN_QUERY_LENGTH,
   DEFAULT_LIMIT,
