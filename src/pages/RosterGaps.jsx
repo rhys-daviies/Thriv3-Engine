@@ -87,8 +87,8 @@ export default function RosterGaps() {
   return (
     <div className="space-y-6">
       <div>
-        <Link to="/colleges" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-3.5 w-3.5" /> College DB
+        <Link to="/programmes" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-3.5 w-3.5" /> Programme Database
         </Link>
         <h1 className="font-heading text-2xl font-bold mt-2">NCAA Roster Gaps</h1>
         <p className="text-sm text-muted-foreground">
