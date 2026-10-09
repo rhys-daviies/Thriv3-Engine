@@ -18,7 +18,7 @@ import { computeMatchmakingV2, clearContextCache, STATUS } from './matchmakingSe
 import { clearCorpusDigestCache } from './corpusIdentity.js';
 import { persistRun, currentRun } from './matchmakingRuns.js';
 import { recordSelection, SELECTION_SOURCE } from './matchmakingSelection.js';
-import { selectionsOverview } from './selectionsOverview.js';
+import { selectionsOverview, RECIPIENT_COUNT_SQL } from './selectionsOverview.js';
 import { recordReply, classifyReply } from './replyIntake.js';
 import { reviewObservation, recordObservation, OBSERVATION_KIND, OBSERVATION_SOURCE, REVIEW_STATE, CLASSIFIER_METHOD } from './recruitingObservations.js';
 import { recordDraft, acceptSend } from '../outreachSend.js';
@@ -244,6 +244,21 @@ describe('Phase 5 (#13, #14): the reply the operator records, and recipients cou
     expect(row.reply.lastReplyAt).toBe('2026-10-05T12:00:00.000Z');
   });
 
+  it('#13 distinct replies split across the two paths each count: neither path hides the other', () => {
+    const sel = select(target);
+    const a = sendFor(sel.id, target.name, { accept: true });   // recipient A: reply via intake
+    const b = sendFor(sel.id, target.name, { accept: true });   // recipient B: reply marked on Engagement
+    const c = sendFor(sel.id, target.name, { accept: true });   // recipient C: replied both ways
+    sendFor(sel.id, target.name, { accept: true });             // recipient D: no reply
+    recordReply(db, { sendId: a });
+    markResponded(outreachOf(b), '2026-10-04T12:00:00.000Z');
+    recordReply(db, { sendId: c });
+    markResponded(outreachOf(c), '2026-10-06T12:00:00.000Z');
+    const [row] = selectionsOverview(player.id).selections;
+    expect(row.reply.replies).toBe(3);   // A, B, C - C once
+    expect(row.outreach.coaches).toBe(4);
+  });
+
   it('#13 the same reply recorded both ways counts once, never twice', () => {
     const sel = select(target);
     const a = sendFor(sel.id, target.name, { accept: true });
@@ -253,10 +268,22 @@ describe('Phase 5 (#13, #14): the reply the operator records, and recipients cou
     expect(row.reply.replies).toBe(1);
   });
 
-  it('#14 recipients are counted by coach OR programme inbox (an inbox send has no coach id)', async () => {
-    // A typed inbox send is guarded by triggers that tie it to a verified inbox relationship, so
-    // the expression is pinned here and the two-recipient count is exercised by K2 above.
+  it('#14 a coach and an inbox whose ids are identical are TWO recipients, not one', () => {
+    // A typed inbox send is guarded by triggers, so the counting expression the query uses is run
+    // over rows of the same shape. COALESCE would have merged these two into one.
+    db.exec('CREATE TEMP TABLE rc (coach_id TEXT, programme_contact_id TEXT)');
+    const insert = db.prepare('INSERT INTO rc VALUES (?, ?)');
+    insert.run('42', null);          // a coach
+    insert.run(null, '42');          // an inbox with the same id
+    insert.run('42', null);          // the same coach again (a follow-up)
+    insert.run('c-2', null);         // another coach
+    expect(db.prepare(`SELECT ${RECIPIENT_COUNT_SQL} AS n FROM rc`).get().n).toBe(3);
+    expect(db.prepare('SELECT COUNT(DISTINCT COALESCE(coach_id, programme_contact_id)) AS n FROM rc').get().n).toBe(2); // the defect
+    db.exec('DROP TABLE rc');
+  });
+
+  it('#14 the query uses that expression', async () => {
     const fs = await import('node:fs');
-    expect(fs.readFileSync('server/lib/v2/selectionsOverview.js', 'utf8')).toContain('COUNT(DISTINCT COALESCE(coach_id, programme_contact_id)) AS coaches');
+    expect(fs.readFileSync('server/lib/v2/selectionsOverview.js', 'utf8')).toContain('${RECIPIENT_COUNT_SQL}                                AS coaches');
   });
 });
