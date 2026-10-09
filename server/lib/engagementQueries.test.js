@@ -37,8 +37,11 @@ function makeCoach(name) {
   return findOrCreateCoach({ full_name: name, email: `${randomUUID()}@example.edu`, school: 'S', sport: 'mens-soccer' });
 }
 
-function addOutreach(name) {
-  return createOutreach({ athleteId, coachId: makeCoach(name).id });
+/** A relationship whose message was confirmed sent. `{ sent: false }` leaves it prepared only. */
+function addOutreach(name, { sent = true } = {}) {
+  const o = createOutreach({ athleteId, coachId: makeCoach(name).id });
+  if (sent) db.prepare('UPDATE outreach SET drafted_at = ?, sent_at = ? WHERE id = ?').run(utcNow(), utcNow(), o.id);
+  return o;
 }
 
 /** Writes one session. `watchedTo` null means the session never qualified. */
@@ -81,7 +84,23 @@ describe('outreach funnel', () => {
     watch(shallow.id, { at: T0, watchedTo: 20 });           // 10%
     rebuildAllRollups();
 
-    expect(outreachFunnel(athleteId)).toEqual({ sent: 4, qualified: 3, watchedHalf: 2, returned: 1 });
+    expect(outreachFunnel(athleteId)).toEqual({ sent: 4, prepared: 0, qualified: 3, watchedHalf: 2, returned: 1, engagedUnconfirmed: 0 });
+  });
+
+  it('Phase 5 (#4): a prepared draft is not "sent"; engagement on one is reported as unconfirmed', () => {
+    addOutreach('Confirmed');
+    addOutreach('Drafted only', { sent: false });
+    const engaged = addOutreach('Sent but never confirmed', { sent: false });
+    watch(engaged.id, { at: T0, watchedTo: 150 });
+    rebuildAllRollups();
+    expect(outreachFunnel(athleteId)).toEqual({ sent: 1, prepared: 2, qualified: 1, watchedHalf: 1, returned: 0, engagedUnconfirmed: 1 });
+    // and nothing here stamped a confirmation
+    expect(db.prepare('SELECT COUNT(*) n FROM outreach WHERE athlete_id = ? AND sent_at IS NOT NULL').get(athleteId).n).toBe(1);
+  });
+
+  it('Phase 5 (#4): only drafts means nothing sent', () => {
+    addOutreach('A', { sent: false });
+    expect(outreachFunnel(athleteId)).toMatchObject({ sent: 0, prepared: 1 });
   });
 
   it('drops revoked outreach from the sent count', () => {

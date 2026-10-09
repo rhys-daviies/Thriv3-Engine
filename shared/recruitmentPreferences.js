@@ -24,6 +24,7 @@
  * not hold is UNKNOWN for that check - not a match, and not a miss.
  * ===========================================================================
  */
+import { resolveConference } from './conferenceIdentity.js';
 
 /** The four US Census regions, which is the grouping a family already uses. */
 export const REGIONS = Object.freeze({
@@ -139,6 +140,35 @@ export function recruitmentPreferencesOf(record) {
   };
 }
 
+/**
+ * PHASE 5 (#7): A CONFERENCE IS AN IDENTITY, NOT A SPELLING.
+ *
+ * The registry stores some conferences two ways ("MEC" and "Mountain East",
+ * "LSC" and "Lone Star"), and the picker offers both. An exact string compare
+ * then called a Mountain East programme OUTSIDE a preference for "MEC". Both
+ * sides are resolved through the canonical register (`resolveConference`),
+ * scoped by the PROGRAMME's own sport and division - so a scoped alias such as
+ * "MAC" is read as the conference it is in that division, never across
+ * divisions. A spelling the register does not hold falls back to an exact
+ * match: written-down aliases only, nothing by similarity.
+ *
+ * DISPLAY ONLY. This check is never scored and is not in the result digest, so
+ * it cannot move a rank; a test pins that.
+ */
+function conferenceKey(raw, { sport, division }) {
+  const r = resolveConference(raw, { sport: sport ?? null, division: division ?? null });
+  return r.id ? `id:${r.id}` : `raw:${String(raw ?? '').trim()}`;
+}
+
+function conferenceStatus(stated, college) {
+  const actual = college.conference;
+  if (actual === null || actual === undefined || String(actual).trim() === '') return CHECK_STATUS.UNKNOWN;
+  if (stated.includes(actual)) return CHECK_STATUS.INSIDE;
+  const scope = { sport: college.sport, division: college.division };
+  const target = conferenceKey(actual, scope);
+  return stated.some((s) => conferenceKey(s, scope) === target) ? CHECK_STATUS.INSIDE : CHECK_STATUS.OUTSIDE;
+}
+
 export const CHECK = Object.freeze({
   DIVISION: 'DIVISION',
   CONFERENCE: 'CONFERENCE',
@@ -167,7 +197,7 @@ export function preferenceChecks(prefs, college) {
     out.push({ check: CHECK.DIVISION, status: inList(prefs.divisions, c.division ?? null), actual: c.division ?? null, stated: prefs.divisions, ranked: false });
   }
   if (prefs.conferences?.length) {
-    out.push({ check: CHECK.CONFERENCE, status: inList(prefs.conferences, c.conference ?? null), actual: c.conference ?? null, stated: prefs.conferences, ranked: false });
+    out.push({ check: CHECK.CONFERENCE, status: conferenceStatus(prefs.conferences, c), actual: c.conference ?? null, stated: prefs.conferences, ranked: false });
   }
   if (prefs.locationStates?.length) {
     const state = c.state ? String(c.state).toUpperCase() : null;

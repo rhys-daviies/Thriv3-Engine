@@ -26,6 +26,7 @@
  * a RENDERING rather than a fact - and A8.2 is the worked example: the
  * engine's answer changed and every sentence had to change with it.
  */
+import { MATCHING_INPUT_FIELDS_V1, MATCHING_UNORDERED_LIST_FIELDS } from '../../../shared/matchingInputFields.js';
 import crypto from 'node:crypto';
 import { FREEZE_ENGINE_HEAD } from '../../../shared/matching/v2/freeze.js';
 import { bandForRank, STATUS, SEASON, TOP_N, serviceError } from './matchmakingService.js';
@@ -58,38 +59,10 @@ export const INPUT_SCHEMA_VERSION = 2;
  * for no ranking purpose at all. Every field below is read by a layer or a
  * preference; nothing else is.
  */
-const INPUT_FIELDS_V1 = Object.freeze([
-  'sport',
-  'football_ability',
-  'position',
-  'recruiting_class_year',
-  'budget_range',
-  'contribution_state',
-  'max_annual_contribution_usd',
-  'state',
-  'origin',
-  'nationality',
-  'gpa',
-  'sat_score',
-  'act_score',
-  'academic_minimum',
-  'intended_major',
-  'competitive_level_priority',
-  'playing_opportunity_priority',
-  'academic_strength_priority',
-  'criterion_ranking',
-  'recruit_type',
-]);
-
-/**
- * Lists whose ORDER means nothing. Snapshotted sorted, and an empty list as
- * NULL, so ticking two regions in a different order - or an entity layer that
- * writes '[]' where the column held NULL - is not reported as the operator
- * having changed the athlete.
- */
-const UNORDERED_LIST_FIELDS = Object.freeze([
-  'preferred_states', 'preferred_regions', 'preferred_divisions', 'preferred_conferences', 'preferred_institution_types',
-]);
+// Phase 5 (#5): the lists live in shared/matchingInputFields.js, so the edit form can ask the
+// same question this file asks - "does this change anything matching reads?" - from one list.
+const INPUT_FIELDS_V1 = MATCHING_INPUT_FIELDS_V1;
+const UNORDERED_LIST_FIELDS = MATCHING_UNORDERED_LIST_FIELDS;
 
 export const INPUT_FIELDS = Object.freeze([...INPUT_FIELDS_V1, ...UNORDERED_LIST_FIELDS]);
 

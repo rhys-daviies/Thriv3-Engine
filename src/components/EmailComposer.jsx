@@ -531,7 +531,7 @@ export default function EmailComposer({
               onChange={(e) => { setBodyEdited(true); setBody(e.target.value); }}
               className="text-sm"
             />
-            <RepresentativeSignatureNotice representative={player?.representative ?? null} body={body} />
+            <RepresentativeSignatureNotice representative={player?.representative ?? null} body={body} channel="manual" />
           </div>
         </div>
 
@@ -587,7 +587,7 @@ export default function EmailComposer({
             <span className="text-xs leading-relaxed">
               <span className="text-sm font-medium">Send immediately</span>
               <span className="text-muted-foreground">
-                {' '}— leave this off and each message opens in Outlook for you to read and send yourself.
+                {' '}— leave this off to prepare each message for you to read and send yourself (in Outlook on this Mac, otherwise in your own mail app). Sending immediately needs Outlook on a Mac.
               </span>
             </span>
           </label>

@@ -7,9 +7,11 @@
  *
  * -- WHAT A REPRESENTATIVE DOES NOT CHANGE -----------------------------------
  *
- * The sender. Outreach still leaves from the athlete's own connected mailbox
- * under the athlete's OAuth grant; nothing here sets a From, a Reply-To or a
- * CC. The representative is who the email and the profile tell a coach to
+ * The sender. Manual outreach is a draft the operator sends from their own
+ * email account (Outlook on a Mac, otherwise their mail app); campaign
+ * outreach leaves from the athlete's own connected mailbox under the
+ * athlete's OAuth grant. Either way nothing here sets a From, a Reply-To or a
+ * CC, so a reply goes to whichever account sent the email. The representative is who the email and the profile tell a coach to
  * contact - in the sign-off and the call to action - and nothing more.
  *
  * -- WHY THERE IS A FALLBACK ------------------------------------------------

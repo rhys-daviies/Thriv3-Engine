@@ -31,16 +31,33 @@ const QUALIFIED_SESSIONS = `
 /**
  * Sent -> Qualified view -> Watched >50% -> Returned.
  *
- * "Sent" counts live outreach rows: a row exists precisely because a link was
- * minted for that coach. Revoked rows drop out.
+ * PHASE 5 (#4): "SENT" MEANS CONFIRMED SENT. An outreach row is minted when a
+ * message is PREPARED - before the operator has sent it from Outlook or their
+ * mail app, and whether or not they ever do (a discarded draft, a link that
+ * could not be activated). Thriv3 knows a message went only when `sent_at` is
+ * stamped: by a send it performed itself, or by the operator confirming it.
+ * Counting every row called prepared drafts "sent" and inflated every rate
+ * below it. Opening a draft never stamps `sent_at`; nothing here infers it.
+ *
+ *   sent                confirmed sends
+ *   prepared            prepared, not confirmed sent (drafts, discarded,
+ *                       link not activated)
+ *   qualified ...       engagement, over every live relationship - a coach
+ *                       can only engage with a message that reached them
+ *   engagedUnconfirmed  of those, how many have engagement but no
+ *                       confirmation: the operator sent it and did not say so
+ *
+ * Revoked rows drop out of everything.
  */
 export function outreachFunnel(athleteId) {
   const row = db.prepare(`
     SELECT
-      COUNT(*)                                                        AS sent,
+      SUM(CASE WHEN o.sent_at IS NOT NULL THEN 1 ELSE 0 END)          AS sent,
+      SUM(CASE WHEN o.sent_at IS NULL THEN 1 ELSE 0 END)              AS prepared,
       SUM(CASE WHEN r.qualified_visits > 0  THEN 1 ELSE 0 END)        AS qualified,
       SUM(CASE WHEN r.best_coverage_pct > 50 THEN 1 ELSE 0 END)       AS watched_half,
-      SUM(CASE WHEN r.qualified_visits >= 2 THEN 1 ELSE 0 END)        AS returned
+      SUM(CASE WHEN r.qualified_visits >= 2 THEN 1 ELSE 0 END)        AS returned,
+      SUM(CASE WHEN o.sent_at IS NULL AND r.qualified_visits > 0 THEN 1 ELSE 0 END) AS engaged_unconfirmed
     FROM outreach o
     LEFT JOIN engagement_rollup r ON r.outreach_id = o.id
     WHERE o.athlete_id = ? AND o.revoked_at IS NULL
@@ -48,9 +65,11 @@ export function outreachFunnel(athleteId) {
 
   return {
     sent: row.sent || 0,
+    prepared: row.prepared || 0,
     qualified: row.qualified || 0,
     watchedHalf: row.watched_half || 0,
     returned: row.returned || 0,
+    engagedUnconfirmed: row.engaged_unconfirmed || 0,
   };
 }
 

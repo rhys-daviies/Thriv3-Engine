@@ -45,6 +45,7 @@ export default function CoachTable({ coaches, onSelect, onToggleResponded, busyI
               <th className="pb-2 pr-3 font-medium">Coach</th>
               <th className="pb-2 pr-3 font-medium">School</th>
               <th className="pb-2 pr-3 font-medium">Div</th>
+              <th className="pb-2 pr-3 font-medium">Status</th>
               <th className="pb-2 pr-3 font-medium text-right">Score</th>
               <th className="pb-2 pr-3 font-medium">Tier</th>
               <th className="pb-2 pr-3 font-medium text-right">Views</th>
@@ -75,6 +76,19 @@ export default function CoachTable({ coaches, onSelect, onToggleResponded, busyI
                   <td className="py-2.5 pr-3 text-muted-foreground whitespace-nowrap">{c.school || '—'}</td>
                   <td className="py-2.5 pr-3 text-muted-foreground whitespace-nowrap text-xs">
                     {(c.division || '').replace('NCAA Division ', 'D') || '—'}
+                  </td>
+                  {/*
+                    Phase 5 (#4): sent only when confirmed. A prepared draft may never
+                    have left the operator's mail app, and the row says so.
+                  */}
+                  <td className="py-2.5 pr-3 whitespace-nowrap text-xs" data-testid="outreach-status">
+                    {c.sent_at
+                      ? <span>Sent {relativeDate(c.sent_at)}</span>
+                      : (
+                        <span className="text-amber-500" title="Prepared in Thriv3 but not confirmed as sent. Confirm it once it has actually gone.">
+                          Prepared{c.drafted_at ? ` ${relativeDate(c.drafted_at)}` : ''}, not confirmed
+                        </span>
+                      )}
                   </td>
                   <td className="py-2.5 pr-3 text-right font-heading font-semibold tabular-nums">{c.engagement_score}</td>
                   <td className="py-2.5 pr-3">
