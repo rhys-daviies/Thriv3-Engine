@@ -157,11 +157,11 @@ describe('the shared browser endpoint', () => {
 describe('the manual relationship route', () => {
   it('records manual', async () => {
     const athlete = makeAthlete();
-    const coachId = canonicalCoach({ email: 'a@duke.test' });
     db.prepare(`
       INSERT INTO colleges (id, created_date, updated_date, name, sport, division, active)
       VALUES ('col-d', '2026-09-11T00:00:00.000Z', '2026-09-11T00:00:00.000Z', 'Duke', 'mens-soccer', 'NCAA D1', 1)
     `).run();
+    const coachId = canonicalCoach({ email: 'a@duke.test' });   // after the colleges row (DI-08 fixture seeds one if absent)
     const rel = upsertAthleteProgramme(athlete, { college_id: 'col-d' }).programme.id;
 
     const { status } = await post(`/api/players/${athlete}/programmes/${rel}/outreach`, {

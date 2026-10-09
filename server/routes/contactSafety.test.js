@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
+import { corroborateFixtureCoaches, seedFieldedProgramme } from '../testCanonicalCoaches.js';
 
 /**
  * CONTACT SAFETY — Phase 5, PR A (docs/IMMEDIATE_CHANGES_ROADMAP.md).
@@ -66,6 +66,7 @@ function programme(key, { coaches = [], inbox = 'current' } = {}) {
     return id;
   });
   corroborateFixtureCoaches(db, { ids });
+  seedFieldedProgramme(db, name, 'mens-soccer');   // DI-08: an inbox-only programme needs the gate's evidence too
   const email = `msoccer@${host}`; const pc = programmeContactId(ent, 'mens-soccer', email);
   if (inbox) {
     // 'current' = seen an hour ago; 'stale' = seen long ago, so the floor refuses it as not current.

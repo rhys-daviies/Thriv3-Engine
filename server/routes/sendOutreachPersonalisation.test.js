@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
-import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
+import { corroborateFixtureCoaches, seedFieldedProgramme } from '../testCanonicalCoaches.js';
 
 /**
  * PHASE 1F.1 — EACH NAMED COACH IS GREETED BY THEIR OWN NAME.
@@ -112,6 +112,7 @@ describe('G–M. the 1F rules and the safety rules are untouched', () => {
     // a second programme with no staff and a verified inbox, for the programme-contact cases
     db.prepare("INSERT INTO athletics_entities (athletics_entity_id, display_name, federal_unitid, entity_kind, provenance, created_at) VALUES ('AE-U910001', 'Inbox Personal', 910001, 'SINGLE', 'test', ?)").run(T);
     db.prepare("INSERT INTO colleges (id, created_date, updated_date, name, sport, division, active, unitid, athletics_entity_id) VALUES ('col-ip', ?, ?, 'Inbox Personal', 'mens-soccer', 'NCAA D3', 1, 910001, 'AE-U910001')").run(T, T);
+    seedFieldedProgramme(db, 'Inbox Personal', 'mens-soccer');   // DI-08: the recruitment-year gate's evidence
     db.prepare("INSERT INTO athletics_domains (domain, unitid, status, role, claimed_keys, claimed_unitids, verification_method, confidence, checked_at) VALUES ('ipathletics.example', 910001, 'VERIFIED', 'ATHLETICS_SITE', '[]', '[910001]', 'TEST', 'CERTAIN', ?)").run(T);
     const email = 'msoccer@ipathletics.example'; const seen = new Date(Date.now() - 3600_000).toISOString();
     inbox = { id: programmeContactId('AE-U910001', 'mens-soccer', email), email };
