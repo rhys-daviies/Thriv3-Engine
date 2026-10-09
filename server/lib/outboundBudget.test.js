@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import db from '../db/client.js';
@@ -41,6 +41,14 @@ const OTHER_MAILBOX = 'second@striv3.com';
 const DAY = '2026-09-07';
 const WINDOW = utcDayWindow(DAY);
 const at = (hhmm) => `${DAY}T${hhmm}:00.000Z`;
+/**
+ * THE CLOCK THE RECIPIENT CAP IS READ AT. The cap counts the last
+ * PER_COACH_WINDOW_DAYS before `now`, which defaults to the wall clock, and
+ * every send here is dated on DAY. Read at the wall clock these tests passed
+ * for 30 days and then failed for ever after. So the cap is read at the end of
+ * DAY, passed in through sendCap's own `now` parameter.
+ */
+const CAP_CLOCK = { now: Date.parse(`${DAY}T23:59:59.000Z`) };
 
 let seq = 0;
 
@@ -641,6 +649,10 @@ describe('the manual path', () => {
 // ---------------------------------------------------------------------------
 
 describe('the recipient cap and the sender budget are different things', () => {
+  // The wall clock is moved years past DAY, so any reading of it, not the injected clock, fails here.
+  beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date('2031-06-01T00:00:00.000Z')); });
+  afterEach(() => { vi.useRealTimers(); });
+
   it('counts on different keys and neither moves the other', () => {
     const coach = makeCoach({ email: 'popular@duke.edu' });
     const o = createOutreach({ athleteId: ATHLETE, coachId: coach.id });
@@ -649,13 +661,13 @@ describe('the recipient cap and the sender budget are different things', () => {
     // Spending sender budget writes nothing the recipient cap reads: that cap
     // counts distinct athletes who have CONFIRMED SENDS to the address.
     for (let i = 0; i < 5; i += 1) spend({ outreachId: o.id });
-    expect(recentSendCount('popular@duke.edu')).toBe(0);
-    expect(isSendCapped('popular@duke.edu')).toBe(false);
+    expect(recentSendCount('popular@duke.edu', CAP_CLOCK)).toBe(0);
+    expect(isSendCapped('popular@duke.edu', CAP_CLOCK)).toBe(false);
 
     // And a confirmation moves the recipient cap without being an extra spend
     // beyond the one it records.
     confirmSent([o.id], { at: at('10:00') });
-    expect(recentSendCount('popular@duke.edu')).toBe(1);
+    expect(recentSendCount('popular@duke.edu', CAP_CLOCK)).toBe(1);
     expect(athleteUsage(ATHLETE, WINDOW)).toBe(6);
   });
 
@@ -679,9 +691,23 @@ describe('the recipient cap and the sender budget are different things', () => {
     });
     confirmSent([o.id], { at: at('11:00') });
 
-    expect(recentSendCount('followed@duke.edu')).toBe(1);
+    expect(recentSendCount('followed@duke.edu', CAP_CLOCK)).toBe(1);
     expect(athleteUsage(ATHLETE, WINDOW)).toBe(2);
     expect(sendsForOutreach(o.id).map((s) => s.sequence)).toEqual([1, 2]);
+  });
+
+  it('counts a confirmed send inside the window and not one outside it, at an injected clock', () => {
+    const coach = makeCoach({ email: 'windowed@example.test' });
+    const o = createOutreach({ athleteId: ATHLETE, coachId: coach.id });
+    markOutreachDrafted(o.id);
+    confirmSent([o.id], { at: at('10:00') });
+    const sentAt = Date.parse(at('10:00'));
+    const day = 86_400_000;
+    // 29 days later the send is still in the 30-day window; 31 days later it has left it.
+    expect(recentSendCount('windowed@example.test', { now: sentAt + 29 * day })).toBe(1);
+    expect(recentSendCount('windowed@example.test', { now: sentAt + 31 * day })).toBe(0);
+    expect(isSendCapped('windowed@example.test', { now: sentAt + 29 * day, max: 1 })).toBe(true);
+    expect(isSendCapped('windowed@example.test', { now: sentAt + 31 * day, max: 1 })).toBe(false);
   });
 
   it('leaves sendCap saying exactly what it said before', () => {

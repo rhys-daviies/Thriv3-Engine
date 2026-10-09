@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -685,15 +685,28 @@ describe('creation and the lifecycle it hands over to', () => {
     // Drafts are operator review objects: two date or label configurations
     // over one analysis is a reasonable thing to want to compare. Only ONE may
     // ever be active, and that is enforced by the schema.
-    const ref = giveAnalysis(ATHLETE, analysisOf(10));
-    const a = createCampaign(ATHLETE, { label: 'Three weeks', endsOn: '2026-09-28' });
-    const b = createCampaign(ATHLETE, { label: 'Six weeks', endsOn: '2026-10-19' });
+    //
+    // Created AT a fixed instant (createCampaign's own clock parameter), so the
+    // end dates stay after the start date whatever today is. Without it the
+    // start defaulted to today and the test failed once today passed 2026-09-28.
+    // The wall clock is moved far ahead to prove nothing here reads it.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2031-06-01T00:00:00.000Z'));
+    try {
+      const ref = giveAnalysis(ATHLETE, analysisOf(10));
+      const AT = '2026-09-07T12:00:00.000Z';
+      const a = createCampaign(ATHLETE, { label: 'Three weeks', endsOn: '2026-09-28', at: AT });
+      const b = createCampaign(ATHLETE, { label: 'Six weeks', endsOn: '2026-10-19', at: AT });
 
-    expect(a.campaign.id).not.toBe(b.campaign.id);
-    expect(a.campaign.source_analysis_ref).toBe(ref);
-    expect(b.campaign.source_analysis_ref).toBe(ref);
-    expect(listCampaignsForAthlete(ATHLETE)).toHaveLength(2);
-    expect(db.prepare('SELECT COUNT(*) n FROM programme_campaigns').get().n).toBe(20);
+      expect(a.campaign.id).not.toBe(b.campaign.id);
+      expect(a.campaign.starts_on).toBe('2026-09-07');
+      expect(a.campaign.source_analysis_ref).toBe(ref);
+      expect(b.campaign.source_analysis_ref).toBe(ref);
+      expect(listCampaignsForAthlete(ATHLETE)).toHaveLength(2);
+      expect(db.prepare('SELECT COUNT(*) n FROM programme_campaigns').get().n).toBe(20);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('scopes a created campaign to its athlete', () => {
