@@ -10,7 +10,7 @@ import { playerStatusLabel } from './Players.jsx';
 import OutreachFunnel from '@/components/engagement/OutreachFunnel.jsx';
 import CoachTable from '@/components/engagement/CoachTable.jsx';
 import PublishCard from '@/components/PublishCard.jsx';
-import { changedMatchingInputs } from '@shared/matchingInputFields.js';
+import { changedPreviousEngineInputs } from '@shared/matchingInputFields.js';
 
 /**
  * DATA AND MESSAGING ACCURACY, ON SCREEN — Phase 5, PR B.
@@ -79,14 +79,21 @@ describe('#5 a save keeps the previous engine\'s analysis unless matching inputs
     expect(fs.readFileSync('src/pages/EditPlayer.jsx', 'utf8')).not.toContain("Saving will clear existing match recommendations");
   });
 
-  it('the matching-input rule: representative, bio and contact changes are not matching inputs; position and preferences are', () => {
-    const base = { position: 'CB', preferred_regions: ['WEST', 'SOUTH'], match_weights: { a: 1 } };
-    expect(changedMatchingInputs(base, { ...base, representative_id: 'r1', bio: 'x', email: 'y@example.test' })).toEqual([]);
-    expect(changedMatchingInputs(base, { ...base, preferred_regions: ['SOUTH', 'WEST'] })).toEqual([]);   // order is not a change
-    expect(changedMatchingInputs(base, { ...base, position: 'FB' })).toEqual(['position']);
-    expect(changedMatchingInputs(base, { ...base, preferred_states: ['NY'] })).toEqual(['preferred_states']);
-    expect(changedMatchingInputs(base, { ...base, match_weights: { a: 2 } })).toEqual(['match_weights']);
-    expect(changedMatchingInputs({ gpa: null }, { gpa: '' })).toEqual([]);                                  // empty is empty
+  it('the previous engine\'s rule: only fields it reads; V2-only fields do not clear its analysis', () => {
+    const base = { position: 'CB', preferred_divisions: ['NCAA D1', 'NCAA D2'], match_weights: { a: 1 }, criterion_ranking: ['academic', 'location'] };
+    expect(changedPreviousEngineInputs(base, { ...base, representative_id: 'r1', bio: 'x', email: 'y@example.test' })).toEqual([]);
+    expect(changedPreviousEngineInputs(base, { ...base, intended_major: 'Business', preferred_states: ['NY'], recruit_type: 'X' })).toEqual([]);
+    expect(changedPreviousEngineInputs(base, { ...base, max_annual_contribution_usd: 40000 })).toEqual([]);   // carried, never scored by V1
+    expect(changedPreviousEngineInputs(base, { ...base, preferred_divisions: ['NCAA D2', 'NCAA D1'] })).toEqual([]); // order is not a change
+    expect(changedPreviousEngineInputs(base, { ...base, position: 'FB' })).toEqual(['position']);
+    expect(changedPreviousEngineInputs(base, { ...base, match_weights: { a: 2 } })).toEqual(['match_weights']);
+    expect(changedPreviousEngineInputs(base, { ...base, criterion_ranking: ['location', 'academic'] })).toEqual(['criterion_ranking']); // order IS the ranking
+    expect(changedPreviousEngineInputs({ gpa: null }, { gpa: '' })).toEqual([]);
+  });
+
+  it('EditPlayer applies the previous engine\'s own rule, not V2\'s', () => {
+    const src = fs.readFileSync('src/pages/EditPlayer.jsx', 'utf8');
+    expect(src).toContain('changedPreviousEngineInputs(stored ?? player, sanitized)');
   });
 
   it('the Players badge reads Matcher V2: an athlete with a V2 run is Matched, not New', () => {

@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import PlayerFormSteps from '@/components/PlayerFormSteps';
 import { entities } from '@/api/client';
 import { sanitizePlayerData } from '@/pages/NewPlayer';
-import { changedMatchingInputs } from '@shared/matchingInputFields.js';
+import { changedPreviousEngineInputs } from '@shared/matchingInputFields.js';
 
 /**
  * Where a save returns to — A9.4 §H.
@@ -59,11 +59,13 @@ export default function EditPlayer() {
      * This used to clear `recommendations` (the previous engine's stored list,
      * which Decision Evidence and Evidence still read) and reset `status` on
      * EVERY save - so assigning a representative or fixing a bio threw the list
-     * away. Now it is cleared only when a field matching actually reads has
-     * changed (shared/matchingInputFields.js, the same list that marks a V2 run
-     * outdated). A V2 run is never touched here either way.
+     * away. Now it is cleared only when a field THAT ENGINE reads has changed
+     * (PREVIOUS_ENGINE_INPUT_FIELDS in shared/matchingInputFields.js, pinned to
+     * what normaliseAthlete reads). Matcher V2's own staleness is separate: it
+     * compares the run's snapshot of V2's inputs on the server, and a V2 run is
+     * never touched here.
      */
-    if (changedMatchingInputs(stored ?? player, sanitized).length > 0) {
+    if (changedPreviousEngineInputs(stored ?? player, sanitized).length > 0) {
       sanitized.recommendations = null;
       sanitized.status = 'New';
     }

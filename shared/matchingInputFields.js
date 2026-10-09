@@ -43,8 +43,34 @@ export const MATCHING_UNORDERED_LIST_FIELDS = Object.freeze([
   'preferred_states', 'preferred_regions', 'preferred_divisions', 'preferred_conferences', 'preferred_institution_types',
 ]);
 
-/** Read only by the previous engine (V1's criterion weights). */
-export const PREVIOUS_ENGINE_ONLY_FIELDS = Object.freeze(['match_weights']);
+/**
+ * PHASE 5 (#5 check): THE PREVIOUS ENGINE READS A DIFFERENT SET.
+ *
+ * Its analysis is invalidated by its OWN inputs, not by Matcher V2's. These are
+ * exactly the fields `normaliseAthlete` (shared/matching/pool.js) and
+ * `analyze` (src/lib/playerAnalysis.js) read, and a test pins the list to what
+ * `normaliseAthlete` actually touches. Differences from V2, both directions:
+ *
+ *   V1 only   match_weights                     (its criterion weights)
+ *   V2 only   intended_major, the three *_priority fields, recruit_type,
+ *             preferred_states / _regions / _institution_types
+ *   carried, not scored by V1: contribution_state, max_annual_contribution_usd
+ *             (normaliseAthlete passes them through for V2 Financial; V1
+ *             scores affordability from budget_range alone - so changing them
+ *             does not make a V1 analysis wrong)
+ */
+export const PREVIOUS_ENGINE_INPUT_FIELDS = Object.freeze([
+  'sport', 'football_ability', 'position', 'recruiting_class_year',
+  'gpa', 'sat_score', 'act_score', 'budget_range', 'state', 'academic_minimum',
+  'origin', 'nationality', 'preferred_divisions', 'preferred_conferences',
+  'match_weights', 'criterion_ranking',
+]);
+
+/** Read by normaliseAthlete but never scored by the previous engine (see above). */
+export const PREVIOUS_ENGINE_CARRIED_ONLY = Object.freeze(['contribution_state', 'max_annual_contribution_usd']);
+
+/** Matcher V2's run-staleness inputs: exactly what matchmakingRuns.js snapshots. */
+export const MATCHER_V2_INPUT_FIELDS = Object.freeze([...MATCHING_INPUT_FIELDS_V1, ...MATCHING_UNORDERED_LIST_FIELDS]);
 
 const empty = (v) => v === null || v === undefined || v === '' || (Array.isArray(v) && v.length === 0);
 function norm(field, v) {
@@ -54,8 +80,19 @@ function norm(field, v) {
   return String(v).trim();
 }
 
-/** The matching inputs that differ between two versions of an athlete, by field name. */
-export function changedMatchingInputs(before = {}, after = {}) {
-  const fields = [...MATCHING_INPUT_FIELDS_V1, ...MATCHING_UNORDERED_LIST_FIELDS, ...PREVIOUS_ENGINE_ONLY_FIELDS];
-  return fields.filter((f) => Object.prototype.hasOwnProperty.call(after, f) && norm(f, before[f]) !== norm(f, after[f]));
+function normFor(field, v) {
+  // criterion_ranking's ORDER is the ranking, so it is compared as written, not sorted.
+  if (field === 'criterion_ranking') return empty(v) ? null : JSON.stringify(v);
+  return norm(field, v);
 }
+
+/** Which of `fields` differ between two versions of an athlete (only fields present in `after`). */
+export function changedFields(fields, before = {}, after = {}) {
+  return fields.filter((f) => Object.prototype.hasOwnProperty.call(after, f) && normFor(f, before[f]) !== normFor(f, after[f]));
+}
+
+/** The previous engine's inputs that changed: whether its stored analysis is now wrong. */
+export const changedPreviousEngineInputs = (before, after) => changedFields(PREVIOUS_ENGINE_INPUT_FIELDS, before, after);
+
+/** Matcher V2's inputs that changed: whether a V2 run is now outdated. */
+export const changedMatcherV2Inputs = (before, after) => changedFields(MATCHER_V2_INPUT_FIELDS, before, after);
