@@ -334,7 +334,7 @@ Every write test (R6, RB1, RB3) uses only records created for it, on a rehearsal
 |---|---|
 | Programme | `colleges` row `id = 'RB-SYN-COLLEGE'`, `name = 'Rehearsal Synthetic College'`, `sport = 'mens-soccer'`, active. Its own athletics entity `RB-SYN-ENTITY` and verified domain `rehearsal.example.test`. |
 | Coaches | `RB-SYN-COACH-1`, `RB-SYN-COACH-2`, named `Rehearsal Synthetic Coach 1/2`, addresses `coach1@rehearsal.example.test` and `coach2@rehearsal.example.test`, filed at the synthetic programme |
-| Athlete | `full_name = 'Rehearsal Synthetic Athlete'`, `email = 'athlete@rehearsal.example.test'`, a `public_slug` starting `rb-syn-`; never published |
+| Athlete | `full_name = 'Rehearsal Synthetic Athlete'`, `email = 'athlete@rehearsal.example.test'`, a `public_slug` of the form `rbsyn` + letters/digits (e.g. `rbsyn01`; slugs are alphanumeric only, so the hyphenated id prefix cannot be used); never published |
 | Operator | `rehearsal-operator@rehearsal.example.test` |
 
 - **Why `.example.test`:** `.test` is reserved (RFC 2606/6761). It cannot be delivered to or resolved. Combined with `--network none`, a mistaken send has nowhere to go. The repo's PII scan already treats `example.test` as approved.
