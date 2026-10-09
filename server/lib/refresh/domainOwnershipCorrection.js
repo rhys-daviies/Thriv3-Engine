@@ -50,7 +50,7 @@ import { loadRefreshContext } from './context.js';
 import { cycleOf } from './freshness.js';
 import { officialSource, registeredSources, pageText, nameScore, locatedAt, MAX_EVIDENCE_DAYS } from './officialEvidence.js';
 import { isHeldDomain, holdRecord, holdReleaseProblems } from '../../../shared/heldDomainAdjudications.js';
-import { isGrant, asInstant } from './approvalValidator.js';
+import { isGrant, grantProblems, asInstant } from './approvalValidator.js';
 import { classifyDatabase } from './correctionTarget.js';
 
 export const DOMAIN_OWNERSHIP_KIND = 'DOMAIN_OWNERSHIP_CORRECTION';
@@ -359,7 +359,10 @@ export function applyDomainOwnershipInTransaction(db, fx, { now = new Date().toI
   if (!db.inTransaction) throw new Error('applyDomainOwnershipInTransaction needs a caller-owned open transaction');
   if (!isGrant(grant)) throw new Error('applyDomainOwnershipInTransaction needs an authenticated approval grant (verifyApproval) — refused');
   const env = classifyDatabase(db);
-  if (env.class !== grant.target.class || env.identity !== grant.target.identity) throw new Error(`the approval grant is for ${grant.target.class} ${grant.target.identity}; this database is ${env.class} ${env.identity ?? '(unidentified)'} — refused`);
+  // DI-07 (MINOR-3): the grant must be for this database and, for SHARED_DEV / PRODUCTION, issued under the trust
+  // root — whose files are re-checked here, immediately before the write
+  const gp = grantProblems(grant, { class: env.class, identity: env.identity });
+  if (gp.length) throw Object.assign(new Error(`applyDomainOwnershipInTransaction refused: ${gp.join('; ')}`), { problems: gp });
   const fixture_hash = fixtureHash(fx);
   if (!(grant.body.stages || []).some((st) => st.type === DOMAIN_OWNERSHIP_KIND && st.fixture_hash === fixture_hash)) throw new Error(`the approval grant does not authorise fixture ${fixture_hash.slice(0, 12)}`);
   if (!ledger_id) throw new Error('ledger_id is required (the correction ledger row this write belongs to)');

@@ -33,13 +33,20 @@
  *
  * DI-04: SHARED_DEV / PRODUCTION approvals need ATTESTED HARDWARE keys signing with touch AND PIN/biometric
  * (loadReviewers + fidoAttestation.js + verifySshSignature requireHardware); keys are one person per RAW key;
- * the rehearsal key can never hold a runtime scope. The engine additionally requires the trust root
- * (trustRoot.js) for runtime targets. See docs/CORRECTION_REVIEWER_SECURITY.md.
+ * the rehearsal key can never hold a runtime scope.
+ *
+ * DI-07 (DI-06 MINOR-3): the TRUST ROOT (trustRoot.js) is enforced HERE, not only by the composite engine. For
+ * a SHARED_DEV or PRODUCTION target verifyApproval issues no grant unless the correction code and data equal
+ * the protected branch as fetched now; the grant records that commit (`trusted_commit`), and every writer
+ * that accepts a grant calls grantProblems(), which re-checks the working copy against that commit
+ * immediately before writing. A grant obtained any other way does not exist (module-private WeakSet).
+ * See docs/CORRECTION_REVIEWER_SECURITY.md.
  */
 import crypto from 'node:crypto';
 import { verifySshSignature, parsePublicKey, fingerprint, keyIdentity } from './sshSignature.js';
 import { attestationProblems } from './fidoAttestation.js';
 import { readReviewerRegistry, REVIEWERS_PATH } from './reviewerRegistry.js';
+import { trustedRuntimeState, recheckTrustedCommit } from './trustRoot.js';
 
 export { REVIEWERS_PATH };
 export const APPROVAL_NAMESPACE = 'thriv3-correction-approval@v1';
@@ -86,8 +93,9 @@ const RUNTIME_SCOPES = Object.freeze([ENV.SHARED_DEV, ENV.PRODUCTION]);
  *
  * RUNTIME SCOPES NEED AN ATTESTED HARDWARE KEY (DI-04, DI-03G MAJOR-C). A reviewer may hold SHARED_DEV or
  * PRODUCTION scope only if EVERY key enrolled for them is an sk-ssh-ed25519 key entered as
- *   { "key": "<public key line>", "attestation": "<base64 ssh-sk-attest-v01>", "challenge": "<base64>" }
- * whose attestation verifies against a pinned vendor root (fidoAttestation.js). A reviewer that fails
+ *   { "key": "<public key line>", "attestation": "<base64 ssh-sk-attest-v01>", "challenge": "<base64>",
+ *     "attestation_chain": ["<PEM intermediate nearest the leaf>", ...] (optional, DI-07) }
+ * whose attestation chains to a pinned vendor root (fidoAttestation.js). A reviewer that fails
  * keeps only DISPOSABLE scope, and `enrolment[reviewer_id]` says why.
  */
 export function loadReviewers() {
@@ -109,7 +117,7 @@ export function loadReviewers() {
         if (owner.has(id)) return { reviewers: [], policy: {}, enrolment: {}, problem: `key ${fingerprint(parsed.blob)} (raw key ${id.slice(8, 24)}…) is enrolled under both ${owner.get(id)} and ${r.reviewer_id} — one key is one person; registry refused` };
         owner.set(id, r.reviewer_id);
         if (id === rehearsal && scopes.some((x) => RUNTIME_SCOPES.includes(x))) return { reviewers: [], policy: {}, enrolment: {}, problem: `the public-seed rehearsal key is enrolled for ${r.reviewer_id} with a runtime scope — it may only ever authorise DISPOSABLE databases; registry refused` };
-        if (scopes.some((x) => RUNTIME_SCOPES.includes(x))) why.push(...attestationProblems(parsed, { attestation: k?.attestation, challenge: k?.challenge }).map((x) => `${fingerprint(parsed.blob)}: ${x}`));
+        if (scopes.some((x) => RUNTIME_SCOPES.includes(x))) why.push(...attestationProblems(parsed, { attestation: k?.attestation, challenge: k?.challenge, attestation_chain: k?.attestation_chain ?? null }).map((x) => `${fingerprint(parsed.blob)}: ${x}`));
         keys.push(line);
       }
       if (why.length && scopes.some((x) => RUNTIME_SCOPES.includes(x))) { enrolment[r.reviewer_id] = why; scopes = scopes.filter((x) => !RUNTIME_SCOPES.includes(x)); }
@@ -136,6 +144,21 @@ const isoDate = (s) => { const d = new Date(String(s ?? '')); return /^\d{4}-\d{
 const GRANTS = new WeakSet();
 /** Is `g` a grant issued by verifyApproval in this process (not a look-alike object)? */
 export const isGrant = (g) => !!g && GRANTS.has(g);
+/** How long a read-only, historical verification (`at`) may reuse a trusted tree fetched earlier. */
+export const HISTORICAL_TRUST_MAX_AGE_MS = 5 * 60_000;
+
+/**
+ * Problems using `grant` to write `target` NOW ([] = usable). Every writer that accepts a grant calls this
+ * (DI-07, MINOR-3): the grant must be live, for exactly this database, and — for SHARED_DEV / PRODUCTION —
+ * issued under the trust root, whose files are re-checked against the grant's trusted commit here.
+ */
+export function grantProblems(grant, target = null) {
+  if (!isGrant(grant)) return ['no authenticated approval grant (verifyApproval) — refused'];
+  if (target && (target.class !== grant.target.class || target.identity !== grant.target.identity)) return [`the approval grant is for ${grant.target.class} ${grant.target.identity}; this database is ${target.class} ${target.identity ?? '(unidentified)'} — refused`];
+  if (!RUNTIME_SCOPES.includes(grant.target.class)) return [];
+  if (!grant.trusted_commit) return ['the approval grant was not issued under the trust root — refused'];
+  return recheckTrustedCommit(grant.trusted_commit);
+}
 
 /** Free-text fields of a body that must not carry placeholders. */
 function freeText(body) {
@@ -204,8 +227,16 @@ export function verifyApproval(envelope, { kind, target, now = new Date(), at = 
     const distinctKeys = new Set(signers.map((x) => x.key_identity)).size;
     if (distinctKeys < need) p.push(`${target.class} needs ${need} distinct authenticated reviewer key(s); ${distinctKeys} verified`);
   }
+  // DI-07 (MINOR-3): no grant for a runtime database unless the code and data that decided it are the protected branch's
+  let trusted_commit = null;
+  if (RUNTIME_SCOPES.includes(target?.class)) {
+    const tr = trustedRuntimeState(target.class, { maxAgeMs: at ? HISTORICAL_TRUST_MAX_AGE_MS : 0 });
+    p.push(...tr.problems);
+    trusted_commit = tr.trusted_commit;
+    if (!trusted_commit && !tr.problems.length) p.push('trust root: no trusted commit established — refused');
+  }
   if (p.length) return { problems: p, grant: null };
-  const grant = Object.freeze({ kind: body.kind, approval_id: body.approval_id, body: deepFreeze(structuredClone(body)), body_hash: bodyHash(body), target: Object.freeze({ ...target }), signers: Object.freeze(signers.map((x) => Object.freeze(x))) });
+  const grant = Object.freeze({ kind: body.kind, approval_id: body.approval_id, body: deepFreeze(structuredClone(body)), body_hash: bodyHash(body), target: Object.freeze({ ...target }), signers: Object.freeze(signers.map((x) => Object.freeze(x))), trusted_commit });
   GRANTS.add(grant);
   return { problems: [], grant };
 }
