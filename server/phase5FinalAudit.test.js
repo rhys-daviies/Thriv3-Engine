@@ -119,7 +119,8 @@ describe('Phase 5 final audit: the existing manual workflow, end to end', () => 
     const offer = await api('GET', url);
     expect(JSON.stringify(offer.body)).toContain('Cal Suppressed');
     const sup = await api('POST', url, { coachIds: [j.coaches[2]], subject: 's', body: 'Hi Coach,\n\nb' });
-    expect(sup).toMatchObject({ status: 422, body: { code: 'COACH_NOT_AT_PROGRAMME' } });
+    expect(sup).toMatchObject({ status: 422, body: { code: 'COACH_OPTED_OUT' } });
+    expect(sup.body.error).toContain('Cal Suppressed has opted out');
     // ... and the shared send boundary refuses it independently of the route.
     const { sendOutreach } = await import('./routes/sendOutreach.js');
     const direct = await sendOutreach({ athleteId: j.player.id, coaches: [{ name: 'Cal Suppressed', email: 'c2@auditathletics.example', title: 'Head Coach' }],
@@ -160,20 +161,21 @@ describe('Phase 5 final audit: the existing manual workflow, end to end', () => 
     recordOptOut(j.b.outreach_id, { reason: 'unsubscribed', note: 'asked to be removed' });
     expect(optOutStatus(j.b.outreach_id).optedOut).toBe(true);
     const r = await api('POST', `/api/players/${j.player.id}/programmes/${j.rel.id}/outreach`, { coachIds: [j.coaches[1]], subject: 's', body: 'Hi Coach,\n\nb' });
-    expect(r).toMatchObject({ status: 422, body: { code: 'COACH_NOT_AT_PROGRAMME' } });
+    expect(r).toMatchObject({ status: 422, body: { code: 'COACH_OPTED_OUT' } });
     updateAthleteProgramme(j.player.id, j.rel.id, { contact_stance: 'do_not_contact' });
     const dnc = await api('POST', `/api/players/${j.player.id}/programmes/${j.rel.id}/outreach`, { coachIds: [j.coaches[0]], subject: 's', body: 'b' });
     expect(dnc.status).toBe(422);
   });
 
-  it('9. Reports: Engagement and the funnel agree; the selections report row is observed as-is', () => {
+  it('9. Reports: Engagement, the funnel and "Selected for outreach" agree', () => {
     const eng = athleteEngagement(j.player.id);
     expect(eng.funnel.sent).toBe(1);
-    const sel = selectionsOverview(j.player.id).selections.find((s) => s.id === j.selection.id);
-    j.selectionProgress = outreachProgress(sel);
-    // KNOWN ISSUE (audit finding, fixed in the follow-up PR): manual drafts are not linked to the selection,
-    // so this row cannot see the confirmed send or the reply recorded above.
-    expect(j.selectionProgress).toBe(OUTREACH_PROGRESS.NOT_CONTACTED);
+    const sel = selectionsOverview(j.player.id).selections.find((s) => s.selectionId === j.selection.id);
+    expect(sel).toBeTruthy();
+    // Two manual drafts (one confirmed), one replying recipient. The unconfirmed draft is not a send.
+    expect(sel.outreach).toMatchObject({ messages: 2, accepted: 1, coaches: 2 });
+    expect(sel.reply.replies).toBe(1);
+    expect(outreachProgress(sel)).toBe(OUTREACH_PROGRESS.REPLIED);
   });
 
   it('10. Published profile: up to date right after publishing; a later representative edit is flagged', () => {

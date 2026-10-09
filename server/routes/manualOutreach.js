@@ -294,6 +294,23 @@ manualOutreachRouter.post('/players/:playerId/programmes/:id/outreach', async (r
     }
     const byId = new Map(staff.map((c) => [c.coach_id, c]));
     const unknown = wanted.filter((id) => !byId.has(id));
+    /**
+     * OPTED OUT SINCE THE LIST WAS DRAWN - Phase 5 follow-up. The offer withholds an
+     * opted-out coach, so a dialog opened before the opt-out can still name one. That
+     * is still refused, and nothing is drafted, but it is refused as what it is: an
+     * opt-out, never "not on this programme's staff".
+     */
+    const optedOut = optedOutProgrammeCoaches({ collegeName: ctx.collegeName, sport: ctx.sport })
+      .filter((c) => unknown.includes(c.coach_id));
+    if (optedOut.length) {
+      const names = optedOut.map((c) => c.name).join(', ');
+      return res.status(422).json({
+        error: `Nothing was drafted. ${names} ${optedOut.length === 1 ? 'has' : 'have'} opted out of contact `
+          + 'since this list was opened. Close and reopen the composer to see who can be contacted.',
+        code: 'COACH_OPTED_OUT',
+        optedOut: optedOut.map((c) => ({ coach_id: c.coach_id, name: c.name })),
+      });
+    }
     if (unknown.length) {
       return res.status(422).json({
         error: `Not on this programme's staff: ${unknown.join(', ')}.`,

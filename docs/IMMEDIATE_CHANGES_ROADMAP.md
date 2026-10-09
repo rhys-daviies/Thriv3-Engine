@@ -83,8 +83,9 @@ Scope as agreed on 2026-10-09: the existing **manual** workflow is validated (Pl
 - **PR #78** (main `16f7aac`): remaining corrections. Previous-engine views say what they are. "Mark responded" takes the reply's date, and clearing it asks first. The sync label shows when events were last pulled. Recovery paths link back to editing and to the athlete. "Selected for outreach" counts replies from both recording paths, without double-counting.
 - **Final audit:** `server/phase5FinalAudit.test.js`, ten steps on isolated data with Outlook mocked, runs in the normal suite. The full suite at `16f7aac` was 12,214 tests with only the 27 known corpus-pinned failures.
 
-**Known issues (non-blockers, in a follow-up PR):**
+**Known issues found by the audit (non-blockers), both fixed on `fix/selections-manual-outreach` (open for review, not merged):**
 - "Selected for outreach" does not see manual outreach. Manual drafts are not linked to the Specific Search selection, so a programme that was contacted and replied to manually shows "Not contacted yet". The Engagement tab is correct.
 - A coach who opts out while the composer is open is refused with "Not on this programme's staff" rather than a message naming the opt-out. The refusal itself is correct.
+- The audit test's step 9 looked up the selection by the wrong key and passed without checking anything. This is corrected on the same branch. The finding itself was confirmed against the code before the fix.
 
 **Deferred (not part of this roadmap):** campaign creation and sending, OAuth mailbox connection, tracking-link activation for campaign messages, and automatic reply and opt-out detection. The Campaign tab and all campaign infrastructure are preserved, and the campaign transport is unchanged.
