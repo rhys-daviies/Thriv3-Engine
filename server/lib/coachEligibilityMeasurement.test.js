@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import crypto from 'node:crypto';
 import Database from 'better-sqlite3';
 import db from '../db/client.js';
 import { migrate } from '../db/migrate.js';
@@ -213,6 +214,8 @@ describe('the command line: on a migrated copy only, and the copy is unchanged',
     expect(compareFingerprints(before, fingerprint(copy)).same).toBe(true);
     const out = JSON.parse(fs.readFileSync(path.join(dir, 'r.json'), 'utf8'));
     expect(out.readOnlyProof.unchanged).toEqual(['after opening', 'after measuring']);
+    expect(out.readOnlyProof.connection).toMatch(/SQLITE_OPEN_READONLY/);
+    expect(out.readOnlyProof.fileSha256).toBe(crypto.createHash('sha256').update(fs.readFileSync(copy)).digest('hex'));
     expect(out.scope).toBe(SCOPE);
     expect(out.totals.eligible).toBe(result.totals.eligible);   // same answer as in-process
   });

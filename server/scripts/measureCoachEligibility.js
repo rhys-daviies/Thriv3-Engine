@@ -7,18 +7,23 @@
  *   node server/scripts/measureCoachEligibility.js --gate <production.json> <development.json>
  *
  * WHY IT POINTS THE APP AT THE COPY. The measurement uses the existing rule
- * functions unchanged, and they read the app's own database handle. So this
- * sets RECRUITMATCH_DB to the copy before importing them. Importing the app
- * runs schema.sql and migrate(), so:
- *   - it refuses a copy that is not already on main's schema (rehearsal R2
- *     migrates it first; migrating is not this tool's job);
- *   - it fingerprints the copy's content before opening it, after opening it,
- *     and after measuring. Any difference voids the result (exit 3);
- *   - the app's connection is switched to query_only before measuring.
+ * functions unchanged. The canonical engine takes a connection, but the offer
+ * (programmeCoaches) and the opt-out checks (suppressions.js) are bound to the
+ * app's own connection. So this points the app's connection at the copy, in
+ * the client's READ-ONLY MODE (RECRUITMATCH_DB_READONLY=1): the file is opened
+ * with SQLITE_OPEN_READONLY and query_only, and no schema.sql or migrate() runs.
+ * Nothing in the process can write to it.
+ *
+ * Belt and braces:
+ *   - a copy not already on main's schema is refused, because no migration will run;
+ *   - the app's connection must report readonly, or the run stops before measuring;
+ *   - the copy's content is fingerprinted before opening, after opening and after
+ *     measuring, and its file bytes are hashed. Any difference voids the result (exit 3).
  *
  * Exit codes: 0 measured (or gate passed), 1 gate failed, 2 usage, 3 refused or voided.
  */
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import path from 'node:path';
 import Database from 'better-sqlite3';
 import { assertNotLiveDatabase, fingerprint, compareFingerprints } from '../lib/dbFingerprint.js';
@@ -54,7 +59,7 @@ try {
   const migrated = hasCol('outreach', 'programme_contact_id') && hasCol('outreach_send', 'programme_contact_id')
     && !!probe.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'representatives'").get();
   probe.close();
-  if (!migrated) die(3, `Refusing ${file}: it is not on main's schema. Opening it through the app would migrate it. Migrate a copy first (rehearsal R2), then measure that.`);
+  if (!migrated) die(3, `Refusing ${file}: it is not on main's schema. The measurement opens it read-only and runs no migration. Migrate a copy first (rehearsal R2), then measure that.`);
 }
 
 const before = fingerprint(file, GUARD);
@@ -63,18 +68,31 @@ const voidIfMoved = (stage, fp) => {
   if (!d.same) die(3, `VOID: the copy's content changed ${stage}: ${d.diffs.map((x) => `${x.kind} ${x.table}`).join(', ')}. Nothing is reported.`);
 };
 
+const bytes = () => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+const bytesBefore = bytes();
+
 process.env.RECRUITMATCH_DB = file;
+process.env.RECRUITMATCH_DB_READONLY = '1';
 process.env.STRICT_CORROB_SCOPE = scope;   // the same scope for every rule function, including the offer path
-const { default: db } = await import('../db/client.js');
+const client = await import('../db/client.js');
+const db = client.default;
+if (!client.readOnly || !db.readonly || db.pragma('query_only', { simple: true }) !== 1) {
+  die(3, 'Refusing to measure: the app\'s database connection is not read-only.');
+}
 voidIfMoved('when the app opened it', fingerprint(file, GUARD));
-db.pragma('query_only = ON');
 
 const { measureCoachEligibility } = await import('../lib/coachEligibilityMeasurement.js');
 const result = measureCoachEligibility({ scope });
 db.close();
 voidIfMoved('while measuring', fingerprint(file, GUARD));
+if (bytes() !== bytesBefore) die(3, 'VOID: the copy\'s file bytes changed. Nothing is reported.');
 
-result.readOnlyProof = { tablesFingerprinted: Object.keys(before.tables).length, unchanged: ['after opening', 'after measuring'] };
+result.readOnlyProof = {
+  connection: 'SQLITE_OPEN_READONLY + query_only; no schema.sql, no migrate()',
+  tablesFingerprinted: Object.keys(before.tables).length,
+  unchanged: ['after opening', 'after measuring'],
+  fileSha256: bytesBefore,
+};
 result.measuredAt = new Date().toISOString();
 const json = `${JSON.stringify(result, null, 2)}\n`;
 if (value('out')) fs.writeFileSync(value('out'), json); else process.stdout.write(json);

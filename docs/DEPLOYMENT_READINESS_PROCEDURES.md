@@ -340,7 +340,25 @@ Every write test (R6, RB1, RB3) uses only records created for it, on a rehearsal
 - **Why `.example.test`:** `.test` is reserved (RFC 2606/6761). It cannot be delivered to or resolved. Combined with `--network none`, a mistaken send has nowhere to go. The repo's PII scan already treats `example.test` as approved.
 - **Eligibility is not bent to make the test pass.** If the synthetic coaches need to clear the canonical rule to reach the code under test, they are given **real rows of evidence on the copy** (a verified domain, a current season), exactly as `server/testCanonicalCoaches.js` does in tests. Production's values of `STRICT_CORROB_SCOPE` and `THRIV3_ALLOW_LEGACY_COACHES` stay in force. If a path still refuses them, that refusal is the recorded result.
 
-**The no-collateral check.** Before and after each write run, the §2d content fingerprint is computed per table **excluding the synthetic rows** (rows whose id, name, email or slug carries the marker, plus child rows that reference them). Every table must be identical, except the documented `corpus_revision` artefact. A difference fails the run, even if the run itself succeeded.
+**The no-collateral check.** Before and after each write run, on the rehearsal copy:
+```bash
+node server/scripts/dbFingerprint.js <copy> --exclude-synthetic --ignore corpus_revision --out <before|after>.json
+```
+```bash
+node server/scripts/dbFingerprint.js --compare before.json after.json
+```
+- **Excluded:** rows whose id, name, address or slug carries the marker, plus every row that references them, through declared foreign keys and the listed undeclared references, transitively.
+- **Every other row of every table must be identical.** A difference fails the run, even if the run itself succeeded.
+- **`corpus_revision` is the one table ignored by name.** It is a single counter row that triggers bump on any corpus write, so no row exclusion can attribute it. It gets its own check: still exactly one row, and the revision only went up.
+- **Coverage is proven by a test.** `server/lib/rehearsalSyntheticCoverage.test.js` performs the rehearsal's synthetic writes through the real functions:
+  - the programme, entity, domain and corroborated coaches;
+  - the operator and a session;
+  - the athlete and a Matcher V2 run with its per-programme results, which reference real colleges;
+  - a selection and the athlete–programme relationship;
+  - two manual drafts, a confirmation, a discard and a follow-up;
+  - a reply event, responded set, cleared and set again, and an opt-out.
+
+  It requires every other table to be identical, and requires the exclusion to have removed rows from each of the 17 tables those writes touch.
 
 **Afterwards.** The copies are deleted. No synthetic row, or file containing one, is ever uploaded, synced or restored anywhere.
 
@@ -363,7 +381,16 @@ At `387b916` only the row check applied.
 
 The canonical engine reads `coaches`, `coach_seasons`, `coach_email_absence_observations`, `athletics_domains`, `athletics_entities`, `institution_aliases`, `colleges` and `programme_row_links`, plus the repo file `docs/validation/generated/duplicate_unitid_canonical_map.json`. All the integrity work since early October went into the development database only. So production's answer is unknown.
 
-**Where.** On the migrated rehearsal copy (R7), inside the §3a isolation, with main's code from the `new` export, using production's `STRICT_CORROB_SCOPE` value. Synthetic rows (§3d) are excluded. The same script runs on the development reference database (corpus `d5371546`: 4,288 eligible) for comparison. A short read-only script calls the existing functions (`coachRowIneligibility`, `canonicalDecisions`, `canonicalIneligibility`, `activationHold`); it adds no new rule. That script will be its own reviewed PR.
+**Where.** On the migrated rehearsal copy (R7), inside the §3a isolation, with main's code from the `new` export, using production's `STRICT_CORROB_SCOPE` value, and **before** R6's synthetic writes. The same script runs on a copy of the development reference database (corpus `d5371546`: 4,288 eligible) for comparison.
+```bash
+node server/scripts/measureCoachEligibility.js <migrated copy> --scope <STRICT_CORROB_SCOPE> --out production.json
+```
+```bash
+node server/scripts/measureCoachEligibility.js --gate production.json development.json
+```
+- **Existing rules only.** It calls the existing rule functions unchanged: `coachRowIneligibility`, `coachIneligibility`, `canonicalDecisions`, the activation holds, `programmeCoaches` and `isSuppressed`.
+- **Read-only by construction.** The offer and opt-out functions are bound to the app's own database connection, so the app's connection is opened on the copy in the client's **read-only mode** (`RECRUITMATCH_DB_READONLY=1`): `SQLITE_OPEN_READONLY` plus `query_only`, with no `schema.sql` and no `migrate()`. Nothing in the process can write to the copy.
+- **Independent check.** The copy's content is fingerprinted before opening, after opening and after measuring, and its file bytes are hashed. Any change voids the result.
 
 | ID | Measurement | Reported as |
 |---|---|---|
