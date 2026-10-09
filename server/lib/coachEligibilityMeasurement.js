@@ -31,7 +31,7 @@ export { PILOT_CELLS, GATE, evaluateGate } from './eligibilityGate.js';
 
 const lc = (s) => String(s ?? '').trim().toLowerCase();
 /** Looser than the rules' own normalisation, ONLY to find an opt-out the rules' form could miss. */
-const loose = (s) => String(s ?? '').normalize('NFKC').toLowerCase().replace(/^mailto:/, '').replace(/[<>\s]/g, '').replace(/\.$/, '');
+const loose = (s) => String(s ?? '').normalize('NFKC').toLowerCase().replace(/[<>\s]/g, '').replace(/\.$/, '');
 const cellOf = (division, sport) => `${division ?? '(none)'}|${sport ?? '(none)'}`;
 const bump = (o, k, n = 1) => { o[k] = (o[k] ?? 0) + n; return o; };
 const reasonCode = (r) => (r == null ? 'ELIGIBLE' : String(r).split(':')[0]);
