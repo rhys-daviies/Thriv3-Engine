@@ -320,7 +320,9 @@ describe('an athlete who has never been analysed', () => {
     it(`${segment} still says to run the analysis first`, async () => {
       stubFetch();
       await render(segment, { recommendations: null, reserve: [] });
-      expect(text()).toMatch(/Run the analysis|No matches yet/i);
+      // Phase 5 (#6): Decision Evidence / Evidence now say the previous engine has no saved analysis
+      // (and point to Matcher V2) instead of an instruction V2 can never satisfy.
+      expect(text()).toMatch(/Run the analysis|No matches yet|has no saved analysis/i);
       expect(text()).not.toMatch(/matched no programmes/i);
     });
   }

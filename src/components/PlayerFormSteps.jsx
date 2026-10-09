@@ -155,8 +155,8 @@ function defaultsFrom(initialData) {
   };
 }
 
-export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', onSubmit, submitLabel = 'Create Player' }) {
-  const [step, setStep] = useState(0);
+export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', onSubmit, submitLabel = 'Create Player', initialStep = 0 }) {
+  const [step, setStep] = useState(initialStep);
   const [data, setData] = useState(() => defaultsFrom(initialData));
   const [colleges, setColleges] = useState([]);
   const [collegesLoading, setCollegesLoading] = useState(true);
@@ -277,6 +277,15 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
     if (idx > 0 && !step1Valid) return;
     setStep(idx);
   }
+
+  /**
+   * Phase 5 (#12): a link may open the form on a later step (the family
+   * contribution, from the matching screen) - but only past a valid first
+   * step, exactly as the Next button allows. Otherwise it opens step 1.
+   */
+  useEffect(() => {
+    if (step > 0 && !step1Valid) setStep(0);
+  }, [step, step1Valid]);
 
   function handleSubmit(e) {
     e.preventDefault();

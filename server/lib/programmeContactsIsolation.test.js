@@ -74,6 +74,7 @@ const ALLOWED = new Set([
   // Phase 5 (PR A): DISPLAY ONLY. Turns the server's PROGRAMME_INBOX_ADDRESS_NOT_TYPED refusal
   // code into a sentence on the composer row; it reads a result, it cannot address or send.
   'src/lib/sendRefusal.js',
+  'server/lib/coachEligibilityMeasurement.js',     // deployment readiness §4 E10: a read-only COUNT on a database copy; no send path
   'shared/recipientPresentation.js',               // "Programme Contact" and "Hi Coach,", once
   'src/lib/emailTemplate.js',                      // composes for a recipient kind
   'src/components/EmailComposer.jsx',              // the manual composer's programme-contact mode
@@ -138,7 +139,7 @@ describe('no send path can consume programme contacts', () => {
       .flatMap((d) => sourceFiles(path.join(ROOT, d)))
       .map((f) => path.relative(ROOT, f).split(path.sep).join('/'))
       .filter((rel) => /FROM\s+programme_contacts\b/.test(fs.readFileSync(path.join(ROOT, rel), 'utf8')));
-    expect(readers.sort()).toEqual(['server/lib/campaignAttribution.js', 'server/lib/executeProgrammeMessage.js', 'server/lib/outreach.js',
+    expect(readers.sort()).toEqual(['server/lib/campaignAttribution.js', 'server/lib/coachEligibilityMeasurement.js', 'server/lib/executeProgrammeMessage.js', 'server/lib/outreach.js',
       'server/lib/programmeContactEligibility.js', 'server/lib/programmeContacts.js', 'server/lib/recipient.js', 'server/lib/recipientSelection.js',
       'server/lib/refresh/integrityGate.js', 'server/lib/refresh/integrityMeasure.js', 'server/lib/refresh/promotion.js', 'server/lib/refresh/sendability.js', 'server/lib/refresh/staging.js',
       'server/lib/v2/outreachProvenance.js', 'server/scripts/integrityMonitor.js', 'server/scripts/legacyReconciliationReport.js', 'server/scripts/programmeContactAcquire.js', 'server/scripts/programmeContactLeads.js', 'server/scripts/validateProgrammeContacts.js']);

@@ -913,10 +913,11 @@ export const engagement = {
       body: JSON.stringify({ reason, note }),
     });
   },
-  setResponded(outreachId, responded) {
+  /** `respondedAt` (YYYY-MM-DD, optional): the day the reply arrived. Phase 5 (#9). */
+  setResponded(outreachId, responded, respondedAt = null) {
     return request(`/api/engagement/outreach/${outreachId}/responded`, {
       method: 'POST',
-      body: JSON.stringify({ responded }),
+      body: JSON.stringify(respondedAt ? { responded, respondedAt } : { responded }),
     });
   },
 };

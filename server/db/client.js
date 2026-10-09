@@ -52,15 +52,42 @@ if (!(process.env.RECRUITMATCH_DB ?? '').trim() && process.argv[1] === undefined
     + '  Use an explicit path only when you intend to migrate that file.',
   );
 }
-const db = new Database(dbPath);
-// DI-03H (DI-03G MAJOR-A): a correction rehearsal copy is never served. Checked first — before the journal
-// mode changes, schema.sql runs or migrate() writes, and before any caller can read application data.
-refuseDisposableDatabase(db, dbPath);
-if (dbPath !== ':memory:') db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+/**
+ * READ-ONLY MODE — for measuring a COPY (deployment readiness §4), never for serving.
+ *
+ * RECRUITMATCH_DB_READONLY=1 opens RECRUITMATCH_DB with SQLITE_OPEN_READONLY and
+ * then does none of the normal start-up: no journal-mode switch, no schema.sql,
+ * no migrate(). It sets query_only as well. So the file cannot be migrated or
+ * written by anything in the process, including a module that writes at import
+ * time: SQLite refuses the write. It only ever narrows what the default does, and
+ * it needs an explicit file path, so it cannot quietly apply to the working
+ * database by default or to a throwaway in-memory one.
+ *
+ * The copy must already be on the code's schema. Nothing here checks that, because
+ * checking would need the migration this mode exists to prevent; callers check
+ * first (server/scripts/measureCoachEligibility.js).
+ */
+export const readOnly = /^(1|true|yes)$/i.test(String(process.env.RECRUITMATCH_DB_READONLY ?? '').trim());
+if (readOnly && (!(process.env.RECRUITMATCH_DB ?? '').trim() || dbPath === ':memory:')) {
+  throw new Error('RECRUITMATCH_DB_READONLY needs RECRUITMATCH_DB to name a database file (a copy).');
+}
 
-const schema = fs.readFileSync(path.resolve(__dirname, 'schema.sql'), 'utf-8');
-db.exec(schema);
-migrate(db);
+const db = readOnly
+  ? new Database(dbPath, { readonly: true, fileMustExist: true })
+  : new Database(dbPath);
+// DI-03H (DI-03G MAJOR-A): a correction rehearsal copy is never served or measured as an application database.
+// Checked first in both modes — before the journal mode changes, schema.sql runs or migrate() writes, and before
+// any caller can read application data.
+refuseDisposableDatabase(db, dbPath);
+if (readOnly) {
+  db.pragma('query_only = ON');
+} else {
+  if (dbPath !== ':memory:') db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
+
+  const schema = fs.readFileSync(path.resolve(__dirname, 'schema.sql'), 'utf-8');
+  db.exec(schema);
+  migrate(db);
+}
 
 export default db;

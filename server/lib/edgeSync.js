@@ -18,6 +18,7 @@ import { recipientForOutreachToken, RecipientError } from './recipient.js';
  */
 
 const CURSOR_KEY = 'edge_events_cursor';
+const EVENTS_PULLED_KEY = 'events_pulled_at';
 
 function readState(key) {
   return db.prepare('SELECT value FROM sync_state WHERE key = ?').get(key)?.value ?? null;
@@ -227,6 +228,8 @@ export async function pullEvents({ maxBatches = 20 } = {}) {
 
   for (const outreachId of touched) rebuildRollup(outreachId);
 
+  // Phase 5 (#11): stamped only here, after every page of events has been read and stored.
+  writeState(EVENTS_PULLED_KEY, utcNow());
   return { fetched, inserted, unresolved, cursor, rollups: touched.size };
 }
 
@@ -291,6 +294,12 @@ export async function syncWithEdge() {
   return { tokens, events, suppressions, syncedAt: utcNow() };
 }
 
+/**
+ * When engagement was last PULLED from the collector - what the Engagement tab
+ * labels "Last pulled from the collector". Phase 5 (#11): this used to return
+ * `tokens_pushed_at`, which is written at the START of a sync, so a sync whose
+ * event pull failed still showed a fresh time. Null until a pull has completed.
+ */
 export function lastSyncedAt() {
-  return readState('tokens_pushed_at');
+  return readState(EVENTS_PULLED_KEY);
 }

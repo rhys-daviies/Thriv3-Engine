@@ -5,6 +5,7 @@ import ProgrammeDecision from '@/components/ProgrammeDecision';
 import { useOperatorEvidence, operatorEvidenceForCollege } from '@/lib/useOperatorEvidence';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 import ActionableRecommendationsState, { isActionablePending } from '@/components/ActionableRecommendationsState';
+import PreviousEngineListNotice from '@/components/PreviousEngineListNotice';
 
 /**
  * Why Thriv3 believes each matched programme is worth this athlete's attention.
@@ -159,21 +160,13 @@ export default function DecisionTab() {
     return <ActionableRecommendationsState status={actionableStatus} onRetry={reload} />;
   }
 
+  // Phase 5 (#6): no instruction Matcher V2 can never satisfy, and no filters V2 does not have.
   if (!recommendations) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Run the analysis on the Matching tab first — this view assesses the programmes it found.
-      </p>
-    );
+    return <PreviousEngineListNotice playerId={player?.id} view="decision" />;
   }
 
   if (!list.length) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        The analysis ran but matched no programmes. Widen the division or conference
-        filters on the Matching tab.
-      </p>
-    );
+    return <PreviousEngineListNotice playerId={player?.id} view="decision" empty />;
   }
 
   return (

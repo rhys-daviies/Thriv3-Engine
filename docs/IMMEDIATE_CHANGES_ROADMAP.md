@@ -2,6 +2,18 @@
 
 The approved product requirements for the operator workflow after Phase 1 (generic programme contacts). Restored on 2026-10-09 from the original planning conversation, which no repository file held. **This document is the source of truth for these phases.** Record progress in the status lines, not by editing the requirements.
 
+## Roadmap status (2026-10-09)
+
+| Phase | Implementation | Merged |
+|---|---|---|
+| 1 — Generic programme contacts | complete | PRs #64–#66 (main `09ec943`) |
+| 2 — Athlete positions & representative-first contact | complete | PR #70 (main `dab547b`) |
+| 3 — Player navigation & conference preferences | complete | PR #71 (main `8427b75`) |
+| 4 — Unified programme database | complete | PR #73 (main `0134172`) |
+| 5 — End-to-end integration | complete, final audit PASS, audit findings fixed | PRs #76, #77, #78, #79 (main `43f01cd`) |
+
+**Implementation complete is not production complete.** None of these phases has been deployed: Render Auto-Deploy is off, and the production database has not been migrated or measured against this code. Production deployment, the migration and a validation walkthrough on production data are a separate, unstarted step. Before deploying, create representatives and assign them to athletes. Opt-outs recorded on a development database do not carry over to production.
+
 Constraints across every phase: no new matchmaking scoring, no change to the V2 ranking engine, and no new agent architecture or unrelated infrastructure. Preserve historical records, coach eligibility, the programme-contact fallback, suppressions and send safeguards.
 
 ## Phase 2 — Athlete Positions & Representative-First Contact
@@ -49,7 +61,7 @@ Programme workspace sections: Overview · Roster & Openings · Recruiting Intell
 
 Reuse existing datasets, APIs and intelligence, and avoid parallel sources of truth.
 
-Status: implemented on `feat/phase4-programme-database` (PR open, not merged). Read only: no schema change and no writes to programme data.
+Status: **complete** — PR #73, merged to main `0134172` (not deployed). Read only: no schema change and no writes to programme data.
 - `/programmes`: one list, filtered and paginated by the server (Sport, Recruiting Class, Division, Conference, School). Replaces the College Database and Graduating Database; `/colleges` and `/graduating-db` redirect to it. The Roster gaps and Season trust queues are linked from it and keep their routes.
 - `/programmes/:id`: Overview · Roster & Openings · Recruiting Intelligence · Coaches & Contacts · Programme Intelligence. The id is the `colleges` id, which is the engine's `programmeId`, so a programme is always one school in one sport. The other sport is linked only through the athletics-entity id. Each V2 match card has **Open programme**.
 - **Openings are the matching engine's own projection.** They come from `programmeContext` / `positionEvidence`, and per-player standing comes from `availabilityAtEntry`. A place is open for a class when its holder's last eligible season, under the eligibility rules on file, is before that class arrives. They are projections, not confirmed graduates. The stored `estimated_graduation_year` the old Graduating Database grouped by is not used.
@@ -62,4 +74,20 @@ Status: implemented on `feat/phase4-programme-database` (PR open, not merged). R
 
 Validate Player → Match → Programme → Contact → Campaign → Engagement → Report, including cross-workflow checks for athlete positions, representative details, programme contacts, conference preferences, historical records and data integrity.
 
-Status: not started.
+Status: **complete** (implementation) — merged to main `16f7aac` (not deployed). Final integration audit on 2026-10-09: **PASS, no blockers**.
+
+Scope as agreed on 2026-10-09: the existing **manual** workflow is validated (Player → Match → Programme → Contact → Manual Outreach → Engagement → Reports). Campaign functionality and OAuth are deferred and were not treated as blockers.
+
+- **PR #76** (main `6e3ca33`): contact safety. Opt-outs recorded from the Engagement tab through `suppress()`. Opted-out coaches are withheld from every offer and named as opted out. Send refusals are explained, and an empty recipient list says why. Opt-outs are local to the database they are recorded in (see `docs/hosting.md`).
+- **PR #77** (main `9fccd39`): data and messaging accuracy. The sender notice names the channel actually used. "Sent" means a confirmed send, and prepared drafts are counted apart. Each engine is invalidated only by its own inputs (`shared/matchingInputFields.js`). The conference preference check uses canonical identity. The Profile tab says when the live page is behind the record.
+- **PR #78** (main `16f7aac`): remaining corrections. Previous-engine views say what they are. "Mark responded" takes the reply's date, and clearing it asks first. The sync label shows when events were last pulled. Recovery paths link back to editing and to the athlete. "Selected for outreach" counts replies from both recording paths, without double-counting.
+- **Final audit:** `server/phase5FinalAudit.test.js`, ten steps on isolated data with Outlook mocked, runs in the normal suite. The full suite at `16f7aac` was 12,214 tests with only the 27 known corpus-pinned failures.
+
+**Known issues found by the audit (non-blockers), both fixed by PR #79** (merged at `a28bb4c`, main `43f01cd`; full suite 12,234 tests with only the 27 known failures; audit test 10/10):
+- "Selected for outreach" does not see manual outreach. Manual drafts are not linked to the Specific Search selection, so a programme that was contacted and replied to manually shows "Not contacted yet". The Engagement tab is correct.
+- A coach who opts out while the composer is open is refused with "Not on this programme's staff" rather than a message naming the opt-out. The refusal itself is correct.
+- The audit test's step 9 looked up the selection by the wrong key and passed without checking anything. Corrected in PR #79. The finding itself was confirmed against the code before the fix.
+
+**Design note for future outreach work.** PR #79 assigns historical manual sends to selections when the panel reads them, using timestamps. That is a fallback for older records. New outreach code should record the selection on the send when it is created (`recordDraft`'s `matchmakingSelectionId`), not rely on matching it up afterwards.
+
+**Deferred (not part of this roadmap):** campaign creation and sending, OAuth mailbox connection, tracking-link activation for campaign messages, and automatic reply and opt-out detection. The Campaign tab and all campaign infrastructure are preserved, and the campaign transport is unchanged.

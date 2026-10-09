@@ -9,7 +9,7 @@ const { utcNow } = await import('./time.js');
 const { findOrCreateCoach } = await import('./coaches.js');
 const { createOutreach } = await import('./outreach.js');
 const { deactivateAthlete } = await import('./athleteLifecycle.js');
-const { pushTokens, pullEvents } = await import('./edgeSync.js');
+const { pushTokens, pullEvents, syncWithEdge, lastSyncedAt } = await import('./edgeSync.js');
 
 let requests = [];
 let pages = [];
@@ -227,5 +227,30 @@ describe('pulling events down', () => {
     const rollup = db.prepare('SELECT * FROM engagement_rollup WHERE outreach_id = ?').get(outreach.id);
     expect(rollup.qualified_visits).toBe(1);
     expect(rollup.best_coverage_pct).toBe(80);
+  });
+});
+
+describe('Phase 5 (#11): "last pulled" moves only when events were actually pulled', () => {
+  it('a sync whose event pull fails leaves the last-pulled time where it was', async () => {
+    expect(lastSyncedAt()).toBeNull();
+    vi.stubGlobal('fetch', async (url, options) => {
+      if (String(url).includes('/api/tokens')) {
+        return new Response(JSON.stringify({ synced: JSON.parse(options.body).tokens.length }), { status: 200 });
+      }
+      return new Response('collector down', { status: 503 });
+    });
+    await expect(syncWithEdge()).rejects.toThrow();
+    // tokens were pushed (that time is recorded) but nothing was pulled
+    expect(db.prepare("SELECT value FROM sync_state WHERE key = 'tokens_pushed_at'").get()).toBeTruthy();
+    expect(lastSyncedAt()).toBeNull();
+  });
+
+  it('a completed pull records the time it completed', async () => {
+    pages = [{ events: [], cursor: 0, more: false }];
+    const before = Date.now();
+    await pullEvents();
+    const at = lastSyncedAt();
+    expect(at).toBeTruthy();
+    expect(Date.parse(at)).toBeGreaterThanOrEqual(before - 1000);
   });
 });
