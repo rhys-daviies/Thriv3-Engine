@@ -135,7 +135,8 @@ function approve(db, stages, removed) {
 }
 const reopen = (r) => signEnvelope(revertBody({ manifest: r.manifest, manifestSha256: r.manifest_sha256, sendable: ['k-ab'], holdsSha: HOLDS.sha256, now: APPROVED_AT }));
 const revert = (db, r) => revertComposite(db, r.manifest, reopen(r), { apply: true, now: APPROVED_AT, activationHoldsFile: HOLDS.file });
-const withoutLedger = (snap) => { const { correction_ledger, ...rest } = snap; return rest; }; // eslint-disable-line no-unused-vars
+// the ledger and the database's correction identity are the durable record of the correction and its revert
+const withoutLedger = (snap) => { const { correction_ledger, correction_database_identity, ...rest } = snap; return rest; }; // eslint-disable-line no-unused-vars
 
 describe('the reconciler — the only effect of a recorded absence', () => {
   it('10. existing eligible coaches: no table rows, no change (the safeguard is inert by default)', () => {
@@ -188,7 +189,7 @@ describe('the writer — COACH_EMAIL_ABSENCE through the composite correction', 
     const r = runCompositeCorrection(db, st, approve(db, st, ['k-ab']), { apply: true, now: '2026-10-08T00:00:00Z' });
     expect(() => db.prepare("UPDATE coach_email_absence_observations SET email='x@owner.test'").run()).toThrow(/append-only/);
     const after = snapshot(db);
-    expect([...new Set([...Object.keys(before), ...Object.keys(after)])].filter((t) => before[t] !== after[t])).toEqual(['coach_email_absence_observations', 'correction_ledger']); // coaches untouched; programme / outreach tables untouched
+    expect([...new Set([...Object.keys(before), ...Object.keys(after)])].filter((t) => before[t] !== after[t])).toEqual(['coach_email_absence_observations', 'correction_database_identity', 'correction_ledger']); // coaches untouched; programme / outreach tables untouched
     revert(db, r);
     expect(withoutLedger(snapshot(db))).toEqual(before);
   });

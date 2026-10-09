@@ -13,12 +13,17 @@
  *     one the ledger and manifest record; and the approval lists this exact release;
  *   - the manifest moved this domain from the held owner to the released owner, and the row still
  *     names the released owner now.
+ *   - (DI-03H, DI-03G MAJOR-D) the ledger row was committed to THIS database: the reading handle classifies
+ *     to the row's target_identity, and the database carries the row's database_id, minted under that same
+ *     identity — a row copied into another database, or into a pre-commit / rehearsal copy, proves nothing;
+ *   - no COMPOSITE_REVERT row reverts it (a status flipped back by a direct write does not resurrect it).
  * A fabricated or hand-written manifest has no ledger row; a typed reviewer has no signature; a
  * mismatched approval id or release fails the binding. Any doubt keeps the hold.
  */
 import { HELD_DOMAIN_RELEASES, holdRecord, normHeldDomain } from '../../../shared/heldDomainAdjudications.js';
 import { verifyApproval, APPROVAL_KINDS, ENV } from './approvalValidator.js';
-import { ledgerEntry, manifestSha, LEDGER_KINDS } from './correctionLedger.js';
+import { ledgerEntry, manifestSha, databaseIdentity, revertsOf, LEDGER_KINDS } from './correctionLedger.js';
+import { classifyDatabase } from './correctionTarget.js';
 
 const EMPTY = Object.freeze(new Set());
 
@@ -32,10 +37,16 @@ export function releaseProofProblems(db, r) {
   if (row.kind !== LEDGER_KINDS.CORRECTION) p.push(`ledger ${r.ledger_id} is a ${row.kind}, not a correction`);
   if (row.status !== 'COMMITTED') p.push(`ledger ${r.ledger_id} is ${row.status}`);
   if (![ENV.SHARED_DEV, ENV.PRODUCTION].includes(row.target_class)) p.push(`ledger ${r.ledger_id} was committed to a ${row.target_class} database — a rehearsal never releases a hold`);
+  let here; try { here = classifyDatabase(db); } catch (e) { here = { identity: null, why: [e.message] }; }
+  if (!here.identity || row.target_identity !== here.identity) p.push(`ledger ${r.ledger_id} was committed to ${row.target_identity}; this database is ${here.identity ?? `unidentified (${here.why?.join('; ')})`} — a ledger row proves nothing outside the database it was committed to`);
+  const ident = databaseIdentity(db);
+  if (!ident || ident.database_id !== row.database_id || ident.minted_identity !== row.target_identity) p.push(`ledger ${r.ledger_id} names database ${row.database_id ?? '?'}; this database's correction identity is ${ident ? `${ident.database_id} (minted for ${ident.minted_identity})` : 'absent'}`);
+  const reverts = revertsOf(db, r.ledger_id);
+  if (row.reverted_by || reverts.length) p.push(`ledger ${r.ledger_id} has been reverted (${[row.reverted_by, ...reverts.map((x) => x.ledger_id)].filter(Boolean).join(', ')}) — a reverted correction never releases a hold`);
   let man; let env;
   try { man = JSON.parse(row.manifest_json); env = JSON.parse(row.approval_json); } catch { return [...p, 'ledger row unreadable']; }
   if (row.manifest_sha256 !== r.manifest_sha256 || manifestSha(man) !== r.manifest_sha256) p.push('manifest hash does not match the release');
-  if (man.ledger_id !== row.ledger_id || man.approval_body_hash !== row.approval_body_hash) p.push('manifest is not bound to its ledger row');
+  if (man.ledger_id !== row.ledger_id || man.approval_body_hash !== row.approval_body_hash || man.database_id !== row.database_id) p.push('manifest is not bound to its ledger row');
   let v;
   try { v = verifyApproval(env, { kind: APPROVAL_KINDS.COMPOSITE, target: { class: row.target_class, identity: row.target_identity }, at: row.committed_at }); } catch (e) { v = { problems: [e.message], grant: null }; }
   if (v.problems.length) p.push(...v.problems.map((x) => `approval: ${x}`));

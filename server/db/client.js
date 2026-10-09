@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { migrate } from './migrate.js';
 import { resolveDbPath } from './corpusIdentity.js';
+import { refuseDisposableDatabase } from './disposableMarker.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.resolve(__dirname, '../data');
@@ -52,6 +53,9 @@ if (!(process.env.RECRUITMATCH_DB ?? '').trim() && process.argv[1] === undefined
   );
 }
 const db = new Database(dbPath);
+// DI-03H (DI-03G MAJOR-A): a correction rehearsal copy is never served. Checked first — before the journal
+// mode changes, schema.sql runs or migrate() writes, and before any caller can read application data.
+refuseDisposableDatabase(db, dbPath);
 if (dbPath !== ':memory:') db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 

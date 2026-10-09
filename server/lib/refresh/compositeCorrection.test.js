@@ -85,7 +85,8 @@ function approve(db, stages, { eligibility = EXPECTED, over = {}, sendable = nul
   return signEnvelope(compositeBody({ baselineHash: idSetHash(base), stages, approval_id: 'AP-COMPOSITE', added: eligibility, sendable: sendable ?? added, holdsSha: HOLDS.sha256, now: NOW, over, target: (({ class: c, identity }) => ({ class: c, identity }))(classifyDatabase(db)) }));
 }
 const unapproved = (r) => signEnvelope(revertBody({ manifest: r.manifest, manifestSha256: r.manifest_sha256, noLonger: ['k-back', 'k-good', 'k-moved'], holdsSha: HOLDS.sha256, now: NOW }));
-const withoutLedger = (snap) => { const { correction_ledger, ...rest } = snap; return rest; }; // eslint-disable-line no-unused-vars
+// the ledger and the database's correction identity are the durable record of the correction and its revert
+const withoutLedger = (snap) => { const { correction_ledger, correction_database_identity, ...rest } = snap; return rest; }; // eslint-disable-line no-unused-vars
 /** every row of every table, so "nothing changed" is checked over the whole database */
 const snapshot = (db) => Object.fromEntries(db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all()
   .map(({ name }) => [name, JSON.stringify(db.prepare(`SELECT * FROM "${name}" ORDER BY rowid`).all())]));
@@ -129,7 +130,7 @@ describe('composite correction — atomic apply', () => {
     const before = snapshot(db);
     run(db, stages, approval);
     const after = snapshot(db);
-    expect([...new Set([...Object.keys(before), ...Object.keys(after)])].filter((t) => before[t] !== after[t]).sort()).toEqual(['athletics_domains', 'coaches', 'correction_ledger']);
+    expect([...new Set([...Object.keys(before), ...Object.keys(after)])].filter((t) => before[t] !== after[t]).sort()).toEqual(['athletics_domains', 'coaches', 'correction_database_identity', 'correction_ledger']);
     expect(db.prepare('SELECT coach_id FROM outreach').get().coach_id).toBe('k-back');
     expect(db.prepare('SELECT id FROM coaches ORDER BY id').all().map((x) => x.id)).toEqual(['k-back', 'k-gone', 'k-good', 'k-moved', 'k-other']);
     const old = JSON.parse(before.coaches); const nu = JSON.parse(after.coaches);
@@ -145,7 +146,7 @@ describe('composite correction — atomic apply', () => {
   it('4. eligibility is measured on the uncommitted state: a second connection sees nothing until COMMIT', () => {
     const dir = fs.mkdtempSync(path.join(process.env.TMPDIR || '/tmp', 'composite-'));
     const file = path.join(dir, 'w.sqlite'); const mem = world(); createDisposableCopyOf(mem, file);
-    const db = new Database(file); db.pragma('journal_mode = WAL'); const fx = fixtures(db); const stages = STAGES(fx); const approval = approve(db, stages);
+    const db = new Database(file); /* rollback journal: a WAL-mode disposable copy is refused as possibly served (DI-03H) */ const fx = fixtures(db); const stages = STAGES(fx); const approval = approve(db, stages);
     const peer = new Database(file, { readonly: true });
     const seen = [];
     run(db, stages, approval, { inject: (p) => { if (p.endsWith(':eligibility') || p === 'final:precommit') seen.push([p, peer.prepare("SELECT school FROM coaches WHERE id='k-moved'").get().school, peer.prepare('SELECT status FROM athletics_domains WHERE domain=?').get(HOST).status]); } });

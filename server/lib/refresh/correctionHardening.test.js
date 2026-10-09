@@ -27,7 +27,8 @@ vi.mock('./reviewerRegistry.js', async () => {
     { reviewer_id: 'test-reviewer-a', name: 'Test Reviewer A', scopes: ['DISPOSABLE', 'SHARED_DEV', 'PRODUCTION'], keys: [ed('reviewer-a')] },
     { reviewer_id: 'test-reviewer-b', name: 'Test Reviewer B', scopes: ['DISPOSABLE', 'SHARED_DEV', 'PRODUCTION'], keys: [sk('reviewer-b')] },
     { reviewer_id: 'test-dev-only', name: 'Test Dev Only', scopes: ['SHARED_DEV'], keys: [ed('dev-only')] }] };
-  return { REVIEWERS_PATH: '(test registry)', readReviewerRegistry: () => reg };
+  let extra = []; // DI-03H: reviewers a single test adds (and removes) to exercise the registry's key-uniqueness rule
+  return { REVIEWERS_PATH: '(test registry)', readReviewerRegistry: () => ({ ...reg, reviewers: [...reg.reviewers, ...extra] }), __setExtraReviewers: (x) => { extra = x; } };
 });
 vi.mock('./sourceRegistry.js', async () => {
   const real = JSON.parse((await import('node:fs')).readFileSync((await import('node:path')).resolve(import.meta.dirname, '../../../shared/officialSourceRegistry.json'), 'utf8'));
@@ -324,5 +325,152 @@ describe('F12 — corrected rows carry the new decision; the monitor flags trust
     const w = new Database(file); w.prepare("UPDATE athletics_domains SET confidence = 'NONE' WHERE domain = ?").run(H.RATTLER); w.close();
     const bad = runMonitor(file, { now, reconcile: false }).checks.find((c) => c.id === 'trusted_status_unestablished_confidence');
     expect([bad.severity, bad.count]).toEqual(['HARD', 1]);
+  });
+});
+
+// =====================================================================================================
+// DI-03H — the three merge-blocking DI-03G findings (MAJOR-A, -B, -D), with complete valid inputs.
+// =====================================================================================================
+const { __setExtraReviewers } = await import('./reviewerRegistry.js');
+const { carriesDisposableMarker } = await import('../../db/disposableMarker.js');
+const { databaseIdentity, ensureDatabaseIdentity } = await import('./correctionLedger.js');
+const CLIENT = path.resolve(import.meta.dirname, '../../db/client.js');
+/** Import db/client.js in a fresh process with RECRUITMATCH_DB=file. -> { code, out } */
+function serve(file) {
+  try {
+    const out = execFileSync(process.execPath, ['--input-type=module', '-e', `const m = await import(${JSON.stringify(CLIENT)}); m.default.prepare('SELECT count(*) AS n FROM coaches').get(); console.log('SERVED');`],
+      { encoding: 'utf8', stdio: 'pipe', env: { ...process.env, RECRUITMATCH_DB: file, NODE_ENV: 'test' } });
+    return { code: 0, out };
+  } catch (e) { return { code: e.status, out: `${e.stdout}${e.stderr}` }; }
+}
+
+describe('DI-03H MAJOR-A — a disposable correction copy is never served', () => {
+  const marked = () => { const { file } = sharedDev(); const dest = path.join(tmp('di03h-a-'), 'copy.sqlite'); createDisposableCopy(Database, file, dest); return dest; };
+  it('db/client.js refuses a marked copy before reading, changing journal mode, running schema.sql or migrating — by path and through a symlink', () => {
+    const f = marked(); const before = sha256(fs.readFileSync(f));
+    const r = serve(f);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toMatch(/Refusing to serve .*disposable correction marker/s);
+    expect(r.out).not.toMatch(/SERVED/);
+    expect(sha256(fs.readFileSync(f))).toBe(before); // nothing written: no migration, no WAL switch
+    expect(fs.existsSync(`${f}-wal`) || fs.existsSync(`${f}-shm`)).toBe(false);
+    const link = path.join(tmp('di03h-a-link-'), 'app.sqlite'); fs.symlinkSync(f, link);
+    expect(serve(link).out).toMatch(/Refusing to serve/);
+  });
+  it('genuine databases are unaffected: a shared-dev-shaped database and :memory: are served normally', () => {
+    const { file, db } = sharedDev(); db.close();
+    expect(carriesDisposableMarker(new Database(file, { readonly: true }))).toBe(false);
+    expect(serve(file)).toMatchObject({ code: 0 });
+    expect(serve(':memory:')).toMatchObject({ code: 0 });
+  });
+  it('the engine refuses a marked copy that shows signs of being served by ANY process (WAL mode or WAL side files) — DI-03G probe S1', () => {
+    const f = marked();
+    expect(classifyDatabase(new Database(f)).class).toBe('DISPOSABLE');
+    const server = new Database(f); server.pragma('journal_mode = WAL'); server.prepare('SELECT count(*) FROM coaches').get(); // another process "serving" it
+    const db = new Database(f);
+    const c = classifyDatabase(db);
+    expect(c.class).toBe('UNKNOWN');
+    expect(c.why.join(' ')).toMatch(/signs of being served/);
+    expect(errOf(() => correctionTarget(db, { activationHoldsFile: holdsFile(SENDABLE).file }))).toMatch(/not identified.*served/s);
+    server.close(); db.close();
+    expect(classifyDatabase(new Database(f)).class).toBe('UNKNOWN'); // WAL mode persists in the header: once served, never disposable again
+  });
+});
+
+describe('DI-03H MAJOR-B — production independence is counted by key, not by reviewer id', () => {
+  const t = { class: 'PRODUCTION', identity: 'production:/data/recruitmatch.sqlite' };
+  const body = () => compositeBody({ baselineHash: 'x', stages: [], holdsSha: 'a'.repeat(64), now: NOW, target: t });
+  const verify = (env) => verifyApproval(env, { kind: APPROVAL_KINDS.COMPOSITE, target: t, now }).problems.join('\n');
+  afterEach(() => __setExtraReviewers([]));
+  it('one key enrolled under two reviewer ids refuses the WHOLE registry — even a genuinely distinct pair cannot approve while it stands', () => {
+    __setExtraReviewers([{ reviewer_id: 'alice-laptop', name: 'Alice (laptop)', scopes: ['PRODUCTION'], keys: [A.key.publicLine] }]);
+    expect(verify(signEnvelope(body(), [A, { reviewer_id: 'alice-laptop', key: A.key }]))).toMatch(/enrolled under both test-reviewer-a and alice-laptop.*registry refused/);
+    expect(verify(signEnvelope(body(), [A, B]))).toMatch(/registry refused/);
+  });
+  it('the same key re-encoded (different comment) is still the same key', () => {
+    __setExtraReviewers([{ reviewer_id: 'alice-2', name: 'Alice Two', scopes: ['PRODUCTION'], keys: [`${A.key.publicLine.split(' ').slice(0, 2).join(' ')} another-comment`] }]);
+    expect(verify(signEnvelope(body(), [A, B]))).toMatch(/one key is one person/);
+  });
+  it('two genuinely distinct enrolled keys pass; binding to the exact database is preserved', () => {
+    expect(verify(signEnvelope(body(), [A, B]))).toBe('');
+    const other = { class: 'SHARED_DEV', identity: 'shared-dev:/x/server/data/db.sqlite' };
+    expect(verifyApproval(signEnvelope(body(), [A, B]), { kind: APPROVAL_KINDS.COMPOSITE, target: other, now }).problems.join('\n')).toMatch(/not this database/);
+  });
+  let sshKeygen = false; try { execFileSync('ssh-keygen', ['-?'], { stdio: 'ignore' }); sshKeygen = true; } catch (e) { sshKeygen = e.status != null; }
+  it.skipIf(!sshKeygen)('real `ssh-keygen -Y sign` signatures: DI-03G probe B9 (alice + alice-laptop, one key) is refused; alice + bob (two keys) passes', () => {
+    const d = tmp('di03h-b-'); const envNoAgent = { ...process.env }; delete envNoAgent.SSH_AUTH_SOCK;
+    for (const k of ['alice', 'bob']) execFileSync('ssh-keygen', ['-q', '-t', 'ed25519', '-N', '', '-C', `${k}-throwaway`, '-f', path.join(d, k)], { env: envNoAgent });
+    const pub = (k) => fs.readFileSync(path.join(d, `${k}.pub`), 'utf8').trim();
+    const b = body(); fs.writeFileSync(path.join(d, 'body.txt'), bodyBytes(b));
+    const sign = (k) => { execFileSync('ssh-keygen', ['-q', '-Y', 'sign', '-n', 'thriv3-correction-approval@v1', '-f', path.join(d, k), path.join(d, 'body.txt')], { env: envNoAgent, stdio: 'ignore' }); const s = fs.readFileSync(path.join(d, 'body.txt.sig'), 'utf8'); fs.rmSync(path.join(d, 'body.txt.sig')); return s; };
+    const sa = sign('alice'); const sb = sign('bob');
+    const env = (sigs) => ({ kind: 'SIGNED_CORRECTION_APPROVAL', version: 1, body: b, signatures: sigs });
+    __setExtraReviewers([{ reviewer_id: 'alice', name: 'Alice', scopes: ['PRODUCTION'], keys: [pub('alice')] }, { reviewer_id: 'alice-laptop', name: 'Alice Laptop', scopes: ['PRODUCTION'], keys: [pub('alice')] }]);
+    expect(verify(env([{ reviewer_id: 'alice', signature: sa }, { reviewer_id: 'alice-laptop', signature: sa }]))).toMatch(/one key is one person/);
+    __setExtraReviewers([{ reviewer_id: 'alice', name: 'Alice', scopes: ['PRODUCTION'], keys: [pub('alice')] }, { reviewer_id: 'bob', name: 'Bob', scopes: ['PRODUCTION'], keys: [pub('bob')] }]);
+    expect(verify(env([{ reviewer_id: 'alice', signature: sa }, { reviewer_id: 'bob', signature: sb }]))).toBe('');
+    expect(verify(env([{ reviewer_id: 'alice', signature: sa }, { reviewer_id: 'bob', signature: sa }]))).toMatch(/not enrolled for this reviewer/);
+    fs.rmSync(d, { recursive: true, force: true });
+  });
+});
+
+describe('DI-03H MAJOR-D — a ledger row proves a release only in the database it was committed to', () => {
+  const REL = (r) => ({ release_id: 'REL-STMARYTX', domain: H.HELD, released_to_unitid: U.TX, ledger_id: r.manifest.ledger_id, manifest_sha256: r.manifest_sha256 });
+  const committedDev = () => { const s = sharedDev(); const stages = c1(s.db); const r = run(s.db, stages, approveFor(s.db, stages, s.holds.sha256)); return { ...s, r }; };
+  const transplant = (from, to, r, { identity = false } = {}) => {
+    const row = from.prepare('SELECT * FROM correction_ledger WHERE ledger_id = ?').get(r.manifest.ledger_id);
+    to.exec(from.prepare("SELECT sql FROM sqlite_master WHERE name='correction_ledger'").get().sql);
+    to.prepare(`INSERT INTO correction_ledger (${Object.keys(row).join(',')}) VALUES (${Object.keys(row).map(() => '?').join(',')})`).run(...Object.values(row));
+    if (identity) { const id = from.prepare('SELECT * FROM correction_database_identity').get(); to.exec(from.prepare("SELECT sql FROM sqlite_master WHERE name='correction_database_identity'").get().sql); to.prepare('INSERT INTO correction_database_identity VALUES (?,?,?,?)').run(...Object.values(id)); }
+    const d = from.prepare('SELECT * FROM athletics_domains WHERE domain = ?').get(H.HELD);
+    to.prepare(`UPDATE athletics_domains SET ${Object.keys(d).filter((k) => k !== 'domain').map((k) => `${k}=@${k}`).join(', ')} WHERE domain=@domain`).run(d);
+  };
+  it('the genuine release is still proven where it committed; the database carries a minted identity the ledger names', () => {
+    const { db, r } = committedDev();
+    expect(releaseProofProblems(db, REL(r))).toEqual([]);
+    const id = databaseIdentity(db);
+    expect([id.minted_class, id.minted_identity, r.manifest.database_id]).toEqual(['SHARED_DEV', targetOf(db).identity, id.database_id]);
+    db.close();
+  });
+  it('DI-03G P02: ledger row (+ identity row) + domain row transplanted into ANOTHER shared-dev database by DB writes alone — refused', () => {
+    const a = committedDev(); const b = sharedDev();
+    transplant(a.db, b.db, a.r);
+    expect(releaseProofProblems(b.db, REL(a.r)).join('\n')).toMatch(/proves nothing outside the database it was committed to/);
+    const c = sharedDev(); transplant(a.db, c.db, a.r, { identity: true });
+    expect(releaseProofProblems(c.db, REL(a.r)).join('\n')).toMatch(/proves nothing outside the database it was committed to/);
+    a.db.close(); b.db.close(); c.db.close();
+  });
+  it('DI-03G P03: the same transplant into the PRE-COMMIT disposable copy — refused', () => {
+    const s = sharedDev(); const pre = path.join(tmp('di03h-d-'), 'pre.sqlite'); createDisposableCopy(Database, s.file, pre);
+    const stages = c1(s.db); const r = run(s.db, stages, approveFor(s.db, stages, s.holds.sha256));
+    const p = new Database(pre); transplant(s.db, p, r, { identity: true });
+    expect(releaseProofProblems(p, REL(r)).join('\n')).toMatch(/this database is disposable:/);
+    s.db.close(); p.close();
+  });
+  it('a disposable copy of a CORRECTED database never inherits its identity: nothing proven there, and a rehearsal on it mints its own', () => {
+    const { db, file, r } = committedDev(); db.close();
+    const copy = path.join(tmp('di03h-d-'), 'after.sqlite'); createDisposableCopy(Database, file, copy);
+    const c = new Database(copy);
+    expect(databaseIdentity(c)).toBeNull();
+    expect(releaseProofProblems(c, REL(r)).join('\n')).toMatch(/committed to shared-dev:.*this database is disposable:.*identity is absent/s);
+    c.close();
+  });
+  it('a raw `cp` of a corrected database into another checkout is another database: no proof, and a new correction there refuses to mix ledgers', () => {
+    const a = committedDev(); a.db.close();
+    const b = sharedDev(); b.db.close(); fs.copyFileSync(a.file, b.file);
+    const bd = new Database(b.file);
+    expect(releaseProofProblems(bd, REL(a.r)).join('\n')).toMatch(/proves nothing outside the database it was committed to/);
+    bd.exec('BEGIN'); try { expect(() => ensureDatabaseIdentity(bd, targetOf(bd), NOW)).toThrow(/copy of another database; refusing to mix their ledgers/); } finally { bd.exec('ROLLBACK'); }
+    const rv = signEnvelope(revertBody({ manifest: a.r.manifest, manifestSha256: a.r.manifest_sha256, noLonger: SENDABLE, holdsSha: b.holds.sha256, now: NOW, target: targetOf(bd) }), [A]);
+    expect(errOf(() => revertComposite(bd, a.r.manifest, rv, { apply: true, now: NOW }))).toMatch(/was committed to shared-dev:.*not this database/s);
+    bd.close();
+  });
+  it('DI-03G P07: after a governed revert, flipping the status back and restoring the row by DB writes does not resurrect the release', () => {
+    const { db, r, holds } = committedDev();
+    revertComposite(db, r.manifest, signEnvelope(revertBody({ manifest: r.manifest, manifestSha256: r.manifest_sha256, noLonger: SENDABLE, holdsSha: holds.sha256, now: NOW, target: targetOf(db) }), [A]), { apply: true, now: NOW });
+    db.prepare("UPDATE correction_ledger SET status = 'COMMITTED', reverted_by = NULL WHERE ledger_id = ?").run(r.manifest.ledger_id);
+    db.prepare('UPDATE athletics_domains SET unitid = ? WHERE domain = ?').run(U.TX, H.HELD);
+    expect(releaseProofProblems(db, REL(r)).join('\n')).toMatch(/has been reverted \(CR-/);
+    db.close();
   });
 });

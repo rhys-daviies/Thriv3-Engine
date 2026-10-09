@@ -110,7 +110,8 @@ function applyDomains(db, fx) { db.exec('BEGIN IMMEDIATE'); try { const r = appl
 const problemsOf = (db, fx, ctx = CTX) => planDomainOwnership(db, fx, ctx).problems.join('\n');
 const EVIDENCE_COLS = ['claimed_keys', 'claimed_unitids', 'evidence_kind', 'evidence_text', 'identity_method', 'identity_strength', 'http_status', 'final_url', 'platform'];
 const revertApproval = (r, opts = {}) => signEnvelope(revertBody({ manifest: r.manifest, manifestSha256: r.manifest_sha256, noLonger: SENDABLE, holdsSha: HOLDS.sha256, now: NOW, ...opts }));
-const withoutLedger = (snap) => { const { correction_ledger, ...rest } = snap; return rest; }; // eslint-disable-line no-unused-vars
+// the ledger and the database's correction identity are the durable record of the correction and its revert
+const withoutLedger = (snap) => { const { correction_ledger, correction_database_identity, ...rest } = snap; return rest; }; // eslint-disable-line no-unused-vars
 
 describe('1. the five capabilities', () => {
   it('REASSIGN_OWNER moves a decided host to the authenticated owner, records the old owner as refuted, keeps every evidence column', () => {
@@ -167,7 +168,7 @@ describe('2. C1-shaped batch through the composite writer', () => {
   it('touches only the corrected domain rows, the relabelled coaches\' school/division, and records its ledger row', () => {
     const { db, stages, approval } = setup(); const before = snapshot(db); const r = run(db, stages, approval);
     const after = snapshot(db);
-    expect([...new Set([...Object.keys(before), ...Object.keys(after)])].filter((t) => before[t] !== after[t]).sort()).toEqual(['athletics_domains', 'coaches', 'correction_ledger']);
+    expect([...new Set([...Object.keys(before), ...Object.keys(after)])].filter((t) => before[t] !== after[t]).sort()).toEqual(['athletics_domains', 'coaches', 'correction_database_identity', 'correction_ledger']);
     const led = db.prepare('SELECT * FROM correction_ledger').all();
     expect(led.map((x) => [x.ledger_id, x.kind, x.status, x.target_class, x.manifest_sha256])).toEqual([[r.manifest.ledger_id, 'COMPOSITE_CORRECTION', 'COMMITTED', 'DISPOSABLE', r.manifest_sha256]]);
   });

@@ -23,7 +23,9 @@
  *               exactly one hard link, and no runtime signal at all. The marker is written only by
  *               createDisposableCopy (a fresh copy, never in place) or markNewDisposable (a brand-new,
  *               EMPTY database). `cp` of a marked copy changes the inode and is no longer identified.
- *               Holds: an explicitly named file.
+ *               Holds: an explicitly named file. The application never SERVES a marked database
+ *               (db/client.js refuses it before reading or migrating — DI-03H), so a disposable
+ *               copy is never a database something is running against.
  *   UNKNOWN     everything else — refused. A runtime signal together with a disposable marker refuses.
  *
  * Every signal is read from the filesystem (real path, native case — symlinks, `..`, `/proc/self/root`
@@ -37,10 +39,11 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { activationHolds, HOLDS_PATH } from '../canonicalCoachEligibility.js';
 import { ENV } from './approvalValidator.js';
+import { DISPOSABLE_MARKER_TABLE } from '../../db/disposableMarker.js';
 
 export { ENV };
 export const UNKNOWN = 'UNKNOWN';
-export const MARKER_TABLE = 'correction_disposable_marker';
+export const MARKER_TABLE = DISPOSABLE_MARKER_TABLE;
 export const ENVIRONMENTS_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../shared/databaseEnvironments.json');
 export const HOLDS_FILE_NAME = path.join('seeds', 'coach_activation_holds.json');
 
@@ -115,6 +118,12 @@ export function classifyDatabase(db) {
   const st = fs.statSync(dbPath, { bigint: true });
   if (String(marker.file_dev) !== String(st.dev) || String(marker.file_ino) !== String(st.ino)) return { class: UNKNOWN, identity: null, dbPath, why: ['the disposable marker belongs to another file (copied with cp?) — make copies with createDisposableCopy'] };
   if (st.nlink !== 1n) return { class: UNKNOWN, identity: null, dbPath, why: [`${dbPath} has ${st.nlink} hard links — it cannot be shown to be a disposable copy`] };
+  // A disposable copy is created in rollback-journal mode and only ever opened by the correction tools. WAL mode
+  // (persistent in the file header) or WAL side files mean an application or another process has served it — it
+  // is not a scratch copy any more (DI-03G MAJOR-A). db/client.js additionally refuses to serve a marked file.
+  let mode = null; try { mode = String(db.pragma('journal_mode', { simple: true })).toLowerCase(); } catch { mode = 'unknown'; }
+  const sidecars = ['-wal', '-shm'].filter((x) => fs.existsSync(`${dbPath}${x}`));
+  if (mode === 'wal' || mode === 'unknown' || sidecars.length) return { class: UNKNOWN, identity: null, dbPath, why: [`${dbPath} shows signs of being served by another process (journal_mode ${mode}${sidecars.length ? `, ${sidecars.join(' ')} present` : ''}) — a disposable copy is never served; make a fresh one`] };
   return { class: ENV.DISPOSABLE, identity: `disposable:${marker.marker_id}`, dbPath, why: [`disposable marker ${marker.marker_id} (${marker.source ?? 'new'})`] };
 }
 
@@ -179,7 +188,11 @@ export function createDisposableCopy(Database, src, dest) {
   try { s.prepare('VACUUM INTO ?').run(out); } finally { s.close(); }
   const d = new Database(out);
   try {
+    d.pragma('journal_mode = DELETE'); // VACUUM INTO keeps the source's WAL flag; a disposable copy is never in WAL mode
     if (readMarker(d)) d.exec(`DROP TABLE ${MARKER_TABLE}`); // a copy of a copy gets its own marker
+    // the copy is a different database: it never inherits the source's correction identity (DI-03H), so its copied
+    // ledger rows can never prove anything here, and a correction on the copy mints its own identity
+    d.exec('DROP TABLE IF EXISTS correction_database_identity');
     return { dest: out, marker_id: writeMarker(d, out, `copy of ${realOrSelf(src)}`) };
   } finally { d.close(); }
 }

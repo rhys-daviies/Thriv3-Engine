@@ -74,7 +74,7 @@ import { verifyApproval, asInstant, bodyHash, canonicalJson, APPROVAL_KINDS } fr
 import { correctionTarget } from './correctionTarget.js';
 import { sendabilitySnapshot, sendabilityDelta } from './sendability.js';
 import { evidenceStore } from './officialEvidence.js';
-import { ledgerId, ledgerEntry, recordLedger, markReverted, manifestSha, LEDGER_KINDS } from './correctionLedger.js';
+import { ledgerId, ledgerEntry, recordLedger, markReverted, manifestSha, ensureDatabaseIdentity, databaseIdentity, LEDGER_KINDS } from './correctionLedger.js';
 
 export const COMPOSITE_APPROVAL_KIND = APPROVAL_KINDS.COMPOSITE;
 export const COMPOSITE_REVERT_KIND = APPROVAL_KINDS.REVERT;
@@ -288,10 +288,11 @@ export function runCompositeCorrection(db, stages, envelope, { apply = false, no
     const sd = sendabilityDelta(send0, sendabilitySnapshot(db, { now: nowD }));
     assertSendability(sd, body.sendability, tgt, 'correction');
     report.final.sendability = { ...sd, all_newly_sendable_held: true, activation_holds_file: tgt.holdsFile, activation_holds_sha256: tgt.holdsSha256 };
-    man = { phase: COMPOSITE_MANIFEST_PHASE, ledger_id, approval_id: grant.approval_id, approval_body_hash: grant.body_hash, target, signers: grant.signers.map((x) => ({ reviewer_id: x.reviewer_id, fingerprint: x.fingerprint })),
+    const database_id = ensureDatabaseIdentity(db, target, nowD.toISOString());
+    man = { phase: COMPOSITE_MANIFEST_PHASE, ledger_id, database_id, approval_id: grant.approval_id, approval_body_hash: grant.body_hash, target, signers: grant.signers.map((x) => ({ reviewer_id: x.reviewer_id, fingerprint: x.fingerprint })),
       applied_at: now, fixture_hashes: stages.map((s) => s.fixture.fixture_hash), baseline: { eligible_ids_hash: report.baseline.eligible_ids_hash }, final: { eligible_ids_hash: report.final.eligible_ids_hash }, manifest };
     hit('final:ledger');
-    recordLedger(db, { ledger_id, kind: LEDGER_KINDS.CORRECTION, envelope, grant, target, manifest: man, committed_at: nowD.toISOString() });
+    recordLedger(db, { ledger_id, database_id, kind: LEDGER_KINDS.CORRECTION, envelope, grant, target, manifest: man, committed_at: nowD.toISOString() });
     hit('final:precommit');
     if (apply) db.exec('COMMIT'); else db.exec('ROLLBACK');
   } catch (err) { if (db.inTransaction) { try { db.exec('ROLLBACK'); } catch { /* */ } } throw err; }
@@ -342,6 +343,7 @@ export function revertComposite(db, man, envelope, { apply = false, now = new Da
     if (row.status !== 'COMMITTED') problems.push(`ledger ${row.ledger_id} is already ${row.status}`);
     if (row.manifest_sha256 !== msha || row.manifest_json !== canonicalJson(man)) problems.push('the manifest is not byte-for-byte the one the ledger recorded');
     if (row.target_identity !== target.identity) problems.push(`ledger ${row.ledger_id} was committed to ${row.target_identity}, not this database`);
+    if (!row.database_id || databaseIdentity(db)?.database_id !== row.database_id || man.database_id !== row.database_id) problems.push(`ledger ${row.ledger_id} belongs to database ${row.database_id ?? '?'}, not this one (${databaseIdentity(db)?.database_id ?? 'no identity'})`);
   }
   problems.push(...manifestEntryProblems(db, man.manifest));
   const rev_id = grant ? ledgerId('CR', grant.body_hash) : null;
@@ -363,8 +365,9 @@ export function revertComposite(db, man, envelope, { apply = false, now = new Da
     const integ = db.pragma('integrity_check', { simple: true }); if (integ !== 'ok') throw fail(`integrity ${integ}`);
     if (inject) inject('revert:ledger');
     markReverted(db, man.ledger_id, rev_id);
-    recordLedger(db, { ledger_id: rev_id, kind: LEDGER_KINDS.REVERT, envelope, grant, target, committed_at: nowD.toISOString(), reverts: man.ledger_id,
-      manifest: { phase: COMPOSITE_REVERT_PHASE, ledger_id: rev_id, reverts: man.ledger_id, reverted_manifest_sha256: msha, approval_id: grant.approval_id, approval_body_hash: grant.body_hash, target, applied_at: now } });
+    const database_id = ensureDatabaseIdentity(db, target, nowD.toISOString());
+    recordLedger(db, { ledger_id: rev_id, database_id, kind: LEDGER_KINDS.REVERT, envelope, grant, target, committed_at: nowD.toISOString(), reverts: man.ledger_id,
+      manifest: { phase: COMPOSITE_REVERT_PHASE, ledger_id: rev_id, database_id, reverts: man.ledger_id, reverted_manifest_sha256: msha, approval_id: grant.approval_id, approval_body_hash: grant.body_hash, target, applied_at: now } });
     if (apply) db.exec('COMMIT'); else db.exec('ROLLBACK');
     return { reverted: r.reverted, eligible_ids_hash, committed: apply, ledger_id: rev_id, sendability: sd };
   } catch (err) { if (db.inTransaction) { try { db.exec('ROLLBACK'); } catch { /* */ } } throw err; }

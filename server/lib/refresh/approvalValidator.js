@@ -18,7 +18,8 @@
  *     (class + identity from correctionTarget.js) — an approval for a disposable copy can never
  *     authorise the shared or production database, nor one copy another;
  *   - every signature verifies, by a reviewer whose scopes include the target class; at least the
- *     policy's number of DISTINCT reviewers signed (PRODUCTION needs two — independent sign-off);
+ *     policy's number of DISTINCT KEYS signed (PRODUCTION needs two — independent sign-off). A key enrolled
+ *     under two reviewer ids refuses the whole registry, and two signatures by one key count once (DI-03H);
  *   - no placeholder marker in any free text (normalised: NFKC, zero-width removed, confusables folded);
  *   - approved_at is a real date not in the future; expires_at is after it, at most MAX_APPROVAL_DAYS
  *     later, and not yet passed (or, for `at` — historical verification of a committed correction —
@@ -31,7 +32,7 @@
  * The reviewer registry is always the committed shared/correctionReviewers.json — there is no override.
  */
 import crypto from 'node:crypto';
-import { verifySshSignature } from './sshSignature.js';
+import { verifySshSignature, parsePublicKey, fingerprint } from './sshSignature.js';
 import { readReviewerRegistry, REVIEWERS_PATH } from './reviewerRegistry.js';
 
 export { REVIEWERS_PATH };
@@ -62,15 +63,30 @@ export const PLACEHOLDER = /not[\s_-]*approved|\bunapproved\b|pending|stand[\s_-
 export const placeholderIn = (s) => { const m = skeleton(s).match(PLACEHOLDER); return m ? m[0] : null; };
 
 // ---- registry -------------------------------------------------------------------------------------
-/** The committed reviewer registry. Unreadable / malformed -> nobody may approve (fail closed). */
+/**
+ * The committed reviewer registry. Unreadable / malformed -> nobody may approve (fail closed).
+ * DI-03H (DI-03G MAJOR-B): ONE KEY IS ONE PERSON. If any key (by its SHA256 fingerprint) is enrolled under
+ * more than one reviewer id — or twice under one — the whole registry is refused, so two "reviewers" can
+ * never be one key. `problem` says why.
+ */
 export function loadReviewers() {
   try {
     const j = readReviewerRegistry();
-    if (j?.kind !== 'CORRECTION_REVIEWERS' || j.version !== 2 || !Array.isArray(j.reviewers)) return { reviewers: [], policy: {} };
+    if (j?.kind !== 'CORRECTION_REVIEWERS' || j.version !== 2 || !Array.isArray(j.reviewers)) return { reviewers: [], policy: {}, problem: 'reviewer registry unreadable or not version 2' };
     const reviewers = j.reviewers.filter((r) => r?.reviewer_id && r?.name && Array.isArray(r.scopes) && Array.isArray(r.keys) && !placeholderIn(r.name))
       .map((r) => ({ reviewer_id: r.reviewer_id, name: r.name, scopes: r.scopes.filter((s) => Object.values(ENV).includes(s)), keys: r.keys.filter((k) => typeof k === 'string') }));
+    const ids = reviewers.map((r) => r.reviewer_id);
+    if (new Set(ids).size !== ids.length) return { reviewers: [], policy: {}, problem: 'a reviewer id is enrolled more than once — registry refused' };
+    const owner = new Map();
+    for (const r of reviewers) {
+      for (const line of r.keys) {
+        let fp; try { fp = fingerprint(parsePublicKey(line).blob); } catch { continue; } // an unparseable key never verifies anything
+        if (owner.has(fp)) return { reviewers: [], policy: {}, problem: `key ${fp} is enrolled under both ${owner.get(fp)} and ${r.reviewer_id} — one key is one person; registry refused` };
+        owner.set(fp, r.reviewer_id);
+      }
+    }
     return { reviewers, policy: j.policy || {} };
-  } catch { return { reviewers: [], policy: {} }; }
+  } catch { return { reviewers: [], policy: {}, problem: 'reviewer registry unreadable' }; }
 }
 export function minSigners(cls, policy = loadReviewers().policy) {
   const set = Number(policy?.min_distinct_signers?.[cls]);
@@ -132,10 +148,11 @@ export function verifyApproval(envelope, { kind, target, now = new Date(), at = 
     if (when.getTime() > exp.getTime()) p.push(`approval expired at ${body.expires_at}`);
   }
   // signatures
-  const { reviewers, policy } = loadReviewers();
+  const { reviewers, policy, problem: registryProblem } = loadReviewers();
+  if (registryProblem) p.push(`reviewer registry: ${registryProblem}`);
   const sigs = Array.isArray(envelope.signatures) ? envelope.signatures : [];
   const message = bodyBytes(body);
-  const signers = []; const seen = new Set();
+  const signers = []; const seen = new Set(); const keysUsed = new Map();
   if (!sigs.length) p.push('approval carries no signature');
   for (const s of sigs) {
     const rv = reviewers.find((r) => r.reviewer_id === s?.reviewer_id);
@@ -146,11 +163,15 @@ export function verifyApproval(envelope, { kind, target, now = new Date(), at = 
     if (target?.class && !rv.scopes.includes(target.class)) { p.push(`reviewer ${rv.reviewer_id} may not authorise a ${target.class} database (scopes: ${rv.scopes.join(', ') || 'none'})`); continue; }
     const v = verifySshSignature(message, s.signature, { namespace: APPROVAL_NAMESPACE, allowedKeys: rv.keys });
     if (!v.ok) { p.push(...v.problems.map((x) => `signature by ${rv.reviewer_id}: ${x}`)); continue; }
+    // DI-03H (MAJOR-B): independence is counted by KEY, never by reviewer id
+    if (keysUsed.has(v.key.fingerprint)) { p.push(`signature by ${rv.reviewer_id} uses the same key (${v.key.fingerprint}) as ${keysUsed.get(v.key.fingerprint)} — one key counts once`); continue; }
+    keysUsed.set(v.key.fingerprint, rv.reviewer_id);
     signers.push({ reviewer_id: rv.reviewer_id, name: rv.name, fingerprint: v.key.fingerprint });
   }
   if (target?.class) {
     const need = minSigners(target.class, policy);
-    if (signers.length < need) p.push(`${target.class} needs ${need} distinct authenticated reviewer(s); ${signers.length} verified`);
+    const distinctKeys = new Set(signers.map((x) => x.fingerprint)).size;
+    if (distinctKeys < need) p.push(`${target.class} needs ${need} distinct authenticated reviewer key(s); ${distinctKeys} verified`);
   }
   if (p.length) return { problems: p, grant: null };
   const grant = Object.freeze({ kind: body.kind, approval_id: body.approval_id, body: deepFreeze(structuredClone(body)), body_hash: bodyHash(body), target: Object.freeze({ ...target }), signers: Object.freeze(signers.map((x) => Object.freeze(x))) });
