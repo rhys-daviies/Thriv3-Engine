@@ -1,0 +1,39 @@
+# DI-04: checks that guard the correction-authorisation trust root. Make "correction-security" a REQUIRED status
+# check on `main` (docs/CORRECTION_REVIEWER_SECURITY.md) — this file alone enforces nothing until that is set.
+name: correction-security
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  correction-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RECRUITMATCH_DB: ':memory:'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Committed registries enrol no runtime reviewer key and no release is active
+        run: |
+          node -e "
+          const r = require('./shared/correctionReviewers.json');
+          if (r.version !== 3) throw new Error('reviewer registry must be version 3');
+          for (const x of r.reviewers) if (x.scopes.some((s) => s !== 'DISPOSABLE') && x.keys.length && !x.keys.every((k) => typeof k === 'object' && k.attestation && k.challenge))
+            throw new Error(x.reviewer_id + ': a runtime-scope key must carry attestation + challenge');
+          console.log('registry ok');"
+      - name: Correction engine, reviewer security, privacy and mutation-safety tests
+        run: >-
+          npx vitest run
+          server/lib/refresh
+          server/db
+          server/lib/emailPublication.test.js
+          server/lib/programmeContactsIsolation.test.js
+          server/scripts/committedPiiScan.test.js
+          server/scripts/mutationPathSafety.test.js

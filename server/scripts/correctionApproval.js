@@ -12,6 +12,12 @@
  *                                            `ssh-keygen -Y sign -n thriv3-correction-approval@v1 -f <key> body.txt`)
  *   verify <envelope.json> --db <db.sqlite> --kind COMPOSITE_CORRECTION_APPROVAL|COMPOSITE_REVERT_APPROVAL [--activation-holds <f>]
  *                                            verify signatures, reviewers and target binding for that database
+ *   enrolment <key.pub> <attestation file> <challenge file>
+ *                                            (DI-04) check a NEW reviewer key before its enrolment PR: hardware (sk) key,
+ *                                            attestation issued by a pinned root, certifying exactly this key; prints the
+ *                                            registry entry to paste. Reads only the three files; writes nothing.
+ *   trust-check                              (DI-04) compare every protected file with the protected branch fetched now —
+ *                                            what a SHARED_DEV / PRODUCTION correction will require
  *
  * Signing flow:  node correctionApproval.js body approval.json > body.txt
  *                ssh-keygen -Y sign -n thriv3-correction-approval@v1 -f ~/.ssh/<reviewer key> body.txt
@@ -22,6 +28,9 @@ import path from 'node:path';
 import Database from 'better-sqlite3';
 import { bodyBytes, verifyApproval, APPROVAL_NAMESPACE } from '../lib/refresh/approvalValidator.js';
 import { createDisposableCopy, classifyDatabase, correctionTarget } from '../lib/refresh/correctionTarget.js';
+import { attestationProblems } from '../lib/refresh/fidoAttestation.js';
+import { parsePublicKey, fingerprint, keyIdentity } from '../lib/refresh/sshSignature.js';
+import { protectedFileProblems, REPO_ROOT } from '../lib/refresh/trustRoot.js';
 
 const [cmd, a1, a2, a3] = process.argv.slice(2);
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i > -1 ? process.argv[i + 1] : null; };
@@ -53,4 +62,15 @@ if (cmd === 'copy') {
     if (problems.length) { console.error(`NOT VALID for ${t.class} ${t.identity}:\n  - ${problems.join('\n  - ')}`); process.exitCode = 1; }
     else console.log(`VALID for ${t.class} ${t.identity}: ${grant.approval_id}, signed by ${grant.signers.map((s) => `${s.reviewer_id} (${s.fingerprint})`).join(', ')}; holds ${t.holdsSha256.slice(0, 12)} (approval pins ${String(grant.body.sendability?.activation_holds_sha256).slice(0, 12)})`);
   } finally { db.close(); }
-} else fail('usage: correctionApproval.js copy|classify|body|attach|verify ... (see the header)');
+} else if (cmd === 'enrolment') {
+  if (!a1 || !a2 || !a3) fail('enrolment <key.pub> <attestation file> <challenge file>');
+  const line = fs.readFileSync(a1, 'utf8').trim(); const key = parsePublicKey(line);
+  const entry = { key: line, attestation: fs.readFileSync(a2).toString('base64'), challenge: fs.readFileSync(a3).toString('base64') };
+  const p = attestationProblems(key, entry);
+  if (p.length) { console.error(`NOT ENROLLABLE (${fingerprint(key.blob)}):\n  - ${p.join('\n  - ')}`); process.exitCode = 1; }
+  else console.log(`ENROLLABLE: ${fingerprint(key.blob)} (${keyIdentity(key)}), application ${key.application}. Registry key entry:\n${JSON.stringify(entry, null, 2)}`);
+} else if (cmd === 'trust-check') {
+  const r = protectedFileProblems({ repoRoot: REPO_ROOT });
+  if (r.problems.length) { console.error(`NOT TRUSTED (protected main ${r.trusted_commit?.slice(0, 12) ?? '?'}):\n  - ${r.problems.join('\n  - ')}`); process.exitCode = 1; }
+  else console.log(`TRUSTED: every protected file equals main ${r.trusted_commit.slice(0, 12)} as fetched now`);
+} else fail('usage: correctionApproval.js copy|classify|body|attach|verify|enrolment|trust-check ... (see the header)');

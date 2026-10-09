@@ -1,0 +1,6 @@
+{
+  "kind": "FIDO_ATTESTATION_ROOTS",
+  "version": 1,
+  "note": "Vendor certificates that may issue FIDO attestation certificates for correction-reviewer keys (server/lib/refresh/fidoAttestation.js, DI-04). EMPTY BY DESIGN: until a human pins a vendor root here — in a reviewed PR, after verifying the certificate's SHA-256 fingerprint against the vendor's published value out of band — no key can be enrolled for a SHARED_DEV or PRODUCTION scope. Each entry: { \"vendor\", \"pem\", \"sha256_fingerprint\" (colon-separated upper-case hex, as openssl x509 -fingerprint -sha256 prints it), \"source\", \"verified_by\", \"verified_at\" }. A root whose PEM does not match its fingerprint is ignored.",
+  "roots": []
+}

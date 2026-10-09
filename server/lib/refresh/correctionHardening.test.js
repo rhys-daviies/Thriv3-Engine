@@ -23,13 +23,21 @@ vi.mock('./reviewerRegistry.js', async () => {
   const ed = (label) => `ssh-ed25519 ${Buffer.concat([str('ssh-ed25519'), str(pk(label))]).toString('base64')} ${label}`;
   const sk = (label) => `sk-ssh-ed25519@openssh.com ${Buffer.concat([str('sk-ssh-ed25519@openssh.com'), str(pk(label)), str('ssh:')]).toString('base64')} ${label}`;
   const real = JSON.parse((await import('node:fs')).readFileSync((await import('node:path')).resolve(import.meta.dirname, '../../../shared/correctionReviewers.json'), 'utf8'));
+  // DI-04: runtime scopes need attested hardware keys; this file's fidoAttestation mock treats an sk key as attested
+  const att = (line) => ({ key: line, attestation: 'mocked', challenge: 'mocked' });
+  void ed;
   const reg = { ...real, reviewers: [...real.reviewers,
-    { reviewer_id: 'test-reviewer-a', name: 'Test Reviewer A', scopes: ['DISPOSABLE', 'SHARED_DEV', 'PRODUCTION'], keys: [ed('reviewer-a')] },
-    { reviewer_id: 'test-reviewer-b', name: 'Test Reviewer B', scopes: ['DISPOSABLE', 'SHARED_DEV', 'PRODUCTION'], keys: [sk('reviewer-b')] },
-    { reviewer_id: 'test-dev-only', name: 'Test Dev Only', scopes: ['SHARED_DEV'], keys: [ed('dev-only')] }] };
+    { reviewer_id: 'test-reviewer-a', name: 'Test Reviewer A', scopes: ['DISPOSABLE', 'SHARED_DEV', 'PRODUCTION'], keys: [att(sk('reviewer-a'))] },
+    { reviewer_id: 'test-reviewer-b', name: 'Test Reviewer B', scopes: ['DISPOSABLE', 'SHARED_DEV', 'PRODUCTION'], keys: [att(sk('reviewer-b'))] },
+    { reviewer_id: 'test-dev-only', name: 'Test Dev Only', scopes: ['SHARED_DEV'], keys: [att(sk('dev-only'))] }] };
   let extra = []; // DI-03H: reviewers a single test adds (and removes) to exercise the registry's key-uniqueness rule
   return { REVIEWERS_PATH: '(test registry)', readReviewerRegistry: () => ({ ...reg, reviewers: [...reg.reviewers, ...extra] }), __setExtraReviewers: (x) => { extra = x; } };
 });
+// DI-04: real attestation is proved in fidoAttestation.test.js against a synthetic CA; here an enrolled sk key counts as
+// attested and a software key never does, so the rest of the engine can be exercised on SHARED_DEV / PRODUCTION targets
+vi.mock('./fidoAttestation.js', () => ({ attestationProblems: (key) => (key?.type === 'sk-ssh-ed25519@openssh.com' ? [] : ['only a hardware (sk-ssh-ed25519) key can be attested']) }));
+// DI-04: the trust-root gate fetches GitHub; trustRoot.test.js proves it with local repositories. Here it passes unless a test sets it.
+vi.mock('./trustRoot.js', () => { let problems = []; return { assertTrustedRuntimeState: (cls) => (cls === 'DISPOSABLE' ? [] : problems), __setTrustProblems: (x) => { problems = x; } }; });
 vi.mock('./sourceRegistry.js', async () => {
   const real = JSON.parse((await import('node:fs')).readFileSync((await import('node:path')).resolve(import.meta.dirname, '../../../shared/officialSourceRegistry.json'), 'utf8'));
   const reg = { ...real, sources: real.sources.filter((s) => s.scope === 'TEST_ONLY').map((s) => ({ ...s, scope: 'PRODUCTION' })) };
@@ -52,9 +60,9 @@ const { runMonitor } = await import('../../scripts/integrityMonitor.js');
 const { holdsFile, sha256, signEnvelope, compositeBody, revertBody, testKey, testSkKey, REHEARSAL, MEMORY_TARGET } = await import('./correctionTestKit.js');
 const { world, U, E, NAME, H } = await import('./domainOwnershipCorrection.world.js');
 
-const A = { reviewer_id: 'test-reviewer-a', key: testKey('reviewer-a') };
+const A = { reviewer_id: 'test-reviewer-a', key: testSkKey('reviewer-a') };
 const B = { reviewer_id: 'test-reviewer-b', key: testSkKey('reviewer-b') };
-const DEV = { reviewer_id: 'test-dev-only', key: testKey('dev-only') };
+const DEV = { reviewer_id: 'test-dev-only', key: testSkKey('dev-only') };
 const NOW = '2026-10-09T00:00:00Z'; const now = new Date(NOW);
 const FIX = path.resolve(import.meta.dirname, '__fixtures__/di03d');
 const tmp = (p = 'di03f-') => fs.mkdtempSync(path.join(os.tmpdir(), p));
@@ -407,9 +415,10 @@ describe('DI-03H MAJOR-B — production independence is counted by key, not by r
     const env = (sigs) => ({ kind: 'SIGNED_CORRECTION_APPROVAL', version: 1, body: b, signatures: sigs });
     __setExtraReviewers([{ reviewer_id: 'alice', name: 'Alice', scopes: ['PRODUCTION'], keys: [pub('alice')] }, { reviewer_id: 'alice-laptop', name: 'Alice Laptop', scopes: ['PRODUCTION'], keys: [pub('alice')] }]);
     expect(verify(env([{ reviewer_id: 'alice', signature: sa }, { reviewer_id: 'alice-laptop', signature: sa }]))).toMatch(/one key is one person/);
+    // DI-04: two genuinely distinct keys are still not enough when they are SOFTWARE keys — a runtime scope needs
+    // attested hardware keys, so the enrolment is refused and the approval fails on scope
     __setExtraReviewers([{ reviewer_id: 'alice', name: 'Alice', scopes: ['PRODUCTION'], keys: [pub('alice')] }, { reviewer_id: 'bob', name: 'Bob', scopes: ['PRODUCTION'], keys: [pub('bob')] }]);
-    expect(verify(env([{ reviewer_id: 'alice', signature: sa }, { reviewer_id: 'bob', signature: sb }]))).toBe('');
-    expect(verify(env([{ reviewer_id: 'alice', signature: sa }, { reviewer_id: 'bob', signature: sa }]))).toMatch(/not enrolled for this reviewer/);
+    expect(verify(env([{ reviewer_id: 'alice', signature: sa }, { reviewer_id: 'bob', signature: sb }]))).toMatch(/may not authorise a PRODUCTION database .*enrolment refused: .*only a hardware/s);
     fs.rmSync(d, { recursive: true, force: true });
   });
 });
@@ -472,5 +481,19 @@ describe('DI-03H MAJOR-D — a ledger row proves a release only in the database 
     db.prepare('UPDATE athletics_domains SET unitid = ? WHERE domain = ?').run(U.TX, H.HELD);
     expect(releaseProofProblems(db, REL(r)).join('\n')).toMatch(/has been reverted \(CR-/);
     db.close();
+  });
+});
+
+describe('DI-04 — the engine refuses a runtime correction whose checkout fails the trust root', () => {
+  it('a SHARED_DEV correction and revert are refused when protected files differ from the protected branch; disposable rehearsals are not gated', async () => {
+    const { __setTrustProblems } = await import('./trustRoot.js');
+    const s = sharedDev(); const stages = c1(s.db); const env = approveFor(s.db, stages, s.holds.sha256);
+    __setTrustProblems(['trust root: shared/correctionReviewers.json differs from the protected main (abc) — a local change to a protected file never authorises a runtime correction']);
+    try {
+      expect(errOf(() => run(s.db, stages, env))).toMatch(/trust root: shared\/correctionReviewers.json differs/);
+      const mem = world(); const st = c1(mem);
+      expect(errOf(() => run(mem, st, signEnvelope(compositeBody({ baselineHash: idSetHash(measureInProcess(mem).eligible_ids), stages: st, added: ELIG, sendable: SENDABLE, holdsSha: holdsFile(SENDABLE).sha256, now: NOW }), [REHEARSAL]), { activationHoldsFile: holdsFile(SENDABLE).file }))).toBe('NO ERROR');
+    } finally { __setTrustProblems([]); }
+    s.db.close();
   });
 });

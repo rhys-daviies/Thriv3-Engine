@@ -1,23 +1,35 @@
 {
   "kind": "CORRECTION_REVIEWERS",
-  "version": 2,
-  "note": "Who may authorise a data correction or revert (DI-03F). Identity is a SIGNING KEY, not a name: an approval is an OpenSSH signature (ssh-keygen -Y sign -n thriv3-correction-approval@v1) over the approval body, verified against the keys enrolled here (server/lib/refresh/approvalValidator.js). Enrolling or removing a key, or changing a scope or the policy, is itself a T2 change. scopes: the database classes (server/lib/refresh/correctionTarget.js) a reviewer may authorise. Prefer a FIDO hardware key (sk-ssh-ed25519@openssh.com): its signature also proves a physical touch, which no agent or script running under the reviewer's account can produce. A reviewer with no enrolled key cannot approve anything.",
+  "version": 3,
+  "note": "Who may authorise a data correction or revert (DI-03F, hardened DI-04). Identity is a SIGNING KEY, not a name: an approval is an OpenSSH signature (ssh-keygen -Y sign -n thriv3-correction-approval@v1) over the approval body, verified against the keys enrolled here (server/lib/refresh/approvalValidator.js). One raw key is one person: the same key under two reviewer ids, in any encoding, refuses the whole registry. A SHARED_DEV or PRODUCTION scope needs every key to be an attested hardware key entered as {\"key\": \"sk-ssh-ed25519@openssh.com ...\", \"attestation\": \"<base64>\", \"challenge\": \"<base64>\"} (made with ssh-keygen -t ed25519-sk -O verify-required -O write-attestation -O challenge; procedure in docs/CORRECTION_REVIEWER_SECURITY.md), whose attestation verifies against a root pinned in shared/fidoAttestationRoots.json; approvals for those scopes must carry touch AND PIN/biometric. Changing this file is a T2 change gated by CODEOWNERS, and a correction against a SHARED_DEV or PRODUCTION database refuses if this file differs from origin/main (server/lib/refresh/trustRoot.js). The rehearsal key may never hold a runtime scope. A reviewer with no enrolled key cannot approve anything.",
   "policy": {
-    "min_distinct_signers": { "DISPOSABLE": 1, "SHARED_DEV": 1, "PRODUCTION": 2 }
+    "min_distinct_signers": {
+      "DISPOSABLE": 1,
+      "SHARED_DEV": 1,
+      "PRODUCTION": 2
+    }
   },
   "reviewers": [
     {
       "reviewer_id": "rhys-davies",
       "name": "Rhys Davies",
-      "scopes": ["DISPOSABLE", "SHARED_DEV", "PRODUCTION"],
+      "scopes": [
+        "DISPOSABLE",
+        "SHARED_DEV",
+        "PRODUCTION"
+      ],
       "keys": [],
-      "enrolment": "PENDING: no signing key enrolled yet. Until one is, no SHARED_DEV or PRODUCTION correction can be approved."
+      "enrolment": "PENDING: no signing key enrolled. Enrolment needs an attested hardware key (docs/CORRECTION_REVIEWER_SECURITY.md) and a pinned attestation root; until then no SHARED_DEV or PRODUCTION correction can be approved."
     },
     {
       "reviewer_id": "data-integrity-rehearsal",
       "name": "Data Integrity rehearsal",
-      "scopes": ["DISPOSABLE"],
-      "keys": ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqqEPrC4MtXOGy903Nt+YZkpw6G9RXQ9tC9HJ0J/AHw data-integrity-rehearsal (DISPOSABLE only)"],
+      "scopes": [
+        "DISPOSABLE"
+      ],
+      "keys": [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqqEPrC4MtXOGy903Nt+YZkpw6G9RXQ9tC9HJ0J/AHw data-integrity-rehearsal (DISPOSABLE only)"
+      ],
       "enrolment": "The private half is derived from a public seed (server/lib/refresh/correctionTestKit.js): anyone can sign with it, so it is scoped to disposable copies only and can never authorise the shared or production database."
     }
   ]

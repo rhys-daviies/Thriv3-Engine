@@ -1,0 +1,19 @@
+# DI-04: correction-authorisation trust root. A change to any of these needs review by a code owner — configure
+# branch protection on `main` with "Require review from Code Owners" (docs/CORRECTION_REVIEWER_SECURITY.md).
+# Keep this list in step with PROTECTED_FILES in server/lib/refresh/trustRoot.js.
+/.github/                                        @rhys-daviies
+/shared/correctionReviewers.json                 @rhys-daviies
+/shared/fidoAttestationRoots.json                @rhys-daviies
+/shared/databaseEnvironments.json                @rhys-daviies
+/shared/officialSourceRegistry.json              @rhys-daviies
+/shared/heldDomainAdjudications.js               @rhys-daviies
+/server/db/client.js                             @rhys-daviies
+/server/db/disposableMarker.js                   @rhys-daviies
+/server/data/seeds/coach_activation_holds.json   @rhys-daviies
+/server/lib/canonicalCoachEligibility.js         @rhys-daviies
+/server/lib/coachEligibility.js                  @rhys-daviies
+/server/lib/coachRowFloor.js                     @rhys-daviies
+/server/lib/refresh/                             @rhys-daviies
+/server/scripts/applyCompositeCorrection.js      @rhys-daviies
+/server/scripts/correctionApproval.js            @rhys-daviies
+/docs/CORRECTION_REVIEWER_SECURITY.md            @rhys-daviies
