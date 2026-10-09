@@ -46,7 +46,7 @@ function build(file, { synthetic = false } = {}) {
 /** The §3d records: one marked parent, and children that carry NO marker field of their own. */
 function addSynthetic(db) {
   const ins = (sql, ...v) => db.prepare(sql).run(...v);
-  ins("INSERT INTO players VALUES ('9f1c', 'Rehearsal Synthetic Athlete', 'athlete@rehearsal.example.test', 'rb-syn-a1', NULL, 0, NULL)");
+  ins("INSERT INTO players VALUES ('9f1c', 'Rehearsal Synthetic Athlete', 'athlete@rehearsal.example.test', 'rbsyn01', NULL, 0, NULL)");
   ins("INSERT INTO outreach VALUES ('o-x', '9f1c', 'cx')");                          // child: no marker
   ins("INSERT INTO outreach_send VALUES ('s-x', 'o-x', 'DRAFTED')");                 // grandchild: no marker
   ins("INSERT INTO outreach_send_event (outreach_send_id, type, observed_at) VALUES ('s-x', 'REPLY', '2026-10-02')"); // great-grandchild
@@ -174,6 +174,13 @@ describe('synthetic records are excluded with everything that hangs off them', (
     expect(fp.tables.outreach.rows).toBe(1);
     expect(fp.tables.outreach_send_event.rows).toBe(1);
     expect(fp.tables.players.rows).toBe(2);
+  });
+});
+
+describe('the marker', () => {
+  it('matches each §3d form, and not ordinary values that merely contain the letters', () => {
+    for (const v of ['RB-SYN-COACH-1', 'rbsyn01', 'coach1@rehearsal.example.test', 'Rehearsal Synthetic Athlete']) expect(DEFAULT_MARKER.test(v), v).toBe(true);
+    for (const v of ['rbsyn-01', 'Hrbsyn01', 'rehearsal@school.example', 'Synthetic turf', 'RB-SYNC', 'real-1']) expect(DEFAULT_MARKER.test(v), v).toBe(false);
   });
 });
 

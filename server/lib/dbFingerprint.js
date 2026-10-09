@@ -32,8 +32,12 @@ import Database from 'better-sqlite3';
 
 export const FINGERPRINT_VERSION = 1;
 
-/** The §3d marker: synthetic ids, names, slugs and the reserved address domain. */
-export const DEFAULT_MARKER = /^RB-SYN-|^rb-syn-|rehearsal\.example\.test|Rehearsal Synthetic/i;
+/**
+ * The §3d marker: synthetic ids (`RB-SYN-…`), names (`Rehearsal Synthetic …`),
+ * the reserved address domain, and profile slugs (`rbsyn…`). Slugs are letters
+ * and digits only (`/p/:slug`), so a synthetic slug cannot carry the hyphenated id prefix.
+ */
+export const DEFAULT_MARKER = /^RB-SYN-|^rbsyn[A-Za-z0-9]*$|rehearsal\.example\.test|Rehearsal Synthetic/i;
 
 /**
  * References the schema does not declare as foreign keys, measured on main's
