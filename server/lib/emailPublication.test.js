@@ -8,7 +8,8 @@ import { reconcileCoachRows } from './coachReconciler.js';
 import { measureInProcess } from './refresh/integrityMeasure.js';
 import { fixtureHash } from './refresh/protectedCorrection.js';
 import { COACH_EMAIL_ABSENCE_KIND, planCoachEmailAbsence } from './refresh/coachCorrection.js';
-import { runCompositeCorrection, revertComposite, approvalHash, idSetHash, COMPOSITE_APPROVAL_KIND } from './refresh/compositeCorrection.js';
+import { runCompositeCorrection as runComposite, revertComposite, idSetHash } from './refresh/compositeCorrection.js';
+import { holdsFile, signEnvelope, compositeBody, revertBody } from './refresh/correctionTestKit.js';
 
 /**
  * PHASE 8D.3D — positive email absence. The definition (classifyEmailPublication), its only effect
@@ -123,11 +124,19 @@ const elig = (db) => reconcileCoachRows(db).filter((r) => r.outreach_eligibility
 const snapshot = (db) => Object.fromEntries(db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all()
   .map(({ name }) => [name, JSON.stringify(db.prepare(`SELECT * FROM "${name}" ORDER BY rowid`).all())]));
 const stage = (fx) => [{ stage_id: 'S0-absence', type: COACH_EMAIL_ABSENCE_KIND, fixture: fx }];
+// DI-03D/F: approvals are signed envelopes that list the exact newly / no-longer sendable coaches (an absence only
+// removes; its REVERT re-opens the coach, so the revert must approve that and the coach must be held); every run
+// names its disposable holds file and a fixed time
+const APPROVED_AT = '2026-10-08T00:00:00Z';
+const HOLDS = holdsFile(['k-ab']);
+const runCompositeCorrection = (db, stages, approval, opts = {}) => runComposite(db, stages, approval, { now: APPROVED_AT, activationHoldsFile: HOLDS.file, ...opts });
 function approve(db, stages, removed) {
-  const ap = { kind: COMPOSITE_APPROVAL_KIND, approval_id: 'AP-D', approved_by: 'reviewer', approved_at: '2026-10-08', basis: 'test', baseline: { eligible_ids_hash: idSetHash(measureInProcess(db).eligible_ids) },
-    stages: stages.map((s) => ({ stage_id: s.stage_id, type: s.type, group: null, fixture_hash: s.fixture.fixture_hash, eligibility: { added: [], removed } })) };
-  return { ...ap, approval_hash: approvalHash(ap) };
+  return signEnvelope(compositeBody({ baselineHash: idSetHash(measureInProcess(db).eligible_ids), stages, removed: Object.fromEntries(stages.map((s) => [s.stage_id, removed])), noLonger: removed, holdsSha: HOLDS.sha256, now: APPROVED_AT }));
 }
+const reopen = (r) => signEnvelope(revertBody({ manifest: r.manifest, manifestSha256: r.manifest_sha256, sendable: ['k-ab'], holdsSha: HOLDS.sha256, now: APPROVED_AT }));
+const revert = (db, r) => revertComposite(db, r.manifest, reopen(r), { apply: true, now: APPROVED_AT, activationHoldsFile: HOLDS.file });
+// the ledger and the database's correction identity are the durable record of the correction and its revert
+const withoutLedger = (snap) => { const { correction_ledger, correction_database_identity, ...rest } = snap; return rest; }; // eslint-disable-line no-unused-vars
 
 describe('the reconciler — the only effect of a recorded absence', () => {
   it('10. existing eligible coaches: no table rows, no change (the safeguard is inert by default)', () => {
@@ -180,21 +189,31 @@ describe('the writer — COACH_EMAIL_ABSENCE through the composite correction', 
     const r = runCompositeCorrection(db, st, approve(db, st, ['k-ab']), { apply: true, now: '2026-10-08T00:00:00Z' });
     expect(() => db.prepare("UPDATE coach_email_absence_observations SET email='x@owner.test'").run()).toThrow(/append-only/);
     const after = snapshot(db);
-    expect(Object.keys(before).filter((t) => before[t] !== after[t])).toEqual(['coach_email_absence_observations']); // coaches untouched; programme / outreach tables untouched
-    revertComposite(db, r.manifest, { apply: true });
-    expect(snapshot(db)).toEqual(before);
+    expect([...new Set([...Object.keys(before), ...Object.keys(after)])].filter((t) => before[t] !== after[t])).toEqual(['coach_email_absence_observations', 'correction_database_identity', 'correction_ledger']); // coaches untouched; programme / outreach tables untouched
+    revert(db, r);
+    expect(withoutLedger(snapshot(db))).toEqual(before);
   });
   it('17. an approval that does not name the removal is refused and nothing persists', () => {
     const db = world(); const before = snapshot(db); const st = stage(absenceFixture(obsFor()));
     expect(() => runCompositeCorrection(db, st, approve(db, st, []), { apply: true })).toThrow(/eligibility delta/);
     expect(snapshot(db)).toEqual(before);
   });
+  it('19. a revert that would re-open a coach is refused unless the reopening is approved AND the coach is held (DI-03F)', () => {
+    const db = world(); const st = stage(absenceFixture(obsFor()));
+    const r = runCompositeCorrection(db, st, approve(db, st, ['k-ab']), { apply: true });
+    const unapproved = signEnvelope(revertBody({ manifest: r.manifest, manifestSha256: r.manifest_sha256, sendable: [], holdsSha: HOLDS.sha256, now: APPROVED_AT }));
+    expect(() => revertComposite(db, r.manifest, unapproved, { apply: true, now: APPROVED_AT, activationHoldsFile: HOLDS.file })).toThrow(/newly sendable coaches are not the approved set/);
+    const noHold = holdsFile(['someone-else']);
+    const unheld = signEnvelope(revertBody({ manifest: r.manifest, manifestSha256: r.manifest_sha256, sendable: ['k-ab'], holdsSha: noHold.sha256, now: APPROVED_AT }));
+    expect(() => revertComposite(db, r.manifest, unheld, { apply: true, now: APPROVED_AT, activationHoldsFile: noHold.file })).toThrow(/without an activation hold/);
+    expect(db.prepare('SELECT count(*) AS n FROM coach_email_absence_observations').get().n).toBe(1);
+  });
   it('18. programme-contact isolation: programme and outreach tables are byte-identical across apply and revert', () => {
     const db = world(); const pt = (s) => Object.fromEntries(Object.entries(s).filter(([t]) => /^programme_|^outreach|^tracking|^engagement|^suppress/.test(t)));
     const before = pt(snapshot(db)); const st = stage(absenceFixture(obsFor()));
     const r = runCompositeCorrection(db, st, approve(db, st, ['k-ab']), { apply: true });
     expect(pt(snapshot(db))).toEqual(before);
-    revertComposite(db, r.manifest, { apply: true });
+    revert(db, r);
     expect(pt(snapshot(db))).toEqual(before);
     expect(Object.keys(before).length).toBeGreaterThan(5);
   });

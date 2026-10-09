@@ -61,8 +61,8 @@ const DOMAIN_TRUSTED = new Set(['VERIFIED', 'VERIFIED_ALIAS']);
  * and loses its authority: callers fall through to the other evidence they
  * have, exactly as they would for a domain the registry had never seen.
  */
-function trustedDomain(d) {
-  return !!d && DOMAIN_TRUSTED.has(d.status) && !isHeldDomain(d.domain);
+function trustedDomain(d, released = null) {
+  return !!d && DOMAIN_TRUSTED.has(d.status) && !isHeldDomain(d.domain, released);
 }
 
 /**
@@ -74,6 +74,8 @@ function trustedDomain(d) {
  */
 export function createResolver(data) {
   const colleges = data.colleges || [];
+  // held-domain releases proven in the database these rows came from (holdRelease.js); none -> every hold stands
+  const trusted = (d) => trustedDomain(d, data.releasedHolds ?? null);
   const domainMap = new Map();
   for (const d of data.domains || []) domainMap.set(String(d.domain).toLowerCase(), d);
   const aliasMap = new Map(); // alias_key -> Set(unitid)
@@ -128,7 +130,7 @@ export function createResolver(data) {
       if (d.status === 'WRONG_INSTITUTION' || d.status === 'AMBIGUOUS') {
         return result(null, sport, `DOMAIN_${d.status}`, 0.2, `source domain ${sdom} flagged ${d.status}`, DECISION.REVIEW);
       }
-      if (trustedDomain(d) && d.unitid != null && s.byUnitid.has(d.unitid)) {
+      if (trusted(d) && d.unitid != null && s.byUnitid.has(d.unitid)) {
         return result(d.unitid, sport, 'DOMAIN', 0.99, `${sdom} → UNITID ${d.unitid} (${d.status})`, DECISION.RESOLVED);
       }
     }
@@ -162,8 +164,8 @@ export function createResolver(data) {
       const uid = row?.unitid ?? null;
       // corroboration: state agrees, or source/email domain resolves to same unitid
       const edom = emailDomain(email);
-      const domUid = (sdom && trustedDomain(domainMap.get(sdom)) ? domainMap.get(sdom).unitid : null)
-        || (edom && trustedDomain(domainMap.get(edom)) ? domainMap.get(edom).unitid : null);
+      const domUid = (sdom && trusted(domainMap.get(sdom)) ? domainMap.get(sdom).unitid : null)
+        || (edom && trusted(domainMap.get(edom)) ? domainMap.get(edom).unitid : null);
       const stateOk = state && row && (row.state || '').toUpperCase() === state.toUpperCase();
       const domainOk = domUid != null && domUid === uid;
       // disambiguator must be consistent (matchSchoolName already penalises, but re-assert)

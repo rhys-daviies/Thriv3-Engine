@@ -2,6 +2,7 @@
  * Loads the plain rows the refresh pipeline reasons over. Read-only and defensive: a
  * database that predates Phase 7D/7E simply yields empty entity/period/link lists.
  */
+import { releasedHeldDomains } from './holdRelease.js';
 import { hostOf } from '../athleticsEntity.js';
 import { createIdentityResolver } from './identityResolver.js';
 
@@ -25,7 +26,8 @@ export function loadRefreshContext(db) {
   const locations = sel(db, 'athletics_source_locations', 'SELECT * FROM athletics_source_locations');
   const conferenceHosts = new Set();
   for (const r of sel(db, 'conference_seasons', 'SELECT DISTINCT source_url FROM conference_seasons')) { const h = hostOf(r.source_url); if (h) conferenceHosts.add(h); }
-  const resolver = createIdentityResolver({ entities, colleges, domains, aliases, rowLinks, locations });
+  const releasedHolds = releasedHeldDomains(db);
+  const resolver = createIdentityResolver({ entities, colleges, domains, aliases, rowLinks, locations, releasedHolds });
   return { colleges, domains, aliases, entities, rowLinks, periods, freezes, locations, conferenceHosts, resolver, managed: entities.length > 0 };
 }
 

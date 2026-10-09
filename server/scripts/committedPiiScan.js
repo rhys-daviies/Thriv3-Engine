@@ -52,8 +52,11 @@ const PLACEHOLDER = /^(?:[a-z]{1,2}|one|two|three|four|foo|bar|baz|test|fake|dum
 
 /** Rule 3 — domains this project owns. */
 export const OWNED_DOMAINS = new Set(['cardaxia.ai', 'striv3.com', 'thriv3.com']);
-/** Vendor/no-reply addresses that are not a person's mailbox. */
-const VENDOR = /^(noreply|no-reply)@|@(users\.)?noreply\.github\.com$|@anthropic\.com$/i;
+/**
+ * Vendor/no-reply addresses that are not a person's mailbox, and OpenSSH protocol identifiers
+ * (key and signature type names such as sk-ssh-ed25519@openssh.com — no mailbox has that shape).
+ */
+const VENDOR = /^(noreply|no-reply)@|@(users\.)?noreply\.github\.com$|@anthropic\.com$|^(sk-)?(ssh|ecdsa-sha2)-[a-z0-9-]+@openssh\.com$/i;
 
 /**
  * Rule 4 — the register. EVERY ENTRY MUST BE A SYNTHETIC LOCAL PART.

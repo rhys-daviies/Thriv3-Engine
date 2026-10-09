@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { migrate } from './migrate.js';
 import { resolveDbPath } from './corpusIdentity.js';
+import { refuseDisposableDatabase } from './disposableMarker.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.resolve(__dirname, '../data');
@@ -74,6 +75,10 @@ if (readOnly && (!(process.env.RECRUITMATCH_DB ?? '').trim() || dbPath === ':mem
 const db = readOnly
   ? new Database(dbPath, { readonly: true, fileMustExist: true })
   : new Database(dbPath);
+// DI-03H (DI-03G MAJOR-A): a correction rehearsal copy is never served or measured as an application database.
+// Checked first in both modes — before the journal mode changes, schema.sql runs or migrate() writes, and before
+// any caller can read application data.
+refuseDisposableDatabase(db, dbPath);
 if (readOnly) {
   db.pragma('query_only = ON');
 } else {

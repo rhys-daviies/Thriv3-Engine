@@ -6,9 +6,11 @@ import { migrate } from '../../db/migrate.js';
 import { fixtureHash, PROTECTED_CORRECTION_KIND, applyProtectedCorrectionsInTransaction } from './protectedCorrection.js';
 import { COACH_INSTITUTION_KIND, COACH_CURRENTNESS_KIND, COACH_EMAIL_ABSENCE_KIND, planCoachCurrentness, planCoachInstitution, applyCoachInstitutionInTransaction } from './coachCorrection.js';
 import { absenceObservationId } from '../emailPublication.js';
-import { runCompositeCorrection, revertComposite, approvalHash, idSetHash, validateComposite, COMPOSITE_APPROVAL_KIND } from './compositeCorrection.js';
+import { runCompositeCorrection, revertComposite, idSetHash, validateComposite } from './compositeCorrection.js';
 import { measureInProcess } from './integrityMeasure.js';
 import { reconcileCoachRows } from '../coachReconciler.js';
+import { createDisposableCopy, classifyDatabase } from './correctionTarget.js';
+import { holdsFile, signEnvelope, compositeBody, revertBody } from './correctionTestKit.js';
 
 /**
  * PHASE 8D.3C — the composite correction writer. One invented world reproduces the 8D.3A shape:
@@ -58,8 +60,9 @@ function fixtures(db) {
   const B = seal({ kind: COACH_INSTITUTION_KIND, phase: 't', created_at: 't',
     actions: [{ action_id: 'B-moved', coach_id: 'k-moved', coach: 'Carl Moved', expected_old: { school: 'Wrong Label College', division: 'NCAA D3', sport: 'mens-soccer', email: 'carl@owner.test', email_status: 'verified' }, proposed: { school: 'Owner College', division: 'NCAA D3' }, evidence: 'staff page', reason: 'email + source are Owner College' }] });
   const A = seal({ kind: PROTECTED_CORRECTION_KIND, phase: 't', created_at: 't',
-    approvals: [{ approval_id: 'AP-A', approved_by: 'reviewer', approved_at: '2026-10-08', basis: 'test', hosts: [HOST] }],
-    corrections: [{ action_id: `PC-${HOST}`, approval_id: 'AP-A', host: HOST, true_entity: 'AE-OWN', unitid: OWN,
+    // descriptive only inside a composite (DI-03F): authority is the signed composite approval, whose id this must be
+    approvals: [{ approval_id: 'AP-COMPOSITE', approved_by: 'Data Integrity rehearsal', approved_at: '2026-10-08', basis: 'test', hosts: [HOST] }],
+    corrections: [{ action_id: `PC-${HOST}`, approval_id: 'AP-COMPOSITE', host: HOST, true_entity: 'AE-OWN', unitid: OWN,
       transition: { from_status: 'WRONG_INSTITUTION', to_status: 'VERIFIED', from_ownership_class: null, to_ownership_class: 'ENTITY_OWNED' },
       wrong_claimants: [{ key: 'Claimant', claimantUnitid: CLAIM }], expected_old: { ...domOf(db, HOST) },
       evidence: { institution_to_host: 'owner.edu links it', host_to_institution: 'og:site_name Owner College Athletics' },
@@ -73,17 +76,24 @@ const STAGES = ({ A, B, C }) => [
   { stage_id: 'S4', type: PROTECTED_CORRECTION_KIND, fixture: A },
 ];
 const EXPECTED = { S1: [], S2: [], S3: [], S4: ['k-back', 'k-good', 'k-moved'] };
-function approve(db, stages, { eligibility = EXPECTED, over = {} } = {}) {
+// DI-03D: every newly sendable coach must be approved AND held; this world's are the three S4 makes eligible
+const HOLDS = holdsFile(['k-back', 'k-good', 'k-moved', 'k-gone']);
+/** A signed (rehearsal-reviewer) approval for an in-memory world (DI-03F). */
+function approve(db, stages, { eligibility = EXPECTED, over = {}, sendable = null } = {}) {
   const base = measureInProcess(db).eligible_ids;
-  const ap = { kind: COMPOSITE_APPROVAL_KIND, approval_id: 'AP-COMPOSITE', approved_by: 'reviewer', approved_at: '2026-10-08', basis: 'test', baseline: { eligible_ids_hash: idSetHash(base) },
-    stages: stages.map((s) => ({ stage_id: s.stage_id, type: s.type, group: s.group ?? null, fixture_hash: s.fixture.fixture_hash, eligibility: { added: eligibility[s.stage_id] || [], removed: [] } })), ...over };
-  return { ...ap, approval_hash: approvalHash(ap) };
+  const added = [...new Set(stages.flatMap((s) => eligibility[s.stage_id] || []))].sort();
+  return signEnvelope(compositeBody({ baselineHash: idSetHash(base), stages, approval_id: 'AP-COMPOSITE', added: eligibility, sendable: sendable ?? added, holdsSha: HOLDS.sha256, now: NOW, over, target: (({ class: c, identity }) => ({ class: c, identity }))(classifyDatabase(db)) }));
 }
+const unapproved = (r) => signEnvelope(revertBody({ manifest: r.manifest, manifestSha256: r.manifest_sha256, noLonger: ['k-back', 'k-good', 'k-moved'], holdsSha: HOLDS.sha256, now: NOW }));
+// the ledger and the database's correction identity are the durable record of the correction and its revert
+const withoutLedger = (snap) => { const { correction_ledger, correction_database_identity, ...rest } = snap; return rest; }; // eslint-disable-line no-unused-vars
 /** every row of every table, so "nothing changed" is checked over the whole database */
 const snapshot = (db) => Object.fromEntries(db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all()
   .map(({ name }) => [name, JSON.stringify(db.prepare(`SELECT * FROM "${name}" ORDER BY rowid`).all())]));
+/** A marked disposable file copy of an in-memory world (a bare VACUUM INTO copy is not an identified database). */
+function createDisposableCopyOf(mem, file) { const src = `${file}.src`; mem.exec(`VACUUM INTO '${src}'`); createDisposableCopy(Database, src, file); fs.rmSync(src); }
 const setup = () => { const db = world(); const fx = fixtures(db); const stages = STAGES(fx); return { db, fx, stages, approval: approve(db, stages) }; };
-const run = (db, stages, approval, opts = {}) => runCompositeCorrection(db, stages, approval, { apply: true, now: NOW, ...opts });
+const run = (db, stages, approval, opts = {}) => runCompositeCorrection(db, stages, approval, { apply: true, now: NOW, activationHoldsFile: HOLDS.file, ...opts });
 
 describe('composite correction — the world behaves like 8D.3A', () => {
   it('0. baseline: only the control coach is eligible; the domain fix alone would make the leaver eligible too', () => {
@@ -120,7 +130,7 @@ describe('composite correction — atomic apply', () => {
     const before = snapshot(db);
     run(db, stages, approval);
     const after = snapshot(db);
-    expect(Object.keys(before).filter((t) => before[t] !== after[t]).sort()).toEqual(['athletics_domains', 'coaches']);
+    expect([...new Set([...Object.keys(before), ...Object.keys(after)])].filter((t) => before[t] !== after[t]).sort()).toEqual(['athletics_domains', 'coaches', 'correction_database_identity', 'correction_ledger']);
     expect(db.prepare('SELECT coach_id FROM outreach').get().coach_id).toBe('k-back');
     expect(db.prepare('SELECT id FROM coaches ORDER BY id').all().map((x) => x.id)).toEqual(['k-back', 'k-gone', 'k-good', 'k-moved', 'k-other']);
     const old = JSON.parse(before.coaches); const nu = JSON.parse(after.coaches);
@@ -129,14 +139,14 @@ describe('composite correction — atomic apply', () => {
   it('3. rehearsal mode runs every stage and gate, then leaves the database byte-for-byte unchanged', () => {
     const { db, stages, approval } = setup();
     const before = snapshot(db);
-    const r = runCompositeCorrection(db, stages, approval, { apply: false, now: NOW });
+    const r = runCompositeCorrection(db, stages, approval, { apply: false, now: NOW, activationHoldsFile: HOLDS.file });
     expect(r.committed).toBe(false); expect(r.report.final.eligible).toBe(4);
     expect(snapshot(db)).toEqual(before); expect(db.inTransaction).toBe(false);
   });
   it('4. eligibility is measured on the uncommitted state: a second connection sees nothing until COMMIT', () => {
     const dir = fs.mkdtempSync(path.join(process.env.TMPDIR || '/tmp', 'composite-'));
-    const file = path.join(dir, 'w.sqlite'); const mem = world(); mem.exec(`VACUUM INTO '${file}'`);
-    const db = new Database(file); db.pragma('journal_mode = WAL'); const fx = fixtures(db); const stages = STAGES(fx); const approval = approve(db, stages);
+    const file = path.join(dir, 'w.sqlite'); const mem = world(); createDisposableCopyOf(mem, file);
+    const db = new Database(file); /* rollback journal: a WAL-mode disposable copy is refused as possibly served (DI-03H) */ const fx = fixtures(db); const stages = STAGES(fx); const approval = approve(db, stages);
     const peer = new Database(file, { readonly: true });
     const seen = [];
     run(db, stages, approval, { inject: (p) => { if (p.endsWith(':eligibility') || p === 'final:precommit') seen.push([p, peer.prepare("SELECT school FROM coaches WHERE id='k-moved'").get().school, peer.prepare('SELECT status FROM athletics_domains WHERE domain=?').get(HOST).status]); } });
@@ -149,22 +159,22 @@ describe('composite correction — atomic apply', () => {
 describe('composite correction — refusal before any write', () => {
   const refuses = (mutate, re) => { const { db, stages, approval } = setup(); const [s, a] = mutate(stages, approval, db); const before = snapshot(db); expect(() => run(db, s, a)).toThrow(re); expect(snapshot(db)).toEqual(before); };
   it('5. a fixture whose hash does not reproduce', () => refuses((s, a) => { s[1] = { ...s[1], fixture: { ...s[1].fixture, actions: [{ ...s[1].fixture.actions[0], reason: 'edited' }] } }; return [s, a]; }, /refused/));
-  it('6. a tampered approval body', () => refuses((s, a) => [s, { ...a, approved_by: 'someone else' }], /refused/));
-  it('7. an approval without the exact per-stage ID sets', () => refuses((s, a) => { const b = { ...a, stages: a.stages.map((x) => ({ ...x, eligibility: undefined })) }; return [s, { ...b, approval_hash: approvalHash(b) }]; }, /refused/));
+  it('6. a tampered approval body', () => refuses((s, a) => [s, { ...a, body: { ...a.body, basis: 'someone else' } }], /refused/));
+  it('7. an approval without the exact per-stage ID sets', () => refuses((s, a) => [s, signEnvelope({ ...a.body, stages: a.body.stages.map((x) => ({ ...x, eligibility: undefined })) })], /refused/));
   it('8. stages out of order (domain fix before the withhold)', () => refuses((s, a, db) => { const r = [s[3], s[0], s[1], s[2]]; return [r, approve(db, r)]; }, /refused/));
   it('9. a stage the approval does not authorise (different fixture hash)', () => refuses((s, a, db) => { const fx = fixtures(db); const B2 = seal({ ...fx.B, actions: fx.B.actions.map((x) => ({ ...x, reason: 'other' })) }); const r = [...s]; r[1] = { ...r[1], fixture: B2 }; return [r, a]; }, /refused/));
   it('10. a stale approval (baseline eligible set moved since approval)', () => refuses((s, a, db) => { db.prepare("UPDATE coaches SET email_status='inferred' WHERE id='k-other'").run(); return [s, a]; }, /stale approval/));
   it('11. a connection already inside a transaction', () => { const { db, stages, approval } = setup(); db.exec('BEGIN'); expect(() => run(db, stages, approval)).toThrow(/own its transaction/); db.exec('ROLLBACK'); });
   it('12. validateComposite lists every problem without touching the database', () => {
     const { stages, approval } = setup();
-    expect(validateComposite(stages, approval)).toEqual([]);
-    expect(validateComposite(stages, { ...approval, kind: 'X' }).join(' ')).toMatch(/approval kind/);
+    expect(validateComposite(stages, approval.body)).toEqual([]);
+    expect(validateComposite(stages, { ...approval.body, kind: 'X' }).join(' ')).toMatch(/approval kind/);
   });
 });
 
 describe('composite correction — failure anywhere rolls back everything', () => {
   const POINTS = ['begin', 'stage:S1:action', 'stage:S1:written', 'stage:S1:eligibility', 'stage:S2:begin', 'stage:S2:action', 'stage:S2:written', 'stage:S2:eligibility',
-    'stage:S3:action', 'stage:S3:written', 'stage:S3:eligibility', 'stage:S4:begin', 'stage:S4:action', 'stage:S4:written', 'stage:S4:eligibility', 'final:integrity', 'final:precommit'];
+    'stage:S3:action', 'stage:S3:written', 'stage:S3:eligibility', 'stage:S4:begin', 'stage:S4:action', 'stage:S4:written', 'stage:S4:eligibility', 'final:integrity', 'final:sendability', 'final:ledger', 'final:precommit'];
   for (const point of POINTS) {
     it(`13. injected failure at ${point}: no coach or domain correction persists`, () => {
       const { db, stages, approval } = setup(); const before = snapshot(db);
@@ -196,21 +206,21 @@ describe('composite correction — revert', () => {
   it('17. one revert restores every table and the baseline eligible set', () => {
     const { db, stages, approval } = setup(); const before = snapshot(db);
     const r = run(db, stages, approval);
-    const v = revertComposite(db, r.manifest, { apply: true });
-    expect(v.reverted).toBe(4); expect(snapshot(db)).toEqual(before);
+    const v = revertComposite(db, r.manifest, unapproved(r), { apply: true, now: NOW, activationHoldsFile: HOLDS.file });
+    expect(v.reverted).toBe(4); expect(withoutLedger(snapshot(db))).toEqual(before);
   });
   it('18. revert refuses (and changes nothing) if a corrected row was changed by someone else since', () => {
     const { db, stages, approval } = setup();
     const r = run(db, stages, approval);
     db.prepare("UPDATE coaches SET school='Other College' WHERE id='k-moved'").run();
     const mid = snapshot(db);
-    expect(() => revertComposite(db, r.manifest, { apply: true })).toThrow(/revert refused/);
+    expect(() => revertComposite(db, r.manifest, unapproved(r), { apply: true, now: NOW, activationHoldsFile: HOLDS.file })).toThrow(/revert refused/);
     expect(snapshot(db)).toEqual(mid);
   });
   it('19. a failure inside the revert rolls the revert back', () => {
     const { db, stages, approval } = setup();
     const r = run(db, stages, approval); const mid = snapshot(db);
-    expect(() => revertComposite(db, r.manifest, { apply: true, inject: () => { throw new Error('boom'); } })).toThrow('boom');
+    expect(() => revertComposite(db, r.manifest, unapproved(r), { apply: true, now: NOW, activationHoldsFile: HOLDS.file, inject: () => { throw new Error('boom'); } })).toThrow('boom');
     expect(snapshot(db)).toEqual(mid);
   });
 });

@@ -46,6 +46,9 @@ const ALLOWED = new Set([
   'server/scripts/integrityPromote.js',
   'server/scripts/validateProgrammeContacts.js',
   'server/scripts/programmeContactLeads.js',
+  // DI-03D: INTEGRITY, read-only — the correction engine measures inbox sendability before and after a
+  // correction (and refuses any inbox a correction would open). It never selects, composes or sends.
+  'server/lib/refresh/sendability.js',
   // Phase 1C: resolves a PROGRAMME_INBOX reference by id. No outreach row can produce one —
   // its SQL fragments join coaches only (recipient.test.js pins that) — so no send path reaches it.
   'server/lib/recipient.js',
@@ -138,7 +141,7 @@ describe('no send path can consume programme contacts', () => {
       .filter((rel) => /FROM\s+programme_contacts\b/.test(fs.readFileSync(path.join(ROOT, rel), 'utf8')));
     expect(readers.sort()).toEqual(['server/lib/campaignAttribution.js', 'server/lib/coachEligibilityMeasurement.js', 'server/lib/executeProgrammeMessage.js', 'server/lib/outreach.js',
       'server/lib/programmeContactEligibility.js', 'server/lib/programmeContacts.js', 'server/lib/recipient.js', 'server/lib/recipientSelection.js',
-      'server/lib/refresh/integrityGate.js', 'server/lib/refresh/integrityMeasure.js', 'server/lib/refresh/promotion.js', 'server/lib/refresh/staging.js',
+      'server/lib/refresh/integrityGate.js', 'server/lib/refresh/integrityMeasure.js', 'server/lib/refresh/promotion.js', 'server/lib/refresh/sendability.js', 'server/lib/refresh/staging.js',
       'server/lib/v2/outreachProvenance.js', 'server/scripts/integrityMonitor.js', 'server/scripts/legacyReconciliationReport.js', 'server/scripts/programmeContactAcquire.js', 'server/scripts/programmeContactLeads.js', 'server/scripts/validateProgrammeContacts.js']);
     for (const f of ['server/lib/pursuitPolicy.js', 'server/routes/sendOutreach.js', 'server/routes/manualOutreach.js']) expect(readers, f).not.toContain(f);
   });

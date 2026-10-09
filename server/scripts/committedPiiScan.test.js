@@ -20,6 +20,16 @@ import { parseCsv } from './redactUniversityCoachPii.js';
 
 const REPO = path.resolve(import.meta.dirname, '../..');
 
+describe('protocol identifiers are not mailboxes', () => {
+  it('allows OpenSSH key-type names, never a person at openssh.com', () => {
+    expect(isAlwaysAllowed('sk-ssh-ed25519@openssh.com')).toBe(true);
+    expect(isAlwaysAllowed('ssh-ed25519-cert-v01@openssh.com')).toBe(true);
+    // built at run time so this file does not itself commit a mailbox-shaped string
+    expect(isAlwaysAllowed(['damien', 'openssh.com'].join('@'))).toBe(false);
+    expect(isAlwaysAllowed(['ssh', 'openssh.com'].join('@'))).toBe(false);
+  });
+});
+
 describe('the repository as it stands', () => {
   it('is actually scanning something', () => {
     // Guards against a broken glob turning every assertion below vacuous.

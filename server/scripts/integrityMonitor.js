@@ -136,6 +136,16 @@ export function runMonitor(dbPath, { now = new Date(), season, reconcile = true 
     // one ownership answer (Phase 8C.2C): entityHosts and hostOwnedBy must agree for every relevant entity/host
     add('DOMAIN', 'host_ownership_consistency', 'HARD', hostOwnershipDisagreements(ctx), 'entityHosts(entity) and hostOwnedBy(host, entity) disagree for the same relationship');
     add('DOMAIN', 'host_ownership_conflicting_twins', 'INFO', [...new Set(ctx.domains.map((d) => normHost(d.domain)))].filter((h) => ctx.resolver.ownerOfHost(h).status === 'CONFLICTING_TWINS').sort(), 'a "www." row contradicts its canonical bare-host record: owned by nobody until a person adjudicates');
+    // trusted ownership vs recorded confidence (DI-03F, F12): a host trusted for sending whose confidence says the
+    // decision is not established reads as authoritative to the sender and as untrusted to every evidence view
+    const dcols = new Set(db.prepare('PRAGMA table_info(athletics_domains)').all().map((c) => c.name));
+    if (dcols.has('confidence')) {
+      const confBad = db.prepare(`SELECT domain, unitid, status, confidence, verification_method${dcols.has('ownership_class') ? ', ownership_class' : ', NULL AS ownership_class'} FROM athletics_domains
+        WHERE status IN ('VERIFIED', 'VERIFIED_ALIAS') AND unitid IS NOT NULL AND confidence NOT IN ('CERTAIN', 'CORROBORATED')`).all();
+      const governed = (d) => d.ownership_class != null || d.verification_method === 'DOMAIN_OWNERSHIP_CORRECTION';
+      add('DOMAIN', 'trusted_status_unestablished_confidence', 'HARD', confBad.filter(governed).map((d) => `${d.domain} ${d.status}@${d.unitid} ${d.confidence}/${d.verification_method}`), 'an entity-owned or corrected host is trusted for sending while its confidence is below CORROBORATED');
+      add('DOMAIN', 'trusted_status_legacy_confidence', 'WARN', confBad.filter((d) => !governed(d)).map((d) => `${d.domain} ${d.status}@${d.unitid} ${d.confidence}`), 'legacy rows trusted for sending with HIGH/NONE confidence: evidence views (CERTAIN|CORROBORATED only) treat them as untrusted');
+    }
 
     // PROGRAMME CONTACT (Phase 1B) — its own floor; a VERIFIED contact that fails it is HARD
     if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='programme_contacts'").get()) {

@@ -127,7 +127,17 @@ export function canonicalIneligibility(row, handle, { decisions = null, ...opts 
   const held = activationHold(row.id);
   if (held) return `${CANONICAL_INELIGIBLE.ACTIVATION_HELD}:${held.hold}`;
   // `decisions`: one fresh computation shared by the checks of a single send (recipientIneligibility)
-  const d = decisions || canonicalDecisions(handle, opts);
+  return canonicalDecisionIneligibility(row, decisions || canonicalDecisions(handle, opts));
+}
+
+/**
+ * The canonical decision alone — everything canonicalIneligibility checks EXCEPT the activation
+ * hold — for a computed `decisions` (canonicalDecisions). The correction engine compares this,
+ * before and after a correction, to find coaches a correction would make sendable (DI-03D);
+ * the hold is then required of every one of them. Read-only.
+ */
+export function canonicalDecisionIneligibility(row, d) {
+  if (!row?.id) return CANONICAL_INELIGIBLE.NO_CANONICAL_DECISION;
   const r = d.byCoach.get(row.id);
   if (!r) return CANONICAL_INELIGIBLE.NO_CANONICAL_DECISION;
   if (r.outreach_eligibility !== 'YES') {
