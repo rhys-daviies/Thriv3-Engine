@@ -285,3 +285,35 @@ describe('code commit identification', () => {
     vi.unstubAllEnvs();
   });
 });
+
+describe('render.yaml runs the migration gate as its own step before the server', () => {
+  const start = () => fs.readFileSync(path.join(ROOT, 'render.yaml'), 'utf8').match(/^\s*startCommand:\s*(.+)$/m)[1];
+
+  it('the gate precedes the server, and a refusal never reaches it', () => {
+    const cmd = start();
+    expect(cmd.indexOf('server/scripts/migrateDb.js --deploy')).toBeGreaterThan(-1);
+    expect(cmd.indexOf('server/scripts/migrateDb.js --deploy')).toBeLessThan(cmd.indexOf('server/index.js'));
+    expect(cmd).toMatch(/--deploy \|\| exit 1/);
+    expect(cmd).not.toMatch(/THRIV3_MIGRATION_APPROVAL/);
+  });
+
+  it('executed by sh: a refusing gate exits non-zero without starting the server; a passing one execs it', () => {
+    const fake = p('fake');
+    fs.mkdirSync(path.join(fake, 'server/scripts'), { recursive: true });
+    fs.writeFileSync(path.join(fake, 'server/index.js'), "console.log('SERVER STARTED');");
+    const run = (gate) => {
+      fs.writeFileSync(path.join(fake, 'server/scripts/migrateDb.js'), `process.exit(${gate});`);
+      const cmd = start().replace(/\bnode\b/g, JSON.stringify(process.execPath));
+      return spawnSync('/bin/sh', ['-c', cmd], { cwd: fake, encoding: 'utf8' });
+    };
+    const refused = run(2);
+    expect(refused.status).not.toBe(0);
+    expect(refused.stdout).not.toMatch(/SERVER STARTED/);
+    const passed = run(0);
+    expect(passed.status).toBe(0);
+    expect(passed.stdout).toMatch(/SERVER STARTED/);
+    // A pre-DI-08 commit (no gate script) still boots, as it always did.
+    fs.rmSync(path.join(fake, 'server/scripts/migrateDb.js'));
+    expect(spawnSync('/bin/sh', ['-c', start().replace(/\bnode\b/g, JSON.stringify(process.execPath))], { cwd: fake, encoding: 'utf8' }).stdout).toMatch(/SERVER STARTED/);
+  });
+});

@@ -101,9 +101,16 @@ services:
     # old instance has already been stopped (single instance + disk), which is
     # what the exclusive lock needs.
     #
-    # Assumes Render runs startCommand through a shell so `&&` works (it does for
-    # the common `npm run x && …` pattern — re-verify on the first deploy log).
-    startCommand: node server/scripts/migrateDb.js --deploy && node server/index.js
+    # Assumes Render runs startCommand through a shell (it does for the common
+    # `npm run x && …` pattern — re-verify on the first deploy log).
+    #
+    # The `if [ -f … ]` is for ROLLBACK: if a dashboard rollback rebuilds a commit
+    # from before DI-08 while keeping this service-level start command, that
+    # commit has no migrateDb.js, and an unconditional call would stop it booting
+    # at all. Such a commit migrates itself on boot, as it always did. Any commit
+    # that has the script runs the gate, and a refusal (`|| exit 1`) never starts
+    # the server.
+    startCommand: if [ -f server/scripts/migrateDb.js ]; then node server/scripts/migrateDb.js --deploy || exit 1; fi; exec node server/index.js
     healthCheckPath: /healthz
 
     disk:

@@ -410,7 +410,7 @@ Not executed. Nothing is deployed.
 ## Migrations — never on boot (DI-08, DI-09A)
 
 The server **never migrates the database**, and nothing else does on import. The start command runs
-a separate step first — `node server/scripts/migrateDb.js --deploy && node server/index.js` — which
+a separate step first — `node server/scripts/migrateDb.js --deploy`, then `node server/index.js` only if it succeeded — which
 exits at once when the database needs nothing, and otherwise migrates only a plan whose id is
 committed in `server/db/MIGRATION_APPROVALS.json`; without one it refuses, and the server is not
 started. The procedure is in [DATABASE_MIGRATIONS.md](DATABASE_MIGRATIONS.md):

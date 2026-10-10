@@ -197,8 +197,12 @@ different append-only trigger, an extra trigger and an extra index).
 **The server never migrates; a separate step before it does (DI-09A).** `render.yaml`:
 
 ```
-startCommand: node server/scripts/migrateDb.js --deploy && node server/index.js
+startCommand: if [ -f server/scripts/migrateDb.js ]; then node server/scripts/migrateDb.js --deploy || exit 1; fi; exec node server/index.js
 ```
+
+(The `if` keeps a dashboard rollback to a pre-DI-08 commit bootable; such a commit migrates itself
+on boot, as it always did. Any commit with the script runs the gate, and a refusal never starts the
+server.)
 
 `db:deploy` reads `RECRUITMATCH_DB` (`/data/recruitmatch.sqlite`):
 - If the server may start on the database as it is (`CURRENT`, or a recorded code rollback), it exits
