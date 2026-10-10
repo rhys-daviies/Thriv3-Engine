@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { workingCorpusCopy } from '../testCorpus.js';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 /**
  * L7L — the review API, against a scratch database.
@@ -41,7 +42,7 @@ const LIVE_DB = workingCorpusCopy('rosterGaps');
  * `NO_TRUSTED_HOST` case the vocabulary must never offer as a conclusion.
  */
 const SCRATCH = fs.mkdtempSync(path.join(os.tmpdir(), 'l7l-'));
-const DB = path.join(SCRATCH, 'fixture.sqlite');
+const DB = migratedDbFile(path.join(SCRATCH, 'fixture.sqlite'));   // DI-08: schema built explicitly, not by an import
 afterAll(() => fs.rmSync(SCRATCH, { recursive: true, force: true }));
 
 beforeAll(() => {

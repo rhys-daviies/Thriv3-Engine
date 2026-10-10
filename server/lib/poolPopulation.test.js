@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 /**
  * L7ZC — what PROGRAMME_POOL_BENCHMARK says its pool was.
@@ -76,7 +77,7 @@ function programme(db_, {
 
 beforeAll(async () => {
   tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'l7zc-'));
-  process.env.RECRUITMATCH_DB = path.join(tmp, 'pool.sqlite');
+  process.env.RECRUITMATCH_DB = migratedDbFile(path.join(tmp, 'pool.sqlite'));   // DI-08: built explicitly
   db = (await import('../db/client.js')).default;
   philosophyQueries = await import('./philosophyQueries.js');
   philosophy = await import('../../shared/philosophy.js');

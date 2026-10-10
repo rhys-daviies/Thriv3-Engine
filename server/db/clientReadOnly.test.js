@@ -10,6 +10,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import Database from 'better-sqlite3';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 let dir;
 const p = (n) => path.join(dir, n);
@@ -72,8 +73,18 @@ describe('read-only mode', () => {
     expect(fs.existsSync(p('absent.sqlite'))).toBe(false);
   });
 
-  it('without the flag the normal start-up is unchanged: schema and migrations run', () => {
-    const r = importClient({ RECRUITMATCH_DB: p('fresh.sqlite'), RECRUITMATCH_DB_READONLY: '' });
+  /*
+   * DI-08 changed the other half of this contract: without the flag a FILE is no longer created or
+   * migrated on import either (server/db/explicitMigrations.test.js covers that in full). What stays
+   * true is that the flag is what makes the connection read-only: an initialised file opened without
+   * it is read-write.
+   */
+  it('without the flag a missing file is refused, not created; an initialised one opens read-write', () => {
+    const missing = importClient({ RECRUITMATCH_DB: p('fresh.sqlite'), RECRUITMATCH_DB_READONLY: '' });
+    expect(missing.status).not.toBe(0);
+    expect(fs.existsSync(p('fresh.sqlite'))).toBe(false);
+
+    const r = importClient({ RECRUITMATCH_DB: migratedDbFile(p('fresh.sqlite')), RECRUITMATCH_DB_READONLY: '' });
     expect(r.status, r.err).toBe(0);
     expect(r.out.readOnly).toBe(false);
     expect(r.out.tables.length).toBeGreaterThan(20);

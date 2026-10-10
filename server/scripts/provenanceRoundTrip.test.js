@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, beforeEach, afterAll } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 /**
  * L7Z — provenance survives the whole journey, or it is not provenance.
@@ -46,7 +47,7 @@ beforeAll(async () => {
   tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'l7z-rt-'));
   sheets = path.join(tmp, 'sheets');
   fs.mkdirSync(sheets, { recursive: true });
-  process.env.RECRUITMATCH_DB = path.join(tmp, 'fixture.sqlite');
+  process.env.RECRUITMATCH_DB = migratedDbFile(path.join(tmp, 'fixture.sqlite'));   // DI-08: built explicitly
   mod = await import('./importRosterSheets.js');
   db = (await import('../db/client.js')).default;
 });

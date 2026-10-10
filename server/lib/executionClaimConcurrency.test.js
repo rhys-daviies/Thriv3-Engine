@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 // Fixture coaches are made genuinely sendable (verified address + coach_seasons corroboration,
 // via server/testCanonicalCoaches.js): the send-time floor, including the canonical decision,
@@ -106,6 +107,7 @@ afterAll(() => {
 describe('two processes claiming one message', () => {
   it('lets exactly one win, and spends exactly one outbound action', async () => {
     fs.mkdirSync(path.dirname(DB), { recursive: true });
+    migratedDbFile(DB);   // DI-08: the schema is built explicitly; importing the client no longer does it
     const seeded = JSON.parse((await node(SEED)).stdout);
 
     // Started together, against one file, from two separate connections.

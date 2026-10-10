@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, beforeEach, afterAll } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 /**
  * L7ZB — the dataset line must be able to explain a behavioural movement.
@@ -30,7 +31,7 @@ let tmp; let db; let M;
 
 beforeAll(async () => {
   tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'l7zb-'));
-  process.env.RECRUITMATCH_DB = path.join(tmp, 'manifest.sqlite');
+  process.env.RECRUITMATCH_DB = migratedDbFile(path.join(tmp, 'manifest.sqlite'));   // DI-08: built explicitly
   db = (await import('../db/client.js')).default;
   M = await import('./evidenceBaseline.js');
 });

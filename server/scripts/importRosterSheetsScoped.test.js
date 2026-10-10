@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, beforeEach, afterAll } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 /**
  * L7X — an import that may touch six programme-seasons and no others.
@@ -58,7 +59,7 @@ beforeAll(async () => {
   sheets = path.join(tmp, 'sheets');
   fs.mkdirSync(sheets, { recursive: true });
   dbFile = path.join(tmp, 'fixture.sqlite');
-  process.env.RECRUITMATCH_DB = dbFile;
+  process.env.RECRUITMATCH_DB = migratedDbFile(dbFile);   // DI-08: built explicitly
   mod = await import('./importRosterSheets.js');
   db = (await import('../db/client.js')).default;
   RosterPlayer = (await import('../db/entities/rosterPlayer.js')).RosterPlayer;

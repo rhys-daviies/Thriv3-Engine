@@ -26,7 +26,9 @@ const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 const d = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) console.warn(`\n  rosterSourceAudit.test.js SKIPPED — no database at ${DB}\n`);
 
-const inDb = (expr) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
+// DI-08: a skipped describe still runs its body; without a corpus, spawn nothing (RECRUITMATCH_DB would be the string 'null', which used to create ./null and now refuses).
+const inDb = (expr) => (HAVE_DB ? inDbOnCorpus(expr) : null);
+const inDbOnCorpus = (expr) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
   import db from '${path.join(ROOT, 'server/db/client.js')}';
   import { auditRosterSources, institutionsWithSeveralSites, registryIntegrity, verifiedDomains }
     from '${path.join(ROOT, 'server/scripts/rosterSourceAudit.js')}';

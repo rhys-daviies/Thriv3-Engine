@@ -24,6 +24,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { ROOT } from './baselineDataset.js';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 let dir; let runner; let SEED;
 
@@ -55,9 +56,8 @@ function buildSeed(name) {
   const file = path.join(dir, `${name}.sqlite`);
   // Opening through the app creates schema.sql and runs migrate(), so these are
   // the production table shapes rather than a hand-written approximation.
-  execFileSync('node', ['-e', "import('./server/db/client.js').then(() => {})"], {
-    cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: file }, encoding: 'utf8',
-  });
+  // DI-08: the app's own authorised migration builds it (an import no longer does).
+  migratedDbFile(file);
   sql(file, [
     /**
      * `public_slug` is given explicitly. `migrate()` backfills a RANDOM slug for

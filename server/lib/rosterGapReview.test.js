@@ -8,6 +8,7 @@ import {
   DISPOSITION, NEXT_ACTION, REVIEW_STATUS, DISPOSITIONS,
   validateReview, retryEligible, reviewStatus, allowedActionsFor,
 } from '../../shared/roster/gapReview.js';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 /**
  * L7K — that a person's conclusion and a machine's observation stay apart.
@@ -26,7 +27,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 /** A scratch database with the real schema, and a body of code run against it. */
 function inDb(body) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'l7k-'));
-  const file = path.join(dir, 'test.sqlite');
+  const file = migratedDbFile(path.join(dir, 'test.sqlite'));   // DI-08: built explicitly, not by the import below
   try {
     return JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
       process.env.RECRUITMATCH_DB = ${JSON.stringify(file)};
