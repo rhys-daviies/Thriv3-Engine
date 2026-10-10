@@ -14,7 +14,7 @@ import crypto from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 import Database from 'better-sqlite3';
 import {
-  migrateDatabase, schemaState, schemaFingerprint, migrationRecords, serverMayStart, MIGRATIONS_TABLE, MigrationRefused,
+  migrateDatabase, schemaState, schemaFingerprint, migrationRecords, serverMayStart, MIGRATIONS_TABLE, MigrationRefused, planFor,
 } from './migrations.js';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
@@ -44,6 +44,8 @@ function contentHashes(file) {
 }
 const fingerprintOf = (file) => { const db = new Database(file, { readonly: true }); try { return schemaFingerprint(db).fingerprint; } finally { db.close(); } };
 const stateOf = (file) => { const db = new Database(file, { readonly: true }); try { return schemaState(db); } finally { db.close(); } };
+/** DI-09A: an approval names a PLAN (kind + schema before + code + predicted after), not a fingerprint. */
+const planOf = (file, kind = 'MIGRATE') => planFor(stateOf(file), kind);
 const tables = (file) => { const db = new Database(file, { readonly: true }); try { return db.prepare("SELECT name FROM sqlite_master WHERE type='table'").pluck().all(); } finally { db.close(); } };
 const columns = (file, t) => { const db = new Database(file, { readonly: true }); try { return db.prepare(`PRAGMA table_info(${t})`).all().map((c) => c.name); } finally { db.close(); } };
 const players = (file) => { const db = new Database(file, { readonly: true }); try { return db.prepare('SELECT * FROM players ORDER BY id').all(); } finally { db.close(); } };
@@ -177,43 +179,94 @@ describe('(c) the server never migrates implicitly', () => {
     expect(sha(f)).toBe(before);
   });
 
-  it('a mismatched THRIV3_MIGRATION_APPROVAL refuses, and changes nothing', () => {
+  it('THRIV3_MIGRATION_APPROVAL no longer migrates anything — not even with the exact plan (DI-09A)', () => {
     const f = behindDb(p('behind.sqlite'));
     const before = sha(f);
-    const r = boot({ RECRUITMATCH_DB: f, THRIV3_MIGRATION_APPROVAL: 'ab'.repeat(32) });
-    expect(r.status).not.toBe(0);
-    expect(r.stderr).toMatch(/approval does not match/);
+    for (const approval of [stateOf(f).fingerprint, planOf(f)]) {
+      const r = boot({ RECRUITMATCH_DB: f, THRIV3_MIGRATION_APPROVAL: approval });
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toMatch(/Refusing to start the server on/);
+      expect(r.stderr).toMatch(/IGNORED/);
+      expect(sha(f)).toBe(before);
+    }
+  });
+});
+
+describe('(c2) db:deploy — the production start step, before the server (DI-09A)', () => {
+  const deploy = (env, ...args) => spawnSync(process.execPath, [MIGRATE_CLI, '--deploy', ...args], { encoding: 'utf8', env: { ...process.env, ...env }, cwd: ROOT, timeout: 120_000 });
+  const approvals = (plans) => {
+    const file = p('approvals.json');
+    fs.writeFileSync(file, JSON.stringify({ approvals: plans.map((plan) => ({ plan, approved_by: 'test', approved_at: '2026-10-10' })) }));
+    return file;
+  };
+
+  it('a database the server may start on: exit 0, nothing written, no lock taken (a holder does not block it)', async () => {
+    const f = currentDb(p('db.sqlite'));
+    const before = sha(f);
+    const holder = spawn(process.execPath, ['-e', `const D = require('better-sqlite3'); const db = new D(${JSON.stringify(f)});
+      db.prepare('SELECT COUNT(*) FROM players').get(); console.log('HOLDING'); setTimeout(() => {}, 30000);`], { cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: ':memory:' } });
+    await new Promise((r) => holder.stdout.on('data', (d) => /HOLDING/.test(d) && r()));
+    try {
+      const r = deploy({ RECRUITMATCH_DB: f });
+      expect(r.status, r.stderr).toBe(0);
+      expect(r.stdout).toMatch(/nothing to migrate/);
+    } finally { holder.kill('SIGKILL'); }
     expect(sha(f)).toBe(before);
   });
 
-  it('THRIV3_MIGRATION_APPROVAL is ignored by anything that is not the server entry point', () => {
+  it('pending and NOT approved: refuses (exit 2), prints the plan id, changes nothing', () => {
     const f = behindDb(p('behind.sqlite'));
     const before = sha(f);
-    const r = importIn({ RECRUITMATCH_DB: f, THRIV3_MIGRATION_APPROVAL: stateOf(f).fingerprint });
-    expect(r.status).not.toBe(0);
+    const r = deploy({ RECRUITMATCH_DB: f }, '--approvals', approvals([]));
+    expect(r.status).toBe(2);
+    expect(r.stderr).toContain(planOf(f));
     expect(sha(f)).toBe(before);
   });
 
-  it('with the exact approval, the server runs the authorised migration (backup + audit row) before it starts', async () => {
+  it('an approval for a DIFFERENT plan (another state, or the same state under other code) does not apply', () => {
     const f = behindDb(p('behind.sqlite'));
-    const fp = stateOf(f).fingerprint;
-    const child = spawn(process.execPath, [SERVER], { env: { ...process.env, PORT: '0', RECRUITMATCH_DB: f, THRIV3_MIGRATION_APPROVAL: fp, THRIV3_OPERATOR: 'render-deploy' }, cwd: ROOT });
-    let out = '';
-    child.stdout.on('data', (d) => { out += d; });
-    child.stderr.on('data', (d) => { out += d; });
-    await new Promise((resolve) => {
-      const t = setTimeout(resolve, 45_000);
-      const poll = setInterval(() => { if (/MIGRATE recorded/.test(out)) { clearTimeout(t); clearInterval(poll); setTimeout(resolve, 500); } }, 100);
-      child.on('exit', () => { clearTimeout(t); clearInterval(poll); resolve(); });
-    });
-    child.kill('SIGKILL');
-    await new Promise((r) => (child.exitCode !== null || child.signalCode ? r() : child.on('exit', r)));
-    expect(out).toMatch(/\[db:migrate\] MIGRATE recorded/);
+    const before = sha(f);
+    const s = stateOf(f);
+    const otherCode = planFor({ ...s, code: { ...s.code, manifest: 'f'.repeat(64) } }, 'MIGRATE');
+    const otherState = planFor({ ...s, fingerprint: 'e'.repeat(64) }, 'MIGRATE');
+    const adoptPlan = planFor(s, 'ADOPT');
+    const r = deploy({ RECRUITMATCH_DB: f }, '--approvals', approvals([otherCode, otherState, adoptPlan]));
+    expect(r.status).toBe(2);
+    expect(sha(f)).toBe(before);
+  });
+
+  it('pending and approved in the committed file: the full authorised migration, then exit 0', () => {
+    const f = behindDb(p('behind.sqlite'));
+    const plan = planOf(f);
+    const r = deploy({ RECRUITMATCH_DB: f }, '--approvals', approvals([plan]));
+    expect(r.status, r.stderr).toBe(0);
     const s = stateOf(f);
     expect(s.state).toBe('CURRENT');
-    expect(s.latest).toMatchObject({ kind: 'MIGRATE', operator: 'render-deploy', schema_before: fp });
+    expect(s.latest).toMatchObject({ kind: 'MIGRATE', status: 'COMPLETE', plan, operator: 'deploy (test)' });
     expect(fs.existsSync(s.latest.backup_path)).toBe(true);
-  }, 90_000);
+    // The same approval left in the file is inert from now on: the next boot is CURRENT, and a later
+    // state has a different plan id.
+    expect(deploy({ RECRUITMATCH_DB: f }, '--approvals', approvals([plan])).stdout).toMatch(/nothing to migrate/);
+  });
+
+  it('never creates, never adopts, never reads :memory:', () => {
+    expect(deploy({ RECRUITMATCH_DB: p('absent.sqlite') }).status).toBe(2);
+    expect(fs.existsSync(p('absent.sqlite'))).toBe(false);
+    const u = unrecordedDb(p('u.sqlite'));
+    const before = sha(u);
+    expect(deploy({ RECRUITMATCH_DB: u }, '--approvals', approvals([planOf(u, 'ADOPT')])).status).toBe(2);
+    expect(sha(u)).toBe(before);
+    expect(deploy({ RECRUITMATCH_DB: ':memory:' }).status).toBe(2);
+  });
+
+  it('a malformed approvals file refuses rather than reading as "no approvals"', () => {
+    const f = behindDb(p('behind.sqlite'));
+    const file = p('bad.json');
+    fs.writeFileSync(file, JSON.stringify({ approvals: [{ plan: 'abc', approved_by: 'x', approved_at: 'y' }] }));
+    const r = deploy({ RECRUITMATCH_DB: f }, '--approvals', file);
+    expect(r.status).toBe(2);
+    expect(r.stderr).toMatch(/full 64-hex plan id/);
+  });
 });
 
 describe('(d) db:migrate is explicit and authorised', () => {
@@ -223,7 +276,7 @@ describe('(d) db:migrate is explicit and authorised', () => {
     expect(r.stderr).toMatch(/--db <path>/);
   });
 
-  it('without --approve it prints the plan and the fingerprint, and changes nothing', () => {
+  it('without --approve it prints the plan and the plan id, and changes nothing', () => {
     const f = behindDb(p('behind.sqlite'));
     const before = sha(f);
     const r = cli('--db', f);
@@ -231,7 +284,7 @@ describe('(d) db:migrate is explicit and authorised', () => {
     expect(r.stdout).toMatch(/state\s+PENDING/);
     expect(r.stdout).toMatch(/\+ table representatives/);
     expect(fs.readdirSync(dir).filter((n) => !/-(wal|shm)$/.test(n))).toEqual(['behind.sqlite']);   // no backup: nothing ran
-    expect(r.stdout).toContain(`--approve ${stateOf(f).fingerprint}`);
+    expect(r.stdout).toContain(`MIGRATE ${planOf(f)}`);
     expect(sha(f)).toBe(before);
   });
 
@@ -239,7 +292,9 @@ describe('(d) db:migrate is explicit and authorised', () => {
     const f = behindDb(p('behind.sqlite'));
     const before = sha(f);
     expect(cli('--db', f, '--approve', 'ab'.repeat(32)).status).toBe(2);
-    expect(cli('--db', f, '--approve', stateOf(f).fingerprint.slice(0, 8)).status).toBe(2);
+    expect(cli('--db', f, '--approve', planOf(f).slice(0, 8)).status).toBe(2);
+    // DI-09A: the schema fingerprint alone is no longer an approval.
+    expect(cli('--db', f, '--approve', stateOf(f).fingerprint).status).toBe(2);
     expect(sha(f)).toBe(before);
   });
 
@@ -251,7 +306,7 @@ describe('(d) db:migrate is explicit and authorised', () => {
     const playersBefore = players(f);
     const expectedAfter = stateOf(f).expectedAfter;
 
-    const r = cli('--db', f, '--approve', fpBefore, '--operator', 'rhys');
+    const r = cli('--db', f, '--approve', planOf(f), '--operator', 'rhys');
     expect(r.status, r.stderr).toBe(0);
     expect(r.stdout).toMatch(/ROLLBACK/);
 
@@ -296,7 +351,7 @@ describe('(d) db:migrate is explicit and authorised', () => {
       db.prepare('SELECT COUNT(*) FROM players').get(); console.log('HOLDING'); setTimeout(() => {}, 30000);`], { cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: ':memory:' } });
     await new Promise((r) => holder.stdout.on('data', (d) => /HOLDING/.test(d) && r()));
     try {
-      expect(() => migrateDatabase({ dbPath: f, approve: stateOf(f).fingerprint, ...quiet })).toThrow(/another process has it open/);
+      expect(() => migrateDatabase({ dbPath: f, approve: planOf(f), ...quiet })).toThrow(/another process has it open/);
     } finally { holder.kill('SIGKILL'); }
     expect(stateOf(f).state).toBe('PENDING');
   });
@@ -322,7 +377,7 @@ describe('(e) a failing migration step rolls the transactional part back', () =>
     const before = sha(f);
 
     let err;
-    try { migrateDatabase({ dbPath: f, approve: fp, ...quiet }); } catch (e) { err = e; }
+    try { migrateDatabase({ dbPath: f, approve: planOf(f), ...quiet }); } catch (e) { err = e; }
     expect(err).toBeInstanceOf(MigrationRefused);
     expect(err.message).toMatch(/MIGRATION FAILED \(TRANSACTIONAL\)/);
     expect(err.message).toMatch(/UNIQUE/);
@@ -368,7 +423,7 @@ describe('(h) adopting a database that is already migrated records it and change
     const rows = contentHashes(f);
     expect(stateOf(f).state).toBe('UNRECORDED');
 
-    const r = cli('--db', f, '--adopt', '--approve', fp);
+    const r = cli('--db', f, '--adopt', '--approve', planOf(f, 'ADOPT'));
     expect(r.status, r.stderr).toBe(0);
     expect(fingerprintOf(f)).toBe(fp);
     expect(contentHashes(f)).toEqual(rows);
@@ -381,7 +436,7 @@ describe('(h) adopting a database that is already migrated records it and change
   it('refuses to adopt a database with pending migrations', () => {
     const f = behindDb(p('behind.sqlite'));
     const before = sha(f);
-    const r = cli('--db', f, '--adopt', '--approve', fingerprintOf(f));
+    const r = cli('--db', f, '--adopt', '--approve', planOf(f, 'ADOPT'));
     expect(r.status).toBe(2);
     expect(r.stderr).toMatch(/Refusing to adopt/);
     expect(sha(f)).toBe(before);
