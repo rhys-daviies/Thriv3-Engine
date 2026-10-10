@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { TARGET_DIVISIONS, TARGET_SPORTS, toCsv } from './rosterTargetUniverse.js';
-import { workingCorpusCopy } from '../testCorpus.js';
+import { workingCorpusCopy, describeWithCorpus } from '../testCorpus.js';
 
 /**
  * L6B — the worklist must be a statement about the REGISTRY, not about what we
@@ -19,7 +19,7 @@ import { workingCorpusCopy } from '../testCorpus.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const DB = workingCorpusCopy('rosterTargetUniverse');
-const d = fs.existsSync(DB) ? describe : describe.skip;
+const d = describeWithCorpus(fs.existsSync(DB));
 
 const universe = () => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
   process.env.RECRUITMATCH_DB = ${JSON.stringify(DB)};

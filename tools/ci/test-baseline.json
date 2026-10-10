@@ -1,0 +1,324 @@
+{
+  "$comment": [
+    "Read by tools/ci/testGate.mjs. See CLAUDE.md section 7.",
+    "criticalSuites: must load, run at least one test, never fail and never skip. They can never appear in knownFailures or expectedSkips.",
+    "knownFailures: exact test names, each with an owner and an expiry at most 45 days after it was added. The gate fails when an entry expires or its test stops failing, so the list only shrinks. Adding an entry needs the user's explicit approval.",
+    "expectedSkips: tests that skip in a clean checkout because the private database (server/data/recruitmatch.sqlite) is absent. Regenerate with: node tools/ci/testGate.mjs <vitest.json> --print-skips, and review the diff. Any other skip fails CI."
+  ],
+  "criticalSuites": [
+    "server/db/outreachRecipients.migration.test.js",
+    "server/lib/campaignSafety.test.js",
+    "server/lib/campaignSuppression.test.js",
+    "server/lib/canonicalCoachEligibility.test.js",
+    "server/lib/coachEligibility.test.js",
+    "server/lib/confirmSends.test.js",
+    "server/lib/googleMailboxOAuth.test.js",
+    "server/lib/mailboxConsent.test.js",
+    "server/lib/mailboxCrypto.test.js",
+    "server/lib/manualOutreachSafety.test.js",
+    "server/lib/operatorAuth.test.js",
+    "server/lib/outreachSend.test.js",
+    "server/lib/programmeContactsIsolation.test.js",
+    "server/lib/redactedFixtureGuard.test.js",
+    "server/lib/refresh/refreshPipeline.test.js",
+    "server/lib/sendCap.test.js",
+    "server/lib/sendPathEngineIsolation.test.js",
+    "server/lib/suppressions.test.js",
+    "server/lib/tokenActivation.test.js",
+    "server/routes/auth.test.js",
+    "server/routes/coachOutreachRefusal.test.js",
+    "server/routes/coachSendFloorHolds.test.js",
+    "server/routes/mailboxConsent.test.js",
+    "server/routes/manualOutreachSend.test.js",
+    "server/routes/outboundBudgetSend.test.js",
+    "server/routes/sendOutreach.test.js",
+    "server/routes/sendOutreachInbox.test.js",
+    "server/routes/tokenActivationBoundary.test.js",
+    "server/scripts/committedPiiScan.test.js",
+    "server/scripts/legacyReconciliation.test.js",
+    "server/scripts/mutationPathSafety.test.js",
+    "server/testDbGuard.test.js",
+    "server/testScratch.test.js",
+    "shared/matching/v2/freeze.test.js",
+    "tools/ci/testGate.test.js"
+  ],
+  "knownFailures": [
+    {
+      "file": "server/scripts/buildPhase8B2Fixture.test.js",
+      "test": "buildPhase8B2Fixture two independent generations give a byte-identical fixture (same hash)",
+      "reason": "Fails wherever the live database is absent (clean checkout, CI, worktrees): buildPhase8B2Fixture.js calls fs.realpathSync(defaultDbPath) unguarded, which throws before its disposable-copy check runs. Fixing it changes integrity tooling (T2), so it was not done in the CI PR. Includes the refusal test, so treat this as a safety gap until fixed.",
+      "owner": "rhys-daviies",
+      "added": "2026-10-08",
+      "expires": "2026-11-07"
+    },
+    {
+      "file": "server/scripts/buildPhase8B2Fixture.test.js",
+      "test": "buildPhase8B2Fixture writes conformed rows with full provenance and the currentness status, and holds the staff row",
+      "reason": "Fails wherever the live database is absent (clean checkout, CI, worktrees): buildPhase8B2Fixture.js calls fs.realpathSync(defaultDbPath) unguarded, which throws before its disposable-copy check runs. Fixing it changes integrity tooling (T2), so it was not done in the CI PR. Includes the refusal test, so treat this as a safety gap until fixed.",
+      "owner": "rhys-daviies",
+      "added": "2026-10-08",
+      "expires": "2026-11-07"
+    },
+    {
+      "file": "server/scripts/buildPhase8B2Fixture.test.js",
+      "test": "buildPhase8B2Fixture moves an insert whose source page is not complete to HELD instead of fixing it",
+      "reason": "Fails wherever the live database is absent (clean checkout, CI, worktrees): buildPhase8B2Fixture.js calls fs.realpathSync(defaultDbPath) unguarded, which throws before its disposable-copy check runs. Fixing it changes integrity tooling (T2), so it was not done in the CI PR. Includes the refusal test, so treat this as a safety gap until fixed.",
+      "owner": "rhys-daviies",
+      "added": "2026-10-08",
+      "expires": "2026-11-07"
+    },
+    {
+      "file": "server/scripts/buildPhase8B2Fixture.test.js",
+      "test": "buildPhase8B2Fixture refuses the live database whatever flags are given (the corpus guard does not protect it in the owning checkout), and an unnamed batch",
+      "reason": "Fails wherever the live database is absent (clean checkout, CI, worktrees): buildPhase8B2Fixture.js calls fs.realpathSync(defaultDbPath) unguarded, which throws before its disposable-copy check runs. Fixing it changes integrity tooling (T2), so it was not done in the CI PR. Includes the refusal test, so treat this as a safety gap until fixed.",
+      "owner": "rhys-daviies",
+      "added": "2026-10-08",
+      "expires": "2026-11-07"
+    },
+    {
+      "file": "server/scripts/buildPhase8B2Fixture.test.js",
+      "test": "buildPhase8B2Fixture its output is accepted by the real applier and applies",
+      "reason": "Fails wherever the live database is absent (clean checkout, CI, worktrees): buildPhase8B2Fixture.js calls fs.realpathSync(defaultDbPath) unguarded, which throws before its disposable-copy check runs. Fixing it changes integrity tooling (T2), so it was not done in the CI PR. Includes the refusal test, so treat this as a safety gap until fixed.",
+      "owner": "rhys-daviies",
+      "added": "2026-10-08",
+      "expires": "2026-11-07"
+    },
+    {
+      "file": "server/lib/campaignSnapshot.test.js",
+      "test": "creation and the lifecycle it hands over to permits several drafts from the same analysis, which stay independent",
+      "reason": "Date bomb: the fixture ends_on 2026-09-28 is now before starts_on, which defaults to today. Make the dates relative to the clock.",
+      "owner": "rhys-daviies",
+      "added": "2026-10-08",
+      "expires": "2026-11-07"
+    },
+    {
+      "file": "server/lib/outboundBudget.test.js",
+      "test": "the recipient cap and the sender budget are different things counts on different keys and neither moves the other",
+      "reason": "Date bomb: the fixture DAY is 2026-09-07 but recentSendCount/isSendCapped measure their window from the real clock, so the confirmed send has aged out. Pin the clock in the test.",
+      "owner": "rhys-daviies",
+      "added": "2026-10-08",
+      "expires": "2026-11-07"
+    },
+    {
+      "file": "server/lib/outboundBudget.test.js",
+      "test": "the recipient cap and the sender budget are different things charges a follow-up to the sender budget although the recipient cap counts the relationship once",
+      "reason": "Date bomb: the fixture DAY is 2026-09-07 but recentSendCount/isSendCapped measure their window from the real clock, so the confirmed send has aged out. Pin the clock in the test.",
+      "owner": "rhys-daviies",
+      "added": "2026-10-08",
+      "expires": "2026-11-07"
+    }
+  ],
+  "expectedSkips": {
+    "server/db/campaignSchema.test.js": [
+      "booting against the live database adds the tables and changes not one existing row",
+      "booting against the live database leaves the working database itself untouched"
+    ],
+    "server/db/providerExecution.test.js": [
+      "migrating a database that holds the historical sends adds the columns, widens the guard, and invents nothing"
+    ],
+    "server/db/sendMigration.test.js": [
+      "the legacy migration gives every confirmed send an event",
+      "the legacy migration stamps every historical row LEGACY_UNKNOWN and none of them current",
+      "the legacy migration leaves the current-vocabulary columns null on legacy rows",
+      "the legacy migration records a missing snapshot as missing",
+      "the legacy migration keeps the retired selector vocabulary out of the new model",
+      "the legacy migration preserves the sentences the coach actually read",
+      "the legacy migration numbers every historical send 1, because none was a follow-up",
+      "the legacy migration is safe to run twice"
+    ],
+    "server/routes/sendDurability.test.js": [
+      "F. the historical sends still read exactly as they did keeps every historical row accepted, sequenced and unchanged"
+    ],
+    "server/lib/baselineDataset.test.js": [
+      "materialising it hands out a writable copy, not the canonical file, and cleans up",
+      "materialising it leaves the canonical snapshot read-only, so a run cannot drift it"
+    ],
+    "server/lib/baselineProvenance.test.js": [
+      "runtime still tells the truth about when we looked needs the working database"
+    ],
+    "server/lib/campaignAttribution.test.js": [
+      "migrating the live database adds both columns, backfills nothing, and moves not one existing value",
+      "migrating the live database leaves the working database itself untouched"
+    ],
+    "server/lib/evidenceBaseline.test.js": [
+      "the committed baselines is comparing the dataset it was pinned against",
+      "the committed baselines OUTBOUND_DECISION is unchanged",
+      "the committed baselines COACH_COMPOSITION is unchanged",
+      "the committed baselines EMAIL_BODY is unchanged",
+      "the committed baselines OPERATOR_WIRE is unchanged",
+      "the committed baselines LOG_PAYLOAD is unchanged",
+      "the committed baselines OPERATOR_EVIDENCE is unchanged",
+      "the committed baselines reports every baseline as passing, and says so in its exit code",
+      "the committed baselines produces the same bytes twice",
+      "the committed baselines never rewrites the expectations during a normal run",
+      "what we record is what the coach read renders every kind it records as displayed, and records every sentence",
+      "what we record is what the coach read puts every recorded sentence in a block the template actually carries",
+      "what we record is what the coach read claims personalisation only when an evidence sentence appeared",
+      "what we record is what the coach read counts a congratulation as courtesy, not personalisation",
+      "what we record is what the coach read names a primary and a hook only from what was rendered",
+      "what we record is what the coach read allows a held claim, and does not count it as a contradiction",
+      "the corpus is worth hashing keeps the operator surfaces separable from the coach-facing ones",
+      "the corpus is worth hashing covers every pair, in both sports",
+      "the corpus is worth hashing carries generic emails as well as personalised ones",
+      "the corpus is worth hashing renders all nine licensed kinds at least once",
+      "the corpus is worth hashing holds claims without rendering them, and counts them separately",
+      "the baselines do not depend on when they are run produces identical digests a year apart",
+      "roster_freshness mirrors what production reads fingerprints one row per programme-sport in the current season",
+      "roster_freshness mirrors what production reads MOVES when the newest current-season timestamp moves",
+      "roster_freshness mirrors what production reads does NOT move when a season production never reads moves",
+      "roster_freshness mirrors what production reads does NOT move when a non-max row in the current season moves backwards",
+      "the manifest declares its own definition version reports V7 and carries every table the product reads",
+      "the manifest declares its own definition version reads an older pin as a definition change, not a data change"
+    ],
+    "server/lib/outreachMessageState.test.js": [
+      "migrating the live database gives every historical message a truthful state and moves nothing else",
+      "migrating the live database keeps the 55 legacy drafts confirmable"
+    ],
+    "server/lib/programmeStatusIntegration.test.js": [
+      "the six approved decisions records exactly six and no more",
+      "the six approved decisions 9/10. Anna Maria M and W are excluded for 2026 and preserved for 2024",
+      "the six approved decisions 11. New Jersey City M is excluded for 2026 and preserved for 2024",
+      "the six approved decisions 12/15. La Crosse M and SMSU M were never fielded, in any season",
+      "the six approved decisions 13/14. Wisconsin-Oshkosh M is excluded for 2026 and eligible from 2027",
+      "the six approved decisions 16/17/18. the three unresolved have no row and stay counted",
+      "the six approved decisions every record cites evidence and a first-party source",
+      "23. the target universe is season-aware omitting a season preserves the old behaviour exactly",
+      "23. the target universe is season-aware 2026 drops the six, and 2027 returns the one that launches",
+      "23. the target universe is season-aware a past season answers with that season, not with today",
+      "20/21/22/24. current-season coverage means the season asked for a programme with only a 2025 roster is a 2026 gap",
+      "20/21/22/24. current-season coverage means the season asked for separates current-season from historical coverage by name",
+      "20/21/22/24. current-season coverage means the season asked for 31. reconciles, duplicates and all",
+      "20/21/22/24. current-season coverage means the season asked for 24. the six are gone from the queue and the three unresolved remain",
+      "what L7P must not have changed 32. colleges.active is untouched — three inactive, as before",
+      "what L7P must not have changed 33/34. programme status moved no roster row and no domain row",
+      "what L7P must not have changed 19. the six roster-gap reviews are preserved",
+      "what L7P must not have changed 28. historical rosters survive a NOT_ACTIVE status",
+      "the table exists on a database built either way a fresh database gets programme_status and accepts a row",
+      "the table exists on a database built either way is idempotent — booting twice neither fails nor duplicates",
+      "the table exists on a database built either way refuses a status for a programme the registry does not have"
+    ],
+    "server/scripts/athleticsDomainAuthority.test.js": [
+      "the trust filter is the trust model follows only VERIFIED athletics hosts with an institution id",
+      "the trust filter is the trust model never lets a www. spelling change which institution a host belongs to",
+      "the trust filter is the trust model does not follow a guessed host on its own evidence",
+      "the trust filter is the trust model does not follow the university's own site rather than its athletics site on its own evidence",
+      "the trust filter is the trust model does not follow a host whose identity is contested on its own evidence",
+      "the trust filter is the trust model does not follow a host that never answered on its own evidence",
+      "identity strength is what separates the good rows from the bad matches whole names, not short bases",
+      "identity strength is what separates the good rows from the bad trusts the Phase-2D externally-verified base-name corrections at their true institution",
+      "a wrong mapping is not a wrong host still names the true owner in unitid",
+      "a wrong mapping is not a wrong host is nonetheless excluded from the trusted set today"
+    ],
+    "server/scripts/operations.test.js": [
+      "npm run draft needs the working database",
+      "npm run roster-sources needs the working database",
+      "npm run recruiting:evidence, in every mode needs the working database",
+      "npm run confirm-sends needs the working database"
+    ],
+    "server/scripts/reacquisitionCohort.test.js": [
+      "the 2026 re-acquisition cohort 1. is every current-season gap that already holds a source, and nothing else",
+      "the 2026 re-acquisition cohort 2. excludes the never-fetched by a roster clause, not by name",
+      "the 2026 re-acquisition cohort 3. requires the season before, not merely some earlier season",
+      "the 2026 re-acquisition cohort 4. every member carries a real source URL and prior-season players",
+      "the 2026 re-acquisition cohort 5. reads an archived source through to the host that really served it",
+      "the 2026 re-acquisition cohort 6. the audit totals agree with the rows they describe",
+      "the 2026 re-acquisition cohort 7. yields a reproducible pilot of exactly twenty from the live cohort",
+      "the 2026 re-acquisition cohort 8. the pilot can never contain a never-fetched or excluded programme",
+      "the 2026 re-acquisition cohort 9. writes nothing"
+    ],
+    "server/scripts/reports.test.js": [
+      "evidenceReport runs to completion",
+      "evidenceReport carries every section it owes",
+      "evidenceReport states the claims, their status and their source",
+      "evidenceReport names the redundancy in the direction the outbound selector decided",
+      "evidenceReport shows the email it would send",
+      "evidenceReport matches its recorded output",
+      "outreachQA runs to completion",
+      "outreachQA carries every section it owes, for every programme",
+      "outreachQA has no retired legacy diagnostic section",
+      "outreachQA speaks the deciding engine's vocabulary and not the retired one",
+      "outreachQA shows a real email, with its structure and its selected order",
+      "outreachQA leaks no registry key into the prose a coach would read",
+      "outreachQA matches its recorded output",
+      "recruitingEvidenceReport runs to completion",
+      "recruitingEvidenceReport carries every section it owes",
+      "recruitingEvidenceReport says the provenance is server-side only",
+      "recruitingEvidenceReport shows the recruiting kinds it exists to inspect, with their outcome",
+      "recruitingEvidenceReport reports the outbound account, not the retired selector's",
+      "recruitingEvidenceReport matches its recorded output"
+    ],
+    "server/scripts/rosterCandidatePlan.test.js": [
+      "the plan across every active NCAA programme needs the working database",
+      "the L6D cohort needs the working database",
+      "planning changes nothing needs the working database"
+    ],
+    "server/scripts/rosterGapQueue.test.js": [
+      "the NCAA residual queue 16. is NCAA only",
+      "the NCAA residual queue 17. reconciles: current-season rostered + duplicates + missing = the universe",
+      "the NCAA residual queue 26. states the live accounting, for the season it is asked about",
+      "the NCAA residual queue 27. the never-fetched three are not in the re-acquisition cohort",
+      "the NCAA residual queue separates a registry duplicate from an acquisition gap",
+      "the NCAA residual queue 15. is deterministic",
+      "the NCAA residual queue keeps the three layers in separate fields",
+      "the NCAA residual queue carries only dispositions a person actually recorded",
+      "the NCAA residual queue leaves an unreviewed gap retry-eligible, and holds only what a review held",
+      "the NCAA residual queue flags a recorded reason the live machine contradicts",
+      "the NCAA residual queue reports NO_HOST from the planner rather than from a stored label",
+      "the NCAA residual queue writes nothing",
+      "the NCAA residual queue 6/7. a pipeline reset cannot reach a review — different store entirely"
+    ],
+    "server/scripts/rosterSourceAudit.test.js": [
+      "the roster-source audit needs the working database",
+      "registry integrity, against the real registry needs the working database"
+    ],
+    "server/scripts/rosterTargetUniverse.test.js": [
+      "membership comes from the registry needs the working database",
+      "scope is isolated by sport, gender and division needs the working database",
+      "the gap it must close needs the working database"
+    ],
+    "server/scripts/verifiedDomainBackfill.test.js": [
+      "the ledger after the backfill holds every seeded host, trusted, for the institution it names",
+      "the ledger after the backfill gave each of them its own verification time",
+      "the ledger after the backfill did not promote BASE_ONLY as a class",
+      "the ledger after the backfill cannot touch roster data, because it names no other table",
+      "the ledger after the backfill stayed inside NCAA"
+    ],
+    "shared/academicMajors.test.js": [
+      "ACADEMIC_FIT, first touch qualifies a repaired alias where the programme offers the family",
+      "ACADEMIC_FIT, first touch reaches the email, in two vocabularies, where it wins the slot",
+      "ACADEMIC_FIT, first touch renders nothing at all for Martial Arts",
+      "ACADEMIC_FIT, first touch is first-touch: no sequence is involved"
+    ],
+    "shared/evidence/generalisation.test.js": [
+      "criterion 1 — no DENIED evidence renders, for any persona renders nothing the registry denies",
+      "criterion 2 — nothing renders that failed its qualification renders only kinds that reached a role",
+      "criterion 3 — a stale regional claim never opens an email refuses a regional arrival outside the recency window",
+      "criterion 3 — a stale regional claim never opens an email never renders a regional claim whose newest season is too old",
+      "criterion 4 — POSITION_FLOW_HOLD survives new profiles withholds the graduation beside a position-bearing arrival",
+      "criterion 5 — no template bypass, for any persona resolves no retired claim token",
+      "criterion 8 — academic vocabularies stay distinct says the athlete's words and the programme's label separately",
+      "criterion 8 — academic vocabularies stay distinct renders no academic claim for a persona with no major",
+      "criterion 9 — position semantics travel end to end carries the goalkeeper through generation, copy and agreement",
+      "criterion 9 — position semantics travel end to end never prints a raw position key or a broken plural",
+      "criterion 6 — the generic email stays professional says nothing about the programme when it has nothing to say",
+      "criterion 10 — K2N negative controls asserts no arrival at a programme with no recorded arrivals",
+      "criterion 10 — K2N negative controls never names the athlete's own country in the regional clause",
+      "criterion 7 — regional credibility is REPORTED, not asserted prints every regional sentence the personas produced",
+      "criterion 7 — regional credibility is REPORTED, not asserted records how many countries each regional clause enumerated",
+      "criterion 7 — regional credibility is REPORTED, not asserted records the per-sport licence both regional gates read",
+      "criterion 7 — regional credibility is REPORTED, not asserted records the tight-region isolation probe",
+      "criterion 7 — regional credibility is REPORTED, not asserted records how often the printed span disagrees with the qualifying season"
+    ],
+    "shared/evidence/k3cRemediation.test.js": [
+      "a saved template renders through the production path takes the TEMPLATE path, not the structured one",
+      "a saved template renders through the production path resolves the tokens a custom template is allowed to use",
+      "a saved template renders through the production path resolves no retired per-kind claim token",
+      "a saved template renders through the production path rejects retired and unknown tokens at validation",
+      "a saved template renders through the production path cannot synthesise programme fit with no evidence",
+      "presence opened without opening absence still refuses to read a women's zero as an observation",
+      "presence opened without opening absence lets an observed women's arrival be stated",
+      "presence opened without opening absence turns a missing row into silence, never into an absence claim",
+      "presence opened without opening absence keeps the proportion and intake-history kinds denied for every sport"
+    ]
+  }
+}

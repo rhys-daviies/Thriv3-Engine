@@ -30,7 +30,20 @@ const CASE_INSENSITIVE = process.platform === 'darwin' || process.platform === '
 
 /** Absolute, symlinks resolved, case folded where the filesystem ignores case. */
 function canonical(p) {
-  const abs = path.resolve(p);
+  let abs = path.resolve(p);
+  // Follow symlinks by hand first. realpath cannot resolve one whose target
+  // does not exist yet — the working database in a clean checkout, CI or a
+  // worktree — and opening through it would create the file at the target.
+  for (let hops = 0; hops < 40; hops += 1) {
+    let st;
+    try { st = fs.lstatSync(abs); } catch { break; }
+    if (!st.isSymbolicLink()) break;
+    // Against the parent's REAL location: the kernel applies a relative
+    // target's `..` there, not to the spelling the link was reached through.
+    let parent = path.dirname(abs);
+    try { parent = fs.realpathSync.native(parent); } catch { /* keep the spelling */ }
+    abs = path.resolve(parent, fs.readlinkSync(abs));
+  }
   let real;
   try { real = fs.realpathSync.native(abs); } catch {
     // Not there (yet): resolve the directory, which is where a symlink would be.

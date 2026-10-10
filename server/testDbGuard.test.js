@@ -52,6 +52,28 @@ describe('isWorkingDatabase — every spelling of the working path', () => {
     expect(isWorkingDatabase(link)).toBe(true);
   });
 
+  // Stand-ins that do NOT exist, as the working database does not in a clean
+  // checkout, CI or a worktree — where realpath cannot resolve a link to it.
+  it('recognises a dangling symlink to an absent database (checked against a stand-in)', () => {
+    const absent = path.join(dir, 'data', 'working.sqlite');
+    fs.mkdirSync(path.dirname(absent));
+    const link = path.join(dir, 'link.sqlite');
+    fs.symlinkSync(absent, link);
+    expect(isWorkingDatabase(link, absent)).toBe(true);
+    expect(fs.existsSync(absent)).toBe(false);
+  });
+
+  it('resolves a relative link target against the real parent, reached through a symlinked directory', () => {
+    // real/sub/l1 -> ../data/working.sqlite means real/data/working.sqlite,
+    // even when reached as linkdir/l1 with linkdir -> real/sub.
+    const absent = path.join(dir, 'real', 'data', 'working.sqlite');
+    fs.mkdirSync(path.dirname(absent), { recursive: true });
+    fs.mkdirSync(path.join(dir, 'real', 'sub'));
+    fs.symlinkSync('../data/working.sqlite', path.join(dir, 'real', 'sub', 'l1'));
+    fs.symlinkSync(path.join(dir, 'real', 'sub'), path.join(dir, 'linkdir'));
+    expect(isWorkingDatabase(path.join(dir, 'linkdir', 'l1'), absent)).toBe(true);
+  });
+
   it('recognises a hard link to it (checked against a stand-in, not the real file)', () => {
     const standIn = path.join(dir, 'working.sqlite');
     fs.writeFileSync(standIn, 'x');

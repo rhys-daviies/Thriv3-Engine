@@ -1,0 +1,128 @@
+# CI for every pull request and every push to main. See CLAUDE.md §7.
+#
+# This runs in a clean checkout, which never has the private database
+# (server/data/recruitmatch.sqlite is gitignored), so suites that need it skip.
+# tools/ci/testGate.mjs decides pass or fail, not vitest's exit code. It
+# tolerates only the exact skips and the expiring known failures listed in
+# tools/ci/test-baseline.json, and fails on anything else, including suites
+# that crashed in setup.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  critical:
+    name: Critical safety suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Pinned: the version the suite is validated on. On 24.21.0 a vitest
+          # worker aborted natively (RemoveEnvironmentCleanupHook) and its
+          # suites were reported as skipped. Move it deliberately, not by drift.
+          node-version: '24.18.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Confirm the private database is absent
+        run: test ! -e server/data/recruitmatch.sqlite
+      - name: Run critical suites
+        # No exemptions at all: every critical suite must run, pass and not skip.
+        run: |
+          set +e
+          FILES=$(node -e "console.log(require('./tools/ci/test-baseline.json').criticalSuites.join(' '))")
+          npx vitest run $FILES --reporter=default --reporter=json --outputFile.json="$RUNNER_TEMP/critical.json" 2>&1 | tee "$RUNNER_TEMP/critical.log"
+          exit 0
+      - name: Gate
+        run: node tools/ci/testGate.mjs "$RUNNER_TEMP/critical.json" --critical-only --log "$RUNNER_TEMP/critical.log"
+
+  test:
+    name: Full suite (gated)
+    # macOS, the operator platform: sending runs through Outlook automation,
+    # and trialPreflight fails by design anywhere else. The critical and build
+    # jobs stay on Linux, so the critical suites run on both.
+    runs-on: macos-latest
+    timeout-minutes: 30
+    env:
+      # Bytecode caches are interpreter noise, not test output. Suppressing them
+      # keeps the checkout-unchanged check about what tests actually write.
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Pinned: the version the suite is validated on. On 24.21.0 a vitest
+          # worker aborted natively (RemoveEnvironmentCleanupHook) and its
+          # suites were reported as skipped. Move it deliberately, not by drift.
+          node-version: '24.18.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: pip
+          cache-dependency-path: tools/roster_pipeline/requirements.txt
+      - name: Roster pipeline Python dependencies
+        run: python3 -m pip install -r tools/roster_pipeline/requirements.txt
+      - name: Confirm the private database is absent
+        run: test ! -e server/data/recruitmatch.sqlite
+      - name: Run test suite
+        # vitest's own exit code is deliberately not the verdict; the gate is.
+        # If vitest dies before writing the report, the gate fails on the
+        # missing file.
+        run: |
+          set +e
+          npx vitest run --reporter=dot --reporter=json --outputFile.json="$RUNNER_TEMP/vitest.json" 2>&1 | tee "$RUNNER_TEMP/vitest.log"
+          exit 0
+      - name: Gate
+        run: node tools/ci/testGate.mjs "$RUNNER_TEMP/vitest.json" --strict --log "$RUNNER_TEMP/vitest.log"
+      - name: Tests left the checkout unchanged
+        # A test that writes into the checkout (a stray database called `null`,
+        # a fresh working database at server/data/recruitmatch.sqlite) is
+        # touching paths the product reads. Ignored files count too; empty
+        # directories are invisible to git and so are not reported.
+        if: always()
+        run: |
+          CHANGED=$(git status --porcelain --ignored --untracked-files=all | grep -v -E '^!! node_modules/' || true)
+          if [ -n "$CHANGED" ]; then
+            echo "Tests changed the checkout:"; echo "$CHANGED"; exit 1
+          fi
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-report
+          path: |
+            ${{ runner.temp }}/vitest.json
+            ${{ runner.temp }}/vitest.log
+          retention-days: 14
+
+  build:
+    name: Build and scans
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Pinned: the version the suite is validated on. On 24.21.0 a vitest
+          # worker aborted natively (RemoveEnvironmentCleanupHook) and its
+          # suites were reported as skipped. Move it deliberately, not by drift.
+          node-version: '24.18.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Committed PII scan
+        run: npm run scan:committed-pii
+      - name: Build
+        run: npm run build

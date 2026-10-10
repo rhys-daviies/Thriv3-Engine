@@ -7,7 +7,7 @@ import {
   canonical, projectBehavioural, nonBehaviouralSites, NON_BEHAVIOURAL_FIELDS, BASELINE_NOW,
 } from './evidenceBaseline.js';
 import { rosterFreshness, FRESHNESS, FRESH_DAYS, ACCEPTABLE_DAYS } from '../../shared/evidence/freshness.js';
-import { workingCorpusCopy } from '../testCorpus.js';
+import { workingCorpusCopy, describeWithCorpus } from '../testCorpus.js';
 
 /**
  * L7D2 — a behavioural baseline hashes what is true, not when we looked.
@@ -144,7 +144,7 @@ describe('the projection is narrow and says where it applies', () => {
   });
 });
 
-const d = HAVE_DB ? describe : describe.skip;
+const d = describeWithCorpus(HAVE_DB);
 if (!HAVE_DB) console.warn(`\n  baselineProvenance.test.js DB section SKIPPED — no database at ${DB}\n`);
 
 const inDb = (expr) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `

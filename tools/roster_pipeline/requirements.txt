@@ -1,0 +1,11 @@
+# Python dependencies of the roster pipeline (tools/roster_pipeline) and of the
+# vitest suites that run it. Pinned to the versions it is developed and tested
+# with locally; CI installs exactly these. Playwright's browsers are not needed
+# for the tests and are not installed by CI.
+beautifulsoup4==4.14.3
+# The parser backend: every BeautifulSoup(html, 'lxml') call needs it, and
+# without it the pipeline cannot read a page at all.
+lxml==6.1.1
+soupsieve==2.8.4
+requests==2.32.5
+playwright==1.60.0

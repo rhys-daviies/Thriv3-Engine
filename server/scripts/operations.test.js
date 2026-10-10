@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fileCorpusOr } from '../db/corpusIdentity.js';
-import { workingCorpusCopy } from '../testCorpus.js';
+import { workingCorpusCopy, describeWithCorpus } from '../testCorpus.js';
 
 /**
  * The commands, run as commands.
@@ -32,7 +32,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 /* L7ZO: obey an explicitly selected corpus; see `fileCorpusOr`. */
 const DB = fileCorpusOr(workingCorpusCopy('operations'));
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
-const d = HAVE_DB ? describe : describe.skip;
+const d = describeWithCorpus(HAVE_DB);
 if (!HAVE_DB) {
   // eslint-disable-next-line no-console
   console.warn(`\n  operations.test.js SKIPPED — no working database at ${DB}.`

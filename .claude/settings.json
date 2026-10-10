@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm test*)",
+      "Bash(npx vitest run *)",
+      "Bash(npm run test:*)",
+      "Bash(npm run build)",
+      "Bash(npm run scan:committed-pii)",
+      "Bash(node tools/ci/testGate.mjs*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git fetch*)",
+      "Bash(git push -u origin *)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr checks*)",
+      "Bash(gh pr diff*)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr create*)",
+      "Bash(gh pr edit*)",
+      "Bash(gh run view*)",
+      "Bash(gh run list*)"
+    ],
+    "ask": [
+      "Bash(gh pr merge*)",
+      "Bash(gh pr ready*)",
+      "Bash(git merge*)",
+      "Bash(npm run integrity:promote*)",
+      "Bash(npm run integrity:freeze*)",
+      "Bash(npm run integrity:protected-correct*)",
+      "Bash(npm run integrity:refresh*)",
+      "Bash(npm run migrate*)",
+      "Bash(npm run seed*)",
+      "Bash(npm run import*)",
+      "Bash(npm run coaching-import*)",
+      "Bash(npm run suppress*)",
+      "Bash(npm run operator*)",
+      "Bash(npm run confirm-sends*)",
+      "Bash(npm run retire-profile*)",
+      "Bash(npm run publish*)",
+      "Bash(npm run edge:schema*)",
+      "Bash(*wrangler deploy*)",
+      "Bash(*wrangler d1 execute*)",
+      "Bash(*wrangler secret*)",
+      "Bash(sqlite3 *server/data/*)",
+      "Bash(gh secret*)",
+      "Bash(gh variable*)",
+      "Bash(gh repo edit*)",
+      "Bash(gh api *protection*)",
+      "Bash(gh api -X *)",
+      "Bash(gh api --method *)",
+      "Bash(gh workflow run*)",
+      "Bash(gh release*)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f)",
+      "Bash(git push * main)",
+      "Bash(git push * HEAD:main*)",
+      "Bash(git push * :main*)",
+      "Bash(git commit * --no-verify*)"
+    ]
+  }
+}
