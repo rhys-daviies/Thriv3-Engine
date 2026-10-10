@@ -21,13 +21,16 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const DB = workingCorpusCopy('rosterTargetUniverse');
 const d = fs.existsSync(DB) ? describe : describe.skip;
 
-const universe = () => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
+// DI-08: a skipped describe still runs its body; without a corpus, spawn nothing (RECRUITMATCH_DB would be the string 'null', which used to create ./null and now refuses).
+const universe = () => (fs.existsSync(DB) ? universeOnCorpus() : null);
+const universeOnCorpus = () => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
   process.env.RECRUITMATCH_DB = ${JSON.stringify(DB)};
   const { rosterTargetUniverse } = await import(${JSON.stringify(path.join(ROOT, 'server/scripts/rosterTargetUniverse.js'))});
   process.stdout.write(JSON.stringify(rosterTargetUniverse()));
 `], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
 
-const rostered = () => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
+const rostered = () => (fs.existsSync(DB) ? rosteredOnCorpus() : null);
+const rosteredOnCorpus = () => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
   process.env.RECRUITMATCH_DB = ${JSON.stringify(DB)};
   const { default: db } = await import(${JSON.stringify(path.join(ROOT, 'server/db/client.js'))});
   process.stdout.write(JSON.stringify(db.prepare(

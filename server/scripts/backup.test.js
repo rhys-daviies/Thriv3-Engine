@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import Database from 'better-sqlite3';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'thriv3-backup-'));
 const LIVE_DB = path.join(root, 'live', 'recruitmatch.sqlite');
@@ -39,7 +40,7 @@ beforeAll(() => {
 
   // A real database, built by the application's own schema and migrations, so
   // this rehearses the shape that would actually be restored.
-  run(['-e', "import('./server/db/client.js').then(() => process.exit(0))"]);
+  migratedDbFile(LIVE_DB);   // DI-08: through the authorised migration; an import no longer builds a file
 
   const db = new Database(LIVE_DB);
   db.pragma('journal_mode = WAL');

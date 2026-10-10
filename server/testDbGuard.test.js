@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import Database from 'better-sqlite3';
 import { defaultDbPath, checkoutRoot } from './db/corpusIdentity.js';
 import { isWorkingDatabase } from './testDbGuard.js';
+import { migratedDbFile } from './testMigratedDb.js';
 
 /**
  * The guard is exercised against the REAL working path, because that is the
@@ -135,7 +136,8 @@ describe('in a child process', () => {
   });
 
   it('boots normally against anything else', () => {
-    const r = bootClient({ ...process.env, RECRUITMATCH_DB: path.join(dir, 'child.sqlite') });
+    // DI-08: the client no longer creates or migrates a file on import, so the file is initialised first.
+    const r = bootClient({ ...process.env, RECRUITMATCH_DB: migratedDbFile(path.join(dir, 'child.sqlite')) });
     expect(r.stderr).toBe('');
     expect(r.stdout).toContain('OPENED');
   });

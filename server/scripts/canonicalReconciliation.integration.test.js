@@ -18,11 +18,13 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const SCRATCH = fs.mkdtempSync(path.join(os.tmpdir(), 'recon-e2e-'));
 const PROD = path.join(SCRATCH, 'production.sqlite');
 const SOURCE = path.join(SCRATCH, 'canonical.sqlite');
+migratedDbFile(PROD); migratedDbFile(SOURCE);   // DI-08: built explicitly, not by the first import
 const ARTEFACT = path.join(SCRATCH, 'artefact.json');
 afterAll(() => fs.rmSync(SCRATCH, { recursive: true, force: true }));
 

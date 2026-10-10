@@ -20,6 +20,7 @@ import path from 'node:path';
 import os from 'node:os';
 import Database from 'better-sqlite3';
 import { corroborateFixtureCoaches } from '../testCanonicalCoaches.js';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 const REPO = path.resolve(import.meta.dirname, '../..');
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'thriv3-pc-'));
@@ -42,9 +43,7 @@ const read = (db, name, sport, flag) => JSON.parse(execFileSync('node', [DRIVER,
 
 /** Build the schema via the app's own client, then seed. */
 function build(dbPath, withReconciled) {
-  execFileSync('node', ['-e', "import('./server/db/client.js').then(() => process.exit(0))"], {
-    cwd: REPO, env: { ...process.env, RECRUITMATCH_DB: dbPath },
-  });
+  migratedDbFile(dbPath);   // DI-08: importing the client no longer builds a file's schema
   const db = new Database(dbPath);
   const coach = db.prepare(`INSERT INTO coaches
     (id, created_at, full_name, email, school, sport, position_title, email_status)

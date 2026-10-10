@@ -147,7 +147,9 @@ describe('the projection is narrow and says where it applies', () => {
 const d = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) console.warn(`\n  baselineProvenance.test.js DB section SKIPPED — no database at ${DB}\n`);
 
-const inDb = (expr) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
+// DI-08: a skipped describe still runs its body; without a corpus, spawn nothing (RECRUITMATCH_DB would be the string 'null', which used to create ./null and now refuses).
+const inDb = (expr) => (HAVE_DB ? inDbOnCorpus(expr) : null);
+const inDbOnCorpus = (expr) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
   import db from '${path.join(ROOT, 'server/db/client.js')}';
   import { canonicalCorpus, BASELINE_NOW, nonBehaviouralSites } from '${path.join(ROOT, 'server/lib/evidenceBaseline.js')}';
   import { evidenceFor } from '${path.join(ROOT, 'server/lib/evidenceQueries.js')}';

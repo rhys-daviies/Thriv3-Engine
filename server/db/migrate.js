@@ -1419,7 +1419,22 @@ export function preserveMailboxIdentityAcrossOperators(db) {
   return true;
 }
 
+/**
+ * Every migration step, in order. Unchanged in what it does; it is now two halves so that an
+ * authorised migration (server/db/migrations.js) can run the first half inside ONE transaction.
+ * Tests and the in-memory database still call this directly.
+ */
 export function migrate(db) {
+  migrateInTransaction(db);
+  migrateOutsideTransaction(db);
+}
+
+/**
+ * THE STEPS SQLITE ALLOWS INSIDE A TRANSACTION — DI-08. Everything except the Phase 1D recipient
+ * rebuild: ADD COLUMN, CREATE INDEX, the backfills, and the rebuilds that keep foreign keys ON
+ * (each of those already opens its own `db.transaction`, which nests as a SAVEPOINT).
+ */
+export function migrateInTransaction(db) {
   addMissingColumns(db, 'players', PLAYER_COLUMNS);
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_players_public_slug ON players(public_slug)');
   backfillVideoIds(db);
@@ -1613,6 +1628,15 @@ export function migrate(db) {
   }
   extendMembershipDivisions(db);
   extendRefreshObservationDatasets(db);
+}
+
+/**
+ * THE ONE STEP THAT CANNOT RUN INSIDE THE MIGRATION TRANSACTION — DI-08. The Phase 1D rebuild
+ * switches foreign keys OFF, and SQLite ignores that pragma inside a transaction, so it refuses to
+ * run in one. It is still atomic on its own terms: one guarded transaction of its own, verified by
+ * row count, row digest and foreign_key_check, rolled back whole on any mismatch.
+ */
+export function migrateOutsideTransaction(db) {
   extendOutreachRecipients(db);
 }
 
@@ -1807,7 +1831,8 @@ export function extendOutreachRecipients(db) {
       db.pragma(`foreign_keys = ${fkWas ? 'ON' : 'OFF'}`);
     }
   }
-  if (RECIPIENT_TABLES.every(exists)) ensureRecipientConstraints(db);
+  // One transaction (a SAVEPOINT when the caller already holds one): the indexes and triggers land together or not at all.
+  if (RECIPIENT_TABLES.every(exists)) db.transaction(() => ensureRecipientConstraints(db))();
   return rebuilt;
 }
 
