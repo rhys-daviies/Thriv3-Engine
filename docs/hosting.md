@@ -407,23 +407,27 @@ Not executed. Nothing is deployed.
     both still there — that is the persistence check, and the only one that
     matters.
 
-## Migrations — never on boot (DI-08)
+## Migrations — never on boot (DI-08, DI-09A)
 
-The server **does not migrate the database on start**, and nothing else does on import. A deploy
-whose code has pending migrations, or one this database has never recorded (the first deploy of
-DI-08 included), **refuses to start** with a message naming the command. The procedure is in
-[DATABASE_MIGRATIONS.md](DATABASE_MIGRATIONS.md):
+The server **never migrates the database**, and nothing else does on import. The start command runs
+a separate step first — `node server/scripts/migrateDb.js --deploy`, then `node server/index.js` only if it succeeded — which
+exits at once when the database needs nothing, and otherwise migrates only a plan whose id is
+committed in `server/db/MIGRATION_APPROVALS.json`; without one it refuses, and the server is not
+started. The procedure is in [DATABASE_MIGRATIONS.md](DATABASE_MIGRATIONS.md):
 
 1. Take the pre-deploy backup and download `database.sqlite`.
-2. Run `npm run db:status -- --db <copy>` with the code being deployed. Rehearse
-   `npm run db:migrate -- --db <copy> --approve <fp>` on the copy.
-3. Set `THRIV3_MIGRATION_APPROVAL=<fp>` on the service, then deploy. The server runs the authorised
-   migration itself before serving: exclusive lock, byte-exact backup beside the database on
-   `/data`, one transaction, verification, and a `schema_migrations` audit row.
-4. Remove the variable afterwards. A stale value matches no other state.
+2. Run `npm run db:status -- --db <copy>` on the release commit; rehearse
+   `npm run db:migrate -- --db <copy> --approve <plan>` on the copy.
+3. Commit the plan id to `server/db/MIGRATION_APPROVALS.json` in the release PR, then deploy.
+   `db:deploy` runs the authorised migration before the server: exclusive lock, byte-exact backup
+   beside the database on `/data`, one transaction, verification, and a `schema_migrations` row.
+4. Move the backup off the volume once the release is accepted.
+
+`THRIV3_MIGRATION_APPROVAL` (DI-08) is no longer read; remove it if set.
 
 The disk is not available to a pre-deploy command, and Render stops the old instance before starting
-the new one. A refused start is therefore downtime: treat a migrating deploy as a maintenance window.
+the new one. A refused start is therefore downtime: run step 2 before deploying, and treat a
+migrating deploy as a maintenance window.
 
 ## Rollback runbook
 

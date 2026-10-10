@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { fileCorpusIfPresent, missingCorpusMessage } from '../db/corpusIdentity.js';
 import { workingCorpusCopy } from '../testCorpus.js';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 /**
  * L7K — the residual queue, against the live registry.
@@ -240,7 +241,8 @@ describeQueue('the NCAA residual queue', () => {
         + 'Data Confidence,Notes,Estimated Graduation,Position';
       fs.writeFileSync(path.join(prev, 'ncaa_d2_mens_soccer_2025_rosters.csv'),
         `${SHEET}\nAlpha,CONF,A Player,Fr.,,,,,,,,https://alpha.test/sports/mens-soccer/roster/2025,high,,2029,DEFENSE\n`);
-      const db = path.join(dir, 'reviews.sqlite');
+      // DI-08: opening never creates or migrates a file; initialise it explicitly (DI-09A).
+      const db = migratedDbFile(path.join(dir, 'reviews.sqlite'));
       const write = (body) => execFileSync('node', ['--input-type=module', '-e', `
         process.env.RECRUITMATCH_DB = ${JSON.stringify(db)};
         const R = await import('${ROOT}/server/lib/rosterGapReview.js');

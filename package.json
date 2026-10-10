@@ -22,6 +22,7 @@
     "confirm-sends": "node server/scripts/confirmSends.js",
     "db:migrate": "node server/scripts/migrateDb.js",
     "db:status": "node server/scripts/migrateDb.js --status",
+    "db:deploy": "node server/scripts/migrateDb.js --deploy",
     "dev": "concurrently -k -n server,client -c blue,green \"npm:dev:server\" \"npm:dev:client\"",
     "dev:client": "vite",
     "dev:server": "node server/index.js",

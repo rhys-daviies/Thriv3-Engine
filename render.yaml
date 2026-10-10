@@ -85,7 +85,32 @@ services:
     # Pinned. An unpinned deploy tool is a deploy that changes behaviour on a
     # day nobody chose.
     buildCommand: npm ci --include=dev && npm run build && npm prune --omit=dev && npm install --no-save --no-audit --no-fund --omit=dev wrangler@4.130.0
-    startCommand: node server/index.js
+    # MIGRATE BEFORE THE SERVER, AS ITS OWN STEP — DI-09A.
+    #
+    # `db:deploy` reads RECRUITMATCH_DB (below). If the database is one this code
+    # may start on, it exits 0 at once: no lock, no write. If a migration is
+    # pending, it applies it ONLY when its plan id is committed in
+    # server/db/MIGRATION_APPROVALS.json — exclusive lock, byte-exact backup on
+    # /data, one transaction, verification, a schema_migrations row — and
+    # otherwise exits non-zero, so `&&` never starts the server on a database it
+    # was not migrated for. The server process itself never migrates.
+    #
+    # Not `preDeployCommand`: that runs on a separate instance without the
+    # persistent disk (Render's documented limitation for disk-backed services,
+    # as last checked — re-verify), so it cannot reach /data. Running here, the
+    # old instance has already been stopped (single instance + disk), which is
+    # what the exclusive lock needs.
+    #
+    # Assumes Render runs startCommand through a shell (it does for the common
+    # `npm run x && …` pattern — re-verify on the first deploy log).
+    #
+    # The `if [ -f … ]` is for ROLLBACK: if a dashboard rollback rebuilds a commit
+    # from before DI-08 while keeping this service-level start command, that
+    # commit has no migrateDb.js, and an unconditional call would stop it booting
+    # at all. Such a commit migrates itself on boot, as it always did. Any commit
+    # that has the script runs the gate, and a refusal (`|| exit 1`) never starts
+    # the server.
+    startCommand: if [ -f server/scripts/migrateDb.js ]; then node server/scripts/migrateDb.js --deploy || exit 1; fi; exec node server/index.js
     healthCheckPath: /healthz
 
     disk:

@@ -27,9 +27,16 @@
  * schema comes out different, something is pending, and the difference is exactly what the real
  * migration will do. It is the code itself answering, so it cannot drift from the code.
  *
- * A hash of the code (schema.sql + migrate.js) is the FAST PATH and the AUDIT KEY, not the
- * authority: every authorised run records it with the schema fingerprint it left behind, and a
- * database whose fingerprint and code hash both match its latest record skips the rehearsal.
+ * A hash of the code (schema.sql + migrate.js, normalised to what executes — DI-09A) is the FAST
+ * PATH and the AUDIT KEY, not the authority: every authorised run records it with the schema
+ * fingerprint it left behind, and a database whose fingerprint and code hash both match its latest
+ * record skips the rehearsal.
+ *
+ * DI-09A HARDENING (stacked on PR #92): approvals name a PLAN (kind + schema before + code + predicted
+ * after), not a fingerprint; adoption proves itself with a rolled-back dry run and a structural
+ * comparison; the audit row commits inside the migration transaction (APPLYING → COMPLETE/FAILED);
+ * drift after a recorded run and unfinished runs keep the server down; production migrates in a
+ * separate `db:deploy` step against approvals committed in MIGRATION_APPROVALS.json.
  *
  * WHAT A REHEARSAL CANNOT SEE: data. A new backfill with no schema change rehearses as nothing
  * pending, because the rehearsal has no rows. That is why the SERVER asks for more than "schema
@@ -47,6 +54,8 @@ import { fileURLToPath } from 'node:url';
 import { migrateInTransaction, migrateOutsideTransaction } from './migrate.js';
 import { refuseDisposableDatabase } from './disposableMarker.js';
 import { WITNESS_TABLES } from '../lib/dbSnapshot.js';
+import { normalisedSource } from './codeIdentity.js';
+import { structuralDifferences } from './schemaConformance.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SCHEMA_FILE = path.join(HERE, 'schema.sql');
@@ -72,25 +81,55 @@ export function readSchemaSql() {
   return fs.readFileSync(SCHEMA_FILE, 'utf8');
 }
 
-/** What this checkout's migration code is, by content. */
+/**
+ * What this checkout's migration code is — by what EXECUTES (DI-09A).
+ *
+ * `manifest` hashes schema.sql and migrate.js after normalisation (codeIdentity.js): comments and
+ * insignificant whitespace removed, string/template/regex literals kept verbatim. A comment edit no
+ * longer reads as new migration code; any change to a statement, a SQL string or the order of steps
+ * still does. The raw file hashes are kept beside it for the audit row.
+ *
+ * Version-tagged (`v2`) so a DI-08 byte-hash manifest can never collide with one of these.
+ */
 export function codeManifest() {
-  const schemaSha = sha256(fs.readFileSync(SCHEMA_FILE));
-  const migrateSha = sha256(fs.readFileSync(MIGRATE_FILE));
-  return { schemaSha, migrateSha, manifest: sha256(`schema.sql ${schemaSha}\nmigrate.js ${migrateSha}\n`) };
+  const schemaRaw = fs.readFileSync(SCHEMA_FILE);
+  const migrateRaw = fs.readFileSync(MIGRATE_FILE);
+  const schemaNorm = normalisedSource('sql', schemaRaw.toString('utf8'));
+  const migrateNorm = normalisedSource('js', migrateRaw.toString('utf8'));
+  const schemaExec = sha256(schemaNorm.text);
+  const migrateExec = sha256(migrateNorm.text);
+  return {
+    schemaSha: sha256(schemaRaw),
+    migrateSha: sha256(migrateRaw),
+    schemaExec,
+    migrateExec,
+    normalised: schemaNorm.normalised && migrateNorm.normalised,
+    manifest: sha256(`thriv3-migration-code v2\nschema.sql ${schemaExec}\nmigrate.js ${migrateExec}\n`),
+  };
 }
 
-/** The commit the code came from, and whether the two migration files differ from it. Best effort. */
+/**
+ * The commit the code came from, and whether the migration files differ from it. Best effort.
+ *
+ * RENDER_GIT_COMMIT wins when set: it is what Render built. Otherwise git — but only when the
+ * repository git finds IS this checkout (a code tree copied without .git inside some other repository
+ * would otherwise report that repository's HEAD).
+ */
 export function codeCommit() {
+  if (process.env.RENDER_GIT_COMMIT) return { commit: process.env.RENDER_GIT_COMMIT, dirty: null };
   try {
-    const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: CHECKOUT, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    const git = (args, stdio = ['ignore', 'pipe', 'ignore']) => execFileSync('git', args, { cwd: CHECKOUT, stdio }).toString().trim();
+    const top = git(['rev-parse', '--show-toplevel']);
+    if (fs.realpathSync(top) !== fs.realpathSync(CHECKOUT)) return { commit: null, dirty: null };
+    const commit = git(['rev-parse', 'HEAD']);
     let dirty = null;
     try {
-      execFileSync('git', ['diff', '--quiet', 'HEAD', '--', 'server/db/schema.sql', 'server/db/migrate.js'], { cwd: CHECKOUT, stdio: 'ignore' });
+      execFileSync('git', ['diff', '--quiet', 'HEAD', '--', 'server/db/schema.sql', 'server/db/migrate.js', 'server/db/migrations.js'], { cwd: CHECKOUT, stdio: 'ignore' });
       dirty = false;
     } catch { dirty = true; }
     return { commit, dirty };
   } catch {
-    return { commit: process.env.RENDER_GIT_COMMIT || null, dirty: null };
+    return { commit: null, dirty: null };
   }
 }
 
@@ -212,23 +251,40 @@ export function migrationRecords(db) {
   return db.prepare(`SELECT * FROM ${MIGRATIONS_TABLE} ORDER BY id DESC`).all();
 }
 
+/** A record a later run may rely on. Rows written before DI-09A have no status: they were complete. */
+const complete = (r) => (r.status ?? 'COMPLETE') === 'COMPLETE';
+
 /**
  * Where this database stands against this code, without writing anything:
  *
- *   CURRENT     the latest authorised run recorded this code and the schema is what it left
+ *   CURRENT     the latest COMPLETE authorised run recorded this code and the schema is what it left
  *   UNRECORDED  nothing is pending — the rehearsal changes nothing — but no authorised run has
  *               recorded this code version as the latest (a database from before DI-08, a code
  *               edit that changed no schema, or a schema edited out of band since)
  *   PENDING     the rehearsal changes the schema: migrations are waiting
  *   EMPTY       no schema at all: a new database, which an authorised run initialises
+ *
+ * Two flags qualify it (DI-09A):
+ *
+ *   drifted      a COMPLETE run is recorded, and the schema is no longer what that run left —
+ *                something changed it out of band since (manual DDL, another branch's code, a
+ *                pre-DI-08 process). The server will not start on a drifted database.
+ *   interrupted  the newest record is APPLYING or FAILED: an authorised run did not finish. The
+ *                schema may be at a committed intermediate state; the server will not start.
  */
 export function schemaState(db) {
   const code = codeManifest();
   const { fingerprint, objects } = schemaFingerprint(db);
   const records = migrationRecords(db);
-  const latest = records[0] ?? null;
-  const base = { fingerprint, objects, code, latest, knownCode: records.some((r) => r.code_manifest === code.manifest) };
-  if (latest && latest.code_manifest === code.manifest && latest.schema_after === fingerprint) {
+  const done = records.filter(complete);
+  const latest = done[0] ?? null;
+  const interrupted = !!records[0] && !complete(records[0]);
+  const drifted = !!latest && latest.schema_after !== fingerprint;
+  const base = {
+    fingerprint, objects, code, latest, interrupted, drifted, newest: records[0] ?? null,
+    knownCode: done.some((r) => r.code_manifest === code.manifest),
+  };
+  if (latest && !interrupted && latest.code_manifest === code.manifest && latest.schema_after === fingerprint) {
     return { ...base, state: 'CURRENT', changes: [], expectedAfter: fingerprint };
   }
   const r = rehearse(db);
@@ -241,9 +297,26 @@ export function schemaState(db) {
  * The server wants the code it runs to have been migrated onto this database by an authorised run —
  * now (CURRENT), or at some point in this database's recorded history with nothing pending since,
  * which is what a code ROLLBACK to a previously-deployed version looks like.
+ *
+ * DI-09A: "nothing since" is now checked, not assumed. A rollback leaves the schema exactly where the
+ * latest COMPLETE run put it; out-of-band DDL does not. And an interrupted run never starts.
  */
 export function serverMayStart(state) {
-  return state.state === 'CURRENT' || (state.state === 'UNRECORDED' && state.knownCode);
+  if (state.interrupted) return false;
+  return state.state === 'CURRENT' || (state.state === 'UNRECORDED' && state.knownCode && !state.drifted);
+}
+
+/**
+ * THE PLAN AN APPROVAL NAMES — DI-09A.
+ *
+ * DI-08 approved the database's current schema fingerprint. That binds the approval to the database's
+ * state but not to the CODE: an operator who rehearsed release A on a copy, and then deployed release B
+ * (another PR merged in between), approved B's migration without ever seeing it. The plan id binds all
+ * four: what is done (kind), to which state (schema before), by which code (manifest), with what
+ * predicted result (schema after). Anything else is a different plan and needs its own approval.
+ */
+export function planFor(state, kind) {
+  return sha256(JSON.stringify(['thriv3-migration-plan v1', kind, state.fingerprint, state.code.manifest, state.expectedAfter ?? null]));
 }
 
 /* ------------------------------------------------------------------------- messages */
@@ -266,11 +339,17 @@ export function describeState(state) {
   if (state.latest) lines.push(`  last recorded run   #${state.latest.id} ${state.latest.kind} ${state.latest.finished_at} by ${state.latest.operator}`
     + ` (code ${state.latest.code_commit ?? 'unknown'})`);
   else lines.push('  last recorded run   none — no authorised migration has been recorded in this database');
+  if (state.interrupted) lines.push(`  INTERRUPTED         run #${state.newest.id} is ${state.newest.status}: an authorised migration did not finish — see its row and backup ${state.newest.backup_path ?? '(none)'}`);
+  if (state.drifted) lines.push(`  DRIFTED             the schema is not what run #${state.latest.id} left (${state.latest.schema_after.slice(0, 16)}…): it was changed out of band since`);
   if (state.error) lines.push(`  rehearsal           ${state.error}`);
   if (state.changes?.length) {
     lines.push(`  pending changes     ${state.changes.length}`);
     for (const c of state.changes.slice(0, 40)) lines.push(`      ${c}`);
     if (state.changes.length > 40) lines.push(`      … ${state.changes.length - 40} more`);
+  }
+  if (state.state !== 'CURRENT' && !state.error) {
+    lines.push(`  plan to approve     MIGRATE ${planFor(state, 'MIGRATE')}`);
+    if (state.state === 'UNRECORDED') lines.push(`                      ADOPT   ${planFor(state, 'ADOPT')}   (record only; verified first)`);
   }
   return lines.join('\n');
 }
@@ -280,15 +359,20 @@ export function refusal(dbPath, state, { server = false } = {}) {
   const why = {
     PENDING: 'its schema is behind this code — migrations are pending',
     EMPTY: 'it has no schema — it has never been initialised',
-    UNRECORDED: 'no authorised migration has recorded this code version against it (nothing schema-level is pending, but data steps in migrate() may be)',
+    UNRECORDED: state.drifted
+      ? 'its schema was changed out of band since the last authorised migration recorded it'
+      : 'no authorised migration has recorded this code version against it (nothing schema-level is pending, but data steps in migrate() may be)',
   }[state.state] ?? state.state;
+  const why2 = state.interrupted ? `an authorised migration (run #${state.newest.id}) did not finish; ${why}` : why;
   return new SchemaNotCurrentError(
-    `Refusing to ${server ? 'start the server on' : 'use'} ${dbPath}: ${why}.\n`
+    `Refusing to ${server ? 'start the server on' : 'use'} ${dbPath}: ${why2}.\n`
     + `${describeState(state)}\n\n`
     + '  Opening the database never migrates it (DI-08). Migrate it explicitly — rehearse on a copy first:\n\n'
-    + `      ${MIGRATE_CMD(dbPath)}                  # shows the plan and the fingerprint to approve\n`
-    + `      ${MIGRATE_CMD(dbPath)} --approve ${state.fingerprint}\n`
-    + (state.state === 'UNRECORDED' ? `      ${MIGRATE_CMD(dbPath)} --adopt --approve ${state.fingerprint}   # record only, run nothing\n` : '')
+    + `      ${MIGRATE_CMD(dbPath)}                  # shows the plan and the plan id to approve\n`
+    + `      ${MIGRATE_CMD(dbPath)} --approve ${planFor(state, 'MIGRATE')}\n`
+    + (state.state === 'UNRECORDED' ? `      ${MIGRATE_CMD(dbPath)} --adopt --approve ${planFor(state, 'ADOPT')}   # record only, after verification\n` : '')
+    + (server ? '  In production the start command runs `npm run db:deploy` first, which applies a plan only if\n'
+      + '  server/db/MIGRATION_APPROVALS.json names it.\n' : '')
     + (state.state === 'EMPTY' && state.objects === 0 ? '      (add --create if the file does not exist yet)\n' : '')
     + '\n  See docs/DATABASE_MIGRATIONS.md.',
     state,
@@ -306,12 +390,13 @@ export class MigrationRefused extends Error {
   }
 }
 
+
 const APPROVAL_MIN = 16;
-/** The fingerprint of a database with no schema at all: what `--create` approves. */
+/** The fingerprint of a database with no schema at all. `--create` accepts it as well as the plan id: there is no data to protect. */
 export const EMPTY_FINGERPRINT = sha256('');
-function approves(approval, fingerprint) {
+function approves(approval, plan) {
   const a = String(approval ?? '').trim().toLowerCase();
-  return a.length >= APPROVAL_MIN && /^[0-9a-f]+$/.test(a) && fingerprint.startsWith(a);
+  return a.length >= APPROVAL_MIN && /^[0-9a-f]+$/.test(a) && plan.startsWith(a);
 }
 
 export function rollbackInstructions(dbPath, backup) {
@@ -320,16 +405,31 @@ export function rollbackInstructions(dbPath, backup) {
   return [
     'ROLLBACK — only if this migration must be undone:',
     `  1. Stop every process using the database (server, scripts). Check: lsof ${q(dbPath)}`,
-    `  2. cp ${q(backup.path)} ${q(`${dbPath}.restore-tmp`)} && mv ${q(`${dbPath}.restore-tmp`)} ${q(dbPath)}`,
+    // The backup is read-only (0444) and `cp` copies that mode: without the chmod the restored database
+    // refuses every write ("attempt to write a readonly database") — DI-09A.
+    `  2. cp ${q(backup.path)} ${q(`${dbPath}.restore-tmp`)} && chmod 0644 ${q(`${dbPath}.restore-tmp`)} && mv ${q(`${dbPath}.restore-tmp`)} ${q(dbPath)}`,
     `  3. rm -f ${q(`${dbPath}-wal`)} ${q(`${dbPath}-shm`)}        (with nothing running)`,
     `  4. shasum -a 256 ${q(dbPath)}   → must print ${backup.sha256}`,
     '  The backup is a byte-exact copy of the database as it was immediately before this run.',
   ].join('\n');
 }
 
+/**
+ * The audit table. DI-09A adds `status`, `plan` and `verification`:
+ *
+ *   status        APPLYING is written INSIDE the migration transaction, so the schema change and the
+ *                 record of it commit together; COMPLETE once every step and the verification pass;
+ *                 FAILED when a step after the commit, or the verification, fails. A crash between
+ *                 the commit and the end therefore leaves an APPLYING row — never an unrecorded change
+ *   plan          the plan id that was approved (planFor)
+ *   verification  JSON: what was checked — the structural comparison with the code's schema, and for
+ *                 ADOPT the dry run's row count
+ */
 const RECORD_DDL = `CREATE TABLE IF NOT EXISTS ${MIGRATIONS_TABLE} (
   id INTEGER PRIMARY KEY,
   kind TEXT NOT NULL CHECK (kind IN ('MIGRATE', 'ADOPT', 'CREATE')),
+  status TEXT NOT NULL DEFAULT 'COMPLETE' CHECK (status IN ('APPLYING', 'COMPLETE', 'FAILED')),
+  plan TEXT,
   started_at TEXT NOT NULL,
   finished_at TEXT NOT NULL,
   operator TEXT NOT NULL,
@@ -347,7 +447,9 @@ const RECORD_DDL = `CREATE TABLE IF NOT EXISTS ${MIGRATIONS_TABLE} (
   backup_sha256 TEXT,
   integrity_check TEXT NOT NULL,
   foreign_key_violations_before INTEGER NOT NULL,
-  foreign_key_violations_after INTEGER NOT NULL
+  foreign_key_violations_after INTEGER NOT NULL,
+  verification TEXT,
+  error TEXT
 )`;
 
 /** Take the exclusive lock, or say who has the database. */
@@ -365,6 +467,14 @@ function lockExclusively(db, dbPath) {
   }
 }
 
+/** Free bytes on the filesystem holding `dir`, or null where statfs is unavailable. */
+function freeBytes(dir) {
+  try {
+    const s = fs.statfsSync(dir);
+    return Number(s.bavail) * Number(s.bsize);
+  } catch { return null; }
+}
+
 /**
  * A byte-exact copy, verified. Taken while THIS connection holds the exclusive lock and after a
  * TRUNCATE checkpoint has folded the WAL into the main file — so, unlike the 13J `cp`, the main
@@ -372,6 +482,11 @@ function lockExclusively(db, dbPath) {
  * (lib/dbSnapshot.js) or the backup API (scripts/backup.js) because a rollback must bring back the
  * very sha256 every DI baseline records; those two produce an equivalent database with different
  * bytes. Then opened and checked like theirs: integrity_check, and the same witness counts.
+ *
+ * DI-09A: refuses BEFORE copying when the destination's filesystem cannot hold the copy plus the
+ * room the migration itself needs (a 5 GB Render disk holds the database, its uploads and reports,
+ * and every earlier backup left beside it); a copy that fails part-way is removed rather than left
+ * to fill the disk.
  */
 function backupExact(db, dbPath, dest) {
   const ck = db.pragma('wal_checkpoint(TRUNCATE)')[0];
@@ -380,8 +495,20 @@ function backupExact(db, dbPath, dest) {
   if (fs.existsSync(wal) && fs.statSync(wal).size > 0) throw new MigrationRefused(`Refusing to migrate ${dbPath}: its WAL still holds frames after a checkpoint.`);
   if (fs.existsSync(dest)) throw new MigrationRefused(`Refusing to overwrite an existing backup at ${dest}`);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
+  const size = fs.statSync(dbPath).size;
+  const need = Math.ceil(size * 1.25) + 64 * 1024 * 1024; // the copy, plus headroom for the WAL the migration writes
+  const free = freeBytes(path.dirname(dest));
+  if (free !== null && free < need) {
+    throw new MigrationRefused(`Refusing to migrate ${dbPath}: ${path.dirname(dest)} has ${free} bytes free; the backup and the migration need about ${need}. `
+      + 'Free space (move older PRE_MIGRATION backups off the volume) or pass --backup <path> on another filesystem.');
+  }
   const sourceSha = sha256File(dbPath);
-  fs.copyFileSync(dbPath, dest, fs.constants.COPYFILE_EXCL);
+  try {
+    fs.copyFileSync(dbPath, dest, fs.constants.COPYFILE_EXCL);
+  } catch (e) {
+    fs.rmSync(dest, { force: true });
+    throw new MigrationRefused(`Refusing to migrate ${dbPath}: the backup copy to ${dest} failed (${e.code ?? e.message}); the partial copy was removed.`);
+  }
   const backupSha = sha256File(dest);
   if (backupSha !== sourceSha) throw new MigrationRefused(`The backup at ${dest} does not match the database byte for byte.`);
   const counts = (h) => Object.fromEntries(WITNESS_TABLES.map((t) => {
@@ -407,23 +534,93 @@ export function defaultBackupPath(dbPath, now = new Date()) {
   return `${dbPath}.snapshot-PRE_MIGRATION-${now.toISOString().replace(/[:.]/g, '-')}`;
 }
 
+/** The schema this code builds on an empty database: the reference adoption is compared with. */
+function referenceSchema() {
+  const ref = new Database(':memory:');
+  ref.pragma('foreign_keys = ON');
+  applyMigrations(ref);
+  return ref;
+}
+
+/** Structural differences between `db` and what this code builds. */
+export function conformance(db) {
+  const ref = referenceSchema();
+  try { return structuralDifferences(ref, db, MIGRATIONS_TABLE); } finally { ref.close(); }
+}
+
+const DRY_RUN = Symbol('dry-run rollback');
+
 /**
- * THE AUTHORISED MIGRATION. Synchronous, so the server can run it before it opens its own handle.
+ * ADOPTION PROVES WHAT IT RECORDS — DI-09A.
  *
- *   dbPath     an explicit file — never ':memory:', never implied
- *   approve    the database's CURRENT schema fingerprint (or a ≥16-hex prefix of it), as printed by
- *              a plan run. It binds the approval to the exact state that was rehearsed: a stale
- *              approval, or one meant for a different database state, matches nothing
- *   adopt      record this code version against a database that needs nothing, running nothing
- *   create     initialise a file that does not exist yet
- *   backupPath where the byte-exact pre-migration copy goes (default beside the database)
- *   operator   who; defaults to the OS user
+ * DI-08's `--adopt` recorded any database the rehearsal found nothing pending for. A rehearsal has no
+ * rows and only sees what the migration's guards look for, so adoption could certify (a) a database
+ * whose pending DATA backfill would never then run, and (b) a schema that differs from the code's in
+ * ways the migration does not check. Adoption now verifies both before it records anything:
+ *
+ *   1. DRY RUN on the real database, under the exclusive lock: schema.sql and every migration step in
+ *      ONE transaction that is always rolled back. Any row it would write, or any schema change, means
+ *      the database is not merely unrecorded: refuse, and say to MIGRATE instead.
+ *   2. STRUCTURE: compare with the schema this code builds on an empty database (schemaConformance.js).
+ *      Any extra, missing or different object is refused — unless the operator accepts THAT EXACT set
+ *      of differences by its digest (`--accept-drift <digest>`), and then the differences are written
+ *      into the audit row, so the record says what was adopted rather than implying a clean schema.
+ */
+function verifyAdoption(db, file, state, acceptDrift) {
+  let dryRows = null; let dryFingerprint = null;
+  db.pragma('foreign_keys = ON'); // as a real migration runs
+  const c0 = db.prepare('SELECT total_changes() n').get().n;
+  try {
+    db.transaction(() => {
+      db.exec(readSchemaSql());
+      migrateInTransaction(db);
+      migrateOutsideTransaction(db); // with nothing pending its rebuild is skipped; it throws inside a transaction otherwise
+      dryRows = db.prepare('SELECT total_changes() n').get().n - c0;
+      dryFingerprint = schemaFingerprint(db).fingerprint;
+      throw DRY_RUN;
+    }).immediate();
+  } catch (e) {
+    if (e !== DRY_RUN) {
+      throw new MigrationRefused(`Refusing to adopt ${file}: the dry run of this code's migration failed (${e.message}). Run without --adopt after rehearsing on a copy.`, { state });
+    }
+  }
+  if (schemaFingerprint(db).fingerprint !== state.fingerprint) throw new Error('verifyAdoption: the dry run did not roll back');
+  if (dryRows !== 0 || dryFingerprint !== state.fingerprint) {
+    throw new MigrationRefused(`Refusing to adopt ${file}: this code's migration is not a no-op on it — the dry run would write ${dryRows} row(s)`
+      + `${dryFingerprint !== state.fingerprint ? ' and change the schema' : ''} (a data step is pending). Run the migration instead of adopting:\n`
+      + `      npm run db:migrate -- --db ${file} --approve ${planFor(state, 'MIGRATE')}`, { state });
+  }
+  const structure = conformance(db);
+  if (structure.differences.length && !approves(acceptDrift, structure.digest)) {
+    throw new MigrationRefused(`Refusing to adopt ${file}: its schema differs from the schema this code builds, in ${structure.differences.length} way(s)`
+      + ' the migration does not repair:\n'
+      + structure.differences.slice(0, 60).map((l) => `      ${l}`).join('\n')
+      + (structure.differences.length > 60 ? `\n      … ${structure.differences.length - 60} more` : '')
+      + `\n\n  Adopting would record this database as CURRENT and hide these. Repair them, or accept exactly these differences:\n`
+      + `      --accept-drift ${structure.digest}\n  (they are then written into the audit row).`, { state, structure, approvalRequired: true });
+  }
+  return { dryRunRowChanges: dryRows, dryRunSchemaUnchanged: true, structure, acceptedDrift: structure.differences.length ? structure.digest : null };
+}
+
+/**
+ * THE AUTHORISED MIGRATION. Synchronous.
+ *
+ *   dbPath      an explicit file — never ':memory:', never implied
+ *   approve     the PLAN ID (or a ≥16-hex prefix of it) printed by a plan run: planFor(state, kind),
+ *               which binds the kind, the database's current schema, this code and the predicted
+ *               result (DI-09A). `--create` also accepts EMPTY_FINGERPRINT
+ *   adopt       record this code version against a database that needs nothing — verified first by a
+ *               rolled-back dry run and a structural comparison (verifyAdoption)
+ *   acceptDrift with adopt: the digest of the structural differences the operator accepts
+ *   create      initialise a file that does not exist yet
+ *   backupPath  where the byte-exact pre-migration copy goes (default beside the database)
+ *   operator    who; defaults to the OS user
  *
  * Without a matching approval it changes nothing and throws MigrationRefused carrying the plan.
  * Returns { applied, kind, before, after, backup, record, changes, rowsWritten }.
  */
 export function migrateDatabase({
-  dbPath, approve, adopt = false, create = false, backupPath, operator, now = () => new Date(), log = () => {},
+  dbPath, approve, adopt = false, create = false, acceptDrift, backupPath, operator, now = () => new Date(), log = () => {},
 } = {}) {
   if (!dbPath || String(dbPath).trim() === ':memory:') throw new MigrationRefused('An authorised migration needs an explicit database file (--db <path>).');
   const file = path.resolve(String(dbPath).trim());
@@ -431,13 +628,15 @@ export function migrateDatabase({
   if (!exists && !create) throw new MigrationRefused(`No database at ${file}. Pass --create to initialise a new one.`);
   if (exists && create) throw new MigrationRefused(`--create was given, but ${file} already exists.`);
   if (adopt && create) throw new MigrationRefused('--adopt records an existing database; it cannot create one.');
-  if (create && !approves(approve, EMPTY_FINGERPRINT)) {
-    // Refused before the file is opened, so an unapproved --create leaves nothing behind.
+  if (create) {
     const empty = new Database(':memory:');
     let state;
     try { state = schemaState(empty); } finally { empty.close(); }
-    throw new MigrationRefused(`Not approved: ${file} would be created and initialised:\n${describeState(state)}\n\n`
-      + `  To create it, pass --create --approve ${EMPTY_FINGERPRINT}`, { state, approvalRequired: true });
+    if (!approves(approve, planFor(state, 'CREATE')) && !approves(approve, EMPTY_FINGERPRINT)) {
+      // Refused before the file is opened, so an unapproved --create leaves nothing behind.
+      throw new MigrationRefused(`Not approved: ${file} would be created and initialised:\n${describeState(state)}\n\n`
+        + `  To create it, pass --create --approve ${planFor(state, 'CREATE')}`, { state, approvalRequired: true });
+    }
   }
 
   const db = new Database(file, { fileMustExist: exists, timeout: 0 });
@@ -456,41 +655,101 @@ export function migrateDatabase({
     if (state.error) {
       throw new MigrationRefused(`Refusing to migrate ${file}: ${state.error}.\n${describeState(state)}`, { state });
     }
-    if (!approves(approve, state.fingerprint)) {
+    const kind = create ? 'CREATE' : adopt ? 'ADOPT' : 'MIGRATE';
+    const plan = planFor(state, kind);
+    if (!create && !approves(approve, plan)) {
       throw new MigrationRefused(
-        `${approve ? 'The approval does not match' : 'Not approved'}: ${file} would be ${adopt ? 'adopted' : 'migrated'} from this state:\n`
+        `${approve ? 'The approval does not match this plan' : 'Not approved'}: ${file} would be ${adopt ? 'adopted' : 'migrated'} from this state:\n`
         + `${describeState(state)}\n\n`
-        + `  To apply, rehearse on a copy, then pass --approve ${state.fingerprint}`,
-        { state, approvalRequired: true },
+        + '  An approval names a PLAN — kind, current schema, this code and the predicted result — not just the database.\n'
+        + `  To apply, rehearse on a copy, then pass --approve ${plan}`,
+        { state, approvalRequired: true, plan },
       );
     }
 
+    const verification = adopt ? verifyAdoption(db, file, state, acceptDrift) : null;
+
     const startedAt = now().toISOString();
-    const kind = create ? 'CREATE' : adopt ? 'ADOPT' : 'MIGRATE';
     const backup = exists ? backupExact(db, file, backupPath ? path.resolve(backupPath) : defaultBackupPath(file, now())) : null;
     if (backup) log(`Backup ${backup.path}\n  sha256 ${backup.sha256}  integrity_check ${backup.integrity}`);
 
+    const { commit, dirty } = codeCommit();
+    const record = {
+      kind,
+      status: 'APPLYING',
+      plan,
+      started_at: startedAt,
+      finished_at: '',
+      operator: operator || process.env.THRIV3_OPERATOR || os.userInfo().username,
+      approval: String(approve).trim().toLowerCase(),
+      code_commit: commit,
+      code_dirty: dirty === null ? null : Number(dirty),
+      code_manifest: state.code.manifest,
+      schema_sql_sha256: state.code.schemaSha,
+      migrate_js_sha256: state.code.migrateSha,
+      schema_before: state.fingerprint,
+      schema_after: '',
+      changes: JSON.stringify(state.changes),
+      rows_written: 0,
+      backup_path: backup?.path ?? null,
+      backup_sha256: backup?.sha256 ?? null,
+      integrity_check: '',
+      foreign_key_violations_before: 0,
+      foreign_key_violations_after: 0,
+      verification: verification ? JSON.stringify(verification) : null,
+      error: null,
+    };
+    const insert = () => {
+      db.exec(RECORD_DDL);
+      const cols = Object.keys(record).filter((k) => k !== 'id');
+      record.id = Number(db.prepare(`INSERT INTO ${MIGRATIONS_TABLE} (${cols.join(', ')}) VALUES (${cols.map((c) => `@${c}`).join(', ')})`).run(record).lastInsertRowid);
+    };
+    const finish = (fields) => {
+      Object.assign(record, fields);
+      const cols = Object.keys(fields);
+      db.prepare(`UPDATE ${MIGRATIONS_TABLE} SET ${cols.map((c) => `${c} = @${c}`).join(', ')} WHERE id = @id`).run({ ...fields, id: record.id });
+    };
+
     const fkBefore = db.pragma('foreign_key_check');
+    record.foreign_key_violations_before = fkBefore.length;
     let rowsWritten = 0;
     if (!adopt) {
       db.pragma('journal_mode = WAL');
       db.pragma('foreign_keys = ON');
       const c0 = db.prepare('SELECT total_changes() n').get().n;
       try {
-        applyMigrations(db);
+        // The APPLYING row commits WITH the schema change (DI-09A), so no crash can leave one without the other.
+        db.transaction(() => {
+          db.exec(readSchemaSql());
+          migrateInTransaction(db);
+          insert();
+        }).immediate();
       } catch (e) {
-        const partial = e.migrationPhase === 'OUTSIDE_TRANSACTION';
+        writeFailureReport(backup, { phase: 'TRANSACTIONAL', error: e.message, plan, file });
         throw new MigrationRefused(
-          `MIGRATION FAILED (${e.migrationPhase ?? 'unknown phase'}): ${e.message}\n`
-          + (partial
-            ? '  schema.sql and the transactional steps COMMITTED; the outside-transaction step rolled itself back.\n'
-              + '  The database is at a coherent intermediate schema. Restore the backup, or fix and re-run.\n'
-            : '  The transaction rolled back: the database is unchanged.\n')
+          `MIGRATION FAILED (TRANSACTIONAL): ${e.message}\n`
+          + '  The transaction rolled back: the database is unchanged.\n'
           + rollbackInstructions(file, backup),
-          { cause: e, backup, partial, failed: true },
+          { cause: e, backup, partial: false, failed: true },
         );
       }
-      rowsWritten = db.prepare('SELECT total_changes() n').get().n - c0;
+      try {
+        migrateOutsideTransaction(db);
+      } catch (e) {
+        finish({ status: 'FAILED', finished_at: now().toISOString(), error: `OUTSIDE_TRANSACTION: ${e.message}`, schema_after: schemaFingerprint(db).fingerprint });
+        writeFailureReport(backup, { phase: 'OUTSIDE_TRANSACTION', error: e.message, plan, file });
+        throw new MigrationRefused(
+          `MIGRATION FAILED (OUTSIDE_TRANSACTION): ${e.message}\n`
+          + '  schema.sql and the transactional steps COMMITTED (recorded as FAILED run #' + record.id + '); the outside-transaction step rolled itself back.\n'
+          + '  The database is at a coherent intermediate schema. Restore the backup, or fix and re-run.\n'
+          + rollbackInstructions(file, backup),
+          { cause: e, backup, partial: true, failed: true },
+        );
+      }
+      // Minus the audit row itself.
+      rowsWritten = db.prepare('SELECT total_changes() n').get().n - c0 - 1;
+    } else {
+      db.transaction(insert).immediate();
     }
 
     const integrity = db.pragma('integrity_check', { simple: true });
@@ -502,42 +761,92 @@ export function migrateDatabase({
     if (integrity !== 'ok') problems.push(`integrity_check: ${integrity}`);
     if (newViolations.length) problems.push(`${newViolations.length} new foreign_key_check violation(s)`);
     if (after !== state.expectedAfter) problems.push(`schema fingerprint ${after} is not the rehearsed ${state.expectedAfter}`);
-    if (problems.length) {
-      throw new MigrationRefused(`MIGRATION VERIFICATION FAILED after commit: ${problems.join('; ')}.\n${rollbackInstructions(file, backup)}`, { backup, failed: true });
-    }
-
-    const { commit, dirty } = codeCommit();
-    const record = {
-      kind,
-      started_at: startedAt,
-      finished_at: now().toISOString(),
-      operator: operator || process.env.THRIV3_OPERATOR || os.userInfo().username,
-      approval: String(approve).trim().toLowerCase(),
-      code_commit: commit,
-      code_dirty: dirty === null ? null : Number(dirty),
-      code_manifest: state.code.manifest,
-      schema_sql_sha256: state.code.schemaSha,
-      migrate_js_sha256: state.code.migrateSha,
-      schema_before: state.fingerprint,
-      schema_after: after,
-      changes: JSON.stringify(state.changes),
-      rows_written: rowsWritten,
-      backup_path: backup?.path ?? null,
-      backup_sha256: backup?.sha256 ?? null,
-      integrity_check: integrity,
-      foreign_key_violations_before: fkBefore.length,
-      foreign_key_violations_after: fkAfter.length,
+    const structure = verification?.structure ?? conformance(db);
+    const verified = { ...(verification ?? {}), structure };
+    const common = {
+      finished_at: now().toISOString(), schema_after: after, rows_written: rowsWritten, integrity_check: integrity,
+      foreign_key_violations_after: fkAfter.length, verification: JSON.stringify(verified),
     };
-    db.transaction(() => {
-      db.exec(RECORD_DDL);
-      const cols = Object.keys(record);
-      record.id = Number(db.prepare(`INSERT INTO ${MIGRATIONS_TABLE} (${cols.join(', ')}) VALUES (${cols.map((c) => `@${c}`).join(', ')})`).run(record).lastInsertRowid);
-    }).immediate();
+    if (problems.length) {
+      finish({ ...common, status: 'FAILED', error: `VERIFICATION: ${problems.join('; ')}` });
+      writeFailureReport(backup, { phase: 'VERIFICATION', error: problems.join('; '), plan, file });
+      throw new MigrationRefused(`MIGRATION VERIFICATION FAILED after commit (recorded as FAILED run #${record.id}): ${problems.join('; ')}.\n${rollbackInstructions(file, backup)}`, { backup, failed: true });
+    }
+    db.transaction(() => finish({ ...common, status: 'COMPLETE' })).immediate();
     log(`${kind} recorded as ${MIGRATIONS_TABLE} #${record.id}: ${state.fingerprint.slice(0, 16)}… → ${after.slice(0, 16)}…`
       + ` (${state.changes.length} schema change(s), ${rowsWritten} row(s) written)`);
+    if (structure.differences.length) {
+      log(`NOTE: the schema differs from what this code builds on an empty database in ${structure.differences.length} way(s) (digest ${structure.digest.slice(0, 16)}…);`
+        + ' recorded in the audit row\'s `verification`.');
+    }
     log(rollbackInstructions(file, backup));
-    return { applied: true, kind, before: state.fingerprint, after, backup, record, changes: state.changes, rowsWritten, state };
+    return { applied: true, kind, before: state.fingerprint, after, backup, record, changes: state.changes, rowsWritten, state, verification: verified };
   } finally {
     if (!closed) { try { db.close(); } catch { /* closed */ } }
   }
+}
+
+/** A failed run that rolled back leaves no row (the database is unchanged); it leaves this beside its backup. */
+function writeFailureReport(backup, report) {
+  if (!backup) return;
+  try {
+    fs.writeFileSync(`${backup.path}.FAILED.json`, `${JSON.stringify({ ...report, at: new Date().toISOString(), backup: backup.path, backup_sha256: backup.sha256 }, null, 2)}\n`, { flag: 'wx' });
+  } catch { /* best effort: the error is thrown to the operator regardless */ }
+}
+
+/* ------------------------------------------------------------------- the deploy gate */
+
+/** Where production approvals live: in the repository, reviewed like code, deployed with it. */
+export const APPROVALS_FILE = path.join(HERE, 'MIGRATION_APPROVALS.json');
+
+/**
+ * Read the committed approvals. Every entry must name a full 64-hex plan id; anything else refuses the
+ * whole file rather than being skipped (a malformed approval file is not "no approvals").
+ */
+export function readApprovals(file = APPROVALS_FILE) {
+  if (!fs.existsSync(file)) return [];
+  const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const list = Array.isArray(data?.approvals) ? data.approvals : null;
+  if (!list) throw new MigrationRefused(`${file}: expected { "approvals": [ … ] }`);
+  for (const [i, a] of list.entries()) {
+    if (!a || !/^[0-9a-f]{64}$/.test(String(a.plan ?? ''))) throw new MigrationRefused(`${file}: approvals[${i}].plan must be a full 64-hex plan id`);
+    if (!a.approved_by || !a.approved_at) throw new MigrationRefused(`${file}: approvals[${i}] needs approved_by and approved_at`);
+  }
+  return list;
+}
+
+/**
+ * THE PRODUCTION PATH — DI-09A. Run by the start command BEFORE the server, as its own process:
+ *
+ *     node server/scripts/migrateDb.js --deploy && node server/index.js
+ *
+ *   - the database the server may start on as it is: exit 0 without taking any lock or writing;
+ *   - otherwise, a MIGRATE plan named in MIGRATION_APPROVALS.json: the full authorised migration;
+ *   - otherwise: refuse, printing the plan id to approve. The server is never started.
+ *
+ * It never adopts and never creates: those are operator decisions taken by hand, not by a boot.
+ */
+export function deployGate({ dbPath, approvalsFile = APPROVALS_FILE, log = () => {}, now } = {}) {
+  if (!dbPath || String(dbPath).trim() === ':memory:') throw new MigrationRefused('db:deploy needs RECRUITMATCH_DB (or --db) to name the database file.');
+  const file = path.resolve(String(dbPath).trim());
+  if (!fs.existsSync(file)) throw new MigrationRefused(`db:deploy: no database at ${file}. It never creates one; initialise it by hand (npm run db:migrate -- --db ${file} --create).`);
+  const ro = new Database(file, { readonly: true, fileMustExist: true });
+  let state;
+  try { state = schemaState(ro); } finally { ro.close(); }
+  if (serverMayStart(state)) {
+    log(`db:deploy: ${file} is ${state.state}${state.state === 'UNRECORDED' ? ' (a recorded code rollback)' : ''}; nothing to migrate.`);
+    return { migrated: false, state };
+  }
+  const plan = state.error ? null : planFor(state, 'MIGRATE');
+  const approval = plan && readApprovals(approvalsFile).find((a) => a.plan === plan);
+  if (!approval) {
+    throw new MigrationRefused(`db:deploy: refusing to start — ${file} needs an authorised migration and no committed approval names this plan.\n`
+      + `${describeState(state)}\n\n`
+      + (plan ? `  Rehearse on a downloaded backup with this release, then add to ${path.relative(CHECKOUT, approvalsFile)}:\n`
+        + `      { "plan": "${plan}", "approved_by": "<who>", "approved_at": "<when>", "note": "<release>" }\n` : '')
+      + '  See docs/DATABASE_MIGRATIONS.md.', { state, plan, approvalRequired: true });
+  }
+  log(`db:deploy: applying plan ${plan} (approved by ${approval.approved_by} at ${approval.approved_at}).`);
+  const r = migrateDatabase({ dbPath: file, approve: plan, operator: `deploy (${approval.approved_by})`, log, ...(now ? { now } : {}) });
+  return { migrated: r.applied, state, result: r };
 }
