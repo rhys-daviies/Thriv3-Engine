@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { fileCorpusIfPresent, missingCorpusMessage } from '../db/corpusIdentity.js';
 import { execFileSync } from 'node:child_process';
 import { workingCorpusCopy } from '../testCorpus.js';
+import { migratedDbFile } from '../testMigratedDb.js';
 
 /**
  * L7P — the six approved decisions, against the live registry.
@@ -276,7 +277,8 @@ describeLive('the table exists on a database built either way', () => {
   afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
 
   it('a fresh database gets programme_status and accepts a row', () => {
-    const fresh = path.join(dir, 'fresh.sqlite');
+    // DI-08: opening never creates or migrates a file; a fresh database is initialised explicitly (DI-09A).
+    const fresh = migratedDbFile(path.join(dir, 'fresh.sqlite'));
     const out = JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
       process.env.RECRUITMATCH_DB = ${JSON.stringify('PLACEHOLDER')}.replace('PLACEHOLDER', ${JSON.stringify(fresh)});
       const { default: db } = await import('${ROOT}/server/db/client.js');
@@ -298,7 +300,7 @@ describeLive('the table exists on a database built either way', () => {
   });
 
   it('is idempotent — booting twice neither fails nor duplicates', () => {
-    const twice = path.join(dir, 'twice.sqlite');
+    const twice = migratedDbFile(path.join(dir, 'twice.sqlite'));
     const boot = () => execFileSync('node', ['--input-type=module', '-e', `
       process.env.RECRUITMATCH_DB = ${JSON.stringify(twice)};
       const { default: db } = await import('${ROOT}/server/db/client.js');
@@ -309,7 +311,7 @@ describeLive('the table exists on a database built either way', () => {
   });
 
   it('refuses a status for a programme the registry does not have', () => {
-    const p = path.join(dir, 'reg.sqlite');
+    const p = migratedDbFile(path.join(dir, 'reg.sqlite'));
     const out = JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
       process.env.RECRUITMATCH_DB = ${JSON.stringify(p)};
       await import('${ROOT}/server/db/client.js');
