@@ -1,0 +1,4 @@
+{
+  "about": "Production migration approvals (DI-09A). The start command runs `node server/scripts/migrateDb.js --deploy` before the server; it applies a pending migration ONLY if its plan id is listed here. A plan id binds the kind, the database's current schema fingerprint, this code's migration manifest and the predicted result, so an entry can never authorise a different migration or a different starting state. Obtain it with `npm run db:status -- --db <downloaded production backup>` on the release commit, rehearse `npm run db:migrate -- --db <that copy> --approve <plan>`, then add the entry in the release PR. See docs/DATABASE_MIGRATIONS.md.",
+  "approvals": []
+}

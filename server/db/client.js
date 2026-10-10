@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveDbPath } from './corpusIdentity.js';
 import { refuseDisposableDatabase } from './disposableMarker.js';
-import { applyMigrations, schemaState, serverMayStart, refusal, migrateDatabase } from './migrations.js';
+import { applyMigrations, schemaState, serverMayStart, refusal } from './migrations.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.resolve(__dirname, '../data');
@@ -98,25 +98,24 @@ if (readOnly && (!(process.env.RECRUITMATCH_DB ?? '').trim() || dbPath === ':mem
  *
  * THE SERVER asks for more than "nothing pending": the code it runs must have been recorded by an
  * authorised run (`serverMayStart`), because a rehearsal has no rows and so cannot see a pending
- * data backfill — and before DI-08 every boot ran those. It never migrates implicitly. It migrates
- * only when THRIV3_MIGRATION_APPROVAL names the database's exact current schema fingerprint — the
- * production path, where a pre-deploy step has no access to the disk — and then through the same
- * authorised operation `npm run db:migrate` runs: exclusive lock, byte-exact backup, one
- * transaction, integrity + foreign-key verification, an audit row. A stale approval matches no
- * other state, and the variable is ignored by every process that is not the server entry point.
+ * data backfill — and before DI-08 every boot ran those. It never migrates, implicitly or otherwise.
+ *
+ * DI-09A removed DI-08's THRIV3_MIGRATION_APPROVAL path, in which the server process itself migrated
+ * when an environment variable named the schema fingerprint. That approval was bound to the database
+ * but not to the code, outlived the deploy it was set for, and — left set — made every later restart
+ * take an exclusive lock, so a Render shell holding the database turned a routine restart into an
+ * outage. Production now migrates in a SEPARATE step before the server starts
+ * (`node server/scripts/migrateDb.js --deploy && node server/index.js`), against a plan id committed
+ * in server/db/MIGRATION_APPROVALS.json. See docs/DATABASE_MIGRATIONS.md.
  */
 const memory = dbPath === ':memory:';
 const serverEntry = (() => {
   try { return !!process.argv[1] && fs.realpathSync(process.argv[1]) === fs.realpathSync(path.resolve(__dirname, '../index.js')); }
   catch { return false; }
 })();
-const approval = (process.env.THRIV3_MIGRATION_APPROVAL ?? '').trim();
-if (!memory && !readOnly && serverEntry && approval && fs.existsSync(dbPath)) {
-  // Throws (and so refuses to start) on a mismatched approval, a busy database or any failure.
-  migrateDatabase({
-    dbPath, approve: approval, operator: process.env.THRIV3_OPERATOR || 'server-startup',
-    log: (line) => console.log(`[db:migrate] ${line}`),
-  });
+if (serverEntry && (process.env.THRIV3_MIGRATION_APPROVAL ?? '').trim()) {
+  console.warn('THRIV3_MIGRATION_APPROVAL is set and IGNORED: the server never migrates (DI-09A). '
+    + 'Remove it; production migrates through `npm run db:deploy` and server/db/MIGRATION_APPROVALS.json.');
 }
 if (!memory && !readOnly && !fs.existsSync(dbPath)) {
   throw new Error(`No database at ${dbPath}. Opening never creates one (DI-08).\n`
