@@ -8,7 +8,8 @@
   "PENDING_SEND_TIME_VERIFICATION": 129,
   "PROVEN_STALE": 3,
   "ACTIVATION_CAUTION": 2,
-  "POSITIVE_EMAIL_ABSENCE": 1
+  "POSITIVE_EMAIL_ABSENCE": 1,
+  "PROGRAMME_NOT_FIELDED": 2
  },
  "holds": [
   {
@@ -100,6 +101,11 @@
    "coach_id": "1f3cdf29-9ad8-4411-8dae-132de827c12b",
    "hold": "PENDING_SEND_TIME_VERIFICATION",
    "reason": "newly outreach-eligible after the 8D.3F identity repair; not to be activated until send-time verification is separately authorised"
+  },
+  {
+   "coach_id": "2aeeace0-9bb5-4252-b303-37f459247e2b",
+   "hold": "PROGRAMME_NOT_FIELDED",
+   "reason": "filed programme Eastern New Mexico men's soccer is not fielded in 2025 or 2026: absent from the NCAA 2026-27 men's sponsorship list, and the official 2025 and 2026 men's schedule routes serve the 2024 schedule (re-checked 2026-10-09T23:00Z); the name appears on another institution's 2026 men's staff page, so the address is probably stale. Protective hold authorised in DI-08 (evidence: DI-07/P4/INVESTIGATIONS.md d, DI-08/P1). Release only in a reviewed, explicitly authorised commit."
   },
   {
    "coach_id": "2bc9016d-9b47-40d6-982d-530425bd07e8",
@@ -370,6 +376,11 @@
    "coach_id": "912fe4df-4c1c-4206-ba5d-fcb6fa1eb8d5",
    "hold": "PROVEN_STALE",
    "reason": "absent from the official current coaching-staff page"
+  },
+  {
+   "coach_id": "9188175f-39c3-4288-ab07-28b7802b0d71",
+   "hold": "PROGRAMME_NOT_FIELDED",
+   "reason": "filed programme Wisconsin-Oshkosh men's soccer is FUTURE (programme_status LAUNCHING, active from 2027); the official roster page is the empty '2027 Men's Soccer Roster' and the site reads 'Coming in 2027' (re-checked 2026-10-09T23:00Z). A real current hire, so the hold is not a judgement on the address: outreach for 2027 recruitment needs an explicit, reviewed decision. Protective hold authorised in DI-08 (evidence: DI-07/P4/INVESTIGATIONS.md d, DI-08/P1). Release only in a reviewed, explicitly authorised commit."
   },
   {
    "coach_id": "9578c38a-6d34-4e83-93c0-631c88019b4f",

@@ -116,10 +116,15 @@ afterEach(() => { delete process.env.THRIV3_ALLOW_LEGACY_COACHES; });
 
 describe('the holds file', () => {
   it('lists the 8D.3F hand-off: 131 newly eligible (129 pending + 2 caution), the absence coach and the 3 proven stale', () => {
-    expect(SEED.counts).toEqual({ PENDING_SEND_TIME_VERIFICATION: 129, ACTIVATION_CAUTION: 2, POSITIVE_EMAIL_ABSENCE: 1, PROVEN_STALE: 3 });
-    expect(new Set(SEED.holds.map((h) => h.coach_id)).size).toBe(135);
+    expect(SEED.counts).toEqual({ PENDING_SEND_TIME_VERIFICATION: 129, ACTIVATION_CAUTION: 2, POSITIVE_EMAIL_ABSENCE: 1, PROVEN_STALE: 3, PROGRAMME_NOT_FIELDED: 2 });
+    expect(new Set(SEED.holds.map((h) => h.coach_id)).size).toBe(137);
     expect(activationHold('647c575f-b199-4669-9dff-3542cd607029')).toMatchObject({ hold: 'POSITIVE_EMAIL_ABSENCE' });
-    expect(activationHolds().size).toBe(135);
+    expect(activationHolds().size).toBe(137);
+  });
+  it('holds the 2 DI-08 protective coaches whose filed programme is not fielded in 2026 (ENMU men\'s, UW-Oshkosh men\'s)', () => {
+    for (const id of ['2aeeace0-9bb5-4252-b303-37f459247e2b', '9188175f-39c3-4288-ab07-28b7802b0d71']) {
+      expect(activationHold(id)).toMatchObject({ coach_id: id, hold: 'PROGRAMME_NOT_FIELDED' });
+    }
   });
   it('fails CLOSED when the file is missing, malformed, emptied or inconsistent: every coach is treated as held', () => {
     const tmp = (content) => { const f = path.join(os.tmpdir(), `holds-${randomUUID()}.json`); fs.writeFileSync(f, content); return f; };
