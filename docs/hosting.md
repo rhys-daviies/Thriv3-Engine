@@ -407,6 +407,24 @@ Not executed. Nothing is deployed.
     both still there — that is the persistence check, and the only one that
     matters.
 
+## Migrations — never on boot (DI-08)
+
+The server **does not migrate the database on start**, and nothing else does on import. A deploy
+whose code has pending migrations, or one this database has never recorded (the first deploy of
+DI-08 included), **refuses to start** with a message naming the command. The procedure is in
+[DATABASE_MIGRATIONS.md](DATABASE_MIGRATIONS.md):
+
+1. Take the pre-deploy backup and download `database.sqlite`.
+2. Run `npm run db:status -- --db <copy>` with the code being deployed. Rehearse
+   `npm run db:migrate -- --db <copy> --approve <fp>` on the copy.
+3. Set `THRIV3_MIGRATION_APPROVAL=<fp>` on the service, then deploy. The server runs the authorised
+   migration itself before serving: exclusive lock, byte-exact backup beside the database on
+   `/data`, one transaction, verification, and a `schema_migrations` audit row.
+4. Remove the variable afterwards. A stale value matches no other state.
+
+The disk is not available to a pre-deploy command, and Render stops the old instance before starting
+the new one. A refused start is therefore downtime: treat a migrating deploy as a maintenance window.
+
 ## Rollback runbook
 
 1. **Know the previous version**: the deploy before this one in Render's
@@ -416,7 +434,9 @@ Not executed. Nothing is deployed.
    from a rollback that turns out to be wrong.
 3. **Roll the code back** — redeploy the previous deploy from Render's history.
    Code and data are independent: rolling back code changes no row and deletes
-   no file.
+   no file. A version this database has already been migrated by (it is in
+   `schema_migrations`) boots without a new approval. A version from before
+   DI-08 still migrates itself on boot, as it always did.
 4. **Reverse a migration only if the new code wrote something the old code
    cannot read.** 13J and 13K added nullable columns only:
    ```sql
